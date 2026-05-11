@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Manga Tracker</title>
+    <link rel="stylesheet" href="src/styles.css">
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="app-header">
+        <div>
+          <p class="eyebrow">Physische Manga-Ausgaben</p>
+          <h1>Manga Tracker</h1>
+        </div>
+        <div class="storage-status" id="storageStatus">localStorage</div>
+      </header>
+
+      <nav class="tabs" aria-label="Hauptnavigation" id="tabs">
+        <button type="button" class="tab is-active" data-tab="dashboard">Dashboard</button>
+        <button type="button" class="tab" data-tab="series">Serien</button>
+        <button type="button" class="tab" data-tab="collection">Sammlung</button>
+        <button type="button" class="tab" data-tab="buy">Kaufen</button>
+        <button type="button" class="tab" data-tab="calendar">Kalender</button>
+        <button type="button" class="tab" data-tab="importExport">Import/Export</button>
+        <button type="button" class="tab" data-tab="settings">Einstellungen</button>
+      </nav>
+
+      <main id="app" class="app-main" aria-live="polite"></main>
+    </div>
+
+    <template id="emptyStateTemplate">
+      <div class="empty-state">
+        <h2></h2>
+        <p></p>
+      </div>
+    </template>
+
+    <script src="src/app.js" defer></script>
+  </body>
+</html>
