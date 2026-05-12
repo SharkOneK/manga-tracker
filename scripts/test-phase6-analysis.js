@@ -90,7 +90,59 @@ function makeDatabase() {
   };
 }
 
-function makeContext(database) {
+function makeCache() {
+  return {
+    schemaVersion: 1,
+    generatedAt: "2026-05-12T00:00:00.000Z",
+    source: "manga-passion",
+    itemCount: 5,
+    items: [
+      {
+        seriesTitle: "Test Manga",
+        publisher: "Manga Cult",
+        volumeNumber: 4,
+        releaseDate: "2026-02-01",
+        editionType: "standard",
+        isbn13: "9781234567001",
+        sourceUrl: "https://example.test/test-manga-4",
+        confidence: 95,
+      },
+      {
+        seriesTitle: "Test Manga",
+        publisher: "Manga Cult",
+        volumeNumber: 2,
+        releaseDate: "2026-02-01",
+        editionType: "standard",
+        confidence: 95,
+      },
+      {
+        seriesTitle: "Test Manga",
+        publisher: "Manga Cult",
+        volumeNumber: 2,
+        releaseDate: "2026-02-01",
+        editionType: "deluxe",
+        confidence: 50,
+      },
+      {
+        seriesTitle: "Test Manga",
+        publisher: "Manga Cult",
+        volumeNumber: 4,
+        releaseDate: "2026-02-01",
+        editionType: "boxset",
+        confidence: 99,
+      },
+      {
+        seriesTitle: "Test Manga",
+        publisher: "Manga Cult",
+        volumeNumber: 9,
+        editionType: "standard",
+        confidence: 99,
+      },
+    ],
+  };
+}
+
+function makeContext(database, cache = makeCache()) {
   const localStorage = new StorageMock({
     "mangaTracker.database.v1": JSON.stringify(database),
   });
@@ -123,8 +175,14 @@ function makeContext(database) {
     localStorage,
     sessionStorage: new StorageMock(),
     confirm() { return true; },
-    fetch: async () => {
-      throw new Error("Phase 6 analysis test must not fetch.");
+    fetch: async (url) => {
+      if (String(url) !== "./data/release-cache.json") {
+        throw new Error(`Unexpected fetch: ${url}`);
+      }
+      return {
+        ok: true,
+        json: async () => cache,
+      };
     },
     window: {
       addEventListener() {},
@@ -203,4 +261,48 @@ assert(JSON.stringify(state.syncConfig) === syncBefore, "JSONBin Sync-State wurd
 const backupKeysAfterAnalysis = Object.keys(context.localStorage.store).filter((key) => key.startsWith("mangaTracker.backup."));
 assert(JSON.stringify(backupKeysAfterAnalysis) === JSON.stringify(backupKeysBeforeAnalysis), "Analyse hat ein Backup oder eine Migration erzeugt.");
 
-console.log("Phase 6 Analyse-Tests erfolgreich.");
+(async () => {
+  await api.loadBuyGapCache();
+  const buyRows = api.getBuyTabAnalysisRows();
+  assert(buyRows.localBuyCandidates.some((volume) => volume.id === "test-manga-006"), "Lokaler Kaufkandidat fehlt.");
+  assert(buyRows.derivedGapCandidates.some((row) => row.volumeNumber === 4 && row.editionType === "standard"), "Fehlender Standard-Band mit Cache erscheint nicht.");
+  assert(!buyRows.derivedGapCandidates.some((row) => row.volumeNumber === 9), "Band ohne lokale Sammelluecke wurde vorgeschlagen.");
+  assert(!buyRows.derivedGapCandidates.some((row) => row.volumeNumber === 2 && row.editionType === "deluxe"), "Deluxe wurde trotz unzureichender Confidence vorgeschlagen.");
+  assert(!buyRows.derivedGapCandidates.some((row) => row.editionType === "boxset"), "Boxset wurde als anlegbare Einzelband-Luecke vorgeschlagen.");
+
+  const beforeCreate = JSON.parse(JSON.stringify(state.database.volumes));
+  const row = buyRows.derivedGapCandidates.find((candidate) => candidate.volumeNumber === 4 && candidate.editionType === "standard");
+  api.createPlaceholderFromGap(row.id);
+
+  const placeholder = state.database.volumes.find((volume) => volume.seriesId === "test-manga"
+    && volume.volumeNumber === 4
+    && volume.editionType === "standard");
+  assert(placeholder, "Platzhalter wurde nicht angelegt.");
+  assert(placeholder.owned === false, "Platzhalter wurde als gekauft markiert.");
+  assert(placeholder.read === false, "Platzhalter wurde als gelesen markiert.");
+  assert(placeholder.coverUrl === "", "Platzhalter hat ein Cover erhalten.");
+  assert(placeholder.coverManuallySet === false, "Platzhalter wurde als manuelles Cover markiert.");
+  assert(placeholder.releaseSource === "derived-gap-analysis", "Platzhalter hat falsche Release-Quelle.");
+  assert(placeholder.releaseDate === "2026-02-01", "Platzhalter hat falsches Release-Datum.");
+  assert(placeholder.isbn13 === "9781234567001", "Platzhalter hat ISBN-13 nicht uebernommen.");
+
+  beforeCreate.forEach((oldVolume) => {
+    const nextVolume = state.database.volumes.find((item) => item.id === oldVolume.id);
+    assert(nextVolume, "Bestehender Band wurde entfernt.");
+    ["owned", "read", "boughtAt", "readAt"].forEach((field) => {
+      assert(JSON.stringify(nextVolume[field]) === JSON.stringify(oldVolume[field]), `${field} eines bestehenden Bands wurde veraendert.`);
+    });
+  });
+
+  const afterCreateCount = state.database.volumes.length;
+  api.createPlaceholderFromGap(row.id);
+  assert(state.database.volumes.length === afterCreateCount, "Bestehender Band wurde ueberschrieben oder doppelt angelegt.");
+
+  const backupKeysAfterCreate = Object.keys(context.localStorage.store).filter((key) => key.startsWith("mangaTracker.backup.derived-gap-analysis."));
+  assert(backupKeysAfterCreate.length === 1, "Backup vor Platzhalter-Erstellung fehlt.");
+  const releaseConflicts = JSON.parse(context.localStorage.getItem("mangaTracker.releaseConflicts.v1") || "[]");
+  assert(releaseConflicts.some((conflict) => conflict.type === "derived_placeholder_created"), "Audit-Log fuer Platzhalter-Erstellung fehlt.");
+  assert(JSON.stringify(state.syncConfig) === syncBefore, "JSONBin Sync-State wurde durch Platzhalter-Erstellung veraendert.");
+
+  console.log("Phase 6 Analyse-Tests erfolgreich.");
+})();
