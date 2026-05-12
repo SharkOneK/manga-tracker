@@ -509,11 +509,13 @@
   }
 
   function canPreviewCoverUpdate(volume, candidate) {
-    if (!validateCoverCandidate(volume, candidate)) return false;
-    return canUpdateCover(volume, {
+    const series = seriesById(volume?.seriesId || "");
+    const normalizedVolume = normalizeVolume(volume || {}, series);
+    if (!validateCoverCandidate(normalizedVolume, candidate)) return false;
+    return canUpdateCover(normalizedVolume, {
       coverUrl: candidate.coverUrl,
       coverConfidence: candidate.confidence,
-    }) && volume.coverUrl !== candidate.coverUrl;
+    }) && normalizedVolume.coverUrl !== candidate.coverUrl;
   }
 
   function canUpdateReleaseDate(volume, incomingRelease) {
@@ -796,8 +798,57 @@
     if (!candidate.coverUrl || !isSafePublicUrl(candidate.coverUrl)) return false;
     if (normalizeConfidence(candidate.confidence) < 70) return false;
     if (normalizePublisher(candidate.publisher) !== normalizePublisher(volume.publisher)) return false;
-    if (candidate.editionType !== volume.editionType) return false;
+    if (candidate.editionType !== normalizeEditionType(volume.editionType || "standard", volume.title)) return false;
     return true;
+  }
+
+  function getCoverCandidateBlockReason(volume, candidate) {
+    if (!volume) return "local_volume_missing";
+    if (!candidate) return "cache_candidate_missing";
+    if (!candidate.coverUrl) return "cache_cover_url_missing";
+    if (!isSafePublicUrl(candidate.coverUrl)) return "cache_cover_url_invalid";
+    if (normalizeConfidence(candidate.confidence) < 70) return "cache_confidence_below_70";
+    if (normalizePublisher(candidate.publisher) !== normalizePublisher(volume.publisher)) return "publisher_mismatch";
+    if (candidate.editionType !== normalizeEditionType(volume.editionType || "standard", volume.title)) return "edition_mismatch";
+    if (volume.coverManuallySet) return "local_cover_manually_set";
+    if (volume.coverUrl && normalizeConfidence(candidate.confidence) <= normalizeConfidence(volume.coverConfidence)) return "local_cover_confidence_not_higher";
+    if (volume.coverUrl === candidate.coverUrl) return "same_cover_url";
+    return "";
+  }
+
+  function createCoverMatchDebugEntry(series, volume, candidate) {
+    const localVolume = normalizeVolume(volume, series);
+    const localPublisher = normalizePublisher(localVolume.publisher || series.publisher);
+    const localFingerprint = createEditionFingerprint(localVolume, series);
+    const cacheTitle = normalizeTitleForFingerprint(candidate.seriesTitle);
+    const seriesTitle = normalizeTitleForFingerprint(series.title);
+    const originalTitle = normalizeTitleForFingerprint(series.originalTitle);
+    const titleMatches = cacheTitle === seriesTitle || (originalTitle && cacheTitle === originalTitle);
+    const matchByIsbn = Boolean(candidate.isbn13 && localVolume.isbn13 && candidate.isbn13 === localVolume.isbn13);
+    const matchByFingerprint = Boolean(candidate.editionFingerprint && candidate.editionFingerprint === localFingerprint);
+    const matchByFallback = Boolean(titleMatches
+      && candidate.publisher === localPublisher
+      && candidate.volumeNumber === localVolume.volumeNumber
+      && candidate.editionType === localVolume.editionType);
+    const blockReason = getCoverCandidateBlockReason(localVolume, candidate);
+
+    return {
+      localVolumeId: localVolume.id,
+      localVolumeNumber: localVolume.volumeNumber,
+      localPublisher,
+      localEditionType: localVolume.editionType,
+      localIsbn13: localVolume.isbn13,
+      localFingerprint,
+      cacheVolumeNumber: candidate.volumeNumber,
+      cachePublisher: candidate.publisher,
+      cacheEditionType: candidate.editionType,
+      cacheIsbn13: candidate.isbn13,
+      matchByIsbn,
+      matchByFingerprint,
+      matchByFallback,
+      blocked: Boolean(blockReason),
+      blockReason,
+    };
   }
 
   function matchCoverCandidates(series, volume, cacheItems) {
@@ -860,9 +911,13 @@
 
     try {
       const cacheData = await readReleaseCacheFile();
+      const normalizedCacheItems = cacheData.items.map(normalizeReleaseCacheItem);
       const rows = volumesForSeries(seriesId)
         .map((volume) => {
-          const [candidate] = matchCoverCandidates(series, volume, cacheData.items);
+          normalizedCacheItems.forEach((candidate) => {
+            console.info("Cover-Cache-Matching", createCoverMatchDebugEntry(series, volume, candidate));
+          });
+          const [candidate] = matchCoverCandidates(series, volume, normalizedCacheItems);
           return candidate && canPreviewCoverUpdate(volume, candidate)
             ? createCoverPreview(series, volume, candidate)
             : null;

@@ -117,7 +117,7 @@ function makeDatabase() {
         volumeNumber: 5,
         title: "Chainsaw Man",
         publisher: "manga_cult",
-        editionType: "standard",
+        editionType: "",
         isbn13: "9781234567897",
         coverUrl: "",
         coverConfidence: 0,
