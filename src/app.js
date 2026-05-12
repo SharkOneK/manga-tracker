@@ -6,6 +6,7 @@
   const SYNC_CONFIG_KEY = "mangaTracker.syncConfig.v1";
   const SYNC_SESSION_KEY = "mangaTracker.syncAccessKey.session";
   const SYNC_CONFLICTS_KEY = "mangaTracker.syncConflicts.v1";
+  const RELEASE_CONFLICTS_KEY = "mangaTracker.releaseConflicts.v1";
   const JSONBIN_API_ROOT = "https://api.jsonbin.io/v3";
   const TODAY = new Date().toISOString().slice(0, 10);
   const app = document.querySelector("#app");
@@ -68,6 +69,7 @@
     syncRetryTimer: null,
     editingSeriesId: null,
     editingVolumeId: null,
+    releasePreview: null,
     notice: "",
   };
 
@@ -99,9 +101,9 @@
         console.warn("Ungültige Datenbank im localStorage:", validation.errors);
         return createEmptyDatabase();
       }
-      const migration = migratePublisherValues(parsed);
+      const migration = migrateDatabase(parsed);
       if (migration.changed) {
-        backupDatabaseSnapshot(parsed, "publisher-migration");
+        backupDatabaseSnapshot(parsed, "release-model-migration");
         localStorage.setItem(STORAGE_KEY, JSON.stringify(migration.database));
       }
       return normalizeDatabase(migration.database);
@@ -188,11 +190,13 @@
   }
 
   function normalizeDatabase(database) {
+    const series = Array.isArray(database.series) ? database.series.map(normalizeSeries) : [];
+    const seriesLookup = new Map(series.map((item) => [item.id, item]));
     return {
       schemaVersion: 1,
       updatedAt: normalizeTimestamp(database.updatedAt),
-      series: Array.isArray(database.series) ? database.series.map(normalizeSeries) : [],
-      volumes: Array.isArray(database.volumes) ? database.volumes.map(normalizeVolume) : [],
+      series,
+      volumes: Array.isArray(database.volumes) ? database.volumes.map((volume) => normalizeVolume(volume, seriesLookup.get(String(volume?.seriesId || "")))) : [],
     };
   }
 
@@ -255,22 +259,48 @@
     return labelFor(publisherLabels, value);
   }
 
-  function migratePublisherValues(database) {
+  function migrateDatabase(database) {
     const migratedDatabase = {
       ...database,
       series: Array.isArray(database?.series) ? database.series.map((series) => ({
         ...series,
         publisher: normalizePublisher(series?.publisher),
       })) : [],
-      volumes: Array.isArray(database?.volumes) ? database.volumes.map((volume) => ({
-        ...volume,
-        publisher: normalizePublisher(volume?.publisher),
-      })) : [],
+      volumes: [],
     };
     const originalSeries = Array.isArray(database?.series) ? database.series : [];
     const originalVolumes = Array.isArray(database?.volumes) ? database.volumes : [];
+    const seriesLookup = new Map(migratedDatabase.series.map((series) => [String(series.id || ""), normalizeSeries(series)]));
+    migratedDatabase.volumes = originalVolumes.map((volume) => {
+      const series = seriesLookup.get(String(volume?.seriesId || ""));
+      const migratedVolume = {
+        ...volume,
+        publisher: normalizePublisher(volume?.publisher || series?.publisher),
+      };
+      const normalized = normalizeVolume(migratedVolume, series);
+      return {
+        ...migratedVolume,
+        releaseSource: normalized.releaseSource,
+        releaseConfidence: normalized.releaseConfidence,
+        coverConfidence: normalized.coverConfidence,
+        coverCheckedAt: normalized.coverCheckedAt,
+        coverHash: normalized.coverHash,
+        isbn13: normalized.isbn13,
+        editionFingerprint: normalized.editionFingerprint,
+      };
+    });
     const seriesChanged = migratedDatabase.series.some((series, index) => series.publisher !== String(originalSeries[index]?.publisher || ""));
-    const volumesChanged = migratedDatabase.volumes.some((volume, index) => volume.publisher !== String(originalVolumes[index]?.publisher || ""));
+    const volumesChanged = migratedDatabase.volumes.some((volume, index) => {
+      const original = originalVolumes[index] || {};
+      return volume.publisher !== String(original.publisher || "")
+        || volume.releaseSource !== String(original.releaseSource || "")
+        || volume.releaseConfidence !== normalizeConfidence(original.releaseConfidence)
+        || volume.coverConfidence !== normalizeConfidence(original.coverConfidence)
+        || volume.coverCheckedAt !== String(original.coverCheckedAt || "")
+        || volume.coverHash !== String(original.coverHash || "")
+        || volume.isbn13 !== String(original.isbn13 || normalizeIsbn13(original.isbn) || "")
+        || volume.editionFingerprint !== String(original.editionFingerprint || "");
+    });
 
     return {
       database: migratedDatabase,
@@ -278,18 +308,135 @@
     };
   }
 
-  function normalizeVolume(volume) {
+  function prepareImportedDatabase(rawData) {
+    const database = isLegacyMangaDatabase(rawData) ? migrateLegacyMangaDatabase(rawData) : rawData;
+    return migrateDatabase(database).database;
+  }
+
+  function isLegacyMangaDatabase(rawData) {
+    return Array.isArray(rawData?.manga) && rawData.series === undefined;
+  }
+
+  function migrateLegacyMangaDatabase(rawData) {
+    const existingSeriesIds = new Set();
+    const existingVolumeIds = new Set();
+    const migratedAt = nowIso();
+    const series = [];
+    const volumes = [];
+
+    rawData.manga.forEach((manga, index) => {
+      if (!manga || typeof manga !== "object") {
+        throw new Error(`manga[${index}] muss ein Objekt sein.`);
+      }
+
+      const title = String(manga.title || "").trim();
+      if (!title) {
+        throw new Error(`manga[${index}].title fehlt.`);
+      }
+
+      const baseSeriesId = String(manga.id || slugify(title));
+      const seriesId = uniqueId(baseSeriesId, existingSeriesIds);
+      existingSeriesIds.add(seriesId);
+      const publisher = normalizePublisher(manga.publisher);
+      const links = manga.links && typeof manga.links === "object" ? manga.links : {};
+
+      series.push({
+        id: seriesId,
+        title,
+        originalTitle: String(manga.originalTitle || ""),
+        type: String(manga.type || "manga"),
+        status: manga.status,
+        collectionStatus: manga.collectionStatus,
+        publisher,
+        imprint: String(manga.imprint || ""),
+        authors: normalizeStringArray(manga.author),
+        artists: normalizeStringArray(manga.artist),
+        genres: normalizeStringArray(manga.genres),
+        tags: normalizeStringArray(manga.tags),
+        language: String(manga.release?.language || "de"),
+        country: String(manga.release?.country || "DE"),
+        coverUrl: String(links.cover || ""),
+        notes: String(manga.notes || ""),
+        favorite: Boolean(manga.favorite),
+        archived: Boolean(manga.archived),
+        dates: manga.dates || {},
+        links,
+      });
+
+      const ownedCount = positiveInteger(manga.volumes?.owned);
+      const readCount = positiveInteger(manga.volumes?.read);
+      const bandCount = manga.bands && typeof manga.bands === "object" ? Object.keys(manga.bands).length : 0;
+      const baseTotal = positiveInteger(manga.volumes?.total) || ownedCount || bandCount || 1;
+      const nextVolume = positiveInteger(manga.release?.nextVolume);
+      const total = Math.max(baseTotal, nextVolume || 0);
+
+      for (let volumeNumber = 1; volumeNumber <= total; volumeNumber += 1) {
+        const legacyBandStatus = String(manga.bands?.[volumeNumber] || "");
+        const bandCover = manga.bandCovers?.[volumeNumber];
+        let owned = legacyBandStatus === "completed" || legacyBandStatus === "owned" || legacyBandStatus === "reading";
+        let read = legacyBandStatus === "completed";
+
+        if (volumeNumber <= ownedCount) owned = true;
+        if (volumeNumber <= readCount) read = true;
+
+        const releaseDate = nextVolume === volumeNumber && manga.release?.nextDate ? String(manga.release.nextDate) : null;
+        let volumeId = `${seriesId}-${String(volumeNumber).padStart(3, "0")}`;
+        volumeId = uniqueId(volumeId, existingVolumeIds);
+        existingVolumeIds.add(volumeId);
+
+        volumes.push({
+          id: volumeId,
+          seriesId,
+          volumeNumber,
+          title,
+          publisher,
+          releaseDate,
+          coverUrl: String(bandCover || links.cover || ""),
+          coverSource: bandCover ? "legacy-bandCovers" : "legacy-series-cover",
+          coverManuallySet: false,
+          owned,
+          boughtAt: null,
+          read,
+          readAt: read ? manga.dates?.finished || null : null,
+          createdAt: migratedAt,
+          updatedAt: migratedAt,
+        });
+      }
+    });
+
     return {
+      schemaVersion: 1,
+      updatedAt: normalizeTimestamp(rawData.updatedAt),
+      series,
+      volumes,
+    };
+  }
+
+  function positiveInteger(value) {
+    const number = Number(value);
+    return Number.isFinite(number) && number > 0 ? Math.floor(number) : 0;
+  }
+
+  function normalizeVolume(volume, series = null) {
+    const isbn = String(volume.isbn || "");
+    const isbn13 = String(normalizeIsbn13(volume.isbn13) || normalizeIsbn13(isbn) || volume.isbn13 || "");
+    const normalizedVolume = {
       id: String(volume.id || `${volume.seriesId || "serie"}-${String(volume.volumeNumber || 1).padStart(3, "0")}`),
       seriesId: String(volume.seriesId || ""),
       volumeNumber: Number(volume.volumeNumber || 1),
       title: String(volume.title || ""),
       subtitle: String(volume.subtitle || ""),
-      isbn: String(volume.isbn || ""),
-      publisher: normalizePublisher(volume.publisher),
+      isbn,
+      isbn13,
+      publisher: normalizePublisher(volume.publisher || series?.publisher),
       releaseDate: String(volume.releaseDate || ""),
+      releaseSource: String(volume.releaseSource || ""),
+      releaseConfidence: normalizeConfidence(volume.releaseConfidence),
       coverUrl: String(volume.coverUrl || ""),
       coverSource: String(volume.coverSource || ""),
+      coverConfidence: normalizeConfidence(volume.coverConfidence),
+      coverCheckedAt: String(volume.coverCheckedAt || ""),
+      coverHash: String(volume.coverHash || ""),
       coverManuallySet: Boolean(volume.coverManuallySet),
       owned: Boolean(volume.owned),
       boughtAt: volume.boughtAt || null,
@@ -301,6 +448,294 @@
       notes: String(volume.notes || ""),
       createdAt: volume.createdAt || TODAY,
       updatedAt: normalizeTimestamp(volume.updatedAt),
+    };
+    normalizedVolume.editionFingerprint = String(volume.editionFingerprint || createEditionFingerprint(normalizedVolume, series));
+    return normalizedVolume;
+  }
+
+  function normalizeConfidence(value) {
+    const number = Number(value);
+    if (!Number.isFinite(number)) return 0;
+    return Math.max(0, Math.min(100, number));
+  }
+
+  function normalizeIsbn13(value) {
+    const digits = String(value || "").replace(/[^0-9Xx]/g, "");
+    return /^\d{13}$/.test(digits) ? digits : "";
+  }
+
+  function normalizeTitleForFingerprint(value) {
+    return String(value || "")
+      .trim()
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "");
+  }
+
+  function createEditionFingerprint(volume, series) {
+    const publisher = normalizePublisher(volume?.publisher || series?.publisher || "");
+    const title = normalizeTitleForFingerprint(series?.title || volume?.title || "");
+    const volumeNumber = Number(volume?.volumeNumber || 1);
+    const editionType = editionTypeValues.includes(volume?.editionType) ? volume.editionType : "standard";
+    const isbn13 = String(volume?.isbn13 || normalizeIsbn13(volume?.isbn) || "");
+    return [publisher, title, volumeNumber, editionType, isbn13].filter((part) => part !== "").join("|");
+  }
+
+  function canUpdateCover(volume, incomingCover) {
+    if (volume?.coverManuallySet) return false;
+    if (!incomingCover?.coverUrl) return false;
+    if (!volume?.coverUrl) return true;
+    return normalizeConfidence(incomingCover.coverConfidence) > normalizeConfidence(volume.coverConfidence);
+  }
+
+  function canUpdateReleaseDate(volume, incomingRelease) {
+    if (!incomingRelease?.releaseDate) return false;
+    if (normalizeConfidence(incomingRelease.releaseConfidence) < normalizeConfidence(volume?.releaseConfidence)) return false;
+    return isPlausibleReleaseDate(incomingRelease.releaseDate);
+  }
+
+  function isPlausibleReleaseDate(value) {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(String(value || ""))) return false;
+    const parsed = Date.parse(`${value}T00:00:00`);
+    if (Number.isNaN(parsed)) return false;
+    const year = new Date(parsed).getUTCFullYear();
+    return year >= 1950 && year <= 2100;
+  }
+
+  function normalizeEditionType(value, title = "") {
+    const normalized = String(value || "").trim().toLowerCase().replace(/[_\s-]+/g, " ");
+    if (editionTypeValues.includes(normalized)) return normalized;
+    const haystack = `${normalized} ${String(title || "").toLowerCase()}`;
+    if (/\bbox\s*set\b|\bboxset\b|\bschuber\b/.test(haystack)) return "boxset";
+    if (/\blimited\b|\blimited edition\b|\bsonderausgabe\b/.test(haystack)) return "limited";
+    if (/\bcollector\b|\bcollectors\b|\bcollector'?s\b/.test(haystack)) return "collector";
+    if (/\bdeluxe\b|\bdeluxe edition\b/.test(haystack)) return "deluxe";
+    if (/\bother\b/.test(haystack)) return "other";
+    return "standard";
+  }
+
+  function normalizeExternalConfidence(value, fallback = 70) {
+    if (value === undefined || value === null || value === "") return fallback;
+    const number = Number(value);
+    if (!Number.isFinite(number)) return fallback;
+    return normalizeConfidence(number <= 1 ? number * 100 : number);
+  }
+
+  function normalizeReleaseDate(value) {
+    const raw = String(value || "").trim();
+    if (!raw) return "";
+    if (isPlausibleReleaseDate(raw)) return raw;
+
+    const germanMatch = raw.match(/^(\d{1,2})\.\s*([A-Za-z\u00c4\u00d6\u00dc\u00e4\u00f6\u00fc\u00df]+)\s+(\d{4})$/);
+    const months = {
+      januar: "01",
+      februar: "02",
+      maerz: "03",
+      marz: "03",
+      april: "04",
+      mai: "05",
+      juni: "06",
+      juli: "07",
+      august: "08",
+      september: "09",
+      oktober: "10",
+      november: "11",
+      dezember: "12",
+    };
+    if (germanMatch) {
+      const day = germanMatch[1].padStart(2, "0");
+      const monthKey = germanMatch[2].toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+      const month = months[monthKey];
+      const date = month ? `${germanMatch[3]}-${month}-${day}` : "";
+      return isPlausibleReleaseDate(date) ? date : "";
+    }
+
+    const parsed = Date.parse(raw);
+    if (Number.isNaN(parsed)) return "";
+    const date = new Date(parsed).toISOString().slice(0, 10);
+    return isPlausibleReleaseDate(date) ? date : "";
+  }
+
+  function logReleaseConflict(conflict) {
+    const conflicts = getReleaseConflicts();
+    conflicts.unshift({
+      id: String(conflict.id || `release-conflict-${Date.now()}`),
+      volumeId: String(conflict.volumeId || ""),
+      seriesId: String(conflict.seriesId || ""),
+      type: String(conflict.type || "release_date_conflict"),
+      oldValue: String(conflict.oldValue || ""),
+      newValue: String(conflict.newValue || ""),
+      source: String(conflict.source || ""),
+      createdAt: conflict.createdAt || nowIso(),
+    });
+    localStorage.setItem(RELEASE_CONFLICTS_KEY, JSON.stringify(conflicts.slice(0, 100)));
+  }
+
+  function getReleaseConflicts() {
+    try {
+      const parsed = JSON.parse(localStorage.getItem(RELEASE_CONFLICTS_KEY) || "[]");
+      return Array.isArray(parsed) ? parsed : [];
+    } catch (error) {
+      console.warn("Release-Konflikte konnten nicht gelesen werden:", error);
+      return [];
+    }
+  }
+
+  function clearReleaseConflicts() {
+    localStorage.setItem(RELEASE_CONFLICTS_KEY, JSON.stringify([]));
+  }
+
+  function normalizeMangaPassionImport(rawData) {
+    const root = Array.isArray(rawData) ? { volumes: rawData } : rawData || {};
+    const volumes = Array.isArray(root.volumes) ? root.volumes
+      : Array.isArray(root.items) ? root.items
+        : Array.isArray(root.releases) ? root.releases
+          : [];
+
+    return {
+      source: String(root.source || "manga-passion"),
+      seriesTitle: String(root.series?.title || root.title || ""),
+      seriesUrl: String(root.series?.mangaPassionUrl || root.series?.url || root.mangaPassionUrl || root.url || ""),
+      volumes: volumes.map((item, index) => {
+        const title = String(item.title || item.name || "");
+        const volumeNumber = positiveInteger(item.volumeNumber || item.volume || item.band || item.number);
+        const editionType = normalizeEditionType(item.editionType || item.edition || item.format, title);
+        return {
+          id: String(item.id || item.mangaPassionId || item.url || `manga-passion-${index + 1}`),
+          title,
+          subtitle: String(item.subtitle || ""),
+          volumeNumber,
+          publisher: normalizePublisher(item.publisher || item.verlag || ""),
+          releaseDate: normalizeReleaseDate(item.releaseDate || item.release || item.veroeffentlichung || item.veroffentlichung || ""),
+          releaseConfidence: normalizeExternalConfidence(item.releaseConfidence || item.confidence, 80),
+          isbn13: normalizeIsbn13(item.isbn13 || item.isbn || ""),
+          coverUrl: String(item.coverUrl || item.cover || item.image || ""),
+          coverConfidence: normalizeExternalConfidence(item.coverConfidence || item.confidence, 75),
+          editionType,
+          sourceUrl: String(item.mangaPassionUrl || item.url || ""),
+          format: String(item.format || ""),
+        };
+      }).filter((item) => item.volumeNumber > 0),
+    };
+  }
+
+  function previewReleaseUpdateForSeries(seriesId, mangaPassionData) {
+    const series = seriesById(seriesId);
+    if (!series) throw new Error("Serie nicht gefunden.");
+
+    const imported = normalizeMangaPassionImport(mangaPassionData);
+    const localVolumes = volumesForSeries(seriesId);
+    const rows = imported.volumes
+      .filter((incoming) => shouldConsiderIncomingEdition(incoming, localVolumes))
+      .map((incoming) => createReleasePreviewRow(series, localVolumes, incoming))
+      .filter((row) => row.changes.length > 0 || row.status === "conflict");
+
+    return {
+      seriesId,
+      seriesTitle: series.title,
+      source: imported.source,
+      sourceUrl: imported.seriesUrl || series.links.mangaPassion || "",
+      createdAt: nowIso(),
+      rows,
+    };
+  }
+
+  function shouldConsiderIncomingEdition(incoming, localVolumes) {
+    if (incoming.editionType !== "standard") {
+      return localVolumes.some((volume) => volume.volumeNumber === incoming.volumeNumber && volume.editionType === incoming.editionType);
+    }
+    return true;
+  }
+
+  function createReleasePreviewRow(series, localVolumes, incoming) {
+    const candidates = localVolumes.filter((volume) => volume.editionType === incoming.editionType);
+    const isbnMatch = incoming.isbn13 ? candidates.find((volume) => volume.isbn13 && volume.isbn13 === incoming.isbn13) : null;
+    const numberMatch = candidates.find((volume) => volume.volumeNumber === incoming.volumeNumber);
+    const localVolume = isbnMatch || numberMatch || null;
+    const confidence = calculateReleaseMatchConfidence(series, localVolume, incoming, Boolean(isbnMatch));
+    const changes = localVolume
+      ? createExistingVolumeChanges(localVolume, incoming)
+      : createNewVolumeChanges(series, incoming);
+
+    return {
+      id: `${series.id}:${incoming.id}:${incoming.editionType}`,
+      status: confidence >= 70 ? (localVolume ? "update" : "new") : "conflict",
+      confidence,
+      volumeId: localVolume?.id || "",
+      volumeNumber: incoming.volumeNumber,
+      editionType: incoming.editionType,
+      sourceUrl: incoming.sourceUrl,
+      incoming,
+      local: localVolume,
+      changes,
+    };
+  }
+
+  function calculateReleaseMatchConfidence(series, localVolume, incoming, isbnMatched) {
+    if (isbnMatched) return 100;
+    let score = 40;
+    if (localVolume && localVolume.volumeNumber === incoming.volumeNumber) score += 25;
+    if (incoming.publisher && incoming.publisher === normalizePublisher(localVolume?.publisher || series.publisher)) score += 15;
+    if (normalizeTitleForFingerprint(incoming.title).includes(normalizeTitleForFingerprint(series.title))) score += 10;
+    if (incoming.sourceUrl || series.links.mangaPassion) score += 5;
+    if (incoming.releaseDate || incoming.isbn13 || incoming.coverUrl) score += 5;
+    return normalizeConfidence(score);
+  }
+
+  function createExistingVolumeChanges(volume, incoming) {
+    const changes = [];
+    const incomingRelease = {
+      releaseDate: incoming.releaseDate,
+      releaseConfidence: incoming.releaseConfidence,
+    };
+    if (incoming.releaseDate && incoming.releaseDate !== volume.releaseDate && canUpdateReleaseDate(volume, incomingRelease)) {
+      changes.push(createPreviewChange(volume.id, "releaseDate", volume.releaseDate, incoming.releaseDate, incoming.releaseConfidence));
+    }
+    if (!volume.isbn13 && incoming.isbn13) {
+      changes.push(createPreviewChange(volume.id, "isbn13", volume.isbn13, incoming.isbn13, incoming.releaseConfidence));
+    }
+    if (canUpdateCover(volume, incoming) && incoming.coverUrl !== volume.coverUrl) {
+      changes.push(createPreviewChange(volume.id, "coverUrl", volume.coverUrl, incoming.coverUrl, incoming.coverConfidence));
+    }
+    return changes;
+  }
+
+  function createNewVolumeChanges(series, incoming) {
+    const baseId = `${series.id}-${String(incoming.volumeNumber).padStart(3, "0")}`;
+    return [
+      {
+        id: `${baseId}:create`,
+        volumeId: "",
+        field: "createVolume",
+        label: "Neuer Band",
+        oldValue: "",
+        newValue: `Band ${incoming.volumeNumber}`,
+        confidence: incoming.releaseConfidence,
+        selected: true,
+      },
+      incoming.releaseDate ? createPreviewChange("", "releaseDate", "", incoming.releaseDate, incoming.releaseConfidence) : null,
+      incoming.isbn13 ? createPreviewChange("", "isbn13", "", incoming.isbn13, incoming.releaseConfidence) : null,
+      incoming.coverUrl ? createPreviewChange("", "coverUrl", "", incoming.coverUrl, incoming.coverConfidence) : null,
+    ].filter(Boolean);
+  }
+
+  function createPreviewChange(volumeId, field, oldValue, newValue, confidence) {
+    const labels = {
+      releaseDate: "Release-Datum",
+      isbn13: "ISBN-13",
+      coverUrl: "Cover",
+    };
+    return {
+      id: `${volumeId || "new"}:${field}:${String(newValue).slice(0, 48)}`,
+      volumeId,
+      field,
+      label: labels[field] || field,
+      oldValue: String(oldValue || ""),
+      newValue: String(newValue || ""),
+      confidence: normalizeConfidence(confidence),
+      selected: true,
     };
   }
 
@@ -396,7 +831,7 @@
         throw new Error(`Cloud-Daten sind ungültig: ${validation.errors.join(" ")}`);
       }
 
-      const cloudMigration = migratePublisherValues(cloudDatabase);
+      const cloudMigration = migrateDatabase(cloudDatabase);
       const result = resolveConflict(state.database, normalizeDatabase(cloudMigration.database));
       if (result.winner === "cloud") {
         createBackupBeforeSync("cloud-won");
@@ -795,8 +1230,11 @@
         <div class="actions">
           <button type="button" class="secondary-button" data-action="edit-series" data-id="${escapeHtml(series.id)}">Bearbeiten</button>
           <button type="button" class="button" data-action="new-volume" data-id="${escapeHtml(series.id)}">Band hinzufügen</button>
+          <label class="secondary-button" for="mangaPassionImport-${escapeHtml(series.id)}">Release-Daten prüfen</label>
+          <input id="mangaPassionImport-${escapeHtml(series.id)}" type="file" accept="application/json,.json" data-release-import="${escapeHtml(series.id)}" hidden>
           <button type="button" class="danger-button" data-action="delete-series" data-id="${escapeHtml(series.id)}">Löschen</button>
         </div>
+        ${state.releasePreview?.seriesId === series.id ? renderReleasePreview(state.releasePreview) : ""}
         ${renderVolumeTable(volumes)}
       </article>
     `;
@@ -821,7 +1259,7 @@
             ${volumes.map((volume) => `
               <tr>
                 <td>${escapeHtml(volume.volumeNumber)} · ${escapeHtml(volume.title)}</td>
-                <td>${escapeHtml(formatDate(volume.releaseDate))}</td>
+                <td>${escapeHtml(formatDate(volume.releaseDate))}${renderVolumeBadges(volume)}</td>
                 <td>${volume.owned ? "gekauft" : "offen"} · ${volume.read ? "gelesen" : "ungelesen"}</td>
                 <td>
                   <button type="button" class="secondary-button" data-action="edit-volume" data-id="${escapeHtml(volume.id)}">Bearbeiten</button>
@@ -833,6 +1271,84 @@
         </table>
       </div>
     `;
+  }
+
+  function renderReleasePreview(preview) {
+    if (!preview.rows.length) {
+      return '<section class="release-preview"><p class="muted">Keine uebernehmbaren Aenderungen in der geladenen Manga-Passion-JSON-Datei.</p></section>';
+    }
+    const selectedCount = preview.rows.reduce((sum, row) => sum + row.changes.filter((change) => change.selected && row.confidence >= 70).length, 0);
+    return `
+      <section class="release-preview">
+        <div class="release-preview-header">
+          <div>
+            <h3>Release-Vorschau</h3>
+            <p class="muted">Quelle: ${escapeHtml(preview.sourceUrl || "manuelle Manga-Passion-JSON-Datei")} · ${escapeHtml(formatDateTime(preview.createdAt))}</p>
+          </div>
+          <div class="actions">
+            <button type="button" class="button" data-action="apply-release-preview">Ausgewählte übernehmen</button>
+            <button type="button" class="secondary-button" data-action="clear-release-preview">Vorschau schließen</button>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Band</th>
+                <th>Confidence</th>
+                <th>Alt</th>
+                <th>Neu</th>
+                <th>Auswahl</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${preview.rows.map(renderReleasePreviewRow).join("")}
+            </tbody>
+          </table>
+        </div>
+        <p class="muted">${selectedCount} Aenderungen ausgewaehlt. Besitz, Lesestatus und manuelle Cover bleiben geschuetzt.</p>
+      </section>
+    `;
+  }
+
+  function renderReleasePreviewRow(row) {
+    const localLabel = row.local
+      ? `Band ${row.local.volumeNumber} (${editionTypeLabel(row.local.editionType)})`
+      : `Neuer Band ${row.volumeNumber} (${editionTypeLabel(row.editionType)})`;
+    const status = row.status === "conflict" ? "Konflikt" : row.status === "new" ? "Neu" : "Update";
+    return row.changes.map((change, index) => `
+      <tr class="${row.status === "conflict" ? "is-conflict" : ""}">
+        ${index === 0 ? `<td rowspan="${row.changes.length}"><strong>${escapeHtml(localLabel)}</strong><br><span class="muted">${escapeHtml(status)}</span></td>` : ""}
+        ${index === 0 ? `<td rowspan="${row.changes.length}"><span class="badge">${escapeHtml(row.confidence)}%</span></td>` : ""}
+        <td>${renderPreviewValue(change.field, change.oldValue)}</td>
+        <td>${renderPreviewValue(change.field, change.newValue)}</td>
+        <td>
+          <label class="check-row">
+            <input type="checkbox" data-release-change data-row-id="${escapeHtml(row.id)}" data-change-id="${escapeHtml(change.id)}" ${change.selected && row.confidence >= 70 ? "checked" : ""} ${row.confidence < 70 ? "disabled" : ""}>
+            ${escapeHtml(change.label)}
+          </label>
+        </td>
+      </tr>
+    `).join("");
+  }
+
+  function renderPreviewValue(field, value) {
+    if (!value) return '<span class="muted">leer</span>';
+    if (field === "releaseDate") return escapeHtml(formatDate(value));
+    if (field === "coverUrl") return `<div class="preview-cover">${renderCover(value, "Cover-Vorschau")}<span>${escapeHtml(value)}</span></div>`;
+    return escapeHtml(value);
+  }
+
+  function editionTypeLabel(value) {
+    const labels = {
+      standard: "Standard",
+      deluxe: "Deluxe",
+      collector: "Collector",
+      limited: "Limited",
+      boxset: "Boxset",
+      other: "Andere",
+    };
+    return labels[value] || value;
   }
 
   function renderCollectionView() {
@@ -921,6 +1437,7 @@
   function renderSettingsView() {
     const backups = Object.keys(localStorage).filter((key) => key.startsWith(BACKUP_PREFIX)).sort().reverse();
     const conflicts = JSON.parse(localStorage.getItem(SYNC_CONFLICTS_KEY) || "[]");
+    const releaseConflicts = getReleaseConflicts();
     const wrapper = document.createElement("section");
     wrapper.innerHTML = `
       ${viewHeader("Einstellungen", "localStorage bleibt der lokale Cache. JSONBin kann als zentrale Cloud-Datenquelle synchronisiert werden.")}
@@ -935,6 +1452,16 @@
           <div><strong>Letzter Sync</strong><span>${escapeHtml(state.syncConfig.lastSyncAt ? formatDateTime(state.syncConfig.lastSyncAt) : "nie")}</span></div>
           <div><strong>Offener Cloud-Push</strong><span>${state.syncConfig.pendingPush ? "ja" : "nein"}</span></div>
           <div><strong>Konflikte</strong><span>${conflicts.length}</span></div>
+        </div>
+      </section>
+      <section class="card">
+        <h3>Release-Daten & Cover</h3>
+        <p class="muted">Phase 4b PoC nutzt nur manuelle Manga-Passion-JSON-Dateien pro Serie. Es gibt keine Webabfrage, keinen Proxy und kein Massenupdate.</p>
+        <div class="settings-list">
+          <div><strong>Release-Konflikte</strong><span>${releaseConflicts.length}</span></div>
+        </div>
+        <div class="actions">
+          <button type="button" class="secondary-button" data-action="clear-release-conflicts">Konflikte loeschen</button>
         </div>
       </section>
       <form class="form-panel" data-form="sync">
@@ -985,9 +1512,27 @@
           <span>${volume.owned ? `gekauft ${volume.boughtAt ? formatDate(volume.boughtAt) : ""}` : "nicht gekauft"}</span>
           <span>${volume.read ? "gelesen" : "ungelesen"}</span>
         </div>
+        ${renderVolumeBadges(volume)}
         <div class="actions">${actions.join("")}</div>
       </article>
     `;
+  }
+
+  function getVolumeBadges(volume) {
+    const conflicts = getReleaseConflicts().filter((conflict) => conflict.volumeId === volume.id);
+    const badges = [];
+    if (volume.coverCheckedAt && volume.coverSource && volume.coverConfidence > 0) badges.push("Neues Cover");
+    if (volume.releaseSource && volume.releaseConfidence > 0) badges.push("Release geaendert");
+    if (conflicts.length) badges.push("Release verschoben");
+    if (!volume.owned && volume.releaseDate && volume.releaseDate > TODAY && volume.shopUrl) badges.push("Vorbestellbar");
+    if (!volume.owned && volume.releaseDate && volume.releaseDate <= TODAY) badges.push("Jetzt kaufbar");
+    return badges;
+  }
+
+  function renderVolumeBadges(volume) {
+    const badges = getVolumeBadges(volume);
+    if (!badges.length) return "";
+    return `<div class="badge-row">${badges.map((badge) => `<span class="badge">${escapeHtml(badge)}</span>`).join("")}</div>`;
   }
 
   function renderCover(url, alt) {
@@ -1010,10 +1555,17 @@
         ${textField("title", "Titel", volume.title, true)}
         ${textField("subtitle", "Untertitel", volume.subtitle)}
         ${textField("isbn", "ISBN", volume.isbn)}
+        ${textField("isbn13", "ISBN-13", volume.isbn13)}
         ${selectField("publisher", "Verlag", publisherValues, volume.publisher, getPublisherLabel)}
         ${textField("releaseDate", "Release-Datum", volume.releaseDate, false, "date")}
+        ${textField("releaseSource", "Release-Quelle", volume.releaseSource)}
+        ${textField("releaseConfidence", "Release-Vertrauen", volume.releaseConfidence, false, "number", "1", "numeric")}
         ${textField("coverUrl", "Cover-URL", volume.coverUrl)}
         ${textField("coverSource", "Cover-Quelle", volume.coverSource)}
+        ${textField("coverConfidence", "Cover-Vertrauen", volume.coverConfidence, false, "number", "1", "numeric")}
+        ${textField("coverCheckedAt", "Cover geprueft am", volume.coverCheckedAt, false, "date")}
+        ${textField("coverHash", "Cover-Hash", volume.coverHash)}
+        ${textField("editionFingerprint", "Edition-Fingerprint", volume.editionFingerprint)}
         ${textField("price", "Preis", volume.price ?? "", false, "text", "", "decimal")}
         ${textField("shopUrl", "Shop-URL", volume.shopUrl)}
         ${selectField("editionType", "Edition", editionTypeValues, volume.editionType)}
@@ -1156,10 +1708,16 @@
       title: fieldValue(form, "title"),
       subtitle: fieldValue(form, "subtitle"),
       isbn: fieldValue(form, "isbn"),
+      isbn13: fieldValue(form, "isbn13"),
       publisher: fieldValue(form, "publisher"),
       releaseDate: fieldValue(form, "releaseDate"),
+      releaseSource: fieldValue(form, "releaseSource"),
+      releaseConfidence: fieldValue(form, "releaseConfidence"),
       coverUrl: fieldValue(form, "coverUrl"),
       coverSource: fieldValue(form, "coverSource"),
+      coverConfidence: fieldValue(form, "coverConfidence"),
+      coverCheckedAt: fieldValue(form, "coverCheckedAt"),
+      coverHash: fieldValue(form, "coverHash"),
       coverManuallySet: checkedValue(form, "coverManuallySet"),
       owned,
       boughtAt: fieldValue(form, "boughtAt") || (owned && !current?.boughtAt ? TODAY : null),
@@ -1168,6 +1726,7 @@
       price: fieldValue(form, "price") || null,
       shopUrl: fieldValue(form, "shopUrl"),
       editionType: fieldValue(form, "editionType"),
+      editionFingerprint: fieldValue(form, "editionFingerprint"),
       notes: fieldValue(form, "notes"),
       createdAt: current?.createdAt || TODAY,
       updatedAt: nowIso(),
@@ -1238,18 +1797,159 @@
     try {
       const text = await file.text();
       const parsed = JSON.parse(text);
-      const validation = validateDatabase(parsed);
+      const prepared = prepareImportedDatabase(parsed);
+      const validation = validateDatabase(prepared);
       if (!validation.valid) {
         setNotice(`Import abgebrochen. Backup erhalten: ${backupKey}. Fehler: ${validation.errors.join(" ")}`);
         return;
       }
-      state.database = normalizeDatabase(migratePublisherValues(parsed).database);
+      state.database = normalizeDatabase(prepared);
       saveDatabase();
       setNotice(`Import erfolgreich. Backup erhalten: ${backupKey}.`);
     } catch (error) {
       setNotice(`Import fehlgeschlagen. Backup erhalten: ${backupKey}.`);
       console.error(error);
     }
+  }
+
+  async function importMangaPassionPreviewJson(file, seriesId) {
+    try {
+      const text = await file.text();
+      const parsed = JSON.parse(text);
+      state.releasePreview = previewReleaseUpdateForSeries(seriesId, parsed);
+      const count = state.releasePreview.rows.reduce((sum, row) => sum + row.changes.length, 0);
+      setNotice(count ? "Release-Vorschau erstellt. Bitte pruefe die Auswahl." : "Keine uebernehmbaren Release-Aenderungen gefunden.");
+    } catch (error) {
+      state.releasePreview = null;
+      setNotice("Manga-Passion-JSON konnte nicht gelesen werden.");
+      console.error(error);
+    }
+  }
+
+  function updateReleasePreviewSelection(input) {
+    if (!state.releasePreview) return;
+    const rowId = input.dataset.rowId;
+    const changeId = input.dataset.changeId;
+    state.releasePreview.rows = state.releasePreview.rows.map((row) => {
+      if (row.id !== rowId) return row;
+      return {
+        ...row,
+        changes: row.changes.map((change) => change.id === changeId ? { ...change, selected: input.checked } : change),
+      };
+    });
+  }
+
+  function applySelectedReleasePreview() {
+    const preview = state.releasePreview;
+    if (!preview) return;
+    const selectedRows = preview.rows
+      .map((row) => ({ ...row, changes: row.changes.filter((change) => change.selected) }))
+      .filter((row) => row.changes.length > 0 && row.confidence >= 70);
+
+    if (!selectedRows.length) {
+      setNotice("Keine ausgewaehlten Aenderungen mit ausreichender Confidence.");
+      return;
+    }
+
+    const backupKey = backupDatabaseSnapshot(state.database, "manga-passion-release-preview");
+    const existingIds = new Set(state.database.volumes.map((volume) => volume.id));
+    let applied = 0;
+
+    selectedRows.forEach((row) => {
+      const createSelected = row.changes.some((change) => change.field === "createVolume");
+      if (!row.local && createSelected) {
+        const newVolume = createVolumeFromReleasePreview(row, existingIds);
+        state.database.volumes.push(newVolume);
+        existingIds.add(newVolume.id);
+        applied += 1;
+        return;
+      }
+
+      if (!row.local) return;
+      state.database.volumes = state.database.volumes.map((volume) => {
+        if (volume.id !== row.local.id) return volume;
+        const next = { ...volume };
+        row.changes.forEach((change) => {
+          if (change.field === "releaseDate") {
+            if (next.releaseDate && next.releaseDate !== change.newValue) {
+              logReleaseConflict({
+                volumeId: next.id,
+                seriesId: next.seriesId,
+                type: "release_date_changed",
+                oldValue: next.releaseDate,
+                newValue: change.newValue,
+                source: "manga-passion-json",
+              });
+            }
+            next.releaseDate = change.newValue;
+            next.releaseSource = "manga-passion-json";
+            next.releaseConfidence = change.confidence;
+          }
+          if (change.field === "isbn13" && !next.isbn13) {
+            next.isbn13 = change.newValue;
+          }
+          if (change.field === "coverUrl" && canUpdateCover(next, { coverUrl: change.newValue, coverConfidence: change.confidence })) {
+            if (next.coverUrl && next.coverUrl !== change.newValue) {
+              logReleaseConflict({
+                volumeId: next.id,
+                seriesId: next.seriesId,
+                type: "cover_changed",
+                oldValue: next.coverUrl,
+                newValue: change.newValue,
+                source: "manga-passion-json",
+              });
+            }
+            next.coverUrl = change.newValue;
+            next.coverSource = "manga-passion-json";
+            next.coverConfidence = change.confidence;
+            next.coverCheckedAt = TODAY;
+          }
+        });
+        applied += 1;
+        return normalizeVolume({ ...next, updatedAt: nowIso() }, seriesById(next.seriesId));
+      });
+    });
+
+    const series = seriesById(preview.seriesId);
+    if (series) {
+      series.dates.lastReleaseCheck = TODAY;
+    }
+    state.releasePreview = null;
+    saveDatabase();
+    setNotice(`${applied} Band-Eintraege aktualisiert. Backup: ${backupKey}.`);
+  }
+
+  function createVolumeFromReleasePreview(row, existingIds) {
+    const series = seriesById(state.releasePreview.seriesId);
+    const incoming = row.incoming;
+    const baseId = `${series.id}-${String(incoming.volumeNumber).padStart(3, "0")}`;
+    const id = uniqueId(baseId, existingIds);
+    const selected = new Map(row.changes.map((change) => [change.field, change]));
+    return normalizeVolume({
+      id,
+      seriesId: series.id,
+      volumeNumber: incoming.volumeNumber,
+      title: series.title,
+      subtitle: incoming.subtitle,
+      isbn13: selected.get("isbn13")?.newValue || "",
+      publisher: incoming.publisher || series.publisher,
+      releaseDate: selected.get("releaseDate")?.newValue || "",
+      releaseSource: selected.has("releaseDate") ? "manga-passion-json" : "",
+      releaseConfidence: selected.get("releaseDate")?.confidence || 0,
+      coverUrl: selected.get("coverUrl")?.newValue || "",
+      coverSource: selected.has("coverUrl") ? "manga-passion-json" : "",
+      coverConfidence: selected.get("coverUrl")?.confidence || 0,
+      coverCheckedAt: selected.has("coverUrl") ? TODAY : "",
+      coverManuallySet: false,
+      owned: false,
+      boughtAt: null,
+      read: false,
+      readAt: null,
+      editionType: incoming.editionType,
+      shopUrl: incoming.sourceUrl,
+      createdAt: TODAY,
+      updatedAt: nowIso(),
+    }, series);
   }
 
   function handleSyncSubmit(form) {
@@ -1319,7 +2019,16 @@
       `- Manga Passion: ${series.links.mangaPassion || ""}`,
       "",
       "## Bände",
-      ...volumes.map((volume) => `- Band ${volume.volumeNumber}: ${volume.title}${volume.subtitle ? ` - ${volume.subtitle}` : ""} | Release: ${volume.releaseDate || ""} | Gekauft: ${volume.owned ? "ja" : "nein"} | Gelesen: ${volume.read ? "ja" : "nein"}`),
+      ...volumes.map((volume) => [
+        `- Band ${volume.volumeNumber}: ${volume.title}${volume.subtitle ? ` - ${volume.subtitle}` : ""}`,
+        `Release: ${volume.releaseDate || ""}`,
+        `ISBN-13: ${volume.isbn13 || ""}`,
+        `edition_type: ${volume.editionType || "standard"}`,
+        volume.releaseSource ? `release_source: ${volume.releaseSource}` : "",
+        volume.coverSource ? `cover_source: ${volume.coverSource}` : "",
+        `Gekauft: ${volume.owned ? "ja" : "nein"}`,
+        `Gelesen: ${volume.read ? "ja" : "nein"}`,
+      ].filter(Boolean).join(" | ")),
       "",
       "## Notizen",
       series.notes || "",
@@ -1433,6 +2142,7 @@
     state.notice = "";
     state.editingSeriesId = null;
     state.editingVolumeId = null;
+    state.releasePreview = null;
     render();
   });
 
@@ -1464,6 +2174,15 @@
     if (action === "mark-unread") markVolume(id, { read: false, readAt: null });
     if (action === "export-json") exportJson();
     if (action === "export-obsidian") exportObsidianZip();
+    if (action === "clear-release-conflicts") {
+      clearReleaseConflicts();
+      setNotice("Release-Konflikte geloescht.");
+    }
+    if (action === "apply-release-preview") applySelectedReleasePreview();
+    if (action === "clear-release-preview") {
+      state.releasePreview = null;
+      setNotice("Release-Vorschau geschlossen.");
+    }
     if (action === "sync-now") pullFromCloud();
     if (action === "push-now") pushToCloud();
   });
@@ -1479,6 +2198,14 @@
   app.addEventListener("change", (event) => {
     if (event.target.id === "jsonImport" && event.target.files[0]) {
       importJson(event.target.files[0]);
+    }
+    if (event.target.matches("[data-release-import]") && event.target.files[0]) {
+      importMangaPassionPreviewJson(event.target.files[0], event.target.dataset.releaseImport);
+      event.target.value = "";
+    }
+    if (event.target.matches("[data-release-change]")) {
+      updateReleasePreviewSelection(event.target);
+      render();
     }
   });
 
