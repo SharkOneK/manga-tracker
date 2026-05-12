@@ -70,6 +70,7 @@
     editingSeriesId: null,
     editingVolumeId: null,
     releasePreview: null,
+    coverPreview: null,
     releaseCache: {
       seriesId: "",
       status: "idle",
@@ -491,11 +492,28 @@
     return [publisher, title, volumeNumber, editionType, isbn13].filter((part) => part !== "").join("|");
   }
 
+  function createCacheEditionFingerprint(item) {
+    const publisher = normalizePublisher(item?.publisher || "");
+    const title = normalizeTitleForFingerprint(item?.seriesTitle || item?.title || "");
+    const volumeNumber = Number(item?.volumeNumber || 1);
+    const editionType = normalizeEditionType(item?.editionType || "", item?.seriesTitle || item?.title || "");
+    const isbn13 = normalizeIsbn13(item?.isbn13 || "");
+    return [publisher, title, volumeNumber, editionType, isbn13].filter((part) => part !== "").join("|");
+  }
+
   function canUpdateCover(volume, incomingCover) {
     if (volume?.coverManuallySet) return false;
     if (!incomingCover?.coverUrl) return false;
     if (!volume?.coverUrl) return true;
     return normalizeConfidence(incomingCover.coverConfidence) > normalizeConfidence(volume.coverConfidence);
+  }
+
+  function canPreviewCoverUpdate(volume, candidate) {
+    if (!validateCoverCandidate(volume, candidate)) return false;
+    return canUpdateCover(volume, {
+      coverUrl: candidate.coverUrl,
+      coverConfidence: candidate.confidence,
+    }) && volume.coverUrl !== candidate.coverUrl;
   }
 
   function canUpdateReleaseDate(volume, incomingRelease) {
@@ -693,7 +711,7 @@
         if (!String(item.seriesTitle || "").trim()) errors.push(`items[${index}].seriesTitle fehlt.`);
         if (!String(item.publisher || "").trim()) errors.push(`items[${index}].publisher fehlt.`);
         if (!positiveInteger(item.volumeNumber)) errors.push(`items[${index}].volumeNumber fehlt oder ist ungueltig.`);
-        if (!normalizeReleaseDate(item.releaseDate)) errors.push(`items[${index}].releaseDate fehlt oder ist ungueltig.`);
+        if (item.releaseDate && !normalizeReleaseDate(item.releaseDate)) errors.push(`items[${index}].releaseDate ist ungueltig.`);
         if (item.isbn13 && !normalizeIsbn13(item.isbn13)) errors.push(`items[${index}].isbn13 ist ungueltig.`);
         if (item.coverUrl && !isSafePublicUrl(item.coverUrl)) errors.push(`items[${index}].coverUrl ist ungueltig.`);
       });
@@ -741,6 +759,198 @@
       itemCount: cacheData.itemCount ?? cacheData.items.length,
       items,
     };
+  }
+
+  async function readReleaseCacheFile() {
+    const response = await fetch("./data/release-cache.json", { cache: "no-store" });
+    if (!response.ok) {
+      throw new Error(`Release-Cache konnte nicht geladen werden: HTTP ${response.status}`);
+    }
+    const cacheData = await response.json();
+    const validation = validateReleaseCache(cacheData);
+    if (!validation.valid) {
+      throw new Error(validation.errors.join(" "));
+    }
+    return cacheData;
+  }
+
+  function normalizeReleaseCacheItem(item, index = 0) {
+    const title = String(item.seriesTitle || item.title || "");
+    const editionType = normalizeEditionType(item.editionType || "", title);
+    return {
+      id: String(item.id || item.sourceUrl || `${title}-${item.volumeNumber || index + 1}-${editionType}`),
+      seriesTitle: title,
+      publisher: normalizePublisher(item.publisher || ""),
+      volumeNumber: positiveInteger(item.volumeNumber),
+      coverUrl: String(item.coverUrl || ""),
+      editionType,
+      isbn13: normalizeIsbn13(item.isbn13 || ""),
+      confidence: normalizeExternalConfidence(item.confidence, 0),
+      editionFingerprint: String(item.editionFingerprint || createCacheEditionFingerprint(item)),
+      sourceUrl: "./data/release-cache.json",
+    };
+  }
+
+  function validateCoverCandidate(volume, candidate) {
+    if (!volume || !candidate) return false;
+    if (!candidate.coverUrl || !isSafePublicUrl(candidate.coverUrl)) return false;
+    if (normalizeConfidence(candidate.confidence) < 70) return false;
+    if (normalizePublisher(candidate.publisher) !== normalizePublisher(volume.publisher)) return false;
+    if (candidate.editionType !== volume.editionType) return false;
+    return true;
+  }
+
+  function matchCoverCandidates(series, volume, cacheItems) {
+    const normalizedVolume = normalizeVolume(volume, series);
+    const title = normalizeTitleForFingerprint(series.title);
+    const originalTitle = normalizeTitleForFingerprint(series.originalTitle);
+    const volumePublisher = normalizePublisher(normalizedVolume.publisher || series.publisher);
+    const volumeFingerprint = createEditionFingerprint(normalizedVolume, series);
+
+    return cacheItems
+      .map(normalizeReleaseCacheItem)
+      .filter((candidate) => validateCoverCandidate({ ...normalizedVolume, publisher: volumePublisher }, candidate))
+      .filter((candidate) => {
+        if (candidate.isbn13 && normalizedVolume.isbn13 && candidate.isbn13 === normalizedVolume.isbn13) return true;
+        if (candidate.editionFingerprint && candidate.editionFingerprint === volumeFingerprint) return true;
+        const candidateTitle = normalizeTitleForFingerprint(candidate.seriesTitle);
+        const titleMatches = candidateTitle === title || (originalTitle && candidateTitle === originalTitle);
+        return titleMatches
+          && candidate.publisher === volumePublisher
+          && candidate.volumeNumber === normalizedVolume.volumeNumber
+          && candidate.editionType === normalizedVolume.editionType;
+      })
+      .sort((a, b) => b.confidence - a.confidence);
+  }
+
+  function createCoverPreview(series, volume, candidate) {
+    return {
+      id: `${volume.id}:cover:${String(candidate.coverUrl).slice(0, 48)}`,
+      volumeId: volume.id,
+      volumeNumber: volume.volumeNumber,
+      editionType: volume.editionType,
+      source: "release-cache",
+      sourceUrl: candidate.sourceUrl || "./data/release-cache.json",
+      confidence: normalizeConfidence(candidate.confidence),
+      oldCoverUrl: volume.coverUrl,
+      newCoverUrl: candidate.coverUrl,
+      oldCoverConfidence: normalizeConfidence(volume.coverConfidence),
+      selected: true,
+      local: volume,
+      incoming: candidate,
+      seriesTitle: series.title,
+    };
+  }
+
+  async function previewCoverUpdateForSeries(seriesId) {
+    const series = seriesById(seriesId);
+    if (!series) return;
+
+    state.releasePreview = null;
+    state.coverPreview = null;
+    state.releaseCache = {
+      seriesId,
+      status: "loading",
+      message: "Release-Cache wird fuer Cover geprueft...",
+      generatedAt: null,
+      itemCount: null,
+      error: "",
+    };
+    render();
+
+    try {
+      const cacheData = await readReleaseCacheFile();
+      const rows = volumesForSeries(seriesId)
+        .map((volume) => {
+          const [candidate] = matchCoverCandidates(series, volume, cacheData.items);
+          return candidate && canPreviewCoverUpdate(volume, candidate)
+            ? createCoverPreview(series, volume, candidate)
+            : null;
+        })
+        .filter(Boolean);
+
+      state.releaseCache = {
+        seriesId,
+        status: "ok",
+        message: `${rows.length} Cover-Vorschlaege aus dem Release-Cache gefunden.`,
+        generatedAt: cacheData.generatedAt || null,
+        itemCount: cacheData.itemCount ?? cacheData.items.length,
+        error: "",
+      };
+      state.coverPreview = {
+        seriesId,
+        seriesTitle: series.title,
+        source: "release-cache",
+        sourceUrl: "./data/release-cache.json",
+        createdAt: nowIso(),
+        cacheMetadata: {
+          generatedAt: cacheData.generatedAt || null,
+          itemCount: cacheData.itemCount ?? cacheData.items.length,
+        },
+        rows,
+      };
+      setNotice(rows.length ? "Cover-Vorschau erstellt. Bitte pruefe die Auswahl." : "Keine uebernehmbaren Cover-Vorschlaege im Cache gefunden.");
+    } catch (error) {
+      state.coverPreview = null;
+      state.releaseCache = {
+        seriesId,
+        status: "error",
+        message: "Release-Cache konnte nicht fuer Cover verwendet werden.",
+        generatedAt: null,
+        itemCount: null,
+        error: error.message,
+      };
+      setNotice("Cover-Pruefung konnte den Release-Cache nicht laden.");
+      console.error(error);
+    }
+  }
+
+  function updateCoverPreviewSelection(input) {
+    if (!state.coverPreview) return;
+    const rowId = input.dataset.coverRowId;
+    state.coverPreview.rows = state.coverPreview.rows.map((row) => row.id === rowId ? { ...row, selected: input.checked } : row);
+  }
+
+  function applySelectedCoverPreview(seriesId = "") {
+    const preview = state.coverPreview;
+    if (!preview || (seriesId && preview.seriesId !== seriesId)) return;
+    const selectedRows = preview.rows.filter((row) => row.selected && row.confidence >= 70);
+
+    if (!selectedRows.length) {
+      setNotice("Keine ausgewaehlten Cover mit ausreichender Confidence.");
+      return;
+    }
+
+    const selectedByVolumeId = new Map(selectedRows.map((row) => [row.volumeId, row]));
+    const backupKey = backupDatabaseSnapshot(state.database, "release-cache-cover-preview");
+    let applied = 0;
+
+    state.database.volumes = state.database.volumes.map((volume) => {
+      const row = selectedByVolumeId.get(volume.id);
+      if (!row) return volume;
+      if (!canUpdateCover(volume, { coverUrl: row.newCoverUrl, coverConfidence: row.confidence })) return volume;
+      const next = { ...volume };
+      if (next.coverUrl && next.coverUrl !== row.newCoverUrl) {
+        logReleaseConflict({
+          volumeId: next.id,
+          seriesId: next.seriesId,
+          type: "cover_changed",
+          oldValue: next.coverUrl,
+          newValue: row.newCoverUrl,
+          source: "release-cache",
+        });
+      }
+      next.coverUrl = row.newCoverUrl;
+      next.coverSource = "release-cache";
+      next.coverConfidence = row.confidence;
+      next.coverCheckedAt = TODAY;
+      applied += 1;
+      return normalizeVolume({ ...next, updatedAt: nowIso() }, seriesById(next.seriesId));
+    });
+
+    state.coverPreview = null;
+    saveDatabase();
+    setNotice(`${applied} Cover aktualisiert. Backup: ${backupKey}.`);
   }
 
   function shouldConsiderIncomingEdition(incoming, localVolumes) {
@@ -1331,12 +1541,14 @@
         <div class="actions">
           <button type="button" class="secondary-button" data-action="edit-series" data-id="${escapeHtml(series.id)}">Bearbeiten</button>
           <button type="button" class="button" data-action="new-volume" data-id="${escapeHtml(series.id)}">Band hinzufügen</button>
+          <button type="button" class="button" data-action="preview-cover-cache" data-id="${escapeHtml(series.id)}">Cover pruefen</button>
           <button type="button" class="secondary-button" data-action="load-release-cache" data-id="${escapeHtml(series.id)}">Release-Cache laden</button>
           <label class="secondary-button" for="mangaPassionImport-${escapeHtml(series.id)}">Release-Daten prüfen</label>
           <input id="mangaPassionImport-${escapeHtml(series.id)}" type="file" accept="application/json,.json" data-release-import="${escapeHtml(series.id)}" hidden>
           <button type="button" class="danger-button" data-action="delete-series" data-id="${escapeHtml(series.id)}">Löschen</button>
         </div>
         ${state.releaseCache.seriesId === series.id ? renderReleaseCacheStatus() : ""}
+        ${state.coverPreview?.seriesId === series.id ? renderCoverPreview(state.coverPreview) : ""}
         ${state.releasePreview?.seriesId === series.id ? renderReleasePreview(state.releasePreview) : ""}
         ${renderVolumeTable(volumes)}
       </article>
@@ -1431,6 +1643,64 @@
         </div>
         <p class="muted">${selectedCount} Aenderungen ausgewaehlt. Besitz, Lesestatus und manuelle Cover bleiben geschuetzt.</p>
       </section>
+    `;
+  }
+
+  function renderCoverPreview(preview) {
+    if (!preview.rows.length) {
+      return '<section class="release-preview"><p class="muted">Keine uebernehmbaren Cover-Vorschlaege im Release-Cache.</p></section>';
+    }
+    const selectedCount = preview.rows.filter((row) => row.selected && row.confidence >= 70).length;
+    return `
+      <section class="release-preview">
+        <div class="release-preview-header">
+          <div>
+            <h3>Cover-Vorschau</h3>
+            <p class="muted">Quelle: ${escapeHtml(preview.sourceUrl)} - ${escapeHtml(formatDateTime(preview.createdAt))}</p>
+            ${preview.cacheMetadata ? `<p class="muted">Cache: generatedAt ${escapeHtml(formatDateTime(preview.cacheMetadata.generatedAt))} - itemCount ${escapeHtml(preview.cacheMetadata.itemCount)}</p>` : ""}
+          </div>
+          <div class="actions">
+            <button type="button" class="button" data-action="apply-cover-preview" data-id="${escapeHtml(preview.seriesId)}">Ausgewaehlte Cover uebernehmen</button>
+            <button type="button" class="secondary-button" data-action="clear-cover-preview">Vorschau schliessen</button>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Band</th>
+                <th>Quelle</th>
+                <th>Confidence</th>
+                <th>Alt</th>
+                <th>Neu</th>
+                <th>Auswahl</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${preview.rows.map(renderCoverPreviewRow).join("")}
+            </tbody>
+          </table>
+        </div>
+        <p class="muted">${selectedCount} Cover ausgewaehlt. Manuell gesetzte Cover und Release-Daten bleiben unveraendert.</p>
+      </section>
+    `;
+  }
+
+  function renderCoverPreviewRow(row) {
+    return `
+      <tr>
+        <td><strong>Band ${escapeHtml(row.volumeNumber)}</strong><br><span class="muted">${escapeHtml(editionTypeLabel(row.editionType))}</span></td>
+        <td>${escapeHtml(row.source)}<br><span class="muted">${escapeHtml(row.sourceUrl || "./data/release-cache.json")}</span></td>
+        <td><span class="badge">${escapeHtml(row.confidence)}%</span></td>
+        <td>${renderPreviewValue("coverUrl", row.oldCoverUrl)}</td>
+        <td>${renderPreviewValue("coverUrl", row.newCoverUrl)}</td>
+        <td>
+          <label class="check-row">
+            <input type="checkbox" data-cover-change data-cover-row-id="${escapeHtml(row.id)}" ${row.selected ? "checked" : ""}>
+            Cover
+          </label>
+        </td>
+      </tr>
     `;
   }
 
@@ -1939,6 +2209,7 @@
     try {
       const text = await file.text();
       const parsed = JSON.parse(text);
+      state.coverPreview = null;
       state.releasePreview = previewReleaseUpdateForSeries(seriesId, parsed);
       const count = state.releasePreview.rows.reduce((sum, row) => sum + row.changes.length, 0);
       setNotice(count ? "Release-Vorschau erstellt. Bitte pruefe die Auswahl." : "Keine uebernehmbaren Release-Aenderungen gefunden.");
@@ -1954,6 +2225,7 @@
     if (!series) return;
 
     state.releasePreview = null;
+    state.coverPreview = null;
     state.releaseCache = {
       seriesId,
       status: "loading",
@@ -1965,17 +2237,7 @@
     render();
 
     try {
-      const response = await fetch(`./data/release-cache.json?t=${Date.now()}`);
-      if (!response.ok) {
-        throw new Error(`Release-Cache konnte nicht geladen werden: HTTP ${response.status}`);
-      }
-
-      const cacheData = await response.json();
-      const validation = validateReleaseCache(cacheData);
-      if (!validation.valid) {
-        throw new Error(validation.errors.join(" "));
-      }
-
+      const cacheData = await readReleaseCacheFile();
       const filteredCache = filterReleaseCacheForSeries(cacheData, series);
       state.releaseCache = {
         seriesId,
@@ -2325,6 +2587,7 @@
     state.editingSeriesId = null;
     state.editingVolumeId = null;
     state.releasePreview = null;
+    state.coverPreview = null;
     render();
   });
 
@@ -2366,6 +2629,12 @@
       state.releasePreview = null;
       setNotice("Release-Vorschau geschlossen.");
     }
+    if (action === "preview-cover-cache") previewCoverUpdateForSeries(id);
+    if (action === "apply-cover-preview") applySelectedCoverPreview(id);
+    if (action === "clear-cover-preview") {
+      state.coverPreview = null;
+      setNotice("Cover-Vorschau geschlossen.");
+    }
     if (action === "sync-now") pullFromCloud();
     if (action === "push-now") pushToCloud();
   });
@@ -2390,6 +2659,10 @@
       updateReleasePreviewSelection(event.target);
       render();
     }
+    if (event.target.matches("[data-cover-change]")) {
+      updateCoverPreviewSelection(event.target);
+      render();
+    }
   });
 
   window.addEventListener("online", () => {
@@ -2400,6 +2673,15 @@
       pullFromCloud();
     }
   });
+
+  window.mangaTrackerPhase5 = {
+    previewCoverUpdateForSeries,
+    applySelectedCoverPreview,
+    matchCoverCandidates,
+    validateCoverCandidate,
+    createCoverPreview,
+    getState: () => state,
+  };
 
   render();
   initSync();

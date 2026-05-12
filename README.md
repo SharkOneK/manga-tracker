@@ -95,6 +95,14 @@ Der Workflow `Update release cache` laeuft nur manuell per `workflow_dispatch`. 
 
 `release-cache.json` enthaelt keine Nutzerdaten, keine JSONBin-Konfiguration und keine Secrets. Die Action committed nur `data/release-cache.json`, wenn sich diese Datei wirklich geaendert hat.
 
+## Phase 5: Auto-Cover aus Release-Cache
+
+Unter `Serien` kann bei einer Serie `Cover pruefen` gewaehlt werden. Die App nutzt dafuer ausschliesslich `./data/release-cache.json`; es gibt keine Live-Webscraper, keine Publisher-Requests und keine Manga-Passion-Abfragen aus der Web-App.
+
+Cover werden nur als Vorschau angezeigt und erst nach Auswahl einzelner Baende mit `Ausgewaehlte Cover uebernehmen` gespeichert. Matching erfolgt ueber ISBN-13, Edition-Fingerprint oder `publisher + seriesTitle + volumeNumber + editionType`. Unterschiedliche Editionen werden nicht zusammengefuehrt.
+
+Vorschlaege gelten nur bei vorhandener `coverUrl`, `confidence >= 70`, passendem Publisher und passender Edition. Manuell gesetzte Cover (`coverManuallySet`) werden nie ersetzt. Bestehende Auto-Cover werden nur ersetzt, wenn die neue Cover-Confidence hoeher ist. `owned`, `read`, `boughtAt`, `readAt` und `releaseDate` bleiben unveraendert.
+
 ## Smoke-Test-Plan
 
 Nach dem Deployment auf GitHub Pages:
