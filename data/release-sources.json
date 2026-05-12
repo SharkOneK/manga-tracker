@@ -1,4 +1,11 @@
 {
   "schemaVersion": 1,
-  "sources": []
+  "sources": [
+    {
+      "seriesTitle": "Chainsaw Man",
+      "publisher": "egmont",
+      "editionType": "standard",
+      "mangaPassionUrl": "https://www.manga-passion.de/volumes/29431/chainsaw-man-band-22"
+    }
+  ]
 }
