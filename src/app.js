@@ -8,7 +8,7 @@
   const SYNC_CONFLICTS_KEY = "mangaTracker.syncConflicts.v1";
   const RELEASE_CONFLICTS_KEY = "mangaTracker.releaseConflicts.v1";
   const JSONBIN_API_ROOT = "https://api.jsonbin.io/v3";
-  const TODAY = new Date().toISOString().slice(0, 10);
+  const TODAY = todayLocalDate();
   const app = document.querySelector("#app");
   const tabs = document.querySelector("#tabs");
   const storageStatus = document.querySelector("#storageStatus");
@@ -84,6 +84,13 @@
 
   function nowIso() {
     return new Date().toISOString();
+  }
+
+  function todayLocalDate(date = new Date()) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
   }
 
   function createEmptyDatabase() {
@@ -1394,6 +1401,171 @@
       .sort((a, b) => a.volumeNumber - b.volumeNumber);
   }
 
+  function normalizeEditionTypeForAnalysis(value) {
+    return editionTypeValues.includes(value) ? value : "standard";
+  }
+
+  function isAggregateVolume(volume) {
+    const editionType = normalizeEditionTypeForAnalysis(volume?.editionType || "");
+    if (editionType === "boxset") return true;
+    const text = `${volume?.title || ""} ${volume?.subtitle || ""} ${volume?.notes || ""}`.toLowerCase();
+    return /\bbox\s*set\b|\bboxset\b|\bschuber\b|\bomnibus\b|\bsammelband\b|\bsammelbaende\b|\bsammelbände\b/.test(text);
+  }
+
+  function analysisVolumeSort(a, b) {
+    return a.volumeNumber - b.volumeNumber
+      || String(a.releaseDate || "").localeCompare(String(b.releaseDate || ""), "de")
+      || String(a.id || "").localeCompare(String(b.id || ""), "de");
+  }
+
+  function getAnalysisVolumes(seriesId, editionType = "") {
+    const normalizedEditionType = normalizeEditionTypeForAnalysis(editionType);
+    return volumesForSeries(seriesId)
+      .filter((volume) => normalizeEditionTypeForAnalysis(volume.editionType) === normalizedEditionType)
+      .sort(analysisVolumeSort);
+  }
+
+  function getSequentialAnalysisVolumes(seriesId, editionType = "") {
+    return getAnalysisVolumes(seriesId, editionType).filter((volume) => !isAggregateVolume(volume));
+  }
+
+  function getEditionGroups(seriesId) {
+    const groups = new Map();
+    volumesForSeries(seriesId).forEach((volume) => {
+      const editionType = normalizeEditionTypeForAnalysis(volume.editionType);
+      if (!groups.has(editionType)) {
+        groups.set(editionType, {
+          seriesId,
+          editionType,
+          volumes: [],
+          sequentialVolumes: [],
+          aggregateVolumes: [],
+        });
+      }
+      const group = groups.get(editionType);
+      group.volumes.push(volume);
+      if (isAggregateVolume(volume)) {
+        group.aggregateVolumes.push(volume);
+      } else {
+        group.sequentialVolumes.push(volume);
+      }
+    });
+
+    return Array.from(groups.values())
+      .map((group) => ({
+        ...group,
+        volumes: group.volumes.sort(analysisVolumeSort),
+        sequentialVolumes: group.sequentialVolumes.sort(analysisVolumeSort),
+        aggregateVolumes: group.aggregateVolumes.sort(analysisVolumeSort),
+      }))
+      .sort((a, b) => editionTypeValues.indexOf(a.editionType) - editionTypeValues.indexOf(b.editionType));
+  }
+
+  function getKnownVolumeRange(seriesId, editionType) {
+    const numbers = getSequentialAnalysisVolumes(seriesId, editionType)
+      .map((volume) => positiveInteger(volume.volumeNumber))
+      .filter((volumeNumber) => volumeNumber > 0);
+    if (!numbers.length) {
+      return {
+        seriesId,
+        editionType: normalizeEditionTypeForAnalysis(editionType),
+        min: 0,
+        max: 0,
+        volumeNumbers: [],
+      };
+    }
+    const unique = Array.from(new Set(numbers)).sort((a, b) => a - b);
+    return {
+      seriesId,
+      editionType: normalizeEditionTypeForAnalysis(editionType),
+      min: Math.min(...unique),
+      max: Math.max(...unique),
+      volumeNumbers: unique,
+    };
+  }
+
+  function getMissingVolumes(seriesId, editionType) {
+    const range = getKnownVolumeRange(seriesId, editionType);
+    if (!range.max) return [];
+    const known = new Set(range.volumeNumbers);
+    const missing = [];
+    const start = Math.min(range.min, 1);
+    for (let volumeNumber = start; volumeNumber <= range.max; volumeNumber += 1) {
+      if (!known.has(volumeNumber)) {
+        missing.push({
+          id: `${seriesId}:${range.editionType}:${volumeNumber}:missing`,
+          seriesId,
+          editionType: range.editionType,
+          volumeNumber,
+          releaseDate: "",
+          status: "missing",
+          source: "analysis",
+          localVolume: null,
+        });
+      }
+    }
+    return missing;
+  }
+
+  function getReleasedUnowned(seriesId, editionType) {
+    const today = todayLocalDate();
+    return getSequentialAnalysisVolumes(seriesId, editionType)
+      .filter((volume) => !volume.owned && volume.releaseDate && volume.releaseDate <= today)
+      .map((volume) => ({
+        id: `${volume.id}:released-unowned`,
+        seriesId,
+        editionType: normalizeEditionTypeForAnalysis(volume.editionType),
+        volumeNumber: volume.volumeNumber,
+        releaseDate: volume.releaseDate,
+        status: "released_unowned",
+        source: "local",
+        localVolume: volume,
+      }));
+  }
+
+  function getUpcomingVolumes(seriesId, editionType) {
+    const today = todayLocalDate();
+    return getSequentialAnalysisVolumes(seriesId, editionType)
+      .filter((volume) => volume.releaseDate && volume.releaseDate > today)
+      .map((volume) => ({
+        id: `${volume.id}:upcoming`,
+        seriesId,
+        editionType: normalizeEditionTypeForAnalysis(volume.editionType),
+        volumeNumber: volume.volumeNumber,
+        releaseDate: volume.releaseDate,
+        status: "upcoming",
+        source: "local",
+        localVolume: volume,
+      }));
+  }
+
+  function getSeriesCollectionSummary(seriesId) {
+    const groups = getEditionGroups(seriesId);
+    const editions = groups.map((group) => {
+      const missing = getMissingVolumes(seriesId, group.editionType);
+      const releasedUnowned = getReleasedUnowned(seriesId, group.editionType);
+      const upcoming = getUpcomingVolumes(seriesId, group.editionType);
+      return {
+        seriesId,
+        editionType: group.editionType,
+        missing,
+        releasedUnowned,
+        upcoming,
+        missingCount: missing.length,
+        buyableCount: releasedUnowned.length,
+        upcomingCount: upcoming.length,
+      };
+    });
+
+    return {
+      seriesId,
+      editions,
+      missingCount: editions.reduce((sum, edition) => sum + edition.missingCount, 0),
+      buyableCount: editions.reduce((sum, edition) => sum + edition.buyableCount, 0),
+      upcomingCount: editions.reduce((sum, edition) => sum + edition.upcomingCount, 0),
+    };
+  }
+
   function slugify(value) {
     return String(value)
       .trim()
@@ -1463,6 +1635,7 @@
     const view = {
       dashboard: renderDashboard,
       series: renderSeriesView,
+      collectionGaps: renderCollectionGapsView,
       collection: renderCollectionView,
       buy: renderBuyView,
       calendar: renderCalendarView,
@@ -1498,8 +1671,9 @@
     const volumes = state.database.volumes;
     const owned = volumes.filter((volume) => volume.owned);
     const read = owned.filter((volume) => volume.read);
-    const buyable = volumes.filter((volume) => !volume.owned && volume.releaseDate && volume.releaseDate <= TODAY);
-    const upcoming = volumes.filter((volume) => volume.releaseDate && volume.releaseDate > TODAY);
+    const today = todayLocalDate();
+    const buyable = volumes.filter((volume) => !volume.owned && volume.releaseDate && volume.releaseDate <= today);
+    const upcoming = volumes.filter((volume) => volume.releaseDate && volume.releaseDate > today);
 
     wrapper.innerHTML = `
       ${viewHeader("Dashboard", "Überblick über Serien, gekaufte Bände, Lesestand und anstehende physische Releases.")}
@@ -1599,6 +1773,7 @@
   function renderSeriesCard(series) {
     const volumes = volumesForSeries(series.id);
     const owned = volumes.filter((volume) => volume.owned).length;
+    const summary = getSeriesCollectionSummary(series.id);
     return `
       <article class="card">
         <div class="card-header">
@@ -1612,6 +1787,9 @@
           <span>${escapeHtml(statusLabel(series.status))}</span>
           <span>${escapeHtml(collectionStatusLabel(series.collectionStatus))}</span>
           <span>${owned}/${volumes.length} gekauft</span>
+          <span>Fehlen: ${summary.missingCount}</span>
+          <span>Kaufbar: ${summary.buyableCount}</span>
+          <span>Kommend: ${summary.upcomingCount}</span>
         </div>
         <p class="muted">${escapeHtml(series.notes || "")}</p>
         <div class="actions">
@@ -1820,6 +1998,90 @@
     return labels[value] || value;
   }
 
+  function collectionGapStatusLabel(status) {
+    const labels = {
+      missing: "Fehlt in Sammlung",
+      released_unowned: "Erschienen, nicht gekauft",
+      upcoming: "Kommend",
+      unknown: "Unbekannt",
+    };
+    return labels[status] || "Unbekannt";
+  }
+
+  function getUnknownCollectionRows(seriesId, editionType) {
+    return getSequentialAnalysisVolumes(seriesId, editionType)
+      .filter((volume) => !volume.owned && !volume.releaseDate)
+      .map((volume) => ({
+        id: `${volume.id}:unknown`,
+        seriesId,
+        editionType: normalizeEditionTypeForAnalysis(volume.editionType),
+        volumeNumber: volume.volumeNumber,
+        releaseDate: "",
+        status: "unknown",
+        source: "local",
+        localVolume: volume,
+      }));
+  }
+
+  function getCollectionGapRows() {
+    return state.database.series.flatMap((series) => {
+      const summary = getSeriesCollectionSummary(series.id);
+      return summary.editions.flatMap((edition) => [
+        ...edition.missing,
+        ...edition.releasedUnowned,
+        ...edition.upcoming,
+        ...getUnknownCollectionRows(series.id, edition.editionType),
+      ].map((row) => ({
+        ...row,
+        seriesTitle: series.title,
+        publisher: series.publisher,
+      })));
+    }).sort((a, b) => a.seriesTitle.localeCompare(b.seriesTitle, "de")
+      || editionTypeValues.indexOf(a.editionType) - editionTypeValues.indexOf(b.editionType)
+      || a.volumeNumber - b.volumeNumber
+      || collectionGapStatusLabel(a.status).localeCompare(collectionGapStatusLabel(b.status), "de"));
+  }
+
+  function renderCollectionGapsView() {
+    const wrapper = document.createElement("section");
+    const rows = getCollectionGapRows();
+    wrapper.innerHTML = viewHeader("Sammellücken", "Abgeleitete Analyse nach Serie und Edition. Es werden keine Bände gespeichert oder automatisch übernommen.");
+
+    if (!rows.length) {
+      wrapper.append(emptyState("Keine Sammellücken", "Die vorhandenen lokalen Daten enthalten aktuell keine erkennbaren Lücken, offenen Releases oder unbekannten offenen Bände."));
+      return wrapper;
+    }
+
+    const table = document.createElement("div");
+    table.className = "table-wrap";
+    table.innerHTML = `
+      <table>
+        <thead>
+          <tr>
+            <th>Serie</th>
+            <th>Edition</th>
+            <th>Bandnummer</th>
+            <th>Status</th>
+            <th>Release</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${rows.map((row) => `
+            <tr>
+              <td>${escapeHtml(row.seriesTitle)}</td>
+              <td>${escapeHtml(editionTypeLabel(row.editionType))}</td>
+              <td>${escapeHtml(row.volumeNumber)}</td>
+              <td>${escapeHtml(collectionGapStatusLabel(row.status))}</td>
+              <td>${escapeHtml(formatDate(row.releaseDate))}</td>
+            </tr>
+          `).join("")}
+        </tbody>
+      </table>
+    `;
+    wrapper.append(table);
+    return wrapper;
+  }
+
   function renderCollectionView() {
     const wrapper = document.createElement("section");
     const owned = state.database.volumes.filter((volume) => volume.owned).sort(volumeSort);
@@ -1837,8 +2099,9 @@
 
   function renderBuyView() {
     const wrapper = document.createElement("section");
+    const today = todayLocalDate();
     const buyable = state.database.volumes
-      .filter((volume) => !volume.owned && volume.releaseDate && volume.releaseDate <= TODAY)
+      .filter((volume) => !volume.owned && volume.releaseDate && volume.releaseDate <= today)
       .sort(volumeSort);
 
     wrapper.innerHTML = viewHeader("Kaufen", "Erschienene Bände und heutige Releases, die noch nicht in deiner Sammlung sind.");
@@ -1855,8 +2118,9 @@
 
   function renderCalendarView() {
     const wrapper = document.createElement("section");
+    const today = todayLocalDate();
     const upcoming = state.database.volumes
-      .filter((volume) => volume.releaseDate && volume.releaseDate > TODAY)
+      .filter((volume) => volume.releaseDate && volume.releaseDate > today)
       .sort((a, b) => a.releaseDate.localeCompare(b.releaseDate));
 
     wrapper.innerHTML = viewHeader("Kalender", "Kommende Releases aus deinen vorhandenen Daten.");
@@ -1990,11 +2254,12 @@
   function getVolumeBadges(volume) {
     const conflicts = getReleaseConflicts().filter((conflict) => conflict.volumeId === volume.id);
     const badges = [];
+    const today = todayLocalDate();
     if (volume.coverCheckedAt && volume.coverSource && volume.coverConfidence > 0) badges.push("Neues Cover");
     if (volume.releaseSource && volume.releaseConfidence > 0) badges.push("Release geaendert");
     if (conflicts.length) badges.push("Release verschoben");
-    if (!volume.owned && volume.releaseDate && volume.releaseDate > TODAY && volume.shopUrl) badges.push("Vorbestellbar");
-    if (!volume.owned && volume.releaseDate && volume.releaseDate <= TODAY) badges.push("Jetzt kaufbar");
+    if (!volume.owned && volume.releaseDate && volume.releaseDate > today && volume.shopUrl) badges.push("Vorbestellbar");
+    if (!volume.owned && volume.releaseDate && volume.releaseDate <= today) badges.push("Jetzt kaufbar");
     return badges;
   }
 
@@ -2756,6 +3021,18 @@
     matchCoverCandidates,
     validateCoverCandidate,
     createCoverPreview,
+    getState: () => state,
+  };
+
+  window.mangaTrackerPhase6 = {
+    todayLocalDate,
+    getEditionGroups,
+    getKnownVolumeRange,
+    getMissingVolumes,
+    getReleasedUnowned,
+    getUpcomingVolumes,
+    getSeriesCollectionSummary,
+    getCollectionGapRows,
     getState: () => state,
   };
 
