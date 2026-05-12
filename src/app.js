@@ -1677,6 +1677,111 @@
     };
   }
 
+  function addDaysLocalDate(value, days) {
+    const parsed = new Date(`${value}T00:00:00`);
+    parsed.setDate(parsed.getDate() + days);
+    return todayLocalDate(parsed);
+  }
+
+  function getDashboardStats() {
+    const today = todayLocalDate();
+    const next30Days = addDaysLocalDate(today, 30);
+    const volumes = state.database.volumes;
+    const owned = volumes.filter((volume) => volume.owned);
+    const readOwned = volumes.filter((volume) => volume.owned && volume.read);
+    const readWithoutOwned = volumes.filter((volume) => !volume.owned && volume.read);
+    const localBuyCandidates = volumes.filter((volume) => !volume.owned && volume.releaseDate && volume.releaseDate <= today);
+    const upcoming = volumes
+      .filter((volume) => volume.releaseDate && volume.releaseDate > today)
+      .sort((a, b) => a.releaseDate.localeCompare(b.releaseDate) || volumeSort(a, b));
+    const releasesNext30Days = upcoming.filter((volume) => volume.releaseDate <= next30Days);
+    const summaries = state.database.series.map((series) => getSeriesCollectionSummary(series.id));
+    const missingCount = summaries.reduce((sum, summary) => sum + summary.missingCount, 0);
+    const upcomingCount = summaries.reduce((sum, summary) => sum + summary.upcomingCount, 0);
+    const unknownOpenCount = state.database.series.reduce((sum, series) => {
+      return sum + getEditionGroups(series.id).reduce((editionSum, edition) => {
+        return editionSum + getUnknownCollectionRows(series.id, edition.editionType).length;
+      }, 0);
+    }, 0);
+    const cacheItems = state.buyGapCache.status === "ok" ? state.buyGapCache.items.map(normalizeReleaseCacheItem) : [];
+    const derivedBuyableGapCount = state.database.series.reduce((sum, series) => {
+      const summary = getSeriesCollectionSummary(series.id);
+      return sum + summary.editions.reduce((editionSum, edition) => {
+        return editionSum + edition.missing
+          .map((gap) => createDerivedGapCandidate(series, gap, cacheItems))
+          .filter(Boolean).length;
+      }, 0);
+    }, 0);
+    const publisherMap = new Map();
+    const editionMap = new Map();
+    const duplicateMap = new Map();
+
+    volumes.forEach((volume) => {
+      const series = seriesById(volume.seriesId);
+      const publisher = normalizePublisher(volume.publisher || series?.publisher || "");
+      publisherMap.set(publisher, (publisherMap.get(publisher) || 0) + 1);
+
+      const editionType = normalizeEditionTypeForAnalysis(volume.editionType);
+      editionMap.set(editionType, (editionMap.get(editionType) || 0) + 1);
+
+      const volumeNumber = positiveInteger(volume.volumeNumber);
+      if (volumeNumber > 0) {
+        const duplicateKey = `${volume.seriesId}:${editionType}:${volumeNumber}`;
+        duplicateMap.set(duplicateKey, (duplicateMap.get(duplicateKey) || 0) + 1);
+      }
+    });
+
+    const volumeCounts = Array.from(publisherMap.entries())
+      .map(([publisher, count]) => ({
+        publisher,
+        label: getPublisherLabel(publisher),
+        count,
+      }))
+      .sort((a, b) => b.count - a.count || a.label.localeCompare(b.label, "de"));
+    const editionCounts = Array.from(editionMap.entries())
+      .map(([editionType, count]) => ({
+        editionType,
+        label: editionTypeLabel(editionType),
+        count,
+      }))
+      .sort((a, b) => b.count - a.count || editionTypeValues.indexOf(a.editionType) - editionTypeValues.indexOf(b.editionType));
+    const duplicateVolumeNumberCount = Array.from(duplicateMap.values())
+      .reduce((sum, count) => sum + Math.max(0, count - 1), 0);
+
+    return {
+      totals: {
+        seriesCount: state.database.series.length,
+        volumeCount: volumes.length,
+        ownedCount: owned.length,
+        readOwnedCount: readOwned.length,
+        readingProgressPercent: owned.length ? Math.round((readOwned.length / owned.length) * 100) : 0,
+      },
+      collection: {
+        missingCount,
+        buyableLocalCount: localBuyCandidates.length,
+        derivedBuyableGapCount,
+        upcomingCount,
+        unknownOpenCount,
+      },
+      releases: {
+        nextRelease: upcoming[0] || null,
+        releasesNext30Days,
+      },
+      publishers: {
+        topPublisher: volumeCounts[0] || null,
+        volumeCounts,
+      },
+      editions: {
+        counts: editionCounts,
+      },
+      dataQuality: {
+        readWithoutOwnedCount: readWithoutOwned.length,
+        volumesWithoutReleaseDateCount: volumes.filter((volume) => !volume.releaseDate).length,
+        duplicateVolumeNumberCount,
+      },
+    };
+  }
+
   function slugify(value) {
     return String(value)
       .trim()
@@ -1777,33 +1882,124 @@
     return node;
   }
 
+  function renderStatCard(value, label, detail = "") {
+    return `
+      <div class="stat">
+        <strong>${escapeHtml(value)}</strong>
+        <span>${escapeHtml(label)}</span>
+        ${detail ? `<small>${escapeHtml(detail)}</small>` : ""}
+      </div>
+    `;
+  }
+
+  function renderBarList(rows) {
+    if (!rows.length) return '<p class="muted">Noch keine Daten vorhanden.</p>';
+    const max = Math.max(...rows.map((row) => row.count), 1);
+    return `
+      <div class="bar-list">
+        ${rows.map((row) => `
+          <div class="bar-row">
+            <div class="bar-row-label">
+              <span>${escapeHtml(row.label)}</span>
+              <strong>${escapeHtml(row.count)}</strong>
+            </div>
+            <div class="bar-track">
+              <div class="bar-fill" style="width: ${Math.round((row.count / max) * 100)}%"></div>
+            </div>
+          </div>
+        `).join("")}
+      </div>
+    `;
+  }
+
+  function formatNextReleaseLabel(volume) {
+    if (!volume) return "kein Release";
+    const series = seriesById(volume.seriesId);
+    return `${series?.title || volume.title} Band ${volume.volumeNumber}`;
+  }
+
+  function daysUntilLocalDate(value) {
+    if (!value) return null;
+    const start = new Date(`${todayLocalDate()}T00:00:00`);
+    const end = new Date(`${value}T00:00:00`);
+    return Math.round((end.getTime() - start.getTime()) / 86400000);
+  }
+
+  function renderDataQualityHints(dataQuality) {
+    const hints = [];
+    if (dataQuality.readWithoutOwnedCount > 0) {
+      hints.push(`${dataQuality.readWithoutOwnedCount} gelesen markiert, aber nicht gekauft`);
+    }
+    if (dataQuality.volumesWithoutReleaseDateCount > 0) {
+      hints.push(`${dataQuality.volumesWithoutReleaseDateCount} Baende ohne Release-Datum`);
+    }
+    if (dataQuality.duplicateVolumeNumberCount > 0) {
+      hints.push(`${dataQuality.duplicateVolumeNumberCount} doppelte Bandnummern in gleicher Serie und Edition`);
+    }
+    if (!hints.length) return "";
+    return `
+      <section class="dashboard-section">
+        <h3>Datenqualitaet</h3>
+        <div class="badge-row">
+          ${hints.map((hint) => `<span class="badge badge-warning">${escapeHtml(hint)}</span>`).join("")}
+        </div>
+      </section>
+    `;
+  }
+
   function renderDashboard() {
     const wrapper = document.createElement("section");
-    const volumes = state.database.volumes;
-    const owned = volumes.filter((volume) => volume.owned);
-    const read = owned.filter((volume) => volume.read);
-    const today = todayLocalDate();
-    const buyable = volumes.filter((volume) => !volume.owned && volume.releaseDate && volume.releaseDate <= today);
-    const upcoming = volumes.filter((volume) => volume.releaseDate && volume.releaseDate > today);
+    const stats = getDashboardStats();
+    const nextReleaseDays = daysUntilLocalDate(stats.releases.nextRelease?.releaseDate);
+    const nextReleaseDetail = stats.releases.nextRelease
+      ? `${formatDate(stats.releases.nextRelease.releaseDate)}${nextReleaseDays !== null ? ` - in ${nextReleaseDays} Tagen` : ""}`
+      : "";
 
     wrapper.innerHTML = `
-      ${viewHeader("Dashboard", "Überblick über Serien, gekaufte Bände, Lesestand und anstehende physische Releases.")}
+      ${viewHeader("Dashboard", "Ueberblick ueber Serien, gekaufte Baende, Lesestand und anstehende physische Releases.")}
       <div class="stats-grid">
-        <div class="stat"><strong>${state.database.series.length}</strong><span>Serien</span></div>
-        <div class="stat"><strong>${volumes.length}</strong><span>Einzelbände</span></div>
-        <div class="stat"><strong>${owned.length}</strong><span>gekauft</span></div>
-        <div class="stat"><strong>${read.length}</strong><span>gelesen</span></div>
-        <div class="stat"><strong>${buyable.length}</strong><span>kaufbereit</span></div>
-        <div class="stat"><strong>${upcoming.length}</strong><span>kommend</span></div>
+        ${renderStatCard(stats.totals.seriesCount, "Serien")}
+        ${renderStatCard(stats.totals.volumeCount, "Baende")}
+        ${renderStatCard(stats.totals.ownedCount, "gekauft")}
+        ${renderStatCard(stats.totals.readOwnedCount, "gelesen")}
+        ${renderStatCard(`${stats.totals.readingProgressPercent}%`, "Lesefortschritt")}
+        ${renderStatCard(stats.collection.missingCount, "fehlende Baende")}
+        ${renderStatCard(stats.collection.buyableLocalCount + stats.collection.derivedBuyableGapCount, "jetzt kaufbar", `${stats.collection.buyableLocalCount} erfasst - ${stats.collection.derivedBuyableGapCount} anlegbar`)}
+        ${renderStatCard(stats.collection.upcomingCount, "kommend")}
+        ${renderStatCard(formatNextReleaseLabel(stats.releases.nextRelease), "naechster Release", nextReleaseDetail)}
+        ${renderStatCard(stats.releases.releasesNext30Days.length, "Releases naechste 30 Tage")}
       </div>
     `;
 
     if (!state.database.series.length && !state.database.volumes.length) {
-      wrapper.append(emptyState("Noch keine Daten", "Lege im Reiter Serien deine erste Serie an und füge anschließend Einzelbände hinzu."));
+      wrapper.append(emptyState("Noch keine Daten", "Lege im Reiter Serien deine erste Serie an und fuege anschliessend Einzelbaende hinzu."));
       return wrapper;
     }
 
-    const nextReleases = upcoming
+    const insights = document.createElement("section");
+    insights.className = "dashboard-section";
+    insights.innerHTML = `
+      <div class="dashboard-insights">
+        <article class="card">
+          <h3>Top Verlag</h3>
+          <p class="metric-line">${escapeHtml(stats.publishers.topPublisher?.label || "Noch keiner")}</p>
+          <p class="muted">${stats.publishers.topPublisher ? `${stats.publishers.topPublisher.count} Baende` : "Noch keine Baende vorhanden."}</p>
+        </article>
+        <article class="card">
+          <h3>Baende pro Verlag</h3>
+          ${renderBarList(stats.publishers.volumeCounts)}
+        </article>
+        <article class="card">
+          <h3>Editionen</h3>
+          ${renderBarList(stats.editions.counts)}
+        </article>
+      </div>
+      ${renderDataQualityHints(stats.dataQuality)}
+    `;
+    wrapper.append(insights);
+
+    const nextReleases = state.database.volumes
+      .filter((volume) => volume.releaseDate && volume.releaseDate > todayLocalDate())
       .sort((a, b) => a.releaseDate.localeCompare(b.releaseDate))
       .slice(0, 6);
     const grid = document.createElement("div");
@@ -3258,6 +3454,11 @@
     getBuyTabAnalysisRows,
     createPlaceholderFromGap,
     loadBuyGapCache,
+    getState: () => state,
+  };
+
+  window.mangaTrackerPhase7 = {
+    getDashboardStats,
     getState: () => state,
   };
 
