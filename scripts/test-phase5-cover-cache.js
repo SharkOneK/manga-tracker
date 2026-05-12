@@ -181,6 +181,26 @@ function makeCache() {
   };
 }
 
+function makeUnmatchedCache() {
+  return {
+    schemaVersion: 1,
+    generatedAt: "2026-05-12T00:00:00.000Z",
+    source: "manga-passion",
+    itemCount: 1,
+    items: [
+      {
+        seriesTitle: "Chainsaw Man",
+        publisher: "Manga Cult",
+        volumeNumber: 22,
+        coverUrl: "https://cache.example/22.jpg",
+        editionType: "standard",
+        isbn13: "9783755506805",
+        confidence: 100,
+      },
+    ],
+  };
+}
+
 function makeContext(database, cache) {
   const localStorage = new StorageMock({
     "mangaTracker.database.v1": JSON.stringify(database),
@@ -291,6 +311,19 @@ function assert(condition, message) {
   const exported = after.map((volume) => `${volume.volumeNumber}:${volume.releaseDate}:${volume.owned}:${volume.read}`).join("|");
   assert(exported.includes("1:2025-01-01:true:true"), "Obsidian-relevante Banddaten sind instabil.");
   assert(Object.keys(context.localStorage.store).some((key) => key.startsWith("mangaTracker.backup.release-cache-cover-preview.")), "Backup wurde nicht erstellt.");
+
+  const unmatchedContext = makeContext(makeDatabase(), makeUnmatchedCache());
+  vm.createContext(unmatchedContext);
+  vm.runInContext(appJs, unmatchedContext, { filename: "src/app.js" });
+  await unmatchedContext.window.mangaTrackerPhase5.previewCoverUpdateForSeries("chainsaw-man");
+  const unmatchedState = unmatchedContext.window.mangaTrackerPhase5.getState();
+  assert(unmatchedState.coverPreview.rows.length === 0, "Unerwarteter Cover-Vorschlag fuer nicht lokalen Band.");
+  assert(
+    unmatchedState.notice.includes("Cache-Eintraege gefunden, aber kein passender lokaler Band vorhanden. Pruefe Bandnummer, Edition oder ISBN."),
+    "Meldung fuer Cache ohne lokalen Match fehlt.",
+  );
+  assert(unmatchedState.releaseCache.message.includes("Cache-Baende: 22"), "Cache-Baende werden nicht angezeigt.");
+  assert(unmatchedState.releaseCache.message.includes("Lokale Bandnummern: 1, 2, 3, 4, 5"), "Lokale Bandnummern werden nicht angezeigt.");
 
   console.log("Phase 5 Cover-Cache Tests erfolgreich.");
 })();

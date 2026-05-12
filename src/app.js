@@ -927,7 +927,7 @@
       state.releaseCache = {
         seriesId,
         status: "ok",
-        message: `${rows.length} Cover-Vorschlaege aus dem Release-Cache gefunden.`,
+        message: createCoverCacheResultMessage(rows, normalizedCacheItems, volumesForSeries(seriesId)),
         generatedAt: cacheData.generatedAt || null,
         itemCount: cacheData.itemCount ?? cacheData.items.length,
         error: "",
@@ -944,7 +944,7 @@
         },
         rows,
       };
-      setNotice(rows.length ? "Cover-Vorschau erstellt. Bitte pruefe die Auswahl." : "Keine uebernehmbaren Cover-Vorschlaege im Cache gefunden.");
+      setNotice(createCoverCacheNotice(rows, normalizedCacheItems, volumesForSeries(seriesId)));
     } catch (error) {
       state.coverPreview = null;
       state.releaseCache = {
@@ -958,6 +958,27 @@
       setNotice("Cover-Pruefung konnte den Release-Cache nicht laden.");
       console.error(error);
     }
+  }
+
+  function createCoverCacheResultMessage(rows, cacheItems, localVolumes) {
+    if (rows.length) return `${rows.length} Cover-Vorschlaege aus dem Release-Cache gefunden.`;
+    if (!cacheItems.length) return "Keine Cover-Vorschlaege im Release-Cache gefunden.";
+    return [
+      "Cache-Eintraege gefunden, aber kein passender lokaler Band vorhanden. Pruefe Bandnummer, Edition oder ISBN.",
+      `Cache-Baende: ${formatVolumeNumberList(cacheItems.map((item) => item.volumeNumber))}`,
+      `Lokale Bandnummern: ${formatVolumeNumberList(localVolumes.map((volume) => volume.volumeNumber))}`,
+    ].join(" ");
+  }
+
+  function createCoverCacheNotice(rows, cacheItems, localVolumes) {
+    if (rows.length) return "Cover-Vorschau erstellt. Bitte pruefe die Auswahl.";
+    if (!cacheItems.length) return "Keine uebernehmbaren Cover-Vorschlaege im Cache gefunden.";
+    return createCoverCacheResultMessage(rows, cacheItems, localVolumes);
+  }
+
+  function formatVolumeNumberList(values) {
+    const unique = Array.from(new Set(values.map(Number).filter((value) => Number.isFinite(value) && value > 0))).sort((a, b) => a - b);
+    return unique.length ? unique.join(", ") : "keine";
   }
 
   function updateCoverPreviewSelection(input) {
