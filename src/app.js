@@ -70,6 +70,14 @@
     editingSeriesId: null,
     editingVolumeId: null,
     releasePreview: null,
+    releaseCache: {
+      seriesId: "",
+      status: "idle",
+      message: "",
+      generatedAt: null,
+      itemCount: null,
+      error: "",
+    },
     notice: "",
   };
 
@@ -639,6 +647,99 @@
       sourceUrl: imported.seriesUrl || series.links.mangaPassion || "",
       createdAt: nowIso(),
       rows,
+    };
+  }
+
+  function validateReleaseCache(cacheData) {
+    const errors = [];
+    const blockedUserDataKeys = new Set([
+      "accessKey",
+      "apiKey",
+      "binId",
+      "boughtAt",
+      "email",
+      "jsonbin",
+      "notes",
+      "owned",
+      "persistKey",
+      "read",
+      "readAt",
+      "syncConfig",
+      "token",
+      "user",
+      "username",
+    ]);
+
+    if (!cacheData || typeof cacheData !== "object" || Array.isArray(cacheData)) {
+      return { valid: false, errors: ["Release-Cache muss ein Objekt sein."] };
+    }
+    if (!Object.prototype.hasOwnProperty.call(cacheData, "schemaVersion")) {
+      errors.push("schemaVersion fehlt.");
+    }
+    if (!Array.isArray(cacheData.items)) {
+      errors.push("items muss ein Array sein.");
+    }
+
+    collectBlockedKeys(cacheData, blockedUserDataKeys).forEach((key) => {
+      errors.push(`Nicht erlaubtes Nutzerdaten-Feld gefunden: ${key}.`);
+    });
+
+    if (Array.isArray(cacheData.items)) {
+      cacheData.items.forEach((item, index) => {
+        if (!item || typeof item !== "object" || Array.isArray(item)) {
+          errors.push(`items[${index}] muss ein Objekt sein.`);
+          return;
+        }
+        if (!String(item.seriesTitle || "").trim()) errors.push(`items[${index}].seriesTitle fehlt.`);
+        if (!String(item.publisher || "").trim()) errors.push(`items[${index}].publisher fehlt.`);
+        if (!positiveInteger(item.volumeNumber)) errors.push(`items[${index}].volumeNumber fehlt oder ist ungueltig.`);
+        if (!normalizeReleaseDate(item.releaseDate)) errors.push(`items[${index}].releaseDate fehlt oder ist ungueltig.`);
+        if (item.isbn13 && !normalizeIsbn13(item.isbn13)) errors.push(`items[${index}].isbn13 ist ungueltig.`);
+        if (item.coverUrl && !isSafePublicUrl(item.coverUrl)) errors.push(`items[${index}].coverUrl ist ungueltig.`);
+      });
+    }
+
+    return { valid: errors.length === 0, errors };
+  }
+
+  function collectBlockedKeys(value, blockedKeys, path = "") {
+    const found = [];
+    if (!value || typeof value !== "object") return found;
+    Object.keys(value).forEach((key) => {
+      const nextPath = path ? `${path}.${key}` : key;
+      if (blockedKeys.has(key)) found.push(nextPath);
+      found.push(...collectBlockedKeys(value[key], blockedKeys, nextPath));
+    });
+    return found;
+  }
+
+  function isSafePublicUrl(value) {
+    try {
+      const url = new URL(String(value || ""));
+      return url.protocol === "https:" || url.protocol === "http:";
+    } catch (error) {
+      return false;
+    }
+  }
+
+  function filterReleaseCacheForSeries(cacheData, series) {
+    const seriesTitle = normalizeTitleForFingerprint(series.title);
+    const originalTitle = normalizeTitleForFingerprint(series.originalTitle);
+    const seriesPublisher = normalizePublisher(series.publisher);
+    const items = cacheData.items.filter((item) => {
+      const itemTitle = normalizeTitleForFingerprint(item.seriesTitle);
+      const titleMatches = itemTitle === seriesTitle || (originalTitle && itemTitle === originalTitle);
+      const publisherMatches = normalizePublisher(item.publisher) === seriesPublisher || seriesPublisher === "other";
+      return titleMatches && publisherMatches;
+    });
+
+    return {
+      schemaVersion: cacheData.schemaVersion,
+      generatedAt: cacheData.generatedAt || null,
+      source: "release-cache",
+      url: "./data/release-cache.json",
+      itemCount: cacheData.itemCount ?? cacheData.items.length,
+      items,
     };
   }
 
@@ -1230,10 +1331,12 @@
         <div class="actions">
           <button type="button" class="secondary-button" data-action="edit-series" data-id="${escapeHtml(series.id)}">Bearbeiten</button>
           <button type="button" class="button" data-action="new-volume" data-id="${escapeHtml(series.id)}">Band hinzufügen</button>
+          <button type="button" class="secondary-button" data-action="load-release-cache" data-id="${escapeHtml(series.id)}">Release-Cache laden</button>
           <label class="secondary-button" for="mangaPassionImport-${escapeHtml(series.id)}">Release-Daten prüfen</label>
           <input id="mangaPassionImport-${escapeHtml(series.id)}" type="file" accept="application/json,.json" data-release-import="${escapeHtml(series.id)}" hidden>
           <button type="button" class="danger-button" data-action="delete-series" data-id="${escapeHtml(series.id)}">Löschen</button>
         </div>
+        ${state.releaseCache.seriesId === series.id ? renderReleaseCacheStatus() : ""}
         ${state.releasePreview?.seriesId === series.id ? renderReleasePreview(state.releasePreview) : ""}
         ${renderVolumeTable(volumes)}
       </article>
@@ -1273,9 +1376,28 @@
     `;
   }
 
+  function renderReleaseCacheStatus() {
+    const status = state.releaseCache;
+    const details = [
+      `Status: ${status.status}`,
+      `generatedAt: ${formatDateTime(status.generatedAt)}`,
+      `itemCount: ${status.itemCount ?? "unbekannt"}`,
+    ];
+    return `
+      <section class="release-cache-status ${status.error ? "is-error" : ""}">
+        <strong>Release-Cache</strong>
+        <p>${escapeHtml(status.message || details.join(" · "))}</p>
+        <div class="meta">
+          ${details.map((item) => `<span>${escapeHtml(item)}</span>`).join("")}
+        </div>
+        ${status.error ? `<p class="release-cache-error">${escapeHtml(status.error)}</p>` : ""}
+      </section>
+    `;
+  }
+
   function renderReleasePreview(preview) {
     if (!preview.rows.length) {
-      return '<section class="release-preview"><p class="muted">Keine uebernehmbaren Aenderungen in der geladenen Manga-Passion-JSON-Datei.</p></section>';
+      return '<section class="release-preview"><p class="muted">Keine uebernehmbaren Aenderungen in den geladenen Release-Daten.</p></section>';
     }
     const selectedCount = preview.rows.reduce((sum, row) => sum + row.changes.filter((change) => change.selected && row.confidence >= 70).length, 0);
     return `
@@ -1283,6 +1405,7 @@
         <div class="release-preview-header">
           <div>
             <h3>Release-Vorschau</h3>
+            ${preview.cacheMetadata ? `<p class="muted">Cache: generatedAt ${escapeHtml(formatDateTime(preview.cacheMetadata.generatedAt))} - itemCount ${escapeHtml(preview.cacheMetadata.itemCount)}</p>` : ""}
             <p class="muted">Quelle: ${escapeHtml(preview.sourceUrl || "manuelle Manga-Passion-JSON-Datei")} · ${escapeHtml(formatDateTime(preview.createdAt))}</p>
           </div>
           <div class="actions">
@@ -1826,6 +1949,65 @@
     }
   }
 
+  async function loadReleaseCachePreview(seriesId) {
+    const series = seriesById(seriesId);
+    if (!series) return;
+
+    state.releasePreview = null;
+    state.releaseCache = {
+      seriesId,
+      status: "loading",
+      message: "Release-Cache wird geladen...",
+      generatedAt: null,
+      itemCount: null,
+      error: "",
+    };
+    render();
+
+    try {
+      const response = await fetch(`./data/release-cache.json?t=${Date.now()}`);
+      if (!response.ok) {
+        throw new Error(`Release-Cache konnte nicht geladen werden: HTTP ${response.status}`);
+      }
+
+      const cacheData = await response.json();
+      const validation = validateReleaseCache(cacheData);
+      if (!validation.valid) {
+        throw new Error(validation.errors.join(" "));
+      }
+
+      const filteredCache = filterReleaseCacheForSeries(cacheData, series);
+      state.releaseCache = {
+        seriesId,
+        status: "ok",
+        message: `${filteredCache.items.length} passende Cache-Eintraege gefunden.`,
+        generatedAt: filteredCache.generatedAt,
+        itemCount: filteredCache.itemCount,
+        error: "",
+      };
+
+      state.releasePreview = previewReleaseUpdateForSeries(seriesId, filteredCache);
+      state.releasePreview.cacheMetadata = {
+        generatedAt: filteredCache.generatedAt,
+        itemCount: filteredCache.itemCount,
+      };
+      const count = state.releasePreview.rows.reduce((sum, row) => sum + row.changes.length, 0);
+      setNotice(count ? "Release-Vorschau aus Cache erstellt. Bitte pruefe die Auswahl." : "Keine uebernehmbaren Release-Aenderungen im Cache gefunden.");
+    } catch (error) {
+      state.releasePreview = null;
+      state.releaseCache = {
+        seriesId,
+        status: "error",
+        message: "Release-Cache konnte nicht verwendet werden.",
+        generatedAt: null,
+        itemCount: null,
+        error: error.message,
+      };
+      setNotice("Release-Cache konnte nicht geladen werden.");
+      console.error(error);
+    }
+  }
+
   function updateReleasePreviewSelection(input) {
     if (!state.releasePreview) return;
     const rowId = input.dataset.rowId;
@@ -2178,6 +2360,7 @@
       clearReleaseConflicts();
       setNotice("Release-Konflikte geloescht.");
     }
+    if (action === "load-release-cache") loadReleaseCachePreview(id);
     if (action === "apply-release-preview") applySelectedReleasePreview();
     if (action === "clear-release-preview") {
       state.releasePreview = null;

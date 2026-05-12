@@ -250,6 +250,28 @@ h3 {
   background: var(--surface-strong);
 }
 
+.release-cache-status {
+  margin: 14px 0;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #f4f9f7;
+}
+
+.release-cache-status p {
+  margin: 6px 0 0;
+}
+
+.release-cache-status.is-error {
+  border-color: #e6c176;
+  background: #fff6df;
+}
+
+.release-cache-error {
+  color: var(--warn);
+  font-weight: 750;
+}
+
 .release-preview-header {
   display: flex;
   align-items: flex-start;
