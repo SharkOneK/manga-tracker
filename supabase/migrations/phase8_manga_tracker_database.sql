@@ -29,6 +29,10 @@ returns trigger
 language plpgsql
 as $$
 begin
+  if tg_op = 'UPDATE' and new.updated_at is distinct from old.updated_at then
+    return new;
+  end if;
+
   new.updated_at = now();
   return new;
 end;

@@ -6,8 +6,11 @@
   const SYNC_CONFIG_KEY = "mangaTracker.syncConfig.v1";
   const SYNC_SESSION_KEY = "mangaTracker.syncAccessKey.session";
   const SYNC_CONFLICTS_KEY = "mangaTracker.syncConflicts.v1";
+  const SUPABASE_CONFIG_KEY = "mangaTracker.supabaseConfig.v1";
+  const SUPABASE_CONFLICTS_KEY = "mangaTracker.supabaseConflicts.v1";
   const RELEASE_CONFLICTS_KEY = "mangaTracker.releaseConflicts.v1";
   const JSONBIN_API_ROOT = "https://api.jsonbin.io/v3";
+  const SUPABASE_TABLE = "manga_tracker_databases";
   const TODAY = todayLocalDate();
   const app = document.querySelector("#app");
   const tabs = document.querySelector("#tabs");
@@ -63,6 +66,12 @@
     activeTab: "dashboard",
     database: loadDatabase(),
     syncConfig: loadSyncConfig(),
+    supabaseConfig: loadSupabaseConfig(),
+    supabaseClient: null,
+    supabaseUser: null,
+    supabaseStatus: "not-configured",
+    supabaseMessage: "",
+    supabaseInProgress: false,
     syncStatus: "offline-ready",
     syncMessage: "",
     syncInProgress: false,
@@ -160,6 +169,88 @@
       console.warn("Sync-Konfiguration konnte nicht gelesen werden:", error);
       return defaults;
     }
+  }
+
+  function loadSupabaseConfig() {
+    const defaults = {
+      enabled: false,
+      url: "",
+      publicKey: "",
+      loginEmail: "",
+      lastSyncAt: null,
+      lastSyncStatus: "not-configured",
+      pendingPush: false,
+    };
+
+    try {
+      const stored = JSON.parse(localStorage.getItem(SUPABASE_CONFIG_KEY) || "{}");
+      return {
+        ...defaults,
+        ...stored,
+        publicKey: String(stored.publicKey || stored.anonKey || ""),
+      };
+    } catch (error) {
+      console.warn("Supabase-Konfiguration konnte nicht gelesen werden:", error);
+      return defaults;
+    }
+  }
+
+  function saveSupabaseConfig() {
+    const configForLocalStorage = {
+      enabled: Boolean(state.supabaseConfig.enabled),
+      url: state.supabaseConfig.url.trim(),
+      publicKey: state.supabaseConfig.publicKey.trim(),
+      loginEmail: state.supabaseConfig.loginEmail.trim(),
+      lastSyncAt: state.supabaseConfig.lastSyncAt,
+      lastSyncStatus: state.supabaseConfig.lastSyncStatus,
+      pendingPush: Boolean(state.supabaseConfig.pendingPush),
+    };
+    localStorage.setItem(SUPABASE_CONFIG_KEY, JSON.stringify(configForLocalStorage));
+  }
+
+  function isSupabaseConfigured() {
+    return Boolean(state.supabaseConfig.enabled && state.supabaseConfig.url.trim() && state.supabaseConfig.publicKey.trim());
+  }
+
+  function setSupabaseStatus(status, message = "") {
+    state.supabaseStatus = status;
+    state.supabaseMessage = message;
+    state.supabaseConfig.lastSyncStatus = status;
+    saveSupabaseConfig();
+    updateStorageStatus();
+  }
+
+  function resetSupabaseClient() {
+    state.supabaseClient = null;
+    state.supabaseUser = null;
+  }
+
+  function getSupabaseClient() {
+    if (!isSupabaseConfigured()) {
+      setSupabaseStatus("missing-config", "Supabase URL oder Public Key fehlt.");
+      return null;
+    }
+    if (!window.supabase?.createClient) {
+      setSupabaseStatus("missing-client", "Supabase JS konnte nicht geladen werden. Die App arbeitet lokal weiter.");
+      return null;
+    }
+    if (state.supabaseClient) return state.supabaseClient;
+    state.supabaseClient = window.supabase.createClient(
+      state.supabaseConfig.url.trim(),
+      state.supabaseConfig.publicKey.trim(),
+      {
+        auth: {
+          persistSession: true,
+          autoRefreshToken: true,
+          detectSessionInUrl: true,
+        },
+      },
+    );
+    state.supabaseClient.auth.onAuthStateChange((_event, session) => {
+      state.supabaseUser = session?.user || null;
+      render();
+    });
+    return state.supabaseClient;
   }
 
   function saveSyncConfig() {
@@ -1526,6 +1617,281 @@
     console.info("JSONBin Sync-Konflikt gelöst:", result);
   }
 
+  function getSupabaseConflicts() {
+    try {
+      return JSON.parse(localStorage.getItem(SUPABASE_CONFLICTS_KEY) || "[]");
+    } catch {
+      return [];
+    }
+  }
+
+  function logSupabaseConflict(result, cloudDatabase = null) {
+    const logs = getSupabaseConflicts();
+    let cloudBackupKey = "";
+    if (cloudDatabase) {
+      cloudBackupKey = backupDatabaseSnapshot(cloudDatabase, "supabase-cloud-conflict");
+    }
+    logs.unshift({
+      type: result.type || "conflict",
+      localUpdatedAt: result.localUpdatedAt,
+      cloudUpdatedAt: result.cloudUpdatedAt,
+      cloudRowUpdatedAt: result.cloudRowUpdatedAt,
+      cloudBackupKey,
+      resolvedAt: nowIso(),
+    });
+    localStorage.setItem(SUPABASE_CONFLICTS_KEY, JSON.stringify(logs.slice(0, 50)));
+  }
+
+  async function supabaseGetCurrentUser() {
+    const client = getSupabaseClient();
+    if (!client) return null;
+    const { data, error } = await client.auth.getUser();
+    if (error) {
+      state.supabaseUser = null;
+      setSupabaseStatus("auth-error", `Supabase Login konnte nicht gelesen werden: ${error.message}`);
+      return null;
+    }
+    state.supabaseUser = data.user || null;
+    return state.supabaseUser;
+  }
+
+  async function supabaseSignIn(email) {
+    state.supabaseConfig.loginEmail = String(email || "").trim();
+    saveSupabaseConfig();
+    const client = getSupabaseClient();
+    if (!client) return { ok: false, reason: "not-configured" };
+    if (!state.supabaseConfig.loginEmail) {
+      setSupabaseStatus("missing-email", "Bitte eine Login-E-Mail eintragen.");
+      render();
+      return { ok: false, reason: "missing-email" };
+    }
+    const redirectTo = window.location.href.split("#")[0].split("?")[0];
+    setSupabaseStatus("auth-pending", "Magic Link wird gesendet...");
+    render();
+    const { error } = await client.auth.signInWithOtp({
+      email: state.supabaseConfig.loginEmail,
+      options: { emailRedirectTo: redirectTo },
+    });
+    if (error) {
+      setSupabaseStatus("auth-error", `Login fehlgeschlagen: ${error.message}`);
+      render();
+      return { ok: false, error };
+    }
+    setSupabaseStatus("auth-link-sent", "Magic Link gesendet. Bitte E-Mail oeffnen und danach diese Seite erneut pruefen.");
+    render();
+    return { ok: true };
+  }
+
+  async function supabaseSignOut() {
+    const client = getSupabaseClient();
+    if (!client) return { ok: false, reason: "not-configured" };
+    const { error } = await client.auth.signOut();
+    if (error) {
+      setSupabaseStatus("auth-error", `Logout fehlgeschlagen: ${error.message}`);
+      render();
+      return { ok: false, error };
+    }
+    state.supabaseUser = null;
+    setSupabaseStatus("signed-out", "Von Supabase abgemeldet.");
+    render();
+    return { ok: true };
+  }
+
+  async function getSupabaseCloudRow() {
+    const user = await supabaseGetCurrentUser();
+    if (!user) {
+      setSupabaseStatus("not-signed-in", "Bitte zuerst bei Supabase anmelden.");
+      return { ok: false, reason: "not-signed-in" };
+    }
+    const client = getSupabaseClient();
+    const { data, error } = await client
+      .from(SUPABASE_TABLE)
+      .select("id,user_id,schema_version,database,updated_at,created_at")
+      .eq("user_id", user.id)
+      .maybeSingle();
+    if (error) {
+      setSupabaseStatus("error", `Supabase Cloud-Daten konnten nicht gelesen werden: ${error.message}`);
+      return { ok: false, error };
+    }
+    return { ok: true, user, row: data || null };
+  }
+
+  function compareLocalWithSupabaseRow(row) {
+    const localUpdatedAt = Date.parse(state.database.updatedAt || "");
+    const cloudUpdatedAt = Date.parse(row?.updated_at || "");
+    const localTime = Number.isNaN(localUpdatedAt) ? 0 : localUpdatedAt;
+    const cloudTime = Number.isNaN(cloudUpdatedAt) ? 0 : cloudUpdatedAt;
+    return {
+      localTime,
+      cloudTime,
+      localUpdatedAt: state.database.updatedAt,
+      cloudUpdatedAt: row?.database?.updatedAt || "",
+      cloudRowUpdatedAt: row?.updated_at || "",
+    };
+  }
+
+  async function supabasePush() {
+    if (state.supabaseInProgress) return { ok: false, reason: "busy" };
+    const validation = validateDatabase(state.database);
+    if (!validation.valid) {
+      setSupabaseStatus("error", `Lokale Daten sind ungueltig: ${validation.errors.join(" ")}`);
+      render();
+      return { ok: false, reason: "invalid-local" };
+    }
+    state.supabaseInProgress = true;
+    setSupabaseStatus("syncing", "Speichere Manga Tracker in Supabase...");
+    render();
+    try {
+      const cloud = await getSupabaseCloudRow();
+      if (!cloud.ok) return cloud;
+      if (cloud.row) {
+        const comparison = compareLocalWithSupabaseRow(cloud.row);
+        if (comparison.cloudTime > comparison.localTime) {
+          logSupabaseConflict({ ...comparison, type: "push-blocked-cloud-newer" }, cloud.row.database);
+          setSupabaseStatus("conflict", "Supabase ist neuer als lokal. Push wurde blockiert; beide Staende bleiben erhalten.");
+          render();
+          return { ok: false, reason: "conflict-cloud-newer" };
+        }
+      }
+      const client = getSupabaseClient();
+      const payload = {
+        user_id: cloud.user.id,
+        schema_version: state.database.schemaVersion,
+        database: createSyncPayload(),
+        updated_at: state.database.updatedAt,
+      };
+      const { data, error } = await client
+        .from(SUPABASE_TABLE)
+        .upsert(payload, { onConflict: "user_id" })
+        .select("updated_at")
+        .single();
+      if (error) throw error;
+      state.supabaseConfig.pendingPush = false;
+      state.supabaseConfig.lastSyncAt = nowIso();
+      setSupabaseStatus("ok", `In Supabase gespeichert (${formatDateTime(data.updated_at)}).`);
+      render();
+      return { ok: true, updatedAt: data.updated_at };
+    } catch (error) {
+      console.warn(error);
+      state.supabaseConfig.pendingPush = true;
+      setSupabaseStatus("error", `${error.message}. Lokal bleibt alles erhalten.`);
+      render();
+      return { ok: false, error };
+    } finally {
+      state.supabaseInProgress = false;
+    }
+  }
+
+  async function supabasePull(options = {}) {
+    const { requireConfirmation = true } = options;
+    if (state.supabaseInProgress) return { ok: false, reason: "busy" };
+    state.supabaseInProgress = true;
+    setSupabaseStatus("syncing", "Lade Manga Tracker aus Supabase...");
+    render();
+    try {
+      const cloud = await getSupabaseCloudRow();
+      if (!cloud.ok) return cloud;
+      if (!cloud.row) {
+        setSupabaseStatus("empty", "In Supabase liegt noch kein Datensatz. Lokal bleibt fuehrend; nutze Cloud speichern fuer den ersten Push.");
+        render();
+        return { ok: true, reason: "empty" };
+      }
+      const validation = validateDatabase(cloud.row.database);
+      if (!validation.valid) {
+        throw new Error(`Supabase-Daten sind ungueltig: ${validation.errors.join(" ")}`);
+      }
+      const cloudDatabase = normalizeDatabase(migrateDatabase(cloud.row.database).database);
+      const comparison = compareLocalWithSupabaseRow(cloud.row);
+      if (comparison.localTime > comparison.cloudTime) {
+        logSupabaseConflict({ ...comparison, type: "pull-blocked-local-newer" }, cloudDatabase);
+        setSupabaseStatus("conflict", "Lokale Daten sind neuer als Supabase. Pull wurde blockiert; beide Staende bleiben erhalten.");
+        render();
+        return { ok: false, reason: "conflict-local-newer" };
+      }
+      if (comparison.cloudTime > comparison.localTime && requireConfirmation) {
+        const approved = confirm("Supabase-Daten sind neuer als deine lokalen Daten. Lokale Daten werden vorher gesichert. Cloud-Daten jetzt lokal uebernehmen?");
+        if (!approved) {
+          logSupabaseConflict({ ...comparison, type: "pull-declined-cloud-newer" }, cloudDatabase);
+          setSupabaseStatus("conflict", "Pull abgebrochen. Supabase-Stand wurde als Backup im localStorage erhalten.");
+          render();
+          return { ok: false, reason: "declined" };
+        }
+      }
+      const backupKey = createBackupBeforeSync("supabase-pull");
+      state.database = cloudDatabase;
+      saveLocalDatabase();
+      updateStorageStatus();
+      state.supabaseConfig.pendingPush = false;
+      state.supabaseConfig.lastSyncAt = nowIso();
+      setSupabaseStatus("ok", `Supabase-Daten geladen. Backup: ${backupKey}.`);
+      render();
+      return { ok: true, backupKey };
+    } catch (error) {
+      console.warn(error);
+      setSupabaseStatus("error", `${error.message}. Lokal bleibt alles erhalten.`);
+      render();
+      return { ok: false, error };
+    } finally {
+      state.supabaseInProgress = false;
+    }
+  }
+
+  async function supabaseSync() {
+    const cloud = await getSupabaseCloudRow();
+    if (!cloud.ok) {
+      render();
+      return cloud;
+    }
+    if (!cloud.row) return supabasePush();
+    const comparison = compareLocalWithSupabaseRow(cloud.row);
+    if (comparison.localTime > comparison.cloudTime) return supabasePush();
+    if (comparison.cloudTime > comparison.localTime) return supabasePull({ requireConfirmation: true });
+    setSupabaseStatus("ok", "Supabase und lokale Daten sind bereits synchron.");
+    render();
+    return { ok: true, reason: "equal" };
+  }
+
+  async function migrateJsonBinToSupabase() {
+    const validation = validateDatabase(state.database);
+    if (!validation.valid) {
+      setSupabaseStatus("error", `Migration abgebrochen: lokale Daten sind ungueltig (${validation.errors.join(" ")}).`);
+      render();
+      return { ok: false, reason: "invalid-local" };
+    }
+    const backupKey = backupDatabaseSnapshot(state.database, "before-supabase-migration");
+    if (isSyncConfigured()) {
+      const pullJsonBin = confirm("JSONBin ist konfiguriert. Vor dem Supabase-Push optional zuerst JSONBin laden? Lokale Daten werden bei JSONBin-Cloud-Sieg vorher gesichert.");
+      if (pullJsonBin) {
+        await pullFromCloud();
+      }
+    }
+    const result = await supabasePush();
+    if (result.ok) {
+      setNotice(`Migration zu Supabase erfolgreich. Lokales Backup erhalten: ${backupKey}. JSONBin-Konfiguration wurde nicht entfernt.`);
+    } else {
+      setNotice(`Migration zu Supabase nicht abgeschlossen. Lokales Backup erhalten: ${backupKey}.`);
+    }
+    return result;
+  }
+
+  async function initSupabaseAuth() {
+    if (!state.supabaseConfig.enabled) {
+      setSupabaseStatus("disabled", "Supabase Cloud-Sync ist deaktiviert.");
+      return;
+    }
+    if (!isSupabaseConfigured()) {
+      setSupabaseStatus("missing-config", "Supabase URL oder Public Key fehlt.");
+      return;
+    }
+    await supabaseGetCurrentUser();
+    if (state.supabaseUser) {
+      setSupabaseStatus("signed-in", `Angemeldet als ${state.supabaseUser.email || state.supabaseUser.id}.`);
+    } else {
+      setSupabaseStatus("signed-out", "Nicht bei Supabase angemeldet.");
+    }
+    render();
+  }
+
   function setNotice(message) {
     state.notice = message;
     render();
@@ -1533,7 +1899,8 @@
 
   function updateStorageStatus() {
     const syncLabel = state.syncConfig.enabled ? `JSONBin: ${state.syncConfig.lastSyncStatus}` : "JSONBin aus";
-    storageStatus.textContent = `localStorage · ${formatDateTime(state.database.updatedAt)} · ${syncLabel}`;
+    const supabaseLabel = state.supabaseConfig.enabled ? `Supabase: ${state.supabaseConfig.lastSyncStatus}` : "Supabase aus";
+    storageStatus.textContent = `localStorage · ${formatDateTime(state.database.updatedAt)} · ${supabaseLabel} · ${syncLabel}`;
   }
 
   function seriesById(seriesId) {
@@ -2687,6 +3054,7 @@
   function renderSettingsView() {
     const backups = Object.keys(localStorage).filter((key) => key.startsWith(BACKUP_PREFIX)).sort().reverse();
     const conflicts = JSON.parse(localStorage.getItem(SYNC_CONFLICTS_KEY) || "[]");
+    const supabaseConflicts = getSupabaseConflicts();
     const releaseConflicts = getReleaseConflicts();
     const wrapper = document.createElement("section");
     wrapper.innerHTML = `
@@ -2698,10 +3066,13 @@
           <div><strong>Serien</strong><span>${state.database.series.length}</span></div>
           <div><strong>Einzelbände</strong><span>${state.database.volumes.length}</span></div>
           <div><strong>Backups</strong><span>${backups.length}</span></div>
+          <div><strong>Supabase</strong><span>${escapeHtml(state.supabaseConfig.enabled ? state.supabaseConfig.lastSyncStatus : "deaktiviert")}</span></div>
+          <div><strong>Letzter Supabase Sync</strong><span>${escapeHtml(state.supabaseConfig.lastSyncAt ? formatDateTime(state.supabaseConfig.lastSyncAt) : "nie")}</span></div>
           <div><strong>Sync</strong><span>${escapeHtml(state.syncConfig.enabled ? state.syncConfig.lastSyncStatus : "deaktiviert")}</span></div>
           <div><strong>Letzter Sync</strong><span>${escapeHtml(state.syncConfig.lastSyncAt ? formatDateTime(state.syncConfig.lastSyncAt) : "nie")}</span></div>
           <div><strong>Offener Cloud-Push</strong><span>${state.syncConfig.pendingPush ? "ja" : "nein"}</span></div>
           <div><strong>Konflikte</strong><span>${conflicts.length}</span></div>
+          <div><strong>Supabase-Konflikte</strong><span>${supabaseConflicts.length}</span></div>
         </div>
       </section>
       <section class="card">
@@ -2714,8 +3085,34 @@
           <button type="button" class="secondary-button" data-action="clear-release-conflicts">Konflikte loeschen</button>
         </div>
       </section>
+      <form class="form-panel" data-form="supabase-sync">
+        <h3>Supabase Cloud-Sync</h3>
+        <p class="muted">Optionaler neuer Cloud-Sync. Trage nur Supabase URL und Public/Anon Key ein. Niemals einen service_role Key im Browser verwenden.</p>
+        ${state.supabaseMessage ? `<div class="notice">${escapeHtml(state.supabaseMessage)}</div>` : ""}
+        <div class="settings-list">
+          <div><strong>Status</strong><span>${escapeHtml(state.supabaseConfig.lastSyncStatus || state.supabaseStatus)}</span></div>
+          <div><strong>Angemeldet</strong><span>${escapeHtml(state.supabaseUser ? (state.supabaseUser.email || state.supabaseUser.id) : "nein")}</span></div>
+          <div><strong>User-ID</strong><span>${escapeHtml(state.supabaseUser?.id || "nicht angemeldet")}</span></div>
+          <div><strong>Letzter Sync</strong><span>${escapeHtml(state.supabaseConfig.lastSyncAt ? formatDateTime(state.supabaseConfig.lastSyncAt) : "nie")}</span></div>
+        </div>
+        <div class="form-grid">
+          ${checkboxField("supabaseEnabled", "Supabase Cloud-Sync aktivieren", state.supabaseConfig.enabled)}
+          ${textField("supabaseUrl", "Supabase URL", state.supabaseConfig.url)}
+          ${textField("supabasePublicKey", "Supabase Public/Anon Key", state.supabaseConfig.publicKey, false, "password")}
+          ${textField("supabaseLoginEmail", "Login E-Mail", state.supabaseConfig.loginEmail, false, "email")}
+        </div>
+        <div class="actions">
+          <button type="submit" class="button">Supabase-Einstellungen speichern</button>
+          <button type="button" class="secondary-button" data-action="supabase-login">Login-Link senden</button>
+          <button type="button" class="secondary-button" data-action="supabase-logout">Logout</button>
+          <button type="button" class="secondary-button" data-action="supabase-push">Cloud speichern</button>
+          <button type="button" class="secondary-button" data-action="supabase-pull">Cloud laden</button>
+          <button type="button" class="secondary-button" data-action="supabase-sync-test">Sync testen</button>
+          <button type="button" class="secondary-button" data-action="migrate-jsonbin-supabase">JSONBin zu Supabase migrieren</button>
+        </div>
+      </form>
       <form class="form-panel" data-form="sync">
-        <h3>JSONBin Sync</h3>
+        <h3>Legacy JSONBin Sync</h3>
         <p class="muted">Der X-Access-Key wird standardmäßig nur für diese Sitzung gespeichert. Verwende einen Key mit bins.read und bins.update, ohne Create/Delete-Rechte.</p>
         ${state.syncMessage ? `<div class="notice">${escapeHtml(state.syncMessage)}</div>` : ""}
         <div class="form-grid">
@@ -3341,6 +3738,31 @@
     initSync();
   }
 
+  function handleSupabaseSubmit(form) {
+    state.supabaseConfig.enabled = checkedValue(form, "supabaseEnabled");
+    state.supabaseConfig.url = fieldValue(form, "supabaseUrl");
+    state.supabaseConfig.publicKey = fieldValue(form, "supabasePublicKey");
+    state.supabaseConfig.loginEmail = fieldValue(form, "supabaseLoginEmail");
+    state.supabaseConfig.pendingPush = state.supabaseConfig.pendingPush || false;
+    resetSupabaseClient();
+    saveSupabaseConfig();
+
+    if (!state.supabaseConfig.enabled) {
+      setSupabaseStatus("disabled", "Supabase Cloud-Sync ist deaktiviert.");
+      setNotice("Supabase-Einstellungen gespeichert.");
+      return;
+    }
+
+    if (!isSupabaseConfigured()) {
+      setSupabaseStatus("missing-config", "Supabase Cloud-Sync ist aktiviert, aber URL oder Public Key fehlt.");
+      setNotice("Supabase-Einstellungen gespeichert. Es fehlen noch Konfigurationsdaten.");
+      return;
+    }
+
+    setNotice("Supabase-Einstellungen gespeichert.");
+    initSupabaseAuth();
+  }
+
   function yamlValue(value) {
     if (Array.isArray(value)) return `[${value.map(yamlValue).join(", ")}]`;
     if (value === null || value === undefined || value === "") return "null";
@@ -3558,6 +3980,16 @@
       setNotice("Cover-Vorschau geschlossen.");
     }
     if (action === "sync-now") pullFromCloud();
+    if (action === "supabase-login") {
+      const form = button.closest("form");
+      if (form?.dataset.form === "supabase-sync") handleSupabaseSubmit(form);
+      supabaseSignIn(form ? fieldValue(form, "supabaseLoginEmail") : state.supabaseConfig.loginEmail);
+    }
+    if (action === "supabase-logout") supabaseSignOut();
+    if (action === "supabase-push") supabasePush();
+    if (action === "supabase-pull") supabasePull();
+    if (action === "supabase-sync-test") supabaseSync();
+    if (action === "migrate-jsonbin-supabase") migrateJsonBinToSupabase();
     if (action === "check-sync-size") {
       state.syncSizeReport = getSyncPayloadSizeReport();
       render();
@@ -3571,6 +4003,7 @@
     if (form.dataset.form === "series") handleSeriesSubmit(form);
     if (form.dataset.form === "volume") handleVolumeSubmit(form);
     if (form.dataset.form === "sync") handleSyncSubmit(form);
+    if (form.dataset.form === "supabase-sync") handleSupabaseSubmit(form);
   });
 
   app.addEventListener("change", (event) => {
@@ -3637,6 +4070,18 @@
     getState: () => state,
   };
 
+  window.mangaTrackerPhase8 = {
+    supabasePull,
+    supabasePush,
+    supabaseSync,
+    supabaseGetCurrentUser,
+    supabaseSignIn,
+    supabaseSignOut,
+    migrateJsonBinToSupabase,
+    getState: () => state,
+  };
+
   render();
   initSync();
+  initSupabaseAuth();
 })();
