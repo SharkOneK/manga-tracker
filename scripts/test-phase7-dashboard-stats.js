@@ -293,5 +293,17 @@ function assert(condition, message) {
   const backupsAfter = Object.keys(context.localStorage.store).filter((key) => key.startsWith("mangaTracker.backup."));
   assert(JSON.stringify(backupsAfter) === JSON.stringify(backupsBefore), "UI-Workflow-Test hat unerwartet Backups erzeugt.");
 
+  context.fetch = async () => ({
+    ok: false,
+    status: 403,
+    text: async () => JSON.stringify({ message: "Forbidden: invalid access key" }),
+  });
+  state.syncConfig.enabled = true;
+  state.syncConfig.binId = "test-bin";
+  state.syncConfig.accessKey = "test-key";
+  state.syncInProgress = false;
+  await api.pushToCloud();
+  assert(state.syncMessage.includes("JSONBin Push fehlgeschlagen: 403 - Forbidden: invalid access key"), "JSONBin Push-Fehler zeigt den Response-Text nicht im Sync-Status.");
+
   console.log("Phase 7 Dashboard-Stats Tests erfolgreich.");
 })();

@@ -194,6 +194,27 @@
     updateStorageStatus();
   }
 
+  function extractJsonBinErrorText(rawText) {
+    const text = String(rawText || "").trim();
+    if (!text) return "";
+    try {
+      const parsed = JSON.parse(text);
+      return String(parsed.message || parsed.error || parsed.errorMessage || text).trim();
+    } catch {
+      return text;
+    }
+  }
+
+  async function createJsonBinHttpError(prefix, response) {
+    let detail = "";
+    try {
+      detail = extractJsonBinErrorText(await response.text());
+    } catch {
+      detail = "";
+    }
+    return new Error(`${prefix}: ${response.status}${detail ? ` - ${detail}` : ""}`);
+  }
+
   function saveDatabase(options = {}) {
     const { sync = true } = options;
     state.database.updatedAt = nowIso();
@@ -1320,7 +1341,7 @@
       });
 
       if (!response.ok) {
-        throw new Error(`JSONBin Push fehlgeschlagen: ${response.status}`);
+        throw await createJsonBinHttpError("JSONBin Push fehlgeschlagen", response);
       }
 
       state.syncConfig.pendingPush = false;
@@ -3492,6 +3513,7 @@
     renderVolumeCard,
     renderVolumeForm,
     handleVolumeSubmit,
+    pushToCloud,
     getState: () => state,
   };
 
