@@ -225,6 +225,16 @@
     state.supabaseUser = null;
   }
 
+  function saveSupabaseFormValues(form) {
+    if (!form) return;
+    state.supabaseConfig.enabled = checkedValue(form, "supabaseEnabled");
+    state.supabaseConfig.url = fieldValue(form, "supabaseUrl");
+    state.supabaseConfig.publicKey = fieldValue(form, "supabasePublicKey");
+    state.supabaseConfig.loginEmail = fieldValue(form, "supabaseLoginEmail");
+    resetSupabaseClient();
+    saveSupabaseConfig();
+  }
+
   function getSupabaseClient() {
     if (!isSupabaseConfigured()) {
       setSupabaseStatus("missing-config", "Supabase URL oder Public Key fehlt.");
@@ -3058,7 +3068,7 @@
     const releaseConflicts = getReleaseConflicts();
     const wrapper = document.createElement("section");
     wrapper.innerHTML = `
-      ${viewHeader("Einstellungen", "localStorage bleibt der lokale Cache. JSONBin kann als zentrale Cloud-Datenquelle synchronisiert werden.")}
+      ${viewHeader("Einstellungen", "localStorage bleibt der lokale Cache. Supabase ist der bevorzugte Cloud-Sync; JSONBin bleibt als Legacy-Option erhalten.")}
       <section class="card">
         <div class="settings-list">
           <div><strong>Schema-Version</strong><span>${state.database.schemaVersion}</span></div>
@@ -3739,13 +3749,8 @@
   }
 
   function handleSupabaseSubmit(form) {
-    state.supabaseConfig.enabled = checkedValue(form, "supabaseEnabled");
-    state.supabaseConfig.url = fieldValue(form, "supabaseUrl");
-    state.supabaseConfig.publicKey = fieldValue(form, "supabasePublicKey");
-    state.supabaseConfig.loginEmail = fieldValue(form, "supabaseLoginEmail");
     state.supabaseConfig.pendingPush = state.supabaseConfig.pendingPush || false;
-    resetSupabaseClient();
-    saveSupabaseConfig();
+    saveSupabaseFormValues(form);
 
     if (!state.supabaseConfig.enabled) {
       setSupabaseStatus("disabled", "Supabase Cloud-Sync ist deaktiviert.");
@@ -3982,14 +3987,29 @@
     if (action === "sync-now") pullFromCloud();
     if (action === "supabase-login") {
       const form = button.closest("form");
-      if (form?.dataset.form === "supabase-sync") handleSupabaseSubmit(form);
-      supabaseSignIn(form ? fieldValue(form, "supabaseLoginEmail") : state.supabaseConfig.loginEmail);
+      saveSupabaseFormValues(form);
+      supabaseSignIn(state.supabaseConfig.loginEmail);
     }
-    if (action === "supabase-logout") supabaseSignOut();
-    if (action === "supabase-push") supabasePush();
-    if (action === "supabase-pull") supabasePull();
-    if (action === "supabase-sync-test") supabaseSync();
-    if (action === "migrate-jsonbin-supabase") migrateJsonBinToSupabase();
+    if (action === "supabase-logout") {
+      saveSupabaseFormValues(button.closest("form"));
+      supabaseSignOut();
+    }
+    if (action === "supabase-push") {
+      saveSupabaseFormValues(button.closest("form"));
+      supabasePush();
+    }
+    if (action === "supabase-pull") {
+      saveSupabaseFormValues(button.closest("form"));
+      supabasePull();
+    }
+    if (action === "supabase-sync-test") {
+      saveSupabaseFormValues(button.closest("form"));
+      supabaseSync();
+    }
+    if (action === "migrate-jsonbin-supabase") {
+      saveSupabaseFormValues(button.closest("form"));
+      migrateJsonBinToSupabase();
+    }
     if (action === "check-sync-size") {
       state.syncSizeReport = getSyncPayloadSizeReport();
       render();

@@ -99,6 +99,31 @@ Manuell nach der Migration pruefen:
 10. Bei neuerem lokalem Stand blockiert `Cloud laden`, speichert den Cloud-Stand als Backup und ueberschreibt nichts blind.
 11. `Legacy JSONBin Sync` bleibt sichtbar und unveraendert.
 
+### Schritt-fuer-Schritt-Test im normalen Browser
+
+Wenn der integrierte Preview-Browser `localhost` oder `file://` blockiert, den Test im normalen Browser ausfuehren:
+
+1. Supabase Dashboard oeffnen.
+2. Project Settings > API oeffnen.
+3. `Project URL` kopieren.
+4. Unter API Keys den `anon`/`publishable` Key kopieren. Keinen `service_role` oder Secret Key verwenden.
+5. Authentication > URL Configuration oeffnen.
+6. Site URL auf `https://sharkonek.github.io/manga-tracker/` setzen.
+7. Redirect URLs um `https://sharkonek.github.io/manga-tracker/` ergaenzen.
+8. App unter `https://sharkonek.github.io/manga-tracker/` oeffnen.
+9. Einstellungen oeffnen und pruefen, dass `Supabase Cloud-Sync` oberhalb von `Legacy JSONBin Sync` sichtbar ist.
+10. Ohne Supabase Config `Cloud speichern`, `Cloud laden` und `Sync testen` anklicken: es muss eine verstaendliche Blockade wegen fehlender Config/Login erscheinen.
+11. Supabase Cloud-Sync aktivieren, Project URL und Public/Anon Key eintragen, Login-E-Mail eintragen.
+12. `Login-Link senden` klicken und den Magic Link aus der E-Mail oeffnen.
+13. Nach der Rueckkehr zur App Einstellungen oeffnen: E-Mail oder User-ID muss als angemeldet angezeigt werden.
+14. `Cloud speichern` klicken: in Supabase muss genau ein Datensatz fuer den User in `manga_tracker_databases` entstehen.
+15. Lokal eine kleine Test-Serie oder einen Test-Band aendern und erneut `Cloud speichern` klicken: derselbe Datensatz muss aktualisiert werden, kein zweiter Datensatz.
+16. JSON Export herunterladen oder ein Backup im localStorage bestaetigen.
+17. `Cloud laden` klicken: vor einer lokalen Uebernahme muss ein Backup gemeldet werden.
+18. Konflikt testen: In einem zweiten Browser/Profil denselben User anmelden, Daten aendern und in Supabase speichern. Danach im ersten Profil mit aelterem Stand `Cloud laden` testen. Die App darf nicht ohne Nachfrage/Backup ueberschreiben.
+19. `Logout` klicken: Status muss auf abgemeldet wechseln.
+20. JSONBin-Konfiguration bleibt erhalten; keine JSONBin-Werte werden automatisch entfernt.
+
 ## Phase 4b PoC: Manga-Passion-JSON
 
 Release-Daten und Cover werden im PoC nur ueber eine manuelle JSON-Datei pro Serie geprueft. Es gibt keinen direkten Browser-Fetch auf Manga Passion, keinen Proxy, keine GitHub Action und kein Massenupdate.
