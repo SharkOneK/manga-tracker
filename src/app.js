@@ -86,6 +86,7 @@
       itemCount: null,
       error: "",
     },
+    syncSizeReport: null,
     notice: "",
   };
 
@@ -213,6 +214,78 @@
       detail = "";
     }
     return new Error(`${prefix}: ${response.status}${detail ? ` - ${detail}` : ""}`);
+  }
+
+  function byteSize(value) {
+    return new TextEncoder().encode(typeof value === "string" ? value : JSON.stringify(value)).length;
+  }
+
+  function formatKb(bytes) {
+    return `${(bytes / 1024).toFixed(1)} KB`;
+  }
+
+  function createSyncPayload(database = state.database) {
+    return {
+      schemaVersion: database.schemaVersion,
+      updatedAt: database.updatedAt,
+      series: Array.isArray(database.series) ? database.series : [],
+      volumes: Array.isArray(database.volumes) ? database.volumes : [],
+    };
+  }
+
+  function sumLocalStorageBytes(predicate) {
+    return Object.keys(localStorage)
+      .filter(predicate)
+      .reduce((sum, key) => sum + byteSize(localStorage.getItem(key) || ""), 0);
+  }
+
+  function getSyncPayloadSizeReport(database = state.database) {
+    const payload = createSyncPayload(database);
+    const noteValues = [
+      ...payload.series.map((series) => series.notes || ""),
+      ...payload.volumes.map((volume) => volume.notes || ""),
+    ].filter(Boolean);
+    const coverValues = [
+      ...payload.series.map((series) => series.coverUrl || ""),
+      ...payload.volumes.map((volume) => volume.coverUrl || ""),
+    ].filter(Boolean);
+    const report = {
+      totalBytes: byteSize(payload),
+      seriesBytes: byteSize(payload.series),
+      volumesBytes: byteSize(payload.volumes),
+      metadataBytes: byteSize({
+        schemaVersion: payload.schemaVersion,
+        updatedAt: payload.updatedAt,
+      }),
+      notesBytes: byteSize(noteValues),
+      coverUrlBytes: byteSize(coverValues),
+      seriesCount: payload.series.length,
+      volumeCount: payload.volumes.length,
+      backupsBytes: sumLocalStorageBytes((key) => key.startsWith(BACKUP_PREFIX)),
+      releaseConflictsBytes: byteSize(localStorage.getItem(RELEASE_CONFLICTS_KEY) || ""),
+      syncLogsBytes: byteSize(localStorage.getItem(SYNC_CONFLICTS_KEY) || ""),
+      releaseCacheBytes: byteSize(state.buyGapCache.items || []),
+      previewStateBytes: byteSize({
+        releasePreview: state.releasePreview,
+        coverPreview: state.coverPreview,
+      }),
+      uiStateBytes: byteSize({
+        activeTab: state.activeTab,
+        editingSeriesId: state.editingSeriesId,
+        editingVolumeId: state.editingVolumeId,
+        notice: state.notice,
+      }),
+    };
+    report.warning = report.totalBytes >= 90 * 1024;
+    report.tooLarge = report.totalBytes >= 100 * 1024;
+    report.preflightBlocked = report.totalBytes > 95 * 1024;
+    return report;
+  }
+
+  function syncSizeStatusText(report) {
+    if (report.tooLarge) return "Fehlerhinweis: JSONBin Free-Limit von 100 KB überschritten.";
+    if (report.warning) return "Warnung: Sync-Payload liegt über 90 KB.";
+    return "Sync-Payload liegt unter 90 KB.";
   }
 
   function saveDatabase(options = {}) {
@@ -1329,7 +1402,21 @@
       render();
     }
 
+    const sizeReport = getSyncPayloadSizeReport();
+    state.syncSizeReport = sizeReport;
+    if (sizeReport.preflightBlocked) {
+      state.syncConfig.pendingPush = true;
+      setSyncStatus("error", `JSONBin Sync-Payload ist ${formatKb(sizeReport.totalBytes)} groß und liegt über der 95-KB-Sicherheitsgrenze. Lokal gespeichert, Cloud-Push nicht versucht.`);
+      saveSyncConfig();
+      if (!silent) {
+        render();
+        state.syncInProgress = false;
+      }
+      return { ok: false, reason: "payload-too-large", sizeReport };
+    }
+
     try {
+      const payload = createSyncPayload();
       const response = await fetch(`${JSONBIN_API_ROOT}/b/${encodeURIComponent(state.syncConfig.binId.trim())}`, {
         method: "PUT",
         headers: {
@@ -1337,7 +1424,7 @@
           "X-Access-Key": state.syncConfig.accessKey.trim(),
           "X-Bin-Versioning": "true",
         },
-        body: JSON.stringify(state.database),
+        body: JSON.stringify(payload),
       });
 
       if (!response.ok) {
@@ -2572,6 +2659,31 @@
     return wrapper;
   }
 
+  function renderSyncSizeReport(report) {
+    if (!report) return "";
+    return `
+      <section class="card">
+        <h3>Sync-Datengröße</h3>
+        <p class="muted">${escapeHtml(syncSizeStatusText(report))}</p>
+        <div class="settings-list">
+          <div><strong>Gesamtgröße</strong><span>${escapeHtml(formatKb(report.totalBytes))}</span></div>
+          <div><strong>series Größe</strong><span>${escapeHtml(formatKb(report.seriesBytes))}</span></div>
+          <div><strong>volumes Größe</strong><span>${escapeHtml(formatKb(report.volumesBytes))}</span></div>
+          <div><strong>Serien</strong><span>${escapeHtml(report.seriesCount)}</span></div>
+          <div><strong>Bände</strong><span>${escapeHtml(report.volumeCount)}</span></div>
+          <div><strong>Notizen in Payload</strong><span>${escapeHtml(formatKb(report.notesBytes))}</span></div>
+          <div><strong>Cover-URLs in Payload</strong><span>${escapeHtml(formatKb(report.coverUrlBytes))}</span></div>
+          <div><strong>Backups außerhalb Payload</strong><span>${escapeHtml(formatKb(report.backupsBytes))}</span></div>
+          <div><strong>Release-Konflikte außerhalb Payload</strong><span>${escapeHtml(formatKb(report.releaseConflictsBytes))}</span></div>
+          <div><strong>Sync-Logs außerhalb Payload</strong><span>${escapeHtml(formatKb(report.syncLogsBytes))}</span></div>
+          <div><strong>Release-Cache außerhalb Payload</strong><span>${escapeHtml(formatKb(report.releaseCacheBytes))}</span></div>
+          <div><strong>Preview-State außerhalb Payload</strong><span>${escapeHtml(formatKb(report.previewStateBytes))}</span></div>
+          <div><strong>UI-State außerhalb Payload</strong><span>${escapeHtml(formatKb(report.uiStateBytes))}</span></div>
+        </div>
+      </section>
+    `;
+  }
+
   function renderSettingsView() {
     const backups = Object.keys(localStorage).filter((key) => key.startsWith(BACKUP_PREFIX)).sort().reverse();
     const conflicts = JSON.parse(localStorage.getItem(SYNC_CONFLICTS_KEY) || "[]");
@@ -2614,10 +2726,12 @@
         </div>
         <div class="actions">
           <button type="submit" class="button">Sync-Einstellungen speichern</button>
+          <button type="button" class="secondary-button" data-action="check-sync-size">Sync-Datengröße prüfen</button>
           <button type="button" class="secondary-button" data-action="sync-now">Jetzt synchronisieren</button>
           <button type="button" class="secondary-button" data-action="push-now">Jetzt in Cloud speichern</button>
         </div>
       </form>
+      ${renderSyncSizeReport(state.syncSizeReport)}
     `;
     return wrapper;
   }
@@ -3444,6 +3558,10 @@
       setNotice("Cover-Vorschau geschlossen.");
     }
     if (action === "sync-now") pullFromCloud();
+    if (action === "check-sync-size") {
+      state.syncSizeReport = getSyncPayloadSizeReport();
+      render();
+    }
     if (action === "push-now") pushToCloud();
   });
 
@@ -3510,6 +3628,8 @@
   window.mangaTrackerPhase7 = {
     getDashboardStats,
     getCollectionSections,
+    createSyncPayload,
+    getSyncPayloadSizeReport,
     renderVolumeCard,
     renderVolumeForm,
     handleVolumeSubmit,

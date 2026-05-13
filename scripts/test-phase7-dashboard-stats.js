@@ -293,17 +293,44 @@ function assert(condition, message) {
   const backupsAfter = Object.keys(context.localStorage.store).filter((key) => key.startsWith("mangaTracker.backup."));
   assert(JSON.stringify(backupsAfter) === JSON.stringify(backupsBefore), "UI-Workflow-Test hat unerwartet Backups erzeugt.");
 
-  context.fetch = async () => ({
-    ok: false,
-    status: 403,
-    text: async () => JSON.stringify({ message: "Forbidden: invalid access key" }),
-  });
+  state.database.debugData = { shouldNotSync: true };
+  const payloadReport = api.getSyncPayloadSizeReport();
+  assert(payloadReport.totalBytes > 0, "Sync-Payload-Groesse ist nicht messbar.");
+  assert(payloadReport.seriesCount === 2, "Sync-Payload-Groesse zaehlt Serien falsch.");
+  assert(payloadReport.volumeCount === 8, "Sync-Payload-Groesse zaehlt Baende falsch.");
+  assert(payloadReport.backupsBytes === 0, "Backups duerfen nicht Teil der Sync-Payload sein.");
+
   state.syncConfig.enabled = true;
   state.syncConfig.binId = "test-bin";
   state.syncConfig.accessKey = "test-key";
   state.syncInProgress = false;
+  let capturedPushBody = "";
+  context.fetch = async (url, options) => {
+    capturedPushBody = options.body;
+    return {
+      ok: false,
+      status: 403,
+      text: async () => JSON.stringify({ message: "Forbidden: invalid access key" }),
+    };
+  };
   await api.pushToCloud();
+  assert(!JSON.parse(capturedPushBody).debugData, "Sync-Payload enthaelt versehentliche Hilfsdaten.");
   assert(state.syncMessage.includes("JSONBin Push fehlgeschlagen: 403 - Forbidden: invalid access key"), "JSONBin Push-Fehler zeigt den Response-Text nicht im Sync-Status.");
+
+  state.database.volumes[0].notes = "x".repeat(98 * 1024);
+  let fetchCalledForLargePayload = false;
+  context.fetch = async () => {
+    fetchCalledForLargePayload = true;
+    return {
+      ok: true,
+      json: async () => ({}),
+      text: async () => "",
+    };
+  };
+  const largePushResult = await api.pushToCloud();
+  assert(largePushResult.reason === "payload-too-large", "Grosse Sync-Payload wurde nicht vorab geblockt.");
+  assert(fetchCalledForLargePayload === false, "Grosse Sync-Payload wurde trotzdem an JSONBin gesendet.");
+  assert(state.syncMessage.includes("über der 95-KB-Sicherheitsgrenze"), "Grosse Sync-Payload bekommt keine klare Warnung.");
 
   console.log("Phase 7 Dashboard-Stats Tests erfolgreich.");
 })();
