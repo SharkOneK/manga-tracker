@@ -266,9 +266,41 @@ assert(JSON.stringify(backupKeysAfterAnalysis) === JSON.stringify(backupKeysBefo
   const buyRows = api.getBuyTabAnalysisRows();
   assert(buyRows.localBuyCandidates.some((volume) => volume.id === "test-manga-006"), "Lokaler Kaufkandidat fehlt.");
   assert(buyRows.derivedGapCandidates.some((row) => row.volumeNumber === 4 && row.editionType === "standard"), "Fehlender Standard-Band mit Cache erscheint nicht.");
+  assert(buyRows.gapDiagnostics.hasMatchingCacheEntry === true, "Kaufen-Tab erkennt passende Cache-Eintraege nicht.");
+  assert(buyRows.gapDiagnostics.hasEligibleCacheEntry === true, "Kaufen-Tab erkennt anlegbare Cache-Eintraege nicht.");
   assert(!buyRows.derivedGapCandidates.some((row) => row.volumeNumber === 9), "Band ohne lokale Sammelluecke wurde vorgeschlagen.");
   assert(!buyRows.derivedGapCandidates.some((row) => row.volumeNumber === 2 && row.editionType === "deluxe"), "Deluxe wurde trotz unzureichender Confidence vorgeschlagen.");
   assert(!buyRows.derivedGapCandidates.some((row) => row.editionType === "boxset"), "Boxset wurde als anlegbare Einzelband-Luecke vorgeschlagen.");
+
+  state.buyGapCache = {
+    status: "ok",
+    items: [],
+    generatedAt: "2026-05-12T00:00:00.000Z",
+    itemCount: 0,
+    error: "",
+  };
+  const emptyCacheRows = api.getBuyTabAnalysisRows();
+  assert(emptyCacheRows.derivedGapCandidates.length === 0, "Leerer Cache darf keine Sammelluecken-Vorschlaege liefern.");
+  assert(api.getBuyGapEmptyMessage(emptyCacheRows.derivedGapCandidates, emptyCacheRows.gapDiagnostics) === "Release-Cache leer/nicht geladen.", "Leerer Cache bekommt keine klare Meldung.");
+
+  state.buyGapCache = {
+    status: "ok",
+    items: [{
+      seriesTitle: "Andere Serie",
+      publisher: "Manga Cult",
+      volumeNumber: 4,
+      releaseDate: "2026-02-01",
+      editionType: "standard",
+      confidence: 95,
+    }],
+    generatedAt: "2026-05-12T00:00:00.000Z",
+    itemCount: 1,
+    error: "",
+  };
+  const noMatchRows = api.getBuyTabAnalysisRows();
+  assert(api.getBuyGapEmptyMessage(noMatchRows.derivedGapCandidates, noMatchRows.gapDiagnostics) === "Keine passenden Cache-Einträge zur Sammlung.", "Nicht passender Cache bekommt keine klare Meldung.");
+
+  await api.loadBuyGapCache();
 
   const beforeCreate = JSON.parse(JSON.stringify(state.database.volumes));
   const row = buyRows.derivedGapCandidates.find((candidate) => candidate.volumeNumber === 4 && candidate.editionType === "standard");

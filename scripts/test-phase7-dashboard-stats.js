@@ -231,11 +231,67 @@ function assert(condition, message) {
   assert(stats.dataQuality.readWithoutOwnedCount === 1, "read=true ohne owned wurde nicht erkannt.");
   assert(stats.dataQuality.volumesWithoutReleaseDateCount === 1, "Fehlendes Release-Datum wurde nicht erkannt.");
   assert(stats.dataQuality.duplicateVolumeNumberCount === 1, "Doppelte Bandnummer wurde nicht erkannt.");
-
   assert(JSON.stringify(state.database) === before, "getDashboardStats hat Daten veraendert.");
   assert(JSON.stringify(state.syncConfig) === syncBefore, "getDashboardStats hat Sync-State veraendert.");
+  const backupsAfterStats = Object.keys(context.localStorage.store).filter((key) => key.startsWith("mangaTracker.backup."));
+  assert(JSON.stringify(backupsAfterStats) === JSON.stringify(backupsBefore), "getDashboardStats hat Backups erzeugt.");
+
+  const indexHtml = fs.readFileSync(path.join(ROOT, "index.html"), "utf8");
+  assert(!indexHtml.includes('data-tab="collectionGaps"'), "Sammelluecken-Tab ist noch sichtbar.");
+
+  const appSource = fs.readFileSync(path.join(ROOT, "src", "app.js"), "utf8");
+  assert(appSource.includes("function pullFromCloud") && appSource.includes("function pushToCloud"), "JSONBin Sync-Funktionen fehlen unerwartet.");
+  assert(appSource.includes("function exportObsidianZip"), "Obsidian Export fehlt unerwartet.");
+
+  const collectionSections = api.getCollectionSections();
+  assert(collectionSections.unread.length === 1 && collectionSections.unread[0].id === "alpha-002", "Sammlung trennt ungelesene Baende falsch.");
+  assert(collectionSections.read.length === 2 && collectionSections.read.some((volume) => volume.id === "alpha-001") && collectionSections.read.some((volume) => volume.id === "beta-001"), "Sammlung trennt gelesene Baende falsch.");
+
+  const unreadCard = api.renderVolumeCard(collectionSections.unread[0], "collection");
+  const readCard = api.renderVolumeCard(collectionSections.read[0], "collection");
+  assert(unreadCard.includes("Als gelesen markieren"), "Ungelesene Baende zeigen keine passende Aktion.");
+  assert(readCard.includes("Als ungelesen markieren"), "Gelesene Baende zeigen keine passende Aktion.");
+
+  const formHtml = api.renderVolumeForm("beta-001").innerHTML;
+  assert(!formHtml.includes('name="editionType"'), "Band-bearbeiten-Formular zeigt weiterhin ein Edition-Feld.");
+  assert(!formHtml.includes(">Edition</label>"), "Band-bearbeiten-Formular zeigt weiterhin ein Edition-Label.");
+
+  const fakeForm = {
+    dataset: { id: "beta-001" },
+    elements: {
+      seriesId: { value: "beta" },
+      volumeNumber: { value: "1" },
+      title: { value: "Beta" },
+      subtitle: { value: "" },
+      isbn: { value: "" },
+      isbn13: { value: "" },
+      publisher: { value: "egmont" },
+      releaseDate: { value: "2025-03-01" },
+      releaseSource: { value: "" },
+      releaseConfidence: { value: "" },
+      coverUrl: { value: "" },
+      coverSource: { value: "" },
+      coverConfidence: { value: "" },
+      coverCheckedAt: { value: "" },
+      coverHash: { value: "" },
+      coverManuallySet: { checked: false },
+      owned: { checked: true },
+      boughtAt: { value: "" },
+      read: { checked: true },
+      readAt: { value: "" },
+      price: { value: "" },
+      shopUrl: { value: "" },
+      editionFingerprint: { value: "" },
+      notes: { value: "" },
+    },
+  };
+  api.handleVolumeSubmit(fakeForm);
+  const beta = state.database.volumes.find((volume) => volume.id === "beta-001");
+  assert(beta.editionType === "limited", "Bestehender editionType-Wert wurde beim Bearbeiten nicht erhalten.");
+  assert(JSON.stringify(state.syncConfig) === syncBefore, "JSONBin Sync-State wurde durch UI-Workflow veraendert.");
+
   const backupsAfter = Object.keys(context.localStorage.store).filter((key) => key.startsWith("mangaTracker.backup."));
-  assert(JSON.stringify(backupsAfter) === JSON.stringify(backupsBefore), "getDashboardStats hat Backups erzeugt.");
+  assert(JSON.stringify(backupsAfter) === JSON.stringify(backupsBefore), "UI-Workflow-Test hat unerwartet Backups erzeugt.");
 
   console.log("Phase 7 Dashboard-Stats Tests erfolgreich.");
 })();

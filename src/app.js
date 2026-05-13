@@ -1656,12 +1656,34 @@
     };
   }
 
+  function getBuyTabGapDiagnostics(cacheItems) {
+    const gaps = state.database.series.flatMap((series) => {
+      const summary = getSeriesCollectionSummary(series.id);
+      return summary.editions.flatMap((edition) => edition.missing.map((gap) => ({ series, gap })));
+    });
+    const usableCacheItems = cacheItems.filter((candidate) => !isAggregateCacheItem(candidate));
+    const hasMatchingCacheEntry = gaps.some(({ series, gap }) => usableCacheItems
+      .some((candidate) => cacheCandidateMatchesGap(series, gap, candidate)));
+    const hasEligibleCacheEntry = gaps.some(({ series, gap }) => usableCacheItems
+      .filter((candidate) => cacheCandidateMatchesGap(series, gap, candidate))
+      .some((candidate) => candidate.releaseDate
+        && candidate.releaseDate <= todayLocalDate()
+        && normalizeConfidence(candidate.confidence) >= 70));
+
+    return {
+      missingGapCount: gaps.length,
+      hasMatchingCacheEntry,
+      hasEligibleCacheEntry,
+    };
+  }
+
   function getBuyTabAnalysisRows() {
     const today = todayLocalDate();
     const localBuyCandidates = state.database.volumes
       .filter((volume) => !volume.owned && volume.releaseDate && volume.releaseDate <= today)
       .sort(volumeSort);
-    const cacheItems = state.buyGapCache.items.map(normalizeReleaseCacheItem);
+    const cacheItems = state.buyGapCache.status === "ok" ? state.buyGapCache.items.map(normalizeReleaseCacheItem) : [];
+    const gapDiagnostics = getBuyTabGapDiagnostics(cacheItems);
     const derivedGapCandidates = state.database.series.flatMap((series) => {
       const summary = getSeriesCollectionSummary(series.id);
       return summary.editions.flatMap((edition) => edition.missing
@@ -1674,6 +1696,7 @@
     return {
       localBuyCandidates,
       derivedGapCandidates,
+      gapDiagnostics,
     };
   }
 
@@ -1848,16 +1871,16 @@
       app.append(notice);
     }
 
-    const view = {
+    const views = {
       dashboard: renderDashboard,
       series: renderSeriesView,
-      collectionGaps: renderCollectionGapsView,
       collection: renderCollectionView,
       buy: renderBuyView,
       calendar: renderCalendarView,
       importExport: renderImportExportView,
       settings: renderSettingsView,
-    }[state.activeTab];
+    };
+    const view = views[state.activeTab] || views.dashboard;
 
     app.append(view());
   }
@@ -2349,46 +2372,6 @@
       || collectionGapStatusLabel(a.status).localeCompare(collectionGapStatusLabel(b.status), "de"));
   }
 
-  function renderCollectionGapsView() {
-    const wrapper = document.createElement("section");
-    const rows = getCollectionGapRows();
-    wrapper.innerHTML = viewHeader("Sammellücken", "Abgeleitete Analyse nach Serie und Edition. Es werden keine Bände gespeichert oder automatisch übernommen.");
-
-    if (!rows.length) {
-      wrapper.append(emptyState("Keine Sammellücken", "Die vorhandenen lokalen Daten enthalten aktuell keine erkennbaren Lücken, offenen Releases oder unbekannten offenen Bände."));
-      return wrapper;
-    }
-
-    const table = document.createElement("div");
-    table.className = "table-wrap";
-    table.innerHTML = `
-      <table>
-        <thead>
-          <tr>
-            <th>Serie</th>
-            <th>Edition</th>
-            <th>Bandnummer</th>
-            <th>Status</th>
-            <th>Release</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${rows.map((row) => `
-            <tr>
-              <td>${escapeHtml(row.seriesTitle)}</td>
-              <td>${escapeHtml(editionTypeLabel(row.editionType))}</td>
-              <td>${escapeHtml(row.volumeNumber)}</td>
-              <td>${escapeHtml(collectionGapStatusLabel(row.status))}</td>
-              <td>${escapeHtml(formatDate(row.releaseDate))}</td>
-            </tr>
-          `).join("")}
-        </tbody>
-      </table>
-    `;
-    wrapper.append(table);
-    return wrapper;
-  }
-
   function renderDerivedGapCard(row) {
     return `
       <article class="card">
@@ -2412,31 +2395,77 @@
     `;
   }
 
+  function getCollectionSections() {
+    const unread = state.database.volumes.filter((volume) => volume.owned && volume.read !== true).sort(volumeSort);
+    const read = state.database.volumes.filter((volume) => volume.owned && volume.read === true).sort(volumeSort);
+    return { unread, read };
+  }
+
   function renderCollectionView() {
     const wrapper = document.createElement("section");
-    const owned = state.database.volumes.filter((volume) => volume.owned).sort(volumeSort);
+    const { unread, read } = getCollectionSections();
     wrapper.innerHTML = viewHeader("Sammlung", "Alle gekauften Einzelbände mit Lesestatus.");
-    if (!owned.length) {
-      wrapper.append(emptyState("Noch keine gekauften Bände", "Im Kaufen-Reiter erscheinen erschienene Bände, die du als gekauft markieren kannst."));
-      return wrapper;
+
+    const unreadSection = document.createElement("section");
+    unreadSection.className = "collection-section";
+    unreadSection.innerHTML = "<h3>Ungelesen</h3>";
+    if (!unread.length) {
+      unreadSection.append(emptyState("Keine ungelesenen Bände", "Alle gekauften Bände sind als gelesen markiert."));
+    } else {
+      const grid = document.createElement("div");
+      grid.className = "grid";
+      grid.innerHTML = unread.map((volume) => renderVolumeCard(volume, "collection")).join("");
+      unreadSection.append(grid);
     }
-    const grid = document.createElement("div");
-    grid.className = "grid";
-    grid.innerHTML = owned.map((volume) => renderVolumeCard(volume, "collection")).join("");
-    wrapper.append(grid);
+    wrapper.append(unreadSection);
+
+    const readSection = document.createElement("section");
+    readSection.className = "collection-section";
+    readSection.innerHTML = "<h3>Gelesen</h3>";
+    if (!read.length) {
+      readSection.append(emptyState("Keine gelesenen Bände", "Gelesene Bände erscheinen hier, sobald du sie markierst."));
+    } else {
+      const grid = document.createElement("div");
+      grid.className = "grid";
+      grid.innerHTML = read.map((volume) => renderVolumeCard(volume, "collection")).join("");
+      readSection.append(grid);
+    }
+    wrapper.append(readSection);
     return wrapper;
+  }
+
+  function getBuyGapEmptyMessage(derivedGapCandidates, gapDiagnostics) {
+    if (state.buyGapCache.status === "idle" || state.buyGapCache.status === "loading") {
+      return "Release-Cache leer/nicht geladen.";
+    }
+    if (state.buyGapCache.status === "ok" && !state.buyGapCache.items.length) {
+      return "Release-Cache leer/nicht geladen.";
+    }
+    if (state.buyGapCache.status === "ok" && gapDiagnostics.missingGapCount === 0) {
+      return "Keine anlegbaren Sammellücken aus Release-Cache.";
+    }
+    if (state.buyGapCache.status === "ok" && state.buyGapCache.items.length && !gapDiagnostics.hasMatchingCacheEntry) {
+      return "Keine passenden Cache-Einträge zur Sammlung.";
+    }
+    if (state.buyGapCache.status === "ok" && gapDiagnostics.hasMatchingCacheEntry && !gapDiagnostics.hasEligibleCacheEntry) {
+      return "Keine anlegbaren Sammellücken aus Release-Cache. Prüfe Release-Datum, Confidence und Edition.";
+    }
+    if (!derivedGapCandidates.length) {
+      return "Keine anlegbaren Sammellücken aus Release-Cache.";
+    }
+    return "";
   }
 
   function renderBuyView() {
     const wrapper = document.createElement("section");
-    const { localBuyCandidates, derivedGapCandidates } = getBuyTabAnalysisRows();
+    const { localBuyCandidates, derivedGapCandidates, gapDiagnostics } = getBuyTabAnalysisRows();
 
     wrapper.innerHTML = viewHeader("Kaufen", "Erschienene Bände und heutige Releases, getrennt nach lokalen Einträgen und sicher ableitbaren Sammellücken.");
 
     const localSection = document.createElement("section");
     localSection.innerHTML = "<h3>Bereits erfasst</h3>";
     if (!localBuyCandidates.length) {
-      localSection.append(emptyState("Nichts offen", "Sobald ein erfasster Band erschienen und noch nicht gekauft ist, landet er hier."));
+      localSection.append(emptyState("Keine lokalen kaufbaren Bände", "Es gibt keinen lokal erfassten Band mit owned=false und Release-Datum bis heute."));
     } else {
       const grid = document.createElement("div");
       grid.className = "grid";
@@ -2458,7 +2487,7 @@
       info.textContent = `Release-Cache konnte nicht geladen werden: ${state.buyGapCache.error}`;
       gapSection.append(info);
     } else if (!derivedGapCandidates.length) {
-      gapSection.append(emptyState("Keine sicheren Vorschläge", "Fehlende Bände erscheinen hier nur mit Release-Datum, passender Edition und ausreichender Cache-Confidence."));
+      gapSection.append(emptyState("Keine anlegbaren Sammellücken", getBuyGapEmptyMessage(derivedGapCandidates, gapDiagnostics)));
     } else {
       const grid = document.createElement("div");
       grid.className = "grid";
@@ -2580,8 +2609,8 @@
     }
     if (context === "collection") {
       actions.push(volume.read
-        ? `<button type="button" class="secondary-button" data-action="mark-unread" data-id="${escapeHtml(volume.id)}">Ungelesen</button>`
-        : `<button type="button" class="button" data-action="mark-read" data-id="${escapeHtml(volume.id)}">Gelesen</button>`);
+        ? `<button type="button" class="secondary-button" data-action="mark-unread" data-id="${escapeHtml(volume.id)}">Als ungelesen markieren</button>`
+        : `<button type="button" class="button" data-action="mark-read" data-id="${escapeHtml(volume.id)}">Als gelesen markieren</button>`);
     }
     actions.push(`<button type="button" class="secondary-button" data-action="edit-volume" data-id="${escapeHtml(volume.id)}">Bearbeiten</button>`);
 
@@ -2657,7 +2686,6 @@
         ${textField("editionFingerprint", "Edition-Fingerprint", volume.editionFingerprint)}
         ${textField("price", "Preis", volume.price ?? "", false, "text", "", "decimal")}
         ${textField("shopUrl", "Shop-URL", volume.shopUrl)}
-        ${selectField("editionType", "Edition", editionTypeValues, volume.editionType)}
         ${checkboxField("owned", "Gekauft", volume.owned)}
         ${textField("boughtAt", "Gekauft am", volume.boughtAt || "", false, "date")}
         ${checkboxField("read", "Gelesen", volume.read)}
@@ -2814,7 +2842,7 @@
       readAt: fieldValue(form, "readAt") || (read && !current?.readAt ? TODAY : null),
       price: fieldValue(form, "price") || null,
       shopUrl: fieldValue(form, "shopUrl"),
-      editionType: fieldValue(form, "editionType"),
+      editionType: current?.editionType || "standard",
       editionFingerprint: fieldValue(form, "editionFingerprint"),
       notes: fieldValue(form, "notes"),
       createdAt: current?.createdAt || TODAY,
@@ -3452,6 +3480,7 @@
     getSeriesCollectionSummary,
     getCollectionGapRows,
     getBuyTabAnalysisRows,
+    getBuyGapEmptyMessage,
     createPlaceholderFromGap,
     loadBuyGapCache,
     getState: () => state,
@@ -3459,6 +3488,10 @@
 
   window.mangaTrackerPhase7 = {
     getDashboardStats,
+    getCollectionSections,
+    renderVolumeCard,
+    renderVolumeForm,
+    handleVolumeSubmit,
     getState: () => state,
   };
 
