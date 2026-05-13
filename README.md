@@ -43,6 +43,62 @@ Fuer den produktiven Einsatz sollte ein eingeschraenkter JSONBin Access Key verw
 - `bins.update`
 - keine Create/Delete-Rechte
 
+JSONBin bleibt ab Phase 8 als `Legacy JSONBin Sync` erhalten, bis Supabase im Alltag stabil getestet ist.
+
+## Phase 8: Supabase Cloud-Sync
+
+Supabase ist optional. Die App startet und funktioniert weiterhin lokal mit `localStorage`, auch wenn keine Supabase-Konfiguration gesetzt ist.
+
+### Supabase-Projekt vorbereiten
+
+1. Neues Supabase-Projekt erstellen.
+2. Authentication > Providers > Email aktiv lassen.
+3. Authentication > URL Configuration setzen:
+   - Site URL: `https://sharkonek.github.io/manga-tracker/`
+   - Redirect URL: `https://sharkonek.github.io/manga-tracker/`
+   - Fuer lokale Tests optional zusaetzlich die lokale URL eintragen, z. B. `http://localhost:8000/`.
+4. SQL-Migrationen aus `supabase/migrations` im Supabase SQL Editor oder per Supabase MCP/CLI anwenden.
+5. Settings > API Keys oeffnen und nur die Project URL und den Public/Anon bzw. Publishable Key in der App unter `Einstellungen > Supabase Cloud-Sync` eintragen.
+
+Niemals einen `service_role` Key in der Browser-App eintragen. Dieser Key gehoert nicht in GitHub Pages, `localStorage`, Screenshots oder Commits.
+
+### Datenmodell
+
+Phase 8 nutzt bewusst ein simples JSONB-Modell:
+
+- Tabelle: `public.manga_tracker_databases`
+- ein Datensatz pro angemeldetem Supabase-User
+- Spalte `database` enthaelt die komplette Manga-Tracker-Datenbank mit `series` und `volumes`
+- Row Level Security ist aktiv
+- `authenticated` darf per RLS nur den eigenen Datensatz lesen, einfuegen, aktualisieren und loeschen
+- `anon` hat keine Tabellenrechte fuer Nutzerdaten
+
+### Migration von JSONBin zu Supabase
+
+1. In der App einen JSON Export herunterladen oder sicherstellen, dass ein aktuelles lokales Backup existiert.
+2. Supabase URL und Public/Anon Key eintragen und Supabase Cloud-Sync aktivieren.
+3. Per `Login-Link senden` anmelden und den Magic Link aus der E-Mail oeffnen.
+4. Optional `JSONBin zu Supabase migrieren` verwenden. Die App erstellt vorher ein lokales Backup.
+5. Wenn JSONBin konfiguriert ist, kann optional zuerst JSONBin geladen werden.
+6. Danach speichert die App die lokale Datenbank in Supabase.
+7. JSONBin-Konfiguration und lokale Daten werden nicht automatisch geloescht.
+
+### Supabase Smoke-Tests
+
+Manuell nach der Migration pruefen:
+
+1. App ohne Supabase Config starten: lokale Tabs und localStorage funktionieren normal.
+2. Supabase Config speichern, ohne Login `Cloud speichern` ausfuehren: Aktion wird blockiert.
+3. Ohne Login `Cloud laden` ausfuehren: Aktion wird blockiert.
+4. Magic-Link-Login ausfuehren und angemeldete E-Mail/User-ID anzeigen lassen.
+5. Logout ausfuehren und Status pruefen.
+6. Erster `Cloud speichern` legt den Datensatz in `manga_tracker_databases` an.
+7. Nach einer lokalen Aenderung aktualisiert ein zweiter `Cloud speichern` denselben Datensatz.
+8. `Cloud laden` erstellt vor lokalem Ueberschreiben ein Backup.
+9. Bei neuerem Cloud-Stand fragt die App vor Uebernahme; bei Abbruch bleibt lokal alles erhalten.
+10. Bei neuerem lokalem Stand blockiert `Cloud laden`, speichert den Cloud-Stand als Backup und ueberschreibt nichts blind.
+11. `Legacy JSONBin Sync` bleibt sichtbar und unveraendert.
+
 ## Phase 4b PoC: Manga-Passion-JSON
 
 Release-Daten und Cover werden im PoC nur ueber eine manuelle JSON-Datei pro Serie geprueft. Es gibt keinen direkten Browser-Fetch auf Manga Passion, keinen Proxy, keine GitHub Action und kein Massenupdate.
