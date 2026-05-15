@@ -1817,16 +1817,34 @@
 
   function updateStorageStatus() {
     let saveLabel;
+    let stateName = "neutral";
     if (state.savePending) {
       saveLabel = "Speichern läuft…";
+      stateName = "saving";
     } else if (state.saveError) {
-      saveLabel = "Nicht gespeichert ⚠";
+      saveLabel = "Nicht gespeichert";
+      stateName = "error";
     } else if (state.appMode === "cloud") {
-      saveLabel = "Gespeichert";
+      saveLabel = "Cloud gespeichert";
+      stateName = "saved";
+    } else if (state.appMode === "readonly") {
+      saveLabel = "Read-only";
+      stateName = "readonly";
+    } else if (state.appMode === "offline") {
+      saveLabel = "Cloud offline";
+      stateName = "offline";
+    } else if (state.appMode === "setup") {
+      saveLabel = "Setup erforderlich";
+      stateName = "setup";
+    } else if (state.appMode === "loading") {
+      saveLabel = "Lade Cloud-Daten…";
+      stateName = "saving";
     } else {
-      saveLabel = state.supabaseConfig.enabled ? `Supabase: ${state.supabaseConfig.lastSyncStatus}` : "Supabase aus";
+      saveLabel = state.supabaseConfig.enabled ? `Cloud: ${state.supabaseConfig.lastSyncStatus}` : "Cloud aus";
     }
-    storageStatus.textContent = `${formatDateTime(state.database.updatedAt)} · ${saveLabel}`;
+    storageStatus.className = `storage-status is-${stateName}`;
+    storageStatus.textContent = saveLabel;
+    storageStatus.title = `${formatDateTime(state.database.updatedAt)} · ${saveLabel}`;
   }
 
   function seriesById(seriesId) {
@@ -2262,7 +2280,7 @@
     if (state.appMode === "cloud") return null;
 
     const el = document.createElement("div");
-    el.className = "notice app-mode-banner";
+    el.className = `notice app-mode-banner is-${state.appMode}`;
 
     if (state.appMode === "loading") {
       el.textContent = "Lade Cloud-Daten…";
