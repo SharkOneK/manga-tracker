@@ -126,7 +126,7 @@
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) {
       const empty = createEmptyDatabase();
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(empty));
+      safeLocalStorageSet(STORAGE_KEY, JSON.stringify(empty));
       return empty;
     }
 
@@ -495,13 +495,26 @@
     }
   }
 
+  function safeLocalStorageSet(key, value) {
+    try {
+      localStorage.setItem(key, value);
+    } catch (e) {
+      if (e.name === "QuotaExceededError" || e.name === "NS_ERROR_DOM_QUOTA_REACHED") {
+        console.error("localStorage voll – Daten konnten nicht gespeichert werden.", key);
+        setNotice("Speicher voll! Bitte alte Backups löschen oder einen Export durchführen.");
+      } else {
+        throw e;
+      }
+    }
+  }
+
   function saveLocalDatabase() {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state.database));
+    safeLocalStorageSet(STORAGE_KEY, JSON.stringify(state.database));
   }
 
   function backupDatabaseSnapshot(database, reason = "backup") {
     const backupKey = `${BACKUP_PREFIX}${reason}.${nowIso()}`;
-    localStorage.setItem(backupKey, JSON.stringify(database));
+    safeLocalStorageSet(backupKey, JSON.stringify(database));
     return backupKey;
   }
 
@@ -1071,11 +1084,23 @@
   }
 
   async function readReleaseCacheFile() {
-    const response = await fetch("./data/release-cache.json", { cache: "no-store" });
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 30000);
+    let response;
+    try {
+      response = await fetch("./data/release-cache.json", { cache: "no-store", signal: controller.signal });
+    } finally {
+      clearTimeout(timeoutId);
+    }
     if (!response.ok) {
       throw new Error(`Release-Cache konnte nicht geladen werden: HTTP ${response.status}`);
     }
-    const cacheData = await response.json();
+    let cacheData;
+    try {
+      cacheData = await response.json();
+    } catch {
+      throw new Error("Release-Cache ist beschädigt (ungültiges JSON).");
+    }
     const validation = validateReleaseCache(cacheData);
     if (!validation.valid) {
       throw new Error(validation.errors.join(" "));
@@ -1535,6 +1560,9 @@
     setSyncStatus("syncing", "Synchronisiere mit JSONBin...");
     render();
 
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 30000);
+
     try {
       const response = await fetch(`${JSONBIN_API_ROOT}/b/${encodeURIComponent(state.syncConfig.binId.trim())}/latest`, {
         method: "GET",
@@ -1542,13 +1570,22 @@
           "X-Access-Key": state.syncConfig.accessKey.trim(),
           "X-Bin-Meta": "false",
         },
+        signal: controller.signal,
       });
 
       if (!response.ok) {
         throw new Error(`JSONBin Pull fehlgeschlagen: ${response.status}`);
       }
 
-      const payload = await response.json();
+      let payload;
+      try {
+        payload = await response.json();
+      } catch {
+        throw new Error("JSONBin-Antwort ist kein gültiges JSON.");
+      }
+      if (typeof payload !== "object" || payload === null) {
+        throw new Error("JSONBin-Antwort hat unerwartetes Format.");
+      }
       const cloudDatabase = payload?.record && payload?.metadata ? payload.record : payload;
       const validation = validateDatabase(cloudDatabase);
       if (!validation.valid) {
@@ -1565,10 +1602,10 @@
         setNotice("Cloud-Daten waren neuer und wurden lokal übernommen.");
       } else if (result.winner === "local") {
         logConflict(result);
-        await pushToCloud({ silent: true });
+        await pushToCloud({ silent: true, internal: true });
         setNotice("Lokale Daten waren neuer und wurden in JSONBin gespeichert.");
       } else if (state.syncConfig.pendingPush) {
-        await pushToCloud({ silent: true });
+        await pushToCloud({ silent: true, internal: true });
       }
 
       state.syncConfig.pendingPush = false;
@@ -1586,14 +1623,16 @@
       render();
       return { ok: false, error };
     } finally {
+      clearTimeout(timeoutId);
       state.syncInProgress = false;
     }
   }
 
   async function pushToCloud(options = {}) {
-    const { silent = false } = options;
+    const { silent = false, internal = false } = options;
     if (!isSyncConfigured()) return { ok: false, reason: "not-configured" };
-    if (state.syncInProgress && !silent) return { ok: false, reason: "busy" };
+    // internal=true: sub-call from within an active pullFromCloud, allowed to bypass busy check
+    if (state.syncInProgress && !internal) return { ok: false, reason: "busy" };
 
     if (!silent) {
       state.syncInProgress = true;
@@ -1614,6 +1653,9 @@
       return { ok: false, reason: "payload-too-large", sizeReport };
     }
 
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 30000);
+
     try {
       const payload = createSyncPayload();
       const response = await fetch(`${JSONBIN_API_ROOT}/b/${encodeURIComponent(state.syncConfig.binId.trim())}`, {
@@ -1624,6 +1666,7 @@
           "X-Bin-Versioning": "true",
         },
         body: JSON.stringify(payload),
+        signal: controller.signal,
       });
 
       if (!response.ok) {
@@ -1645,6 +1688,7 @@
       if (!silent) render();
       return { ok: false, error };
     } finally {
+      clearTimeout(timeoutId);
       if (!silent) state.syncInProgress = false;
     }
   }
@@ -4440,6 +4484,10 @@
     clearSupabaseConflict,
     getState: () => state,
   };
+
+  window.addEventListener("unhandledrejection", (event) => {
+    console.error("Unbehandelte Promise-Ablehnung:", event.reason);
+  });
 
   render();
   initSync();
