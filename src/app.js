@@ -63,6 +63,9 @@
     activeTab: "dashboard",
     appMode: "loading",
     showFirstTimeDialog: false,
+    savePending: false,
+    saveError: false,
+    supabaseSaveTimer: null,
     database: loadDatabase(),
     supabaseConfig: loadSupabaseConfig(),
     supabaseMeta: loadSupabaseMeta(),
@@ -285,7 +288,6 @@
     state.supabaseConfig.url = fieldValue(form, "supabaseUrl");
     state.supabaseConfig.publicKey = fieldValue(form, "supabasePublicKey");
     state.supabaseConfig.loginEmail = fieldValue(form, "supabaseLoginEmail");
-    state.supabaseMeta.autoPushEnabled = checkedValue(form, "supabaseAutoPushEnabled");
     resetSupabaseClient();
     saveSupabaseConfig();
     saveSupabaseMeta();
@@ -341,12 +343,41 @@
 
   function saveDatabase(options = {}) {
     const { sync = true } = options;
+
+    if (state.appMode !== "cloud") {
+      setNotice("Bearbeitung blockiert — bitte anmelden und Cloud-Daten laden.");
+      return;
+    }
+
     state.database.updatedAt = nowIso();
     saveLocalDatabase();
-    updateStorageStatus();
     if (sync) {
-      supabaseAutoPush();
+      state.savePending = true;
+      state.saveError = false;
     }
+    updateStorageStatus();
+    render();
+    if (sync) {
+      scheduleDebouncedSupabaseSave();
+    }
+  }
+
+  function scheduleDebouncedSupabaseSave() {
+    if (state.supabaseSaveTimer) clearTimeout(state.supabaseSaveTimer);
+    state.supabaseSaveTimer = setTimeout(async () => {
+      state.supabaseSaveTimer = null;
+      const result = await supabasePush({ silent: true });
+      if (result.ok) {
+        state.savePending = false;
+        state.saveError = false;
+        saveLocalDatabase();
+      } else if (result.reason !== "conflict" && result.reason !== "busy") {
+        state.savePending = false;
+        state.saveError = true;
+      }
+      updateStorageStatus();
+      render();
+    }, 3000);
   }
 
   function safeLocalStorageSet(key, value) {
@@ -1732,11 +1763,6 @@
     }
   }
 
-  async function supabaseAutoPush() {
-    if (!state.supabaseMeta.autoPushEnabled) return { ok: false, reason: "disabled" };
-    if (!isSupabaseConfigured() || !state.supabaseUser || state.supabaseConflict) return { ok: false, reason: "not-ready" };
-    return supabasePush({ silent: true });
-  }
 
   async function supabaseSyncLegacy() {
     const cloud = await getSupabaseCloudRow();
@@ -1804,8 +1830,17 @@
   }
 
   function updateStorageStatus() {
-    const supabaseLabel = state.supabaseConfig.enabled ? `Supabase: ${state.supabaseConfig.lastSyncStatus}` : "Supabase aus";
-    storageStatus.textContent = `${formatDateTime(state.database.updatedAt)} · ${supabaseLabel}`;
+    let saveLabel;
+    if (state.savePending) {
+      saveLabel = "Speichern läuft…";
+    } else if (state.saveError) {
+      saveLabel = "Nicht gespeichert ⚠";
+    } else if (state.appMode === "cloud") {
+      saveLabel = "Gespeichert";
+    } else {
+      saveLabel = state.supabaseConfig.enabled ? `Supabase: ${state.supabaseConfig.lastSyncStatus}` : "Supabase aus";
+    }
+    storageStatus.textContent = `${formatDateTime(state.database.updatedAt)} · ${saveLabel}`;
   }
 
   function seriesById(seriesId) {
@@ -3101,8 +3136,10 @@
           <div><strong>Lokale Datenbankgröße</strong><span>${escapeHtml(formatKb(supabaseSummary.bytes))}</span></div>
           <div><strong>Serien</strong><span>${escapeHtml(supabaseSummary.seriesCount)}</span></div>
           <div><strong>Bände</strong><span>${escapeHtml(supabaseSummary.volumeCount)}</span></div>
+          <div><strong>Cloud-Sync-Status</strong><span>${state.savePending ? "Speichern läuft…" : state.saveError ? "Nicht gespeichert ⚠" : state.appMode === "cloud" ? "Gespeichert" : state.appMode}</span></div>
           <div><strong>Lokale Änderungen</strong><span>${supabaseSummary.hasLocalChanges ? "ja" : "nein"}</span></div>
         </div>
+        ${state.saveError ? `<div class="actions"><button type="button" class="button" data-action="supabase-retry-save">Erneut speichern</button></div>` : ""}
         <div class="form-grid">
           ${checkboxField("supabaseEnabled", "Supabase Cloud-Sync aktivieren", state.supabaseConfig.enabled)}
           ${textField("supabaseUrl", "Supabase URL", state.supabaseConfig.url)}
@@ -3505,8 +3542,24 @@
         return;
       }
       state.database = normalizeDatabase(prepared);
-      saveDatabase();
-      setNotice(`Import erfolgreich. Backup erhalten: ${backupKey}.`);
+      saveLocalDatabase();
+      updateStorageStatus();
+      if (state.appMode === "cloud") {
+        setNotice(`Import lokal geladen. Backup: ${backupKey}. Speichere nach Supabase…`);
+        render();
+        const result = await supabasePush({ force: true });
+        if (result.ok) {
+          state.savePending = false;
+          state.saveError = false;
+          setNotice(`Import erfolgreich und nach Supabase gespeichert. Backup: ${backupKey}.`);
+        } else {
+          state.saveError = true;
+          setNotice(`Import lokal gespeichert, aber Supabase-Upload fehlgeschlagen. Backup: ${backupKey}. Bitte erneut speichern.`);
+        }
+      } else {
+        setNotice(`Import erfolgreich (lokal). Backup: ${backupKey}. Bitte anmelden um nach Supabase zu speichern.`);
+      }
+      render();
     } catch (error) {
       setNotice(`Import fehlgeschlagen. Backup erhalten: ${backupKey}.`);
       console.error(error);
@@ -3952,6 +4005,13 @@
     if (action === "supabase-push") {
       saveSupabaseFormValues(button.closest("form"));
       supabasePush();
+    }
+    if (action === "supabase-retry-save") {
+      state.saveError = false;
+      state.savePending = true;
+      updateStorageStatus();
+      scheduleDebouncedSupabaseSave();
+      render();
     }
     if (action === "supabase-pull") {
       saveSupabaseFormValues(button.closest("form"));
