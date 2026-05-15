@@ -2487,10 +2487,16 @@
       .filter((volume) => volume.releaseDate && volume.releaseDate > todayLocalDate())
       .sort((a, b) => a.releaseDate.localeCompare(b.releaseDate))
       .slice(0, 6);
-    const grid = document.createElement("div");
-    grid.className = "grid";
-    grid.innerHTML = nextReleases.map(renderVolumeCard).join("");
-    wrapper.append(grid);
+    if (nextReleases.length) {
+      const section = document.createElement("section");
+      section.className = "collection-section";
+      section.innerHTML = `<h3>Kommende Releases</h3>`;
+      const grid = document.createElement("div");
+      grid.className = "grid";
+      grid.innerHTML = nextReleases.map((volume) => renderVolumeCard(volume)).join("");
+      section.append(grid);
+      wrapper.append(section);
+    }
     return wrapper;
   }
 
@@ -2566,6 +2572,9 @@
     const volumes = volumesForSeries(series.id);
     const owned = volumes.filter((volume) => volume.owned).length;
     const summary = getSeriesCollectionSummary(series.id);
+    const collectionState = series.collectionStatus === "complete"
+      ? "completed"
+      : series.collectionStatus === "wishlist" ? "planned" : "reading";
     return `
       <article class="card">
         <div class="card-header">
@@ -2576,18 +2585,18 @@
           ${renderCover(series.coverUrl, series.title)}
         </div>
         <div class="meta">
-          <span>${escapeHtml(statusLabel(series.status))}</span>
-          <span>${escapeHtml(collectionStatusLabel(series.collectionStatus))}</span>
+          <span class="status-pill" data-state="${escapeHtml(series.status)}">${escapeHtml(statusLabel(series.status))}</span>
+          <span class="status-pill" data-state="${escapeHtml(collectionState)}">${escapeHtml(collectionStatusLabel(series.collectionStatus))}</span>
           <span>${owned}/${volumes.length} gekauft</span>
-          <span>Fehlen: ${summary.missingCount}</span>
-          <span>Kaufbar: ${summary.buyableCount}</span>
-          <span>Kommend: ${summary.upcomingCount}</span>
+          ${summary.missingCount ? `<span class="status-pill" data-state="missing">Fehlen: ${summary.missingCount}</span>` : ""}
+          ${summary.buyableCount ? `<span class="status-pill" data-state="buy">Kaufbar: ${summary.buyableCount}</span>` : ""}
+          ${summary.upcomingCount ? `<span>Kommend: ${summary.upcomingCount}</span>` : ""}
         </div>
-        <p class="muted">${escapeHtml(series.notes || "")}</p>
+        ${series.notes ? `<p class="muted">${escapeHtml(series.notes)}</p>` : ""}
         <div class="actions">
           <button type="button" class="secondary-button" data-action="edit-series" data-id="${escapeHtml(series.id)}">Bearbeiten</button>
           <button type="button" class="button" data-action="new-volume" data-id="${escapeHtml(series.id)}">Band hinzufügen</button>
-          <button type="button" class="button" data-action="preview-cover-cache" data-id="${escapeHtml(series.id)}">Cover pruefen</button>
+          <button type="button" class="secondary-button" data-action="preview-cover-cache" data-id="${escapeHtml(series.id)}">Cover prüfen</button>
           <button type="button" class="secondary-button" data-action="load-release-cache" data-id="${escapeHtml(series.id)}">Release-Cache laden</button>
           <label class="secondary-button" for="mangaPassionImport-${escapeHtml(series.id)}">Release-Daten prüfen</label>
           <input id="mangaPassionImport-${escapeHtml(series.id)}" type="file" accept="application/json,.json" data-release-import="${escapeHtml(series.id)}" hidden>
@@ -2621,7 +2630,10 @@
               <tr>
                 <td>${escapeHtml(volume.volumeNumber)} · ${escapeHtml(volume.title)}</td>
                 <td>${escapeHtml(formatDate(volume.releaseDate))}${renderVolumeBadges(volume)}</td>
-                <td>${volume.owned ? "gekauft" : "offen"} · ${volume.read ? "gelesen" : "ungelesen"}</td>
+                <td>
+                  <span class="status-pill" data-state="${volume.owned ? "owned" : "missing"}">${volume.owned ? "gekauft" : "offen"}</span>
+                  <span class="status-pill" data-state="${volume.read ? "completed" : "reading"}">${volume.read ? "gelesen" : "ungelesen"}</span>
+                </td>
                 <td>
                   <button type="button" class="secondary-button" data-action="edit-volume" data-id="${escapeHtml(volume.id)}">Bearbeiten</button>
                   <button type="button" class="danger-button" data-action="delete-volume" data-id="${escapeHtml(volume.id)}">Löschen</button>
@@ -3189,8 +3201,8 @@
         <div class="meta">
           <span>${escapeHtml(getPublisherLabel(volume.publisher || series?.publisher || "other"))}</span>
           <span>${escapeHtml(formatDate(volume.releaseDate))}</span>
-          <span>${volume.owned ? `gekauft ${volume.boughtAt ? formatDate(volume.boughtAt) : ""}` : "nicht gekauft"}</span>
-          <span>${volume.read ? "gelesen" : "ungelesen"}</span>
+          <span class="status-pill" data-state="${volume.owned ? "owned" : "missing"}">${volume.owned ? `gekauft${volume.boughtAt ? ` · ${formatDate(volume.boughtAt)}` : ""}` : "nicht gekauft"}</span>
+          <span class="status-pill" data-state="${volume.read ? "completed" : "reading"}">${volume.read ? "gelesen" : "ungelesen"}</span>
         </div>
         ${renderVolumeBadges(volume)}
         <div class="actions">${actions.join("")}</div>
@@ -3202,18 +3214,21 @@
     const conflicts = getReleaseConflicts().filter((conflict) => conflict.volumeId === volume.id);
     const badges = [];
     const today = todayLocalDate();
-    if (volume.coverCheckedAt && volume.coverSource && volume.coverConfidence > 0) badges.push("Neues Cover");
-    if (volume.releaseSource && volume.releaseConfidence > 0) badges.push("Release geaendert");
-    if (conflicts.length) badges.push("Release verschoben");
-    if (!volume.owned && volume.releaseDate && volume.releaseDate > today && volume.shopUrl) badges.push("Vorbestellbar");
-    if (!volume.owned && volume.releaseDate && volume.releaseDate <= today) badges.push("Jetzt kaufbar");
+    if (volume.coverCheckedAt && volume.coverSource && volume.coverConfidence > 0) badges.push({ label: "Neues Cover", variant: "info" });
+    if (volume.releaseSource && volume.releaseConfidence > 0) badges.push({ label: "Release geaendert", variant: "info" });
+    if (conflicts.length) badges.push({ label: "Release verschoben", variant: "warning" });
+    if (!volume.owned && volume.releaseDate && volume.releaseDate > today && volume.shopUrl) badges.push({ label: "Vorbestellbar", variant: "info" });
+    if (!volume.owned && volume.releaseDate && volume.releaseDate <= today) badges.push({ label: "Jetzt kaufbar", variant: "warning" });
     return badges;
   }
 
   function renderVolumeBadges(volume) {
     const badges = getVolumeBadges(volume);
     if (!badges.length) return "";
-    return `<div class="badge-row">${badges.map((badge) => `<span class="badge">${escapeHtml(badge)}</span>`).join("")}</div>`;
+    return `<div class="badge-row">${badges.map((badge) => {
+      const item = typeof badge === "string" ? { label: badge, variant: "info" } : badge;
+      return `<span class="badge badge-${escapeHtml(item.variant)}">${escapeHtml(item.label)}</span>`;
+    }).join("")}</div>`;
   }
 
   function renderCover(url, alt) {
