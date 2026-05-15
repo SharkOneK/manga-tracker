@@ -554,6 +554,18 @@ tr:last-child td {
   border-bottom: 1px solid var(--line);
 }
 
+.diagnostics {
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+}
+
+.diagnostics summary {
+  cursor: pointer;
+  color: var(--accent);
+  font-weight: 750;
+}
+
 @media (max-width: 760px) {
   .app-shell {
     padding: 18px;

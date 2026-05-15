@@ -7,6 +7,7 @@
   const SYNC_SESSION_KEY = "mangaTracker.syncAccessKey.session";
   const SYNC_CONFLICTS_KEY = "mangaTracker.syncConflicts.v1";
   const SUPABASE_CONFIG_KEY = "mangaTracker.supabaseConfig.v1";
+  const SUPABASE_META_KEY = "mangaTracker.supabaseMeta.v1";
   const SUPABASE_CONFLICTS_KEY = "mangaTracker.supabaseConflicts.v1";
   const RELEASE_CONFLICTS_KEY = "mangaTracker.releaseConflicts.v1";
   const JSONBIN_API_ROOT = "https://api.jsonbin.io/v3";
@@ -67,6 +68,7 @@
     database: loadDatabase(),
     syncConfig: loadSyncConfig(),
     supabaseConfig: loadSupabaseConfig(),
+    supabaseMeta: loadSupabaseMeta(),
     supabaseClient: null,
     supabaseUser: null,
     supabaseStatus: "not-configured",
@@ -208,6 +210,87 @@
     localStorage.setItem(SUPABASE_CONFIG_KEY, JSON.stringify(configForLocalStorage));
   }
 
+  function createDefaultSupabaseMeta() {
+    return {
+      lastPushAt: null,
+      lastPullAt: null,
+      lastSyncAt: null,
+      lastRemoteUpdatedAt: null,
+      lastError: "",
+      lastUserEmail: "",
+      lastKnownLocalUpdatedAt: "",
+      autoPushEnabled: false,
+      lastStatus: "not-configured",
+    };
+  }
+
+  function loadSupabaseMeta() {
+    const defaults = createDefaultSupabaseMeta();
+    try {
+      const stored = JSON.parse(localStorage.getItem(SUPABASE_META_KEY) || "{}");
+      return {
+        ...defaults,
+        lastPushAt: normalizeNullableTimestamp(stored.lastPushAt),
+        lastPullAt: normalizeNullableTimestamp(stored.lastPullAt),
+        lastSyncAt: normalizeNullableTimestamp(stored.lastSyncAt),
+        lastRemoteUpdatedAt: normalizeNullableTimestamp(stored.lastRemoteUpdatedAt),
+        lastError: String(stored.lastError || ""),
+        lastUserEmail: String(stored.lastUserEmail || ""),
+        lastKnownLocalUpdatedAt: normalizeNullableTimestamp(stored.lastKnownLocalUpdatedAt) || "",
+        autoPushEnabled: Boolean(stored.autoPushEnabled),
+        lastStatus: String(stored.lastStatus || defaults.lastStatus),
+      };
+    } catch (error) {
+      console.warn("Supabase-Metadaten konnten nicht gelesen werden:", error);
+      return defaults;
+    }
+  }
+
+  function saveSupabaseMeta(meta = state.supabaseMeta) {
+    const nextMeta = {
+      ...createDefaultSupabaseMeta(),
+      ...meta,
+      lastPushAt: normalizeNullableTimestamp(meta.lastPushAt),
+      lastPullAt: normalizeNullableTimestamp(meta.lastPullAt),
+      lastSyncAt: normalizeNullableTimestamp(meta.lastSyncAt),
+      lastRemoteUpdatedAt: normalizeNullableTimestamp(meta.lastRemoteUpdatedAt),
+      lastError: String(meta.lastError || ""),
+      lastUserEmail: String(meta.lastUserEmail || ""),
+      lastKnownLocalUpdatedAt: normalizeNullableTimestamp(meta.lastKnownLocalUpdatedAt) || "",
+      autoPushEnabled: Boolean(meta.autoPushEnabled),
+      lastStatus: String(meta.lastStatus || "not-configured"),
+    };
+    state.supabaseMeta = nextMeta;
+    localStorage.setItem(SUPABASE_META_KEY, JSON.stringify(nextMeta));
+    return nextMeta;
+  }
+
+  function updateSupabaseMeta(patch = {}) {
+    return saveSupabaseMeta({
+      ...state.supabaseMeta,
+      ...patch,
+    });
+  }
+
+  function clearSupabaseError() {
+    updateSupabaseMeta({ lastError: "" });
+  }
+
+  function setSupabaseError(message) {
+    const text = String(message || "Unbekannter Supabase-Fehler.");
+    updateSupabaseMeta({
+      lastError: text,
+      lastStatus: "error",
+    });
+    return text;
+  }
+
+  function normalizeNullableTimestamp(value) {
+    if (!value) return null;
+    const parsed = Date.parse(value);
+    return Number.isNaN(parsed) ? null : new Date(parsed).toISOString();
+  }
+
   function isSupabaseConfigured() {
     return Boolean(state.supabaseConfig.enabled && state.supabaseConfig.url.trim() && state.supabaseConfig.publicKey.trim());
   }
@@ -217,6 +300,10 @@
     state.supabaseMessage = message;
     state.supabaseConfig.lastSyncStatus = status;
     saveSupabaseConfig();
+    updateSupabaseMeta({
+      lastStatus: status,
+      lastKnownLocalUpdatedAt: state.database.updatedAt,
+    });
     updateStorageStatus();
   }
 
@@ -231,8 +318,10 @@
     state.supabaseConfig.url = fieldValue(form, "supabaseUrl");
     state.supabaseConfig.publicKey = fieldValue(form, "supabasePublicKey");
     state.supabaseConfig.loginEmail = fieldValue(form, "supabaseLoginEmail");
+    state.supabaseMeta.autoPushEnabled = checkedValue(form, "supabaseAutoPushEnabled");
     resetSupabaseClient();
     saveSupabaseConfig();
+    saveSupabaseMeta();
   }
 
   function getSupabaseClient() {
@@ -258,6 +347,12 @@
     );
     state.supabaseClient.auth.onAuthStateChange((_event, session) => {
       state.supabaseUser = session?.user || null;
+      if (state.supabaseUser) {
+        updateSupabaseMeta({
+          lastUserEmail: state.supabaseUser.email || "",
+          lastStatus: "signed-in",
+        });
+      }
       render();
     });
     return state.supabaseClient;
@@ -1658,10 +1753,17 @@
     const { data, error } = await client.auth.getUser();
     if (error) {
       state.supabaseUser = null;
+      setSupabaseError(`Login konnte nicht gelesen werden: ${error.message}`);
       setSupabaseStatus("auth-error", `Supabase Login konnte nicht gelesen werden: ${error.message}`);
       return null;
     }
     state.supabaseUser = data.user || null;
+    if (state.supabaseUser) {
+      updateSupabaseMeta({
+        lastUserEmail: state.supabaseUser.email || "",
+        lastStatus: "signed-in",
+      });
+    }
     return state.supabaseUser;
   }
 
@@ -1683,10 +1785,12 @@
       options: { emailRedirectTo: redirectTo },
     });
     if (error) {
+      setSupabaseError(`Login fehlgeschlagen: ${error.message}`);
       setSupabaseStatus("auth-error", `Login fehlgeschlagen: ${error.message}`);
       render();
       return { ok: false, error };
     }
+    clearSupabaseError();
     setSupabaseStatus("auth-link-sent", "Magic Link gesendet. Bitte E-Mail oeffnen und danach diese Seite erneut pruefen.");
     render();
     return { ok: true };
@@ -1697,11 +1801,13 @@
     if (!client) return { ok: false, reason: "not-configured" };
     const { error } = await client.auth.signOut();
     if (error) {
+      setSupabaseError(`Logout fehlgeschlagen: ${error.message}`);
       setSupabaseStatus("auth-error", `Logout fehlgeschlagen: ${error.message}`);
       render();
       return { ok: false, error };
     }
     state.supabaseUser = null;
+    updateSupabaseMeta({ lastStatus: "signed-out" });
     setSupabaseStatus("signed-out", "Von Supabase abgemeldet.");
     render();
     return { ok: true };
@@ -1710,6 +1816,7 @@
   async function getSupabaseCloudRow() {
     const user = await supabaseGetCurrentUser();
     if (!user) {
+      updateSupabaseMeta({ lastStatus: "not-signed-in" });
       setSupabaseStatus("not-signed-in", "Bitte zuerst bei Supabase anmelden.");
       return { ok: false, reason: "not-signed-in" };
     }
@@ -1720,9 +1827,14 @@
       .eq("user_id", user.id)
       .maybeSingle();
     if (error) {
+      setSupabaseError(`Cloud-Daten konnten nicht gelesen werden: ${error.message}`);
       setSupabaseStatus("error", `Supabase Cloud-Daten konnten nicht gelesen werden: ${error.message}`);
       return { ok: false, error };
     }
+    updateSupabaseMeta({
+      lastRemoteUpdatedAt: data?.updated_at || null,
+      lastUserEmail: user.email || state.supabaseMeta.lastUserEmail,
+    });
     return { ok: true, user, row: data || null };
   }
 
@@ -1778,12 +1890,22 @@
       if (error) throw error;
       state.supabaseConfig.pendingPush = false;
       state.supabaseConfig.lastSyncAt = nowIso();
+      clearSupabaseError();
+      updateSupabaseMeta({
+        lastPushAt: nowIso(),
+        lastSyncAt: state.supabaseConfig.lastSyncAt,
+        lastRemoteUpdatedAt: data.updated_at,
+        lastKnownLocalUpdatedAt: state.database.updatedAt,
+        lastUserEmail: cloud.user.email || state.supabaseMeta.lastUserEmail,
+        lastStatus: "ok",
+      });
       setSupabaseStatus("ok", `In Supabase gespeichert (${formatDateTime(data.updated_at)}).`);
       render();
       return { ok: true, updatedAt: data.updated_at };
     } catch (error) {
       console.warn(error);
       state.supabaseConfig.pendingPush = true;
+      setSupabaseError(error.message);
       setSupabaseStatus("error", `${error.message}. Lokal bleibt alles erhalten.`);
       render();
       return { ok: false, error };
@@ -1833,11 +1955,21 @@
       updateStorageStatus();
       state.supabaseConfig.pendingPush = false;
       state.supabaseConfig.lastSyncAt = nowIso();
+      clearSupabaseError();
+      updateSupabaseMeta({
+        lastPullAt: nowIso(),
+        lastSyncAt: state.supabaseConfig.lastSyncAt,
+        lastRemoteUpdatedAt: cloud.row.updated_at,
+        lastKnownLocalUpdatedAt: state.database.updatedAt,
+        lastUserEmail: cloud.user.email || state.supabaseMeta.lastUserEmail,
+        lastStatus: "ok",
+      });
       setSupabaseStatus("ok", `Supabase-Daten geladen. Backup: ${backupKey}.`);
       render();
       return { ok: true, backupKey };
     } catch (error) {
       console.warn(error);
+      setSupabaseError(error.message);
       setSupabaseStatus("error", `${error.message}. Lokal bleibt alles erhalten.`);
       render();
       return { ok: false, error };
@@ -3061,11 +3193,72 @@
     `;
   }
 
+  function formatOptionalDateTime(value) {
+    return value ? formatDateTime(value) : "nie";
+  }
+
+  function getSupabaseConnectionLabel() {
+    if (!state.supabaseConfig.enabled || !state.supabaseConfig.url.trim() || !state.supabaseConfig.publicKey.trim()) {
+      return "Nicht konfiguriert";
+    }
+    if (!state.supabaseUser) return "Konfiguriert, aber nicht angemeldet";
+    return `Angemeldet als ${state.supabaseUser.email || state.supabaseUser.id}`;
+  }
+
+  function maskSecret(value) {
+    const text = String(value || "").trim();
+    if (!text) return "nicht gesetzt";
+    if (text.length <= 12) return `${"*".repeat(Math.max(4, text.length))}`;
+    return `${text.slice(0, 6)}...${text.slice(-4)}`;
+  }
+
+  function getSupabaseKeyType(value = state.supabaseConfig.publicKey) {
+    const key = String(value || "").trim();
+    if (!key) return "nicht gesetzt";
+    if (key.startsWith("sb_publishable_")) return "publishable";
+    if (key.split(".").length === 3) return "legacy anon JWT";
+    return "unbekannt";
+  }
+
+  function getLocalDatabaseSummary() {
+    const payload = createSyncPayload();
+    return {
+      bytes: byteSize(payload),
+      seriesCount: payload.series.length,
+      volumeCount: payload.volumes.length,
+      updatedAt: payload.updatedAt,
+      hasLocalChanges: Boolean(state.supabaseMeta.lastKnownLocalUpdatedAt && state.supabaseMeta.lastKnownLocalUpdatedAt !== payload.updatedAt),
+    };
+  }
+
+  function renderSupabaseDiagnostics(summary) {
+    return `
+      <details class="diagnostics">
+        <summary>Diagnose anzeigen</summary>
+        <div class="settings-list">
+          <div><strong>Supabase URL gesetzt</strong><span>${state.supabaseConfig.url.trim() ? "ja" : "nein"}</span></div>
+          <div><strong>Public Key gesetzt</strong><span>${state.supabaseConfig.publicKey.trim() ? "ja" : "nein"}</span></div>
+          <div><strong>Public Key maskiert</strong><span>${escapeHtml(maskSecret(state.supabaseConfig.publicKey))}</span></div>
+          <div><strong>Key-Typ</strong><span>${escapeHtml(getSupabaseKeyType())}</span></div>
+          <div><strong>User angemeldet</strong><span>${state.supabaseUser ? "ja" : "nein"}</span></div>
+          <div><strong>User E-Mail</strong><span>${escapeHtml(state.supabaseUser?.email || state.supabaseMeta.lastUserEmail || "nicht bekannt")}</span></div>
+          <div><strong>Letzte Remote updated_at</strong><span>${escapeHtml(formatOptionalDateTime(state.supabaseMeta.lastRemoteUpdatedAt))}</span></div>
+          <div><strong>Lokale updatedAt</strong><span>${escapeHtml(formatOptionalDateTime(summary.updatedAt))}</span></div>
+          <div><strong>Lokale Datenbankgröße</strong><span>${escapeHtml(formatKb(summary.bytes))}</span></div>
+          <div><strong>Serienanzahl</strong><span>${escapeHtml(summary.seriesCount)}</span></div>
+          <div><strong>Bändeanzahl</strong><span>${escapeHtml(summary.volumeCount)}</span></div>
+          <div><strong>JSONBin Legacy aktiv</strong><span>${state.syncConfig.enabled ? "ja" : "nein"}</span></div>
+        </div>
+      </details>
+    `;
+  }
+
   function renderSettingsView() {
     const backups = Object.keys(localStorage).filter((key) => key.startsWith(BACKUP_PREFIX)).sort().reverse();
     const conflicts = JSON.parse(localStorage.getItem(SYNC_CONFLICTS_KEY) || "[]");
     const supabaseConflicts = getSupabaseConflicts();
     const releaseConflicts = getReleaseConflicts();
+    const supabaseSummary = getLocalDatabaseSummary();
     const wrapper = document.createElement("section");
     wrapper.innerHTML = `
       ${viewHeader("Einstellungen", "localStorage bleibt der lokale Cache. Supabase ist der bevorzugte Cloud-Sync; JSONBin bleibt als Legacy-Option erhalten.")}
@@ -3100,16 +3293,26 @@
         <p class="muted">Optionaler neuer Cloud-Sync. Trage nur Supabase URL und Public/Anon Key ein. Niemals einen service_role Key im Browser verwenden.</p>
         ${state.supabaseMessage ? `<div class="notice">${escapeHtml(state.supabaseMessage)}</div>` : ""}
         <div class="settings-list">
-          <div><strong>Status</strong><span>${escapeHtml(state.supabaseConfig.lastSyncStatus || state.supabaseStatus)}</span></div>
+          <div><strong>Status</strong><span>${escapeHtml(getSupabaseConnectionLabel())}</span></div>
+          <div><strong>Letzter Status</strong><span>${escapeHtml(state.supabaseMeta.lastStatus || state.supabaseConfig.lastSyncStatus || state.supabaseStatus)}</span></div>
           <div><strong>Angemeldet</strong><span>${escapeHtml(state.supabaseUser ? (state.supabaseUser.email || state.supabaseUser.id) : "nein")}</span></div>
           <div><strong>User-ID</strong><span>${escapeHtml(state.supabaseUser?.id || "nicht angemeldet")}</span></div>
-          <div><strong>Letzter Sync</strong><span>${escapeHtml(state.supabaseConfig.lastSyncAt ? formatDateTime(state.supabaseConfig.lastSyncAt) : "nie")}</span></div>
+          <div><strong>Letzter Push</strong><span>${escapeHtml(formatOptionalDateTime(state.supabaseMeta.lastPushAt))}</span></div>
+          <div><strong>Letzter Pull</strong><span>${escapeHtml(formatOptionalDateTime(state.supabaseMeta.lastPullAt))}</span></div>
+          <div><strong>Letzter Sync</strong><span>${escapeHtml(formatOptionalDateTime(state.supabaseMeta.lastSyncAt || state.supabaseConfig.lastSyncAt))}</span></div>
+          <div><strong>Letzter Cloud-Stand</strong><span>${escapeHtml(formatOptionalDateTime(state.supabaseMeta.lastRemoteUpdatedAt))}</span></div>
+          <div><strong>Letzter Fehler</strong><span>${escapeHtml(state.supabaseMeta.lastError || "keiner")}</span></div>
+          <div><strong>Lokale Datenbankgröße</strong><span>${escapeHtml(formatKb(supabaseSummary.bytes))}</span></div>
+          <div><strong>Serien</strong><span>${escapeHtml(supabaseSummary.seriesCount)}</span></div>
+          <div><strong>Bände</strong><span>${escapeHtml(supabaseSummary.volumeCount)}</span></div>
+          <div><strong>Lokale Änderungen</strong><span>${supabaseSummary.hasLocalChanges ? "ja" : "nein"}</span></div>
         </div>
         <div class="form-grid">
           ${checkboxField("supabaseEnabled", "Supabase Cloud-Sync aktivieren", state.supabaseConfig.enabled)}
           ${textField("supabaseUrl", "Supabase URL", state.supabaseConfig.url)}
           ${textField("supabasePublicKey", "Supabase Public/Anon Key", state.supabaseConfig.publicKey, false, "password")}
           ${textField("supabaseLoginEmail", "Login E-Mail", state.supabaseConfig.loginEmail, false, "email")}
+          ${checkboxField("supabaseAutoPushEnabled", "Auto-Push nach lokalen Änderungen aktivieren", state.supabaseMeta.autoPushEnabled)}
         </div>
         <div class="actions">
           <button type="submit" class="button">Supabase-Einstellungen speichern</button>
@@ -3120,6 +3323,7 @@
           <button type="button" class="secondary-button" data-action="supabase-sync-test">Sync testen</button>
           <button type="button" class="secondary-button" data-action="migrate-jsonbin-supabase">JSONBin zu Supabase migrieren</button>
         </div>
+        ${renderSupabaseDiagnostics(supabaseSummary)}
       </form>
       <form class="form-panel" data-form="sync">
         <h3>Legacy JSONBin Sync</h3>
@@ -4098,6 +4302,14 @@
     supabaseSignIn,
     supabaseSignOut,
     migrateJsonBinToSupabase,
+    loadSupabaseMeta,
+    saveSupabaseMeta,
+    updateSupabaseMeta,
+    clearSupabaseError,
+    setSupabaseError,
+    maskSecret,
+    getSupabaseKeyType,
+    getLocalDatabaseSummary,
     getState: () => state,
   };
 

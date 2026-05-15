@@ -242,6 +242,25 @@ function assert(condition, message) {
   const appSource = fs.readFileSync(path.join(ROOT, "src", "app.js"), "utf8");
   assert(appSource.includes("function pullFromCloud") && appSource.includes("function pushToCloud"), "JSONBin Sync-Funktionen fehlen unerwartet.");
   assert(appSource.includes("function exportObsidianZip"), "Obsidian Export fehlt unerwartet.");
+  assert(appSource.includes("mangaTracker.supabaseMeta.v1"), "Supabase Meta-Speicher fehlt.");
+
+  const supabaseApi = context.window.mangaTrackerPhase8;
+  context.localStorage.setItem("mangaTracker.supabaseMeta.v1", "{kaputt");
+  const recoveredMeta = supabaseApi.loadSupabaseMeta();
+  assert(recoveredMeta.lastStatus === "not-configured", "Kaputte Supabase Meta-Werte fallen nicht auf Defaults zurueck.");
+  supabaseApi.saveSupabaseMeta({
+    lastPushAt: "2026-05-13T10:00:00.000Z",
+    lastError: "Testfehler",
+    lastUserEmail: "user@example.test",
+    autoPushEnabled: true,
+    lastStatus: "ok",
+  });
+  const storedMeta = JSON.parse(context.localStorage.getItem("mangaTracker.supabaseMeta.v1"));
+  assert(storedMeta.autoPushEnabled === true, "Supabase Auto-Push-Meta wird nicht gespeichert.");
+  assert(storedMeta.lastError === "Testfehler", "Supabase Fehler-Meta wird nicht gespeichert.");
+  assert(supabaseApi.maskSecret("sb_publishable_1234567890abcdef").includes("..."), "Supabase Key wird nicht maskiert.");
+  assert(supabaseApi.getSupabaseKeyType("sb_publishable_abc") === "publishable", "Publishable Key-Typ wird nicht erkannt.");
+  assert(supabaseApi.getSupabaseKeyType("aaa.bbb.ccc") === "legacy anon JWT", "Legacy anon JWT Key-Typ wird nicht erkannt.");
 
   const collectionSections = api.getCollectionSections();
   assert(collectionSections.unread.length === 1 && collectionSections.unread[0].id === "alpha-002", "Sammlung trennt ungelesene Baende falsch.");
