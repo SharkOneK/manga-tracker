@@ -566,6 +566,14 @@ tr:last-child td {
   font-weight: 750;
 }
 
+.conflict-panel h4 {
+  margin: 0 0 8px;
+}
+
+.conflict-panel p {
+  margin: 0 0 12px;
+}
+
 @media (max-width: 760px) {
   .app-shell {
     padding: 18px;

@@ -74,6 +74,7 @@
     supabaseStatus: "not-configured",
     supabaseMessage: "",
     supabaseInProgress: false,
+    supabaseConflict: null,
     syncStatus: "offline-ready",
     syncMessage: "",
     syncInProgress: false,
@@ -302,7 +303,6 @@
     saveSupabaseConfig();
     updateSupabaseMeta({
       lastStatus: status,
-      lastKnownLocalUpdatedAt: state.database.updatedAt,
     });
     updateStorageStatus();
   }
@@ -489,7 +489,10 @@
     state.database.updatedAt = nowIso();
     saveLocalDatabase();
     updateStorageStatus();
-    if (sync) queuePushToCloud();
+    if (sync) {
+      queuePushToCloud();
+      supabaseAutoPush();
+    }
   }
 
   function saveLocalDatabase() {
@@ -1747,6 +1750,34 @@
     localStorage.setItem(SUPABASE_CONFLICTS_KEY, JSON.stringify(logs.slice(0, 50)));
   }
 
+  function buildSupabaseConflict(comparison, cloudDatabase, source = "check") {
+    return {
+      id: `supabase-conflict-${nowIso()}`,
+      source,
+      localUpdatedAt: comparison.localUpdatedAt,
+      cloudUpdatedAt: comparison.cloudUpdatedAt,
+      cloudRowUpdatedAt: comparison.cloudRowUpdatedAt,
+      cloudDatabase,
+      createdAt: nowIso(),
+    };
+  }
+
+  function showSupabaseConflict(comparison, cloudDatabase, source = "check") {
+    const conflict = buildSupabaseConflict(comparison, cloudDatabase, source);
+    state.supabaseConflict = conflict;
+    logSupabaseConflict({ ...comparison, type: `supabase-${source}-conflict` }, cloudDatabase);
+    updateSupabaseMeta({
+      lastRemoteUpdatedAt: comparison.cloudRowUpdatedAt || comparison.cloudUpdatedAt || null,
+      lastStatus: "conflict",
+    });
+    setSupabaseStatus("conflict", "Es gibt unterschiedliche Datenstaende. Bitte bewusst auswaehlen.");
+    return conflict;
+  }
+
+  function clearSupabaseConflict() {
+    state.supabaseConflict = null;
+  }
+
   async function supabaseGetCurrentUser() {
     const client = getSupabaseClient();
     if (!client) return null;
@@ -1852,7 +1883,8 @@
     };
   }
 
-  async function supabasePush() {
+  async function supabasePush(options = {}) {
+    const { force = false, silent = false } = options;
     if (state.supabaseInProgress) return { ok: false, reason: "busy" };
     const validation = validateDatabase(state.database);
     if (!validation.valid) {
@@ -1861,16 +1893,18 @@
       return { ok: false, reason: "invalid-local" };
     }
     state.supabaseInProgress = true;
-    setSupabaseStatus("syncing", "Speichere Manga Tracker in Supabase...");
-    render();
+    if (!silent) {
+      setSupabaseStatus("syncing", "Speichere lokale Daten bewusst in Supabase...");
+      render();
+    }
     try {
       const cloud = await getSupabaseCloudRow();
       if (!cloud.ok) return cloud;
       if (cloud.row) {
         const comparison = compareLocalWithSupabaseRow(cloud.row);
-        if (comparison.cloudTime > comparison.localTime) {
-          logSupabaseConflict({ ...comparison, type: "push-blocked-cloud-newer" }, cloud.row.database);
-          setSupabaseStatus("conflict", "Supabase ist neuer als lokal. Push wurde blockiert; beide Staende bleiben erhalten.");
+        if (comparison.cloudTime !== comparison.localTime && !force) {
+          const cloudDatabase = normalizeDatabase(migrateDatabase(cloud.row.database).database);
+          showSupabaseConflict(comparison, cloudDatabase, "push");
           render();
           return { ok: false, reason: "conflict-cloud-newer" };
         }
@@ -1891,6 +1925,7 @@
       state.supabaseConfig.pendingPush = false;
       state.supabaseConfig.lastSyncAt = nowIso();
       clearSupabaseError();
+      clearSupabaseConflict();
       updateSupabaseMeta({
         lastPushAt: nowIso(),
         lastSyncAt: state.supabaseConfig.lastSyncAt,
@@ -1900,14 +1935,14 @@
         lastStatus: "ok",
       });
       setSupabaseStatus("ok", `In Supabase gespeichert (${formatDateTime(data.updated_at)}).`);
-      render();
+      if (!silent) render();
       return { ok: true, updatedAt: data.updated_at };
     } catch (error) {
       console.warn(error);
       state.supabaseConfig.pendingPush = true;
       setSupabaseError(error.message);
       setSupabaseStatus("error", `${error.message}. Lokal bleibt alles erhalten.`);
-      render();
+      if (!silent) render();
       return { ok: false, error };
     } finally {
       state.supabaseInProgress = false;
@@ -1915,7 +1950,7 @@
   }
 
   async function supabasePull(options = {}) {
-    const { requireConfirmation = true } = options;
+    const { force = false } = options;
     if (state.supabaseInProgress) return { ok: false, reason: "busy" };
     state.supabaseInProgress = true;
     setSupabaseStatus("syncing", "Lade Manga Tracker aus Supabase...");
@@ -1934,20 +1969,10 @@
       }
       const cloudDatabase = normalizeDatabase(migrateDatabase(cloud.row.database).database);
       const comparison = compareLocalWithSupabaseRow(cloud.row);
-      if (comparison.localTime > comparison.cloudTime) {
-        logSupabaseConflict({ ...comparison, type: "pull-blocked-local-newer" }, cloudDatabase);
-        setSupabaseStatus("conflict", "Lokale Daten sind neuer als Supabase. Pull wurde blockiert; beide Staende bleiben erhalten.");
+      if (comparison.localTime !== comparison.cloudTime && !force) {
+        showSupabaseConflict(comparison, cloudDatabase, "pull");
         render();
-        return { ok: false, reason: "conflict-local-newer" };
-      }
-      if (comparison.cloudTime > comparison.localTime && requireConfirmation) {
-        const approved = confirm("Supabase-Daten sind neuer als deine lokalen Daten. Lokale Daten werden vorher gesichert. Cloud-Daten jetzt lokal uebernehmen?");
-        if (!approved) {
-          logSupabaseConflict({ ...comparison, type: "pull-declined-cloud-newer" }, cloudDatabase);
-          setSupabaseStatus("conflict", "Pull abgebrochen. Supabase-Stand wurde als Backup im localStorage erhalten.");
-          render();
-          return { ok: false, reason: "declined" };
-        }
+        return { ok: false, reason: "conflict" };
       }
       const backupKey = createBackupBeforeSync("supabase-pull");
       state.database = cloudDatabase;
@@ -1956,6 +1981,7 @@
       state.supabaseConfig.pendingPush = false;
       state.supabaseConfig.lastSyncAt = nowIso();
       clearSupabaseError();
+      clearSupabaseConflict();
       updateSupabaseMeta({
         lastPullAt: nowIso(),
         lastSyncAt: state.supabaseConfig.lastSyncAt,
@@ -1979,6 +2005,72 @@
   }
 
   async function supabaseSync() {
+    return supabaseCheck();
+  }
+
+  async function supabaseCheck() {
+    if (state.supabaseInProgress) return { ok: false, reason: "busy" };
+    state.supabaseInProgress = true;
+    setSupabaseStatus("checking", "Pruefe Supabase-Status ohne Daten zu veraendern...");
+    render();
+    try {
+      const cloud = await getSupabaseCloudRow();
+      if (!cloud.ok) {
+        render();
+        return cloud;
+      }
+      if (!cloud.row) {
+        clearSupabaseConflict();
+        clearSupabaseError();
+        updateSupabaseMeta({
+          lastSyncAt: nowIso(),
+          lastRemoteUpdatedAt: null,
+          lastStatus: "empty",
+        });
+        setSupabaseStatus("empty", "In Supabase liegt noch kein Datensatz. Cloud speichern legt ihn an.");
+        render();
+        return { ok: true, reason: "empty" };
+      }
+      const validation = validateDatabase(cloud.row.database);
+      if (!validation.valid) {
+        throw new Error(`Supabase-Daten sind ungueltig: ${validation.errors.join(" ")}`);
+      }
+      const cloudDatabase = normalizeDatabase(migrateDatabase(cloud.row.database).database);
+      const comparison = compareLocalWithSupabaseRow(cloud.row);
+      updateSupabaseMeta({
+        lastSyncAt: nowIso(),
+        lastRemoteUpdatedAt: cloud.row.updated_at,
+        lastUserEmail: cloud.user.email || state.supabaseMeta.lastUserEmail,
+      });
+      if (comparison.localTime !== comparison.cloudTime) {
+        showSupabaseConflict(comparison, cloudDatabase, "check");
+        render();
+        return { ok: true, reason: "conflict", comparison };
+      }
+      clearSupabaseConflict();
+      clearSupabaseError();
+      updateSupabaseMeta({ lastStatus: "ok" });
+      setSupabaseStatus("ok", "Sync geprueft: Supabase und lokale Daten sind gleich.");
+      render();
+      return { ok: true, reason: "equal" };
+    } catch (error) {
+      console.warn(error);
+      setSupabaseError(error.message);
+      setSupabaseStatus("error", `${error.message}. Es wurden keine Manga-Daten veraendert.`);
+      render();
+      return { ok: false, error };
+    } finally {
+      state.supabaseInProgress = false;
+    }
+  }
+
+  async function supabaseAutoPush() {
+    if (!state.supabaseMeta.autoPushEnabled) return { ok: false, reason: "disabled" };
+    if (!isSupabaseConfigured() || !state.supabaseUser || state.supabaseConflict) return { ok: false, reason: "not-ready" };
+    return supabasePush({ silent: true });
+  }
+
+  async function supabaseSyncLegacy() {
     const cloud = await getSupabaseCloudRow();
     if (!cloud.ok) {
       render();
@@ -1987,7 +2079,7 @@
     if (!cloud.row) return supabasePush();
     const comparison = compareLocalWithSupabaseRow(cloud.row);
     if (comparison.localTime > comparison.cloudTime) return supabasePush();
-    if (comparison.cloudTime > comparison.localTime) return supabasePull({ requireConfirmation: true });
+    if (comparison.cloudTime > comparison.localTime) return supabasePull();
     setSupabaseStatus("ok", "Supabase und lokale Daten sind bereits synchron.");
     render();
     return { ok: true, reason: "equal" };
@@ -3253,6 +3345,26 @@
     `;
   }
 
+  function renderSupabaseConflict() {
+    const conflict = state.supabaseConflict;
+    if (!conflict) return "";
+    return `
+      <section class="notice conflict-panel">
+        <h4>Supabase-Konflikt</h4>
+        <p>Es gibt unterschiedliche Datenstaende. Bitte waehle bewusst aus.</p>
+        <div class="settings-list">
+          <div><strong>Lokaler Stand</strong><span>${escapeHtml(formatOptionalDateTime(conflict.localUpdatedAt))}</span></div>
+          <div><strong>Cloud-Stand</strong><span>${escapeHtml(formatOptionalDateTime(conflict.cloudRowUpdatedAt || conflict.cloudUpdatedAt))}</span></div>
+        </div>
+        <div class="actions">
+          <button type="button" class="button" data-action="supabase-conflict-push">Lokale Daten behalten und Cloud ueberschreiben</button>
+          <button type="button" class="secondary-button" data-action="supabase-conflict-pull">Cloud laden und lokales Backup behalten</button>
+          <button type="button" class="secondary-button" data-action="supabase-conflict-cancel">Abbrechen</button>
+        </div>
+      </section>
+    `;
+  }
+
   function renderSettingsView() {
     const backups = Object.keys(localStorage).filter((key) => key.startsWith(BACKUP_PREFIX)).sort().reverse();
     const conflicts = JSON.parse(localStorage.getItem(SYNC_CONFLICTS_KEY) || "[]");
@@ -3292,6 +3404,7 @@
         <h3>Supabase Cloud-Sync</h3>
         <p class="muted">Optionaler neuer Cloud-Sync. Trage nur Supabase URL und Public/Anon Key ein. Niemals einen service_role Key im Browser verwenden.</p>
         ${state.supabaseMessage ? `<div class="notice">${escapeHtml(state.supabaseMessage)}</div>` : ""}
+        ${renderSupabaseConflict()}
         <div class="settings-list">
           <div><strong>Status</strong><span>${escapeHtml(getSupabaseConnectionLabel())}</span></div>
           <div><strong>Letzter Status</strong><span>${escapeHtml(state.supabaseMeta.lastStatus || state.supabaseConfig.lastSyncStatus || state.supabaseStatus)}</span></div>
@@ -3320,7 +3433,7 @@
           <button type="button" class="secondary-button" data-action="supabase-logout">Logout</button>
           <button type="button" class="secondary-button" data-action="supabase-push">Cloud speichern</button>
           <button type="button" class="secondary-button" data-action="supabase-pull">Cloud laden</button>
-          <button type="button" class="secondary-button" data-action="supabase-sync-test">Sync testen</button>
+          <button type="button" class="secondary-button" data-action="supabase-sync-test">Sync pruefen</button>
           <button type="button" class="secondary-button" data-action="migrate-jsonbin-supabase">JSONBin zu Supabase migrieren</button>
         </div>
         ${renderSupabaseDiagnostics(supabaseSummary)}
@@ -4210,6 +4323,17 @@
       saveSupabaseFormValues(button.closest("form"));
       supabaseSync();
     }
+    if (action === "supabase-conflict-push") {
+      supabasePush({ force: true });
+    }
+    if (action === "supabase-conflict-pull") {
+      supabasePull({ force: true });
+    }
+    if (action === "supabase-conflict-cancel") {
+      clearSupabaseConflict();
+      setSupabaseStatus("conflict-cancelled", "Konflikt abgebrochen. Es wurden keine Daten veraendert.");
+      render();
+    }
     if (action === "migrate-jsonbin-supabase") {
       saveSupabaseFormValues(button.closest("form"));
       migrateJsonBinToSupabase();
@@ -4298,6 +4422,8 @@
     supabasePull,
     supabasePush,
     supabaseSync,
+    supabaseCheck,
+    supabaseAutoPush,
     supabaseGetCurrentUser,
     supabaseSignIn,
     supabaseSignOut,
@@ -4310,6 +4436,8 @@
     maskSecret,
     getSupabaseKeyType,
     getLocalDatabaseSummary,
+    showSupabaseConflict,
+    clearSupabaseConflict,
     getState: () => state,
   };
 

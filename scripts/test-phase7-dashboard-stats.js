@@ -261,6 +261,23 @@ function assert(condition, message) {
   assert(supabaseApi.maskSecret("sb_publishable_1234567890abcdef").includes("..."), "Supabase Key wird nicht maskiert.");
   assert(supabaseApi.getSupabaseKeyType("sb_publishable_abc") === "publishable", "Publishable Key-Typ wird nicht erkannt.");
   assert(supabaseApi.getSupabaseKeyType("aaa.bbb.ccc") === "legacy anon JWT", "Legacy anon JWT Key-Typ wird nicht erkannt.");
+  const databaseBeforeConflict = JSON.stringify(state.database);
+  const conflictCloudDatabase = {
+    ...makeDatabase(),
+    updatedAt: "2026-05-13T11:00:00.000Z",
+  };
+  supabaseApi.showSupabaseConflict({
+    localUpdatedAt: state.database.updatedAt,
+    cloudUpdatedAt: conflictCloudDatabase.updatedAt,
+    cloudRowUpdatedAt: conflictCloudDatabase.updatedAt,
+  }, conflictCloudDatabase, "test");
+  assert(JSON.stringify(state.database) === databaseBeforeConflict, "Supabase Konfliktanzeige darf lokale Daten nicht veraendern.");
+  assert(state.supabaseConflict && state.supabaseConflict.cloudDatabase.updatedAt === conflictCloudDatabase.updatedAt, "Supabase Konflikt haelt den Cloud-Stand nicht fest.");
+  const conflictBackups = Object.keys(context.localStorage.store).filter((key) => key.includes("supabase-cloud-conflict"));
+  assert(conflictBackups.length >= 1, "Supabase Konflikt sichert den Cloud-Stand nicht lokal.");
+  conflictBackups.forEach((key) => context.localStorage.removeItem(key));
+  supabaseApi.clearSupabaseConflict();
+  assert(state.supabaseConflict === null, "Supabase Konflikt kann nicht geschlossen werden.");
 
   const collectionSections = api.getCollectionSections();
   assert(collectionSections.unread.length === 1 && collectionSections.unread[0].id === "alpha-002", "Sammlung trennt ungelesene Baende falsch.");
