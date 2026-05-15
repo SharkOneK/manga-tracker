@@ -3,14 +3,10 @@
 
   const STORAGE_KEY = "mangaTracker.database.v1";
   const BACKUP_PREFIX = "mangaTracker.backup.";
-  const SYNC_CONFIG_KEY = "mangaTracker.syncConfig.v1";
-  const SYNC_SESSION_KEY = "mangaTracker.syncAccessKey.session";
-  const SYNC_CONFLICTS_KEY = "mangaTracker.syncConflicts.v1";
   const SUPABASE_CONFIG_KEY = "mangaTracker.supabaseConfig.v1";
   const SUPABASE_META_KEY = "mangaTracker.supabaseMeta.v1";
   const SUPABASE_CONFLICTS_KEY = "mangaTracker.supabaseConflicts.v1";
   const RELEASE_CONFLICTS_KEY = "mangaTracker.releaseConflicts.v1";
-  const JSONBIN_API_ROOT = "https://api.jsonbin.io/v3";
   const SUPABASE_TABLE = "manga_tracker_databases";
   const TODAY = todayLocalDate();
   const app = document.querySelector("#app");
@@ -66,7 +62,6 @@
   const state = {
     activeTab: "dashboard",
     database: loadDatabase(),
-    syncConfig: loadSyncConfig(),
     supabaseConfig: loadSupabaseConfig(),
     supabaseMeta: loadSupabaseMeta(),
     supabaseClient: null,
@@ -75,10 +70,6 @@
     supabaseMessage: "",
     supabaseInProgress: false,
     supabaseConflict: null,
-    syncStatus: "offline-ready",
-    syncMessage: "",
-    syncInProgress: false,
-    syncRetryTimer: null,
     editingSeriesId: null,
     editingVolumeId: null,
     releasePreview: null,
@@ -98,7 +89,6 @@
       itemCount: null,
       error: "",
     },
-    syncSizeReport: null,
     notice: "",
   };
 
@@ -146,31 +136,6 @@
     } catch (error) {
       console.warn("Datenbank konnte nicht gelesen werden:", error);
       return createEmptyDatabase();
-    }
-  }
-
-  function loadSyncConfig() {
-    const defaults = {
-      enabled: false,
-      binId: "",
-      persistKey: false,
-      accessKey: "",
-      lastSyncAt: null,
-      lastSyncStatus: "not-configured",
-      pendingPush: false,
-    };
-
-    try {
-      const stored = JSON.parse(localStorage.getItem(SYNC_CONFIG_KEY) || "{}");
-      const sessionKey = sessionStorage.getItem(SYNC_SESSION_KEY) || "";
-      return {
-        ...defaults,
-        ...stored,
-        accessKey: stored.persistKey ? String(stored.accessKey || "") : sessionKey,
-      };
-    } catch (error) {
-      console.warn("Sync-Konfiguration konnte nicht gelesen werden:", error);
-      return defaults;
     }
   }
 
@@ -358,60 +323,6 @@
     return state.supabaseClient;
   }
 
-  function saveSyncConfig() {
-    const configForLocalStorage = {
-      enabled: Boolean(state.syncConfig.enabled),
-      binId: state.syncConfig.binId.trim(),
-      persistKey: Boolean(state.syncConfig.persistKey),
-      accessKey: state.syncConfig.persistKey ? state.syncConfig.accessKey : "",
-      lastSyncAt: state.syncConfig.lastSyncAt,
-      lastSyncStatus: state.syncConfig.lastSyncStatus,
-      pendingPush: Boolean(state.syncConfig.pendingPush),
-    };
-
-    localStorage.setItem(SYNC_CONFIG_KEY, JSON.stringify(configForLocalStorage));
-    if (state.syncConfig.persistKey) {
-      sessionStorage.removeItem(SYNC_SESSION_KEY);
-    } else if (state.syncConfig.accessKey) {
-      sessionStorage.setItem(SYNC_SESSION_KEY, state.syncConfig.accessKey);
-    } else {
-      sessionStorage.removeItem(SYNC_SESSION_KEY);
-    }
-  }
-
-  function isSyncConfigured() {
-    return Boolean(state.syncConfig.enabled && state.syncConfig.binId.trim() && state.syncConfig.accessKey.trim());
-  }
-
-  function setSyncStatus(status, message = "") {
-    state.syncStatus = status;
-    state.syncMessage = message;
-    state.syncConfig.lastSyncStatus = status;
-    saveSyncConfig();
-    updateStorageStatus();
-  }
-
-  function extractJsonBinErrorText(rawText) {
-    const text = String(rawText || "").trim();
-    if (!text) return "";
-    try {
-      const parsed = JSON.parse(text);
-      return String(parsed.message || parsed.error || parsed.errorMessage || text).trim();
-    } catch {
-      return text;
-    }
-  }
-
-  async function createJsonBinHttpError(prefix, response) {
-    let detail = "";
-    try {
-      detail = extractJsonBinErrorText(await response.text());
-    } catch {
-      detail = "";
-    }
-    return new Error(`${prefix}: ${response.status}${detail ? ` - ${detail}` : ""}`);
-  }
-
   function byteSize(value) {
     return new TextEncoder().encode(typeof value === "string" ? value : JSON.stringify(value)).length;
   }
@@ -420,68 +331,10 @@
     return `${(bytes / 1024).toFixed(1)} KB`;
   }
 
-  function createSyncPayload(database = state.database) {
-    return {
-      schemaVersion: database.schemaVersion,
-      updatedAt: database.updatedAt,
-      series: Array.isArray(database.series) ? database.series : [],
-      volumes: Array.isArray(database.volumes) ? database.volumes : [],
-    };
-  }
-
   function sumLocalStorageBytes(predicate) {
     return Object.keys(localStorage)
       .filter(predicate)
       .reduce((sum, key) => sum + byteSize(localStorage.getItem(key) || ""), 0);
-  }
-
-  function getSyncPayloadSizeReport(database = state.database) {
-    const payload = createSyncPayload(database);
-    const noteValues = [
-      ...payload.series.map((series) => series.notes || ""),
-      ...payload.volumes.map((volume) => volume.notes || ""),
-    ].filter(Boolean);
-    const coverValues = [
-      ...payload.series.map((series) => series.coverUrl || ""),
-      ...payload.volumes.map((volume) => volume.coverUrl || ""),
-    ].filter(Boolean);
-    const report = {
-      totalBytes: byteSize(payload),
-      seriesBytes: byteSize(payload.series),
-      volumesBytes: byteSize(payload.volumes),
-      metadataBytes: byteSize({
-        schemaVersion: payload.schemaVersion,
-        updatedAt: payload.updatedAt,
-      }),
-      notesBytes: byteSize(noteValues),
-      coverUrlBytes: byteSize(coverValues),
-      seriesCount: payload.series.length,
-      volumeCount: payload.volumes.length,
-      backupsBytes: sumLocalStorageBytes((key) => key.startsWith(BACKUP_PREFIX)),
-      releaseConflictsBytes: byteSize(localStorage.getItem(RELEASE_CONFLICTS_KEY) || ""),
-      syncLogsBytes: byteSize(localStorage.getItem(SYNC_CONFLICTS_KEY) || ""),
-      releaseCacheBytes: byteSize(state.buyGapCache.items || []),
-      previewStateBytes: byteSize({
-        releasePreview: state.releasePreview,
-        coverPreview: state.coverPreview,
-      }),
-      uiStateBytes: byteSize({
-        activeTab: state.activeTab,
-        editingSeriesId: state.editingSeriesId,
-        editingVolumeId: state.editingVolumeId,
-        notice: state.notice,
-      }),
-    };
-    report.warning = report.totalBytes >= 90 * 1024;
-    report.tooLarge = report.totalBytes >= 100 * 1024;
-    report.preflightBlocked = report.totalBytes > 95 * 1024;
-    return report;
-  }
-
-  function syncSizeStatusText(report) {
-    if (report.tooLarge) return "Fehlerhinweis: JSONBin Free-Limit von 100 KB überschritten.";
-    if (report.warning) return "Warnung: Sync-Payload liegt über 90 KB.";
-    return "Sync-Payload liegt unter 90 KB.";
   }
 
   function saveDatabase(options = {}) {
@@ -490,7 +343,6 @@
     saveLocalDatabase();
     updateStorageStatus();
     if (sync) {
-      queuePushToCloud();
       supabaseAutoPush();
     }
   }
@@ -995,16 +847,12 @@
     const blockedUserDataKeys = new Set([
       "accessKey",
       "apiKey",
-      "binId",
       "boughtAt",
       "email",
-      "jsonbin",
       "notes",
       "owned",
-      "persistKey",
       "read",
       "readAt",
-      "syncConfig",
       "token",
       "user",
       "username",
@@ -1538,237 +1386,6 @@
     };
   }
 
-  async function initSync() {
-    if (!state.syncConfig.enabled) {
-      setSyncStatus("disabled", "JSONBin Sync ist deaktiviert.");
-      render();
-      return;
-    }
-
-    if (!isSyncConfigured()) {
-      setSyncStatus("missing-config", "JSONBin Sync ist aktiviert, aber Bin-ID oder X-Access-Key fehlt.");
-      render();
-      return;
-    }
-
-    await pullFromCloud();
-  }
-
-  async function pullFromCloud() {
-    if (!isSyncConfigured() || state.syncInProgress) return { ok: false, reason: "not-ready" };
-    state.syncInProgress = true;
-    setSyncStatus("syncing", "Synchronisiere mit JSONBin...");
-    render();
-
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 30000);
-
-    try {
-      const response = await fetch(`${JSONBIN_API_ROOT}/b/${encodeURIComponent(state.syncConfig.binId.trim())}/latest`, {
-        method: "GET",
-        headers: {
-          "X-Access-Key": state.syncConfig.accessKey.trim(),
-          "X-Bin-Meta": "false",
-        },
-        signal: controller.signal,
-      });
-
-      if (!response.ok) {
-        throw new Error(`JSONBin Pull fehlgeschlagen: ${response.status}`);
-      }
-
-      let payload;
-      try {
-        payload = await response.json();
-      } catch {
-        throw new Error("JSONBin-Antwort ist kein gültiges JSON.");
-      }
-      if (typeof payload !== "object" || payload === null) {
-        throw new Error("JSONBin-Antwort hat unerwartetes Format.");
-      }
-      const cloudDatabase = payload?.record && payload?.metadata ? payload.record : payload;
-      const validation = validateDatabase(cloudDatabase);
-      if (!validation.valid) {
-        throw new Error(`Cloud-Daten sind ungültig: ${validation.errors.join(" ")}`);
-      }
-
-      const cloudMigration = migrateDatabase(cloudDatabase);
-      const result = resolveConflict(state.database, normalizeDatabase(cloudMigration.database));
-      if (result.winner === "cloud") {
-        createBackupBeforeSync("cloud-won");
-        state.database = result.database;
-        saveLocalDatabase();
-        logConflict(result);
-        setNotice("Cloud-Daten waren neuer und wurden lokal übernommen.");
-      } else if (result.winner === "local") {
-        logConflict(result);
-        await pushToCloud({ silent: true, internal: true });
-        setNotice("Lokale Daten waren neuer und wurden in JSONBin gespeichert.");
-      } else if (state.syncConfig.pendingPush) {
-        await pushToCloud({ silent: true, internal: true });
-      }
-
-      state.syncConfig.pendingPush = false;
-      state.syncConfig.lastSyncAt = nowIso();
-      setSyncStatus("ok", "JSONBin Sync abgeschlossen.");
-      saveSyncConfig();
-      render();
-      return { ok: true, winner: result.winner };
-    } catch (error) {
-      console.warn(error);
-      state.syncConfig.pendingPush = true;
-      setSyncStatus("error", `${error.message}. Die App arbeitet lokal weiter.`);
-      saveSyncConfig();
-      scheduleSyncRetry();
-      render();
-      return { ok: false, error };
-    } finally {
-      clearTimeout(timeoutId);
-      state.syncInProgress = false;
-    }
-  }
-
-  async function pushToCloud(options = {}) {
-    const { silent = false, internal = false } = options;
-    if (!isSyncConfigured()) return { ok: false, reason: "not-configured" };
-    // internal=true: sub-call from within an active pullFromCloud, allowed to bypass busy check
-    if (state.syncInProgress && !internal) return { ok: false, reason: "busy" };
-
-    if (!silent) {
-      state.syncInProgress = true;
-      setSyncStatus("syncing", "Speichere in JSONBin...");
-      render();
-    }
-
-    const sizeReport = getSyncPayloadSizeReport();
-    state.syncSizeReport = sizeReport;
-    if (sizeReport.preflightBlocked) {
-      state.syncConfig.pendingPush = true;
-      setSyncStatus("error", `JSONBin Sync-Payload ist ${formatKb(sizeReport.totalBytes)} groß und liegt über der 95-KB-Sicherheitsgrenze. Lokal gespeichert, Cloud-Push nicht versucht.`);
-      saveSyncConfig();
-      if (!silent) {
-        render();
-        state.syncInProgress = false;
-      }
-      return { ok: false, reason: "payload-too-large", sizeReport };
-    }
-
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 30000);
-
-    try {
-      const payload = createSyncPayload();
-      const response = await fetch(`${JSONBIN_API_ROOT}/b/${encodeURIComponent(state.syncConfig.binId.trim())}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          "X-Access-Key": state.syncConfig.accessKey.trim(),
-          "X-Bin-Versioning": "true",
-        },
-        body: JSON.stringify(payload),
-        signal: controller.signal,
-      });
-
-      if (!response.ok) {
-        throw await createJsonBinHttpError("JSONBin Push fehlgeschlagen", response);
-      }
-
-      state.syncConfig.pendingPush = false;
-      state.syncConfig.lastSyncAt = nowIso();
-      setSyncStatus("ok", "Lokal gespeichert und mit JSONBin synchronisiert.");
-      saveSyncConfig();
-      if (!silent) render();
-      return { ok: true };
-    } catch (error) {
-      console.warn(error);
-      state.syncConfig.pendingPush = true;
-      setSyncStatus("error", `${error.message}. Lokal gespeichert, Cloud-Sync wird später erneut versucht.`);
-      saveSyncConfig();
-      scheduleSyncRetry();
-      if (!silent) render();
-      return { ok: false, error };
-    } finally {
-      clearTimeout(timeoutId);
-      if (!silent) state.syncInProgress = false;
-    }
-  }
-
-  function queuePushToCloud() {
-    if (!state.syncConfig.enabled) return;
-    if (!isSyncConfigured()) {
-      state.syncConfig.pendingPush = true;
-      setSyncStatus("missing-config", "Lokal gespeichert. Für JSONBin fehlen Bin-ID oder X-Access-Key.");
-      return;
-    }
-    pushToCloud({ silent: true });
-  }
-
-  function scheduleSyncRetry() {
-    if (!state.syncConfig.enabled || state.syncRetryTimer) return;
-    state.syncRetryTimer = window.setTimeout(() => {
-      state.syncRetryTimer = null;
-      if (state.syncConfig.pendingPush) {
-        pushToCloud({ silent: true });
-      } else {
-        pullFromCloud();
-      }
-    }, 30000);
-  }
-
-  function resolveConflict(localDatabase, cloudDatabase) {
-    const localUpdatedAt = Date.parse(localDatabase.updatedAt || "");
-    const cloudUpdatedAt = Date.parse(cloudDatabase.updatedAt || "");
-    const localTime = Number.isNaN(localUpdatedAt) ? 0 : localUpdatedAt;
-    const cloudTime = Number.isNaN(cloudUpdatedAt) ? 0 : cloudUpdatedAt;
-
-    if (cloudTime > localTime) {
-      return {
-        winner: "cloud",
-        database: cloudDatabase,
-        localUpdatedAt: localDatabase.updatedAt,
-        cloudUpdatedAt: cloudDatabase.updatedAt,
-        resolvedAt: nowIso(),
-      };
-    }
-
-    if (localTime > cloudTime) {
-      return {
-        winner: "local",
-        database: localDatabase,
-        localUpdatedAt: localDatabase.updatedAt,
-        cloudUpdatedAt: cloudDatabase.updatedAt,
-        resolvedAt: nowIso(),
-      };
-    }
-
-    return {
-      winner: "equal",
-      database: localDatabase,
-      localUpdatedAt: localDatabase.updatedAt,
-      cloudUpdatedAt: cloudDatabase.updatedAt,
-      resolvedAt: nowIso(),
-    };
-  }
-
-  function createBackupBeforeSync(reason = "sync") {
-    const backupKey = `${BACKUP_PREFIX}sync.${reason}.${nowIso()}`;
-    localStorage.setItem(backupKey, JSON.stringify(state.database));
-    return backupKey;
-  }
-
-  function logConflict(result) {
-    if (result.winner === "equal") return;
-    const logs = JSON.parse(localStorage.getItem(SYNC_CONFLICTS_KEY) || "[]");
-    logs.unshift({
-      winner: result.winner,
-      localUpdatedAt: result.localUpdatedAt,
-      cloudUpdatedAt: result.cloudUpdatedAt,
-      resolvedAt: result.resolvedAt,
-    });
-    localStorage.setItem(SYNC_CONFLICTS_KEY, JSON.stringify(logs.slice(0, 50)));
-    console.info("JSONBin Sync-Konflikt gelöst:", result);
-  }
-
   function getSupabaseConflicts() {
     try {
       return JSON.parse(localStorage.getItem(SUPABASE_CONFLICTS_KEY) || "[]");
@@ -1957,7 +1574,12 @@
       const payload = {
         user_id: cloud.user.id,
         schema_version: state.database.schemaVersion,
-        database: createSyncPayload(),
+        database: {
+          schemaVersion: state.database.schemaVersion,
+          updatedAt: state.database.updatedAt,
+          series: Array.isArray(state.database.series) ? state.database.series : [],
+          volumes: Array.isArray(state.database.volumes) ? state.database.volumes : [],
+        },
         updated_at: state.database.updatedAt,
       };
       const { data, error } = await client
@@ -2018,7 +1640,7 @@
         render();
         return { ok: false, reason: "conflict" };
       }
-      const backupKey = createBackupBeforeSync("supabase-pull");
+      const backupKey = backupDatabaseSnapshot(state.database, "supabase-pull");
       state.database = cloudDatabase;
       saveLocalDatabase();
       updateStorageStatus();
@@ -2129,29 +1751,6 @@
     return { ok: true, reason: "equal" };
   }
 
-  async function migrateJsonBinToSupabase() {
-    const validation = validateDatabase(state.database);
-    if (!validation.valid) {
-      setSupabaseStatus("error", `Migration abgebrochen: lokale Daten sind ungueltig (${validation.errors.join(" ")}).`);
-      render();
-      return { ok: false, reason: "invalid-local" };
-    }
-    const backupKey = backupDatabaseSnapshot(state.database, "before-supabase-migration");
-    if (isSyncConfigured()) {
-      const pullJsonBin = confirm("JSONBin ist konfiguriert. Vor dem Supabase-Push optional zuerst JSONBin laden? Lokale Daten werden bei JSONBin-Cloud-Sieg vorher gesichert.");
-      if (pullJsonBin) {
-        await pullFromCloud();
-      }
-    }
-    const result = await supabasePush();
-    if (result.ok) {
-      setNotice(`Migration zu Supabase erfolgreich. Lokales Backup erhalten: ${backupKey}. JSONBin-Konfiguration wurde nicht entfernt.`);
-    } else {
-      setNotice(`Migration zu Supabase nicht abgeschlossen. Lokales Backup erhalten: ${backupKey}.`);
-    }
-    return result;
-  }
-
   async function initSupabaseAuth() {
     if (!state.supabaseConfig.enabled) {
       setSupabaseStatus("disabled", "Supabase Cloud-Sync ist deaktiviert.");
@@ -2176,9 +1775,8 @@
   }
 
   function updateStorageStatus() {
-    const syncLabel = state.syncConfig.enabled ? `JSONBin: ${state.syncConfig.lastSyncStatus}` : "JSONBin aus";
     const supabaseLabel = state.supabaseConfig.enabled ? `Supabase: ${state.supabaseConfig.lastSyncStatus}` : "Supabase aus";
-    storageStatus.textContent = `localStorage · ${formatDateTime(state.database.updatedAt)} · ${supabaseLabel} · ${syncLabel}`;
+    storageStatus.textContent = `${formatDateTime(state.database.updatedAt)} · ${supabaseLabel}`;
   }
 
   function seriesById(seriesId) {
@@ -3304,31 +2902,6 @@
     return wrapper;
   }
 
-  function renderSyncSizeReport(report) {
-    if (!report) return "";
-    return `
-      <section class="card">
-        <h3>Sync-Datengröße</h3>
-        <p class="muted">${escapeHtml(syncSizeStatusText(report))}</p>
-        <div class="settings-list">
-          <div><strong>Gesamtgröße</strong><span>${escapeHtml(formatKb(report.totalBytes))}</span></div>
-          <div><strong>series Größe</strong><span>${escapeHtml(formatKb(report.seriesBytes))}</span></div>
-          <div><strong>volumes Größe</strong><span>${escapeHtml(formatKb(report.volumesBytes))}</span></div>
-          <div><strong>Serien</strong><span>${escapeHtml(report.seriesCount)}</span></div>
-          <div><strong>Bände</strong><span>${escapeHtml(report.volumeCount)}</span></div>
-          <div><strong>Notizen in Payload</strong><span>${escapeHtml(formatKb(report.notesBytes))}</span></div>
-          <div><strong>Cover-URLs in Payload</strong><span>${escapeHtml(formatKb(report.coverUrlBytes))}</span></div>
-          <div><strong>Backups außerhalb Payload</strong><span>${escapeHtml(formatKb(report.backupsBytes))}</span></div>
-          <div><strong>Release-Konflikte außerhalb Payload</strong><span>${escapeHtml(formatKb(report.releaseConflictsBytes))}</span></div>
-          <div><strong>Sync-Logs außerhalb Payload</strong><span>${escapeHtml(formatKb(report.syncLogsBytes))}</span></div>
-          <div><strong>Release-Cache außerhalb Payload</strong><span>${escapeHtml(formatKb(report.releaseCacheBytes))}</span></div>
-          <div><strong>Preview-State außerhalb Payload</strong><span>${escapeHtml(formatKb(report.previewStateBytes))}</span></div>
-          <div><strong>UI-State außerhalb Payload</strong><span>${escapeHtml(formatKb(report.uiStateBytes))}</span></div>
-        </div>
-      </section>
-    `;
-  }
-
   function formatOptionalDateTime(value) {
     return value ? formatDateTime(value) : "nie";
   }
@@ -3357,13 +2930,13 @@
   }
 
   function getLocalDatabaseSummary() {
-    const payload = createSyncPayload();
+    const db = state.database;
     return {
-      bytes: byteSize(payload),
-      seriesCount: payload.series.length,
-      volumeCount: payload.volumes.length,
-      updatedAt: payload.updatedAt,
-      hasLocalChanges: Boolean(state.supabaseMeta.lastKnownLocalUpdatedAt && state.supabaseMeta.lastKnownLocalUpdatedAt !== payload.updatedAt),
+      bytes: byteSize(db),
+      seriesCount: Array.isArray(db.series) ? db.series.length : 0,
+      volumeCount: Array.isArray(db.volumes) ? db.volumes.length : 0,
+      updatedAt: db.updatedAt,
+      hasLocalChanges: Boolean(state.supabaseMeta.lastKnownLocalUpdatedAt && state.supabaseMeta.lastKnownLocalUpdatedAt !== db.updatedAt),
     };
   }
 
@@ -3383,7 +2956,6 @@
           <div><strong>Lokale Datenbankgröße</strong><span>${escapeHtml(formatKb(summary.bytes))}</span></div>
           <div><strong>Serienanzahl</strong><span>${escapeHtml(summary.seriesCount)}</span></div>
           <div><strong>Bändeanzahl</strong><span>${escapeHtml(summary.volumeCount)}</span></div>
-          <div><strong>JSONBin Legacy aktiv</strong><span>${state.syncConfig.enabled ? "ja" : "nein"}</span></div>
         </div>
       </details>
     `;
@@ -3411,13 +2983,12 @@
 
   function renderSettingsView() {
     const backups = Object.keys(localStorage).filter((key) => key.startsWith(BACKUP_PREFIX)).sort().reverse();
-    const conflicts = JSON.parse(localStorage.getItem(SYNC_CONFLICTS_KEY) || "[]");
     const supabaseConflicts = getSupabaseConflicts();
     const releaseConflicts = getReleaseConflicts();
     const supabaseSummary = getLocalDatabaseSummary();
     const wrapper = document.createElement("section");
     wrapper.innerHTML = `
-      ${viewHeader("Einstellungen", "localStorage bleibt der lokale Cache. Supabase ist der bevorzugte Cloud-Sync; JSONBin bleibt als Legacy-Option erhalten.")}
+      ${viewHeader("Einstellungen", "Supabase ist die führende Datenquelle. localStorage dient als Cache und Backup.")}
       <section class="card">
         <div class="settings-list">
           <div><strong>Schema-Version</strong><span>${state.database.schemaVersion}</span></div>
@@ -3427,10 +2998,6 @@
           <div><strong>Backups</strong><span>${backups.length}</span></div>
           <div><strong>Supabase</strong><span>${escapeHtml(state.supabaseConfig.enabled ? state.supabaseConfig.lastSyncStatus : "deaktiviert")}</span></div>
           <div><strong>Letzter Supabase Sync</strong><span>${escapeHtml(state.supabaseConfig.lastSyncAt ? formatDateTime(state.supabaseConfig.lastSyncAt) : "nie")}</span></div>
-          <div><strong>Sync</strong><span>${escapeHtml(state.syncConfig.enabled ? state.syncConfig.lastSyncStatus : "deaktiviert")}</span></div>
-          <div><strong>Letzter Sync</strong><span>${escapeHtml(state.syncConfig.lastSyncAt ? formatDateTime(state.syncConfig.lastSyncAt) : "nie")}</span></div>
-          <div><strong>Offener Cloud-Push</strong><span>${state.syncConfig.pendingPush ? "ja" : "nein"}</span></div>
-          <div><strong>Konflikte</strong><span>${conflicts.length}</span></div>
           <div><strong>Supabase-Konflikte</strong><span>${supabaseConflicts.length}</span></div>
         </div>
       </section>
@@ -3446,7 +3013,7 @@
       </section>
       <form class="form-panel" data-form="supabase-sync">
         <h3>Supabase Cloud-Sync</h3>
-        <p class="muted">Optionaler neuer Cloud-Sync. Trage nur Supabase URL und Public/Anon Key ein. Niemals einen service_role Key im Browser verwenden.</p>
+        <p class="muted">Trage Supabase URL und Public/Anon Key ein. Niemals einen service_role Key im Browser verwenden.</p>
         ${state.supabaseMessage ? `<div class="notice">${escapeHtml(state.supabaseMessage)}</div>` : ""}
         ${renderSupabaseConflict()}
         <div class="settings-list">
@@ -3469,37 +3036,17 @@
           ${textField("supabaseUrl", "Supabase URL", state.supabaseConfig.url)}
           ${textField("supabasePublicKey", "Supabase Public/Anon Key", state.supabaseConfig.publicKey, false, "password")}
           ${textField("supabaseLoginEmail", "Login E-Mail", state.supabaseConfig.loginEmail, false, "email")}
-          ${checkboxField("supabaseAutoPushEnabled", "Auto-Push nach lokalen Änderungen aktivieren", state.supabaseMeta.autoPushEnabled)}
         </div>
         <div class="actions">
           <button type="submit" class="button">Supabase-Einstellungen speichern</button>
           <button type="button" class="secondary-button" data-action="supabase-login">Login-Link senden</button>
           <button type="button" class="secondary-button" data-action="supabase-logout">Logout</button>
-          <button type="button" class="secondary-button" data-action="supabase-push">Cloud speichern</button>
-          <button type="button" class="secondary-button" data-action="supabase-pull">Cloud laden</button>
-          <button type="button" class="secondary-button" data-action="supabase-sync-test">Sync pruefen</button>
-          <button type="button" class="secondary-button" data-action="migrate-jsonbin-supabase">JSONBin zu Supabase migrieren</button>
+          <button type="button" class="secondary-button" data-action="supabase-push">Jetzt speichern</button>
+          <button type="button" class="secondary-button" data-action="supabase-pull">Cloud-Daten neu laden</button>
+          <button type="button" class="secondary-button" data-action="supabase-sync-test">Cloud-Status prüfen</button>
         </div>
         ${renderSupabaseDiagnostics(supabaseSummary)}
       </form>
-      <form class="form-panel" data-form="sync">
-        <h3>Legacy JSONBin Sync</h3>
-        <p class="muted">Der X-Access-Key wird standardmäßig nur für diese Sitzung gespeichert. Verwende einen Key mit bins.read und bins.update, ohne Create/Delete-Rechte.</p>
-        ${state.syncMessage ? `<div class="notice">${escapeHtml(state.syncMessage)}</div>` : ""}
-        <div class="form-grid">
-          ${checkboxField("syncEnabled", "JSONBin Sync aktivieren", state.syncConfig.enabled)}
-          ${textField("syncBinId", "JSONBin Bin-ID", state.syncConfig.binId)}
-          ${textField("syncAccessKey", "X-Access-Key", state.syncConfig.accessKey, false, "password")}
-          ${checkboxField("syncPersistKey", "Key dauerhaft auf diesem Gerät speichern", state.syncConfig.persistKey)}
-        </div>
-        <div class="actions">
-          <button type="submit" class="button">Sync-Einstellungen speichern</button>
-          <button type="button" class="secondary-button" data-action="check-sync-size">Sync-Datengröße prüfen</button>
-          <button type="button" class="secondary-button" data-action="sync-now">Jetzt synchronisieren</button>
-          <button type="button" class="secondary-button" data-action="push-now">Jetzt in Cloud speichern</button>
-        </div>
-      </form>
-      ${renderSyncSizeReport(state.syncSizeReport)}
     `;
     return wrapper;
   }
@@ -4085,30 +3632,6 @@
     }, series);
   }
 
-  function handleSyncSubmit(form) {
-    state.syncConfig.enabled = checkedValue(form, "syncEnabled");
-    state.syncConfig.binId = fieldValue(form, "syncBinId");
-    state.syncConfig.accessKey = fieldValue(form, "syncAccessKey");
-    state.syncConfig.persistKey = checkedValue(form, "syncPersistKey");
-    state.syncConfig.pendingPush = state.syncConfig.pendingPush || false;
-    saveSyncConfig();
-
-    if (!state.syncConfig.enabled) {
-      setSyncStatus("disabled", "JSONBin Sync ist deaktiviert.");
-      setNotice("Sync-Einstellungen gespeichert.");
-      return;
-    }
-
-    if (!isSyncConfigured()) {
-      setSyncStatus("missing-config", "JSONBin Sync ist aktiviert, aber Bin-ID oder X-Access-Key fehlt.");
-      setNotice("Sync-Einstellungen gespeichert. Für JSONBin fehlen noch Daten.");
-      return;
-    }
-
-    setNotice("Sync-Einstellungen gespeichert. Synchronisierung wird gestartet.");
-    initSync();
-  }
-
   function handleSupabaseSubmit(form) {
     state.supabaseConfig.pendingPush = state.supabaseConfig.pendingPush || false;
     saveSupabaseFormValues(form);
@@ -4345,7 +3868,6 @@
       state.coverPreview = null;
       setNotice("Cover-Vorschau geschlossen.");
     }
-    if (action === "sync-now") pullFromCloud();
     if (action === "supabase-login") {
       const form = button.closest("form");
       saveSupabaseFormValues(form);
@@ -4378,15 +3900,6 @@
       setSupabaseStatus("conflict-cancelled", "Konflikt abgebrochen. Es wurden keine Daten veraendert.");
       render();
     }
-    if (action === "migrate-jsonbin-supabase") {
-      saveSupabaseFormValues(button.closest("form"));
-      migrateJsonBinToSupabase();
-    }
-    if (action === "check-sync-size") {
-      state.syncSizeReport = getSyncPayloadSizeReport();
-      render();
-    }
-    if (action === "push-now") pushToCloud();
   });
 
   app.addEventListener("submit", (event) => {
@@ -4394,7 +3907,6 @@
     const form = event.target;
     if (form.dataset.form === "series") handleSeriesSubmit(form);
     if (form.dataset.form === "volume") handleVolumeSubmit(form);
-    if (form.dataset.form === "sync") handleSyncSubmit(form);
     if (form.dataset.form === "supabase-sync") handleSupabaseSubmit(form);
   });
 
@@ -4413,15 +3925,6 @@
     if (event.target.matches("[data-cover-change]")) {
       updateCoverPreviewSelection(event.target);
       render();
-    }
-  });
-
-  window.addEventListener("online", () => {
-    if (!state.syncConfig.enabled) return;
-    if (state.syncConfig.pendingPush) {
-      pushToCloud({ silent: true });
-    } else {
-      pullFromCloud();
     }
   });
 
@@ -4450,46 +3953,10 @@
     getState: () => state,
   };
 
-  window.mangaTrackerPhase7 = {
-    getDashboardStats,
-    getCollectionSections,
-    createSyncPayload,
-    getSyncPayloadSizeReport,
-    renderVolumeCard,
-    renderVolumeForm,
-    handleVolumeSubmit,
-    pushToCloud,
-    getState: () => state,
-  };
-
-  window.mangaTrackerPhase8 = {
-    supabasePull,
-    supabasePush,
-    supabaseSync,
-    supabaseCheck,
-    supabaseAutoPush,
-    supabaseGetCurrentUser,
-    supabaseSignIn,
-    supabaseSignOut,
-    migrateJsonBinToSupabase,
-    loadSupabaseMeta,
-    saveSupabaseMeta,
-    updateSupabaseMeta,
-    clearSupabaseError,
-    setSupabaseError,
-    maskSecret,
-    getSupabaseKeyType,
-    getLocalDatabaseSummary,
-    showSupabaseConflict,
-    clearSupabaseConflict,
-    getState: () => state,
-  };
-
   window.addEventListener("unhandledrejection", (event) => {
     console.error("Unbehandelte Promise-Ablehnung:", event.reason);
   });
 
   render();
-  initSync();
   initSupabaseAuth();
 })();
