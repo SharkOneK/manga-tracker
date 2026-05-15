@@ -1764,20 +1764,6 @@
   }
 
 
-  async function supabaseSyncLegacy() {
-    const cloud = await getSupabaseCloudRow();
-    if (!cloud.ok) {
-      render();
-      return cloud;
-    }
-    if (!cloud.row) return supabasePush();
-    const comparison = compareLocalWithSupabaseRow(cloud.row);
-    if (comparison.localTime > comparison.cloudTime) return supabasePush();
-    if (comparison.cloudTime > comparison.localTime) return supabasePull();
-    setSupabaseStatus("ok", "Supabase und lokale Daten sind bereits synchron.");
-    render();
-    return { ok: true, reason: "equal" };
-  }
 
   async function initSupabase() {
     if (!isSupabaseConfigured()) {

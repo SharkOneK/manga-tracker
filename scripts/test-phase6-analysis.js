@@ -218,7 +218,6 @@ vm.runInContext(appJs, context, { filename: "src/app.js" });
 const api = context.window.mangaTrackerPhase6;
 const state = api.getState();
 const before = JSON.parse(JSON.stringify(state.database.volumes));
-const syncBefore = JSON.stringify(state.syncConfig);
 const backupKeysBeforeAnalysis = Object.keys(context.localStorage.store).filter((key) => key.startsWith("mangaTracker.backup."));
 
 const standardMissing = api.getMissingVolumes("test-manga", "standard");
@@ -257,7 +256,6 @@ before.forEach((oldVolume) => {
   });
 });
 
-assert(JSON.stringify(state.syncConfig) === syncBefore, "JSONBin Sync-State wurde veraendert.");
 const backupKeysAfterAnalysis = Object.keys(context.localStorage.store).filter((key) => key.startsWith("mangaTracker.backup."));
 assert(JSON.stringify(backupKeysAfterAnalysis) === JSON.stringify(backupKeysBeforeAnalysis), "Analyse hat ein Backup oder eine Migration erzeugt.");
 
@@ -334,7 +332,5 @@ assert(JSON.stringify(backupKeysAfterAnalysis) === JSON.stringify(backupKeysBefo
   assert(backupKeysAfterCreate.length === 1, "Backup vor Platzhalter-Erstellung fehlt.");
   const releaseConflicts = JSON.parse(context.localStorage.getItem("mangaTracker.releaseConflicts.v1") || "[]");
   assert(releaseConflicts.some((conflict) => conflict.type === "derived_placeholder_created"), "Audit-Log fuer Platzhalter-Erstellung fehlt.");
-  assert(JSON.stringify(state.syncConfig) === syncBefore, "JSONBin Sync-State wurde durch Platzhalter-Erstellung veraendert.");
-
   console.log("Phase 6 Analyse-Tests erfolgreich.");
 })();

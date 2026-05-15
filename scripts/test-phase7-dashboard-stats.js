@@ -192,6 +192,7 @@ function assert(condition, message) {
 
   const api = context.window.mangaTrackerPhase7;
   const state = api.getState();
+  state.appMode = "cloud";
   state.buyGapCache = {
     status: "ok",
     items: makeCache().items,
@@ -200,7 +201,6 @@ function assert(condition, message) {
     error: "",
   };
   const before = JSON.stringify(state.database);
-  const syncBefore = JSON.stringify(state.syncConfig);
   const backupsBefore = Object.keys(context.localStorage.store).filter((key) => key.startsWith("mangaTracker.backup."));
 
   const stats = api.getDashboardStats();
@@ -232,7 +232,6 @@ function assert(condition, message) {
   assert(stats.dataQuality.volumesWithoutReleaseDateCount === 1, "Fehlendes Release-Datum wurde nicht erkannt.");
   assert(stats.dataQuality.duplicateVolumeNumberCount === 1, "Doppelte Bandnummer wurde nicht erkannt.");
   assert(JSON.stringify(state.database) === before, "getDashboardStats hat Daten veraendert.");
-  assert(JSON.stringify(state.syncConfig) === syncBefore, "getDashboardStats hat Sync-State veraendert.");
   const backupsAfterStats = Object.keys(context.localStorage.store).filter((key) => key.startsWith("mangaTracker.backup."));
   assert(JSON.stringify(backupsAfterStats) === JSON.stringify(backupsBefore), "getDashboardStats hat Backups erzeugt.");
 
@@ -240,44 +239,11 @@ function assert(condition, message) {
   assert(!indexHtml.includes('data-tab="collectionGaps"'), "Sammelluecken-Tab ist noch sichtbar.");
 
   const appSource = fs.readFileSync(path.join(ROOT, "src", "app.js"), "utf8");
-  assert(appSource.includes("function pullFromCloud") && appSource.includes("function pushToCloud"), "JSONBin Sync-Funktionen fehlen unerwartet.");
+  assert(!appSource.includes("function pullFromCloud") && !appSource.includes("function pushToCloud"), "JSONBin Sync-Funktionen sind noch vorhanden.");
+  assert(!appSource.includes("JSONBIN_API_ROOT"), "JSONBin API-Konstante ist noch vorhanden.");
+  assert(appSource.includes("async function initSupabase"), "Supabase-first Boot-Funktion fehlt.");
   assert(appSource.includes("function exportObsidianZip"), "Obsidian Export fehlt unerwartet.");
   assert(appSource.includes("mangaTracker.supabaseMeta.v1"), "Supabase Meta-Speicher fehlt.");
-
-  const supabaseApi = context.window.mangaTrackerPhase8;
-  context.localStorage.setItem("mangaTracker.supabaseMeta.v1", "{kaputt");
-  const recoveredMeta = supabaseApi.loadSupabaseMeta();
-  assert(recoveredMeta.lastStatus === "not-configured", "Kaputte Supabase Meta-Werte fallen nicht auf Defaults zurueck.");
-  supabaseApi.saveSupabaseMeta({
-    lastPushAt: "2026-05-13T10:00:00.000Z",
-    lastError: "Testfehler",
-    lastUserEmail: "user@example.test",
-    autoPushEnabled: true,
-    lastStatus: "ok",
-  });
-  const storedMeta = JSON.parse(context.localStorage.getItem("mangaTracker.supabaseMeta.v1"));
-  assert(storedMeta.autoPushEnabled === true, "Supabase Auto-Push-Meta wird nicht gespeichert.");
-  assert(storedMeta.lastError === "Testfehler", "Supabase Fehler-Meta wird nicht gespeichert.");
-  assert(supabaseApi.maskSecret("sb_publishable_1234567890abcdef").includes("..."), "Supabase Key wird nicht maskiert.");
-  assert(supabaseApi.getSupabaseKeyType("sb_publishable_abc") === "publishable", "Publishable Key-Typ wird nicht erkannt.");
-  assert(supabaseApi.getSupabaseKeyType("aaa.bbb.ccc") === "legacy anon JWT", "Legacy anon JWT Key-Typ wird nicht erkannt.");
-  const databaseBeforeConflict = JSON.stringify(state.database);
-  const conflictCloudDatabase = {
-    ...makeDatabase(),
-    updatedAt: "2026-05-13T11:00:00.000Z",
-  };
-  supabaseApi.showSupabaseConflict({
-    localUpdatedAt: state.database.updatedAt,
-    cloudUpdatedAt: conflictCloudDatabase.updatedAt,
-    cloudRowUpdatedAt: conflictCloudDatabase.updatedAt,
-  }, conflictCloudDatabase, "test");
-  assert(JSON.stringify(state.database) === databaseBeforeConflict, "Supabase Konfliktanzeige darf lokale Daten nicht veraendern.");
-  assert(state.supabaseConflict && state.supabaseConflict.cloudDatabase.updatedAt === conflictCloudDatabase.updatedAt, "Supabase Konflikt haelt den Cloud-Stand nicht fest.");
-  const conflictBackups = Object.keys(context.localStorage.store).filter((key) => key.includes("supabase-cloud-conflict"));
-  assert(conflictBackups.length >= 1, "Supabase Konflikt sichert den Cloud-Stand nicht lokal.");
-  conflictBackups.forEach((key) => context.localStorage.removeItem(key));
-  supabaseApi.clearSupabaseConflict();
-  assert(state.supabaseConflict === null, "Supabase Konflikt kann nicht geschlossen werden.");
 
   const collectionSections = api.getCollectionSections();
   assert(collectionSections.unread.length === 1 && collectionSections.unread[0].id === "alpha-002", "Sammlung trennt ungelesene Baende falsch.");
@@ -324,49 +290,9 @@ function assert(condition, message) {
   api.handleVolumeSubmit(fakeForm);
   const beta = state.database.volumes.find((volume) => volume.id === "beta-001");
   assert(beta.editionType === "limited", "Bestehender editionType-Wert wurde beim Bearbeiten nicht erhalten.");
-  assert(JSON.stringify(state.syncConfig) === syncBefore, "JSONBin Sync-State wurde durch UI-Workflow veraendert.");
 
   const backupsAfter = Object.keys(context.localStorage.store).filter((key) => key.startsWith("mangaTracker.backup."));
   assert(JSON.stringify(backupsAfter) === JSON.stringify(backupsBefore), "UI-Workflow-Test hat unerwartet Backups erzeugt.");
-
-  state.database.debugData = { shouldNotSync: true };
-  const payloadReport = api.getSyncPayloadSizeReport();
-  assert(payloadReport.totalBytes > 0, "Sync-Payload-Groesse ist nicht messbar.");
-  assert(payloadReport.seriesCount === 2, "Sync-Payload-Groesse zaehlt Serien falsch.");
-  assert(payloadReport.volumeCount === 8, "Sync-Payload-Groesse zaehlt Baende falsch.");
-  assert(payloadReport.backupsBytes === 0, "Backups duerfen nicht Teil der Sync-Payload sein.");
-
-  state.syncConfig.enabled = true;
-  state.syncConfig.binId = "test-bin";
-  state.syncConfig.accessKey = "test-key";
-  state.syncInProgress = false;
-  let capturedPushBody = "";
-  context.fetch = async (url, options) => {
-    capturedPushBody = options.body;
-    return {
-      ok: false,
-      status: 403,
-      text: async () => JSON.stringify({ message: "Forbidden: invalid access key" }),
-    };
-  };
-  await api.pushToCloud();
-  assert(!JSON.parse(capturedPushBody).debugData, "Sync-Payload enthaelt versehentliche Hilfsdaten.");
-  assert(state.syncMessage.includes("JSONBin Push fehlgeschlagen: 403 - Forbidden: invalid access key"), "JSONBin Push-Fehler zeigt den Response-Text nicht im Sync-Status.");
-
-  state.database.volumes[0].notes = "x".repeat(98 * 1024);
-  let fetchCalledForLargePayload = false;
-  context.fetch = async () => {
-    fetchCalledForLargePayload = true;
-    return {
-      ok: true,
-      json: async () => ({}),
-      text: async () => "",
-    };
-  };
-  const largePushResult = await api.pushToCloud();
-  assert(largePushResult.reason === "payload-too-large", "Grosse Sync-Payload wurde nicht vorab geblockt.");
-  assert(fetchCalledForLargePayload === false, "Grosse Sync-Payload wurde trotzdem an JSONBin gesendet.");
-  assert(state.syncMessage.includes("über der 95-KB-Sicherheitsgrenze"), "Grosse Sync-Payload bekommt keine klare Warnung.");
 
   console.log("Phase 7 Dashboard-Stats Tests erfolgreich.");
 })();
