@@ -3,14 +3,10 @@
 
   const STORAGE_KEY = "mangaTracker.database.v1";
   const BACKUP_PREFIX = "mangaTracker.backup.";
-  const SYNC_CONFIG_KEY = "mangaTracker.syncConfig.v1";
-  const SYNC_SESSION_KEY = "mangaTracker.syncAccessKey.session";
-  const SYNC_CONFLICTS_KEY = "mangaTracker.syncConflicts.v1";
   const SUPABASE_CONFIG_KEY = "mangaTracker.supabaseConfig.v1";
   const SUPABASE_META_KEY = "mangaTracker.supabaseMeta.v1";
   const SUPABASE_CONFLICTS_KEY = "mangaTracker.supabaseConflicts.v1";
   const RELEASE_CONFLICTS_KEY = "mangaTracker.releaseConflicts.v1";
-  const JSONBIN_API_ROOT = "https://api.jsonbin.io/v3";
   const SUPABASE_TABLE = "manga_tracker_databases";
   const TODAY = todayLocalDate();
   const app = document.querySelector("#app");
@@ -65,8 +61,12 @@
 
   const state = {
     activeTab: "dashboard",
+    appMode: "loading",
+    showFirstTimeDialog: false,
+    savePending: false,
+    saveError: false,
+    supabaseSaveTimer: null,
     database: loadDatabase(),
-    syncConfig: loadSyncConfig(),
     supabaseConfig: loadSupabaseConfig(),
     supabaseMeta: loadSupabaseMeta(),
     supabaseClient: null,
@@ -75,10 +75,6 @@
     supabaseMessage: "",
     supabaseInProgress: false,
     supabaseConflict: null,
-    syncStatus: "offline-ready",
-    syncMessage: "",
-    syncInProgress: false,
-    syncRetryTimer: null,
     editingSeriesId: null,
     editingVolumeId: null,
     releasePreview: null,
@@ -98,7 +94,6 @@
       itemCount: null,
       error: "",
     },
-    syncSizeReport: null,
     notice: "",
   };
 
@@ -126,7 +121,7 @@
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) {
       const empty = createEmptyDatabase();
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(empty));
+      safeLocalStorageSet(STORAGE_KEY, JSON.stringify(empty));
       return empty;
     }
 
@@ -146,31 +141,6 @@
     } catch (error) {
       console.warn("Datenbank konnte nicht gelesen werden:", error);
       return createEmptyDatabase();
-    }
-  }
-
-  function loadSyncConfig() {
-    const defaults = {
-      enabled: false,
-      binId: "",
-      persistKey: false,
-      accessKey: "",
-      lastSyncAt: null,
-      lastSyncStatus: "not-configured",
-      pendingPush: false,
-    };
-
-    try {
-      const stored = JSON.parse(localStorage.getItem(SYNC_CONFIG_KEY) || "{}");
-      const sessionKey = sessionStorage.getItem(SYNC_SESSION_KEY) || "";
-      return {
-        ...defaults,
-        ...stored,
-        accessKey: stored.persistKey ? String(stored.accessKey || "") : sessionKey,
-      };
-    } catch (error) {
-      console.warn("Sync-Konfiguration konnte nicht gelesen werden:", error);
-      return defaults;
     }
   }
 
@@ -318,7 +288,6 @@
     state.supabaseConfig.url = fieldValue(form, "supabaseUrl");
     state.supabaseConfig.publicKey = fieldValue(form, "supabasePublicKey");
     state.supabaseConfig.loginEmail = fieldValue(form, "supabaseLoginEmail");
-    state.supabaseMeta.autoPushEnabled = checkedValue(form, "supabaseAutoPushEnabled");
     resetSupabaseClient();
     saveSupabaseConfig();
     saveSupabaseMeta();
@@ -358,60 +327,6 @@
     return state.supabaseClient;
   }
 
-  function saveSyncConfig() {
-    const configForLocalStorage = {
-      enabled: Boolean(state.syncConfig.enabled),
-      binId: state.syncConfig.binId.trim(),
-      persistKey: Boolean(state.syncConfig.persistKey),
-      accessKey: state.syncConfig.persistKey ? state.syncConfig.accessKey : "",
-      lastSyncAt: state.syncConfig.lastSyncAt,
-      lastSyncStatus: state.syncConfig.lastSyncStatus,
-      pendingPush: Boolean(state.syncConfig.pendingPush),
-    };
-
-    localStorage.setItem(SYNC_CONFIG_KEY, JSON.stringify(configForLocalStorage));
-    if (state.syncConfig.persistKey) {
-      sessionStorage.removeItem(SYNC_SESSION_KEY);
-    } else if (state.syncConfig.accessKey) {
-      sessionStorage.setItem(SYNC_SESSION_KEY, state.syncConfig.accessKey);
-    } else {
-      sessionStorage.removeItem(SYNC_SESSION_KEY);
-    }
-  }
-
-  function isSyncConfigured() {
-    return Boolean(state.syncConfig.enabled && state.syncConfig.binId.trim() && state.syncConfig.accessKey.trim());
-  }
-
-  function setSyncStatus(status, message = "") {
-    state.syncStatus = status;
-    state.syncMessage = message;
-    state.syncConfig.lastSyncStatus = status;
-    saveSyncConfig();
-    updateStorageStatus();
-  }
-
-  function extractJsonBinErrorText(rawText) {
-    const text = String(rawText || "").trim();
-    if (!text) return "";
-    try {
-      const parsed = JSON.parse(text);
-      return String(parsed.message || parsed.error || parsed.errorMessage || text).trim();
-    } catch {
-      return text;
-    }
-  }
-
-  async function createJsonBinHttpError(prefix, response) {
-    let detail = "";
-    try {
-      detail = extractJsonBinErrorText(await response.text());
-    } catch {
-      detail = "";
-    }
-    return new Error(`${prefix}: ${response.status}${detail ? ` - ${detail}` : ""}`);
-  }
-
   function byteSize(value) {
     return new TextEncoder().encode(typeof value === "string" ? value : JSON.stringify(value)).length;
   }
@@ -420,88 +335,71 @@
     return `${(bytes / 1024).toFixed(1)} KB`;
   }
 
-  function createSyncPayload(database = state.database) {
-    return {
-      schemaVersion: database.schemaVersion,
-      updatedAt: database.updatedAt,
-      series: Array.isArray(database.series) ? database.series : [],
-      volumes: Array.isArray(database.volumes) ? database.volumes : [],
-    };
-  }
-
   function sumLocalStorageBytes(predicate) {
     return Object.keys(localStorage)
       .filter(predicate)
       .reduce((sum, key) => sum + byteSize(localStorage.getItem(key) || ""), 0);
   }
 
-  function getSyncPayloadSizeReport(database = state.database) {
-    const payload = createSyncPayload(database);
-    const noteValues = [
-      ...payload.series.map((series) => series.notes || ""),
-      ...payload.volumes.map((volume) => volume.notes || ""),
-    ].filter(Boolean);
-    const coverValues = [
-      ...payload.series.map((series) => series.coverUrl || ""),
-      ...payload.volumes.map((volume) => volume.coverUrl || ""),
-    ].filter(Boolean);
-    const report = {
-      totalBytes: byteSize(payload),
-      seriesBytes: byteSize(payload.series),
-      volumesBytes: byteSize(payload.volumes),
-      metadataBytes: byteSize({
-        schemaVersion: payload.schemaVersion,
-        updatedAt: payload.updatedAt,
-      }),
-      notesBytes: byteSize(noteValues),
-      coverUrlBytes: byteSize(coverValues),
-      seriesCount: payload.series.length,
-      volumeCount: payload.volumes.length,
-      backupsBytes: sumLocalStorageBytes((key) => key.startsWith(BACKUP_PREFIX)),
-      releaseConflictsBytes: byteSize(localStorage.getItem(RELEASE_CONFLICTS_KEY) || ""),
-      syncLogsBytes: byteSize(localStorage.getItem(SYNC_CONFLICTS_KEY) || ""),
-      releaseCacheBytes: byteSize(state.buyGapCache.items || []),
-      previewStateBytes: byteSize({
-        releasePreview: state.releasePreview,
-        coverPreview: state.coverPreview,
-      }),
-      uiStateBytes: byteSize({
-        activeTab: state.activeTab,
-        editingSeriesId: state.editingSeriesId,
-        editingVolumeId: state.editingVolumeId,
-        notice: state.notice,
-      }),
-    };
-    report.warning = report.totalBytes >= 90 * 1024;
-    report.tooLarge = report.totalBytes >= 100 * 1024;
-    report.preflightBlocked = report.totalBytes > 95 * 1024;
-    return report;
-  }
-
-  function syncSizeStatusText(report) {
-    if (report.tooLarge) return "Fehlerhinweis: JSONBin Free-Limit von 100 KB überschritten.";
-    if (report.warning) return "Warnung: Sync-Payload liegt über 90 KB.";
-    return "Sync-Payload liegt unter 90 KB.";
-  }
-
   function saveDatabase(options = {}) {
     const { sync = true } = options;
+
+    if (state.appMode !== "cloud") {
+      setNotice("Bearbeitung blockiert — bitte anmelden und Cloud-Daten laden.");
+      return;
+    }
+
     state.database.updatedAt = nowIso();
     saveLocalDatabase();
-    updateStorageStatus();
     if (sync) {
-      queuePushToCloud();
-      supabaseAutoPush();
+      state.savePending = true;
+      state.saveError = false;
+    }
+    updateStorageStatus();
+    render();
+    if (sync) {
+      scheduleDebouncedSupabaseSave();
+    }
+  }
+
+  function scheduleDebouncedSupabaseSave() {
+    if (state.supabaseSaveTimer) clearTimeout(state.supabaseSaveTimer);
+    state.supabaseSaveTimer = setTimeout(async () => {
+      state.supabaseSaveTimer = null;
+      const result = await supabasePush({ silent: true });
+      if (result.ok) {
+        state.savePending = false;
+        state.saveError = false;
+        saveLocalDatabase();
+      } else if (result.reason !== "conflict" && result.reason !== "busy") {
+        state.savePending = false;
+        state.saveError = true;
+      }
+      updateStorageStatus();
+      render();
+    }, 3000);
+  }
+
+  function safeLocalStorageSet(key, value) {
+    try {
+      localStorage.setItem(key, value);
+    } catch (e) {
+      if (e.name === "QuotaExceededError" || e.name === "NS_ERROR_DOM_QUOTA_REACHED") {
+        console.error("localStorage voll – Daten konnten nicht gespeichert werden.", key);
+        setNotice("Speicher voll! Bitte alte Backups löschen oder einen Export durchführen.");
+      } else {
+        throw e;
+      }
     }
   }
 
   function saveLocalDatabase() {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state.database));
+    safeLocalStorageSet(STORAGE_KEY, JSON.stringify(state.database));
   }
 
   function backupDatabaseSnapshot(database, reason = "backup") {
     const backupKey = `${BACKUP_PREFIX}${reason}.${nowIso()}`;
-    localStorage.setItem(backupKey, JSON.stringify(database));
+    safeLocalStorageSet(backupKey, JSON.stringify(database));
     return backupKey;
   }
 
@@ -982,16 +880,12 @@
     const blockedUserDataKeys = new Set([
       "accessKey",
       "apiKey",
-      "binId",
       "boughtAt",
       "email",
-      "jsonbin",
       "notes",
       "owned",
-      "persistKey",
       "read",
       "readAt",
-      "syncConfig",
       "token",
       "user",
       "username",
@@ -1071,11 +965,23 @@
   }
 
   async function readReleaseCacheFile() {
-    const response = await fetch("./data/release-cache.json", { cache: "no-store" });
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 30000);
+    let response;
+    try {
+      response = await fetch("./data/release-cache.json", { cache: "no-store", signal: controller.signal });
+    } finally {
+      clearTimeout(timeoutId);
+    }
     if (!response.ok) {
       throw new Error(`Release-Cache konnte nicht geladen werden: HTTP ${response.status}`);
     }
-    const cacheData = await response.json();
+    let cacheData;
+    try {
+      cacheData = await response.json();
+    } catch {
+      throw new Error("Release-Cache ist beschädigt (ungültiges JSON).");
+    }
     const validation = validateReleaseCache(cacheData);
     if (!validation.valid) {
       throw new Error(validation.errors.join(" "));
@@ -1513,218 +1419,6 @@
     };
   }
 
-  async function initSync() {
-    if (!state.syncConfig.enabled) {
-      setSyncStatus("disabled", "JSONBin Sync ist deaktiviert.");
-      render();
-      return;
-    }
-
-    if (!isSyncConfigured()) {
-      setSyncStatus("missing-config", "JSONBin Sync ist aktiviert, aber Bin-ID oder X-Access-Key fehlt.");
-      render();
-      return;
-    }
-
-    await pullFromCloud();
-  }
-
-  async function pullFromCloud() {
-    if (!isSyncConfigured() || state.syncInProgress) return { ok: false, reason: "not-ready" };
-    state.syncInProgress = true;
-    setSyncStatus("syncing", "Synchronisiere mit JSONBin...");
-    render();
-
-    try {
-      const response = await fetch(`${JSONBIN_API_ROOT}/b/${encodeURIComponent(state.syncConfig.binId.trim())}/latest`, {
-        method: "GET",
-        headers: {
-          "X-Access-Key": state.syncConfig.accessKey.trim(),
-          "X-Bin-Meta": "false",
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error(`JSONBin Pull fehlgeschlagen: ${response.status}`);
-      }
-
-      const payload = await response.json();
-      const cloudDatabase = payload?.record && payload?.metadata ? payload.record : payload;
-      const validation = validateDatabase(cloudDatabase);
-      if (!validation.valid) {
-        throw new Error(`Cloud-Daten sind ungültig: ${validation.errors.join(" ")}`);
-      }
-
-      const cloudMigration = migrateDatabase(cloudDatabase);
-      const result = resolveConflict(state.database, normalizeDatabase(cloudMigration.database));
-      if (result.winner === "cloud") {
-        createBackupBeforeSync("cloud-won");
-        state.database = result.database;
-        saveLocalDatabase();
-        logConflict(result);
-        setNotice("Cloud-Daten waren neuer und wurden lokal übernommen.");
-      } else if (result.winner === "local") {
-        logConflict(result);
-        await pushToCloud({ silent: true });
-        setNotice("Lokale Daten waren neuer und wurden in JSONBin gespeichert.");
-      } else if (state.syncConfig.pendingPush) {
-        await pushToCloud({ silent: true });
-      }
-
-      state.syncConfig.pendingPush = false;
-      state.syncConfig.lastSyncAt = nowIso();
-      setSyncStatus("ok", "JSONBin Sync abgeschlossen.");
-      saveSyncConfig();
-      render();
-      return { ok: true, winner: result.winner };
-    } catch (error) {
-      console.warn(error);
-      state.syncConfig.pendingPush = true;
-      setSyncStatus("error", `${error.message}. Die App arbeitet lokal weiter.`);
-      saveSyncConfig();
-      scheduleSyncRetry();
-      render();
-      return { ok: false, error };
-    } finally {
-      state.syncInProgress = false;
-    }
-  }
-
-  async function pushToCloud(options = {}) {
-    const { silent = false } = options;
-    if (!isSyncConfigured()) return { ok: false, reason: "not-configured" };
-    if (state.syncInProgress && !silent) return { ok: false, reason: "busy" };
-
-    if (!silent) {
-      state.syncInProgress = true;
-      setSyncStatus("syncing", "Speichere in JSONBin...");
-      render();
-    }
-
-    const sizeReport = getSyncPayloadSizeReport();
-    state.syncSizeReport = sizeReport;
-    if (sizeReport.preflightBlocked) {
-      state.syncConfig.pendingPush = true;
-      setSyncStatus("error", `JSONBin Sync-Payload ist ${formatKb(sizeReport.totalBytes)} groß und liegt über der 95-KB-Sicherheitsgrenze. Lokal gespeichert, Cloud-Push nicht versucht.`);
-      saveSyncConfig();
-      if (!silent) {
-        render();
-        state.syncInProgress = false;
-      }
-      return { ok: false, reason: "payload-too-large", sizeReport };
-    }
-
-    try {
-      const payload = createSyncPayload();
-      const response = await fetch(`${JSONBIN_API_ROOT}/b/${encodeURIComponent(state.syncConfig.binId.trim())}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          "X-Access-Key": state.syncConfig.accessKey.trim(),
-          "X-Bin-Versioning": "true",
-        },
-        body: JSON.stringify(payload),
-      });
-
-      if (!response.ok) {
-        throw await createJsonBinHttpError("JSONBin Push fehlgeschlagen", response);
-      }
-
-      state.syncConfig.pendingPush = false;
-      state.syncConfig.lastSyncAt = nowIso();
-      setSyncStatus("ok", "Lokal gespeichert und mit JSONBin synchronisiert.");
-      saveSyncConfig();
-      if (!silent) render();
-      return { ok: true };
-    } catch (error) {
-      console.warn(error);
-      state.syncConfig.pendingPush = true;
-      setSyncStatus("error", `${error.message}. Lokal gespeichert, Cloud-Sync wird später erneut versucht.`);
-      saveSyncConfig();
-      scheduleSyncRetry();
-      if (!silent) render();
-      return { ok: false, error };
-    } finally {
-      if (!silent) state.syncInProgress = false;
-    }
-  }
-
-  function queuePushToCloud() {
-    if (!state.syncConfig.enabled) return;
-    if (!isSyncConfigured()) {
-      state.syncConfig.pendingPush = true;
-      setSyncStatus("missing-config", "Lokal gespeichert. Für JSONBin fehlen Bin-ID oder X-Access-Key.");
-      return;
-    }
-    pushToCloud({ silent: true });
-  }
-
-  function scheduleSyncRetry() {
-    if (!state.syncConfig.enabled || state.syncRetryTimer) return;
-    state.syncRetryTimer = window.setTimeout(() => {
-      state.syncRetryTimer = null;
-      if (state.syncConfig.pendingPush) {
-        pushToCloud({ silent: true });
-      } else {
-        pullFromCloud();
-      }
-    }, 30000);
-  }
-
-  function resolveConflict(localDatabase, cloudDatabase) {
-    const localUpdatedAt = Date.parse(localDatabase.updatedAt || "");
-    const cloudUpdatedAt = Date.parse(cloudDatabase.updatedAt || "");
-    const localTime = Number.isNaN(localUpdatedAt) ? 0 : localUpdatedAt;
-    const cloudTime = Number.isNaN(cloudUpdatedAt) ? 0 : cloudUpdatedAt;
-
-    if (cloudTime > localTime) {
-      return {
-        winner: "cloud",
-        database: cloudDatabase,
-        localUpdatedAt: localDatabase.updatedAt,
-        cloudUpdatedAt: cloudDatabase.updatedAt,
-        resolvedAt: nowIso(),
-      };
-    }
-
-    if (localTime > cloudTime) {
-      return {
-        winner: "local",
-        database: localDatabase,
-        localUpdatedAt: localDatabase.updatedAt,
-        cloudUpdatedAt: cloudDatabase.updatedAt,
-        resolvedAt: nowIso(),
-      };
-    }
-
-    return {
-      winner: "equal",
-      database: localDatabase,
-      localUpdatedAt: localDatabase.updatedAt,
-      cloudUpdatedAt: cloudDatabase.updatedAt,
-      resolvedAt: nowIso(),
-    };
-  }
-
-  function createBackupBeforeSync(reason = "sync") {
-    const backupKey = `${BACKUP_PREFIX}sync.${reason}.${nowIso()}`;
-    localStorage.setItem(backupKey, JSON.stringify(state.database));
-    return backupKey;
-  }
-
-  function logConflict(result) {
-    if (result.winner === "equal") return;
-    const logs = JSON.parse(localStorage.getItem(SYNC_CONFLICTS_KEY) || "[]");
-    logs.unshift({
-      winner: result.winner,
-      localUpdatedAt: result.localUpdatedAt,
-      cloudUpdatedAt: result.cloudUpdatedAt,
-      resolvedAt: result.resolvedAt,
-    });
-    localStorage.setItem(SYNC_CONFLICTS_KEY, JSON.stringify(logs.slice(0, 50)));
-    console.info("JSONBin Sync-Konflikt gelöst:", result);
-  }
-
   function getSupabaseConflicts() {
     try {
       return JSON.parse(localStorage.getItem(SUPABASE_CONFLICTS_KEY) || "[]");
@@ -1913,7 +1607,12 @@
       const payload = {
         user_id: cloud.user.id,
         schema_version: state.database.schemaVersion,
-        database: createSyncPayload(),
+        database: {
+          schemaVersion: state.database.schemaVersion,
+          updatedAt: state.database.updatedAt,
+          series: Array.isArray(state.database.series) ? state.database.series : [],
+          volumes: Array.isArray(state.database.volumes) ? state.database.volumes : [],
+        },
         updated_at: state.database.updatedAt,
       };
       const { data, error } = await client
@@ -1974,7 +1673,7 @@
         render();
         return { ok: false, reason: "conflict" };
       }
-      const backupKey = createBackupBeforeSync("supabase-pull");
+      const backupKey = backupDatabaseSnapshot(state.database, "supabase-pull");
       state.database = cloudDatabase;
       saveLocalDatabase();
       updateStorageStatus();
@@ -2064,64 +1763,49 @@
     }
   }
 
-  async function supabaseAutoPush() {
-    if (!state.supabaseMeta.autoPushEnabled) return { ok: false, reason: "disabled" };
-    if (!isSupabaseConfigured() || !state.supabaseUser || state.supabaseConflict) return { ok: false, reason: "not-ready" };
-    return supabasePush({ silent: true });
-  }
 
-  async function supabaseSyncLegacy() {
-    const cloud = await getSupabaseCloudRow();
-    if (!cloud.ok) {
-      render();
-      return cloud;
-    }
-    if (!cloud.row) return supabasePush();
-    const comparison = compareLocalWithSupabaseRow(cloud.row);
-    if (comparison.localTime > comparison.cloudTime) return supabasePush();
-    if (comparison.cloudTime > comparison.localTime) return supabasePull();
-    setSupabaseStatus("ok", "Supabase und lokale Daten sind bereits synchron.");
-    render();
-    return { ok: true, reason: "equal" };
-  }
 
-  async function migrateJsonBinToSupabase() {
-    const validation = validateDatabase(state.database);
-    if (!validation.valid) {
-      setSupabaseStatus("error", `Migration abgebrochen: lokale Daten sind ungueltig (${validation.errors.join(" ")}).`);
-      render();
-      return { ok: false, reason: "invalid-local" };
-    }
-    const backupKey = backupDatabaseSnapshot(state.database, "before-supabase-migration");
-    if (isSyncConfigured()) {
-      const pullJsonBin = confirm("JSONBin ist konfiguriert. Vor dem Supabase-Push optional zuerst JSONBin laden? Lokale Daten werden bei JSONBin-Cloud-Sieg vorher gesichert.");
-      if (pullJsonBin) {
-        await pullFromCloud();
-      }
-    }
-    const result = await supabasePush();
-    if (result.ok) {
-      setNotice(`Migration zu Supabase erfolgreich. Lokales Backup erhalten: ${backupKey}. JSONBin-Konfiguration wurde nicht entfernt.`);
-    } else {
-      setNotice(`Migration zu Supabase nicht abgeschlossen. Lokales Backup erhalten: ${backupKey}.`);
-    }
-    return result;
-  }
-
-  async function initSupabaseAuth() {
-    if (!state.supabaseConfig.enabled) {
-      setSupabaseStatus("disabled", "Supabase Cloud-Sync ist deaktiviert.");
-      return;
-    }
+  async function initSupabase() {
     if (!isSupabaseConfigured()) {
-      setSupabaseStatus("missing-config", "Supabase URL oder Public Key fehlt.");
+      state.appMode = "setup";
+      setSupabaseStatus("missing-config", "Supabase noch nicht eingerichtet. Bitte URL und Public Key in den Einstellungen eintragen.");
+      render();
       return;
     }
+
     await supabaseGetCurrentUser();
-    if (state.supabaseUser) {
-      setSupabaseStatus("signed-in", `Angemeldet als ${state.supabaseUser.email || state.supabaseUser.id}.`);
+
+    if (!state.supabaseUser) {
+      state.appMode = "readonly";
+      setSupabaseStatus("signed-out", "Nicht angemeldet. Bitte anmelden um mit deinen Cloud-Daten zu arbeiten.");
+      render();
+      return;
+    }
+
+    state.appMode = "loading";
+    setSupabaseStatus("syncing", "Lade Cloud-Daten…");
+    render();
+
+    const result = await supabasePull();
+
+    if (result.ok) {
+      state.appMode = "cloud";
+      setSupabaseStatus("ok", `Cloud-Daten geladen (${state.supabaseUser.email || state.supabaseUser.id}).`);
+    } else if (result.reason === "empty") {
+      const hasLocalData = state.database.series.length > 0 || state.database.volumes.length > 0;
+      if (hasLocalData) {
+        state.appMode = "readonly";
+        state.showFirstTimeDialog = true;
+        setSupabaseStatus("signed-in", "Cloud leer — lokale Daten gefunden. Bitte entscheiden.");
+      } else {
+        state.appMode = "cloud";
+        setSupabaseStatus("ok", "Bereit. Noch keine Cloud-Daten vorhanden.");
+      }
+    } else if (result.reason === "conflict") {
+      state.appMode = "cloud";
     } else {
-      setSupabaseStatus("signed-out", "Nicht bei Supabase angemeldet.");
+      state.appMode = "offline";
+      setSupabaseStatus("error", "Supabase nicht erreichbar. Letzter lokaler Cache wird angezeigt.");
     }
     render();
   }
@@ -2132,9 +1816,17 @@
   }
 
   function updateStorageStatus() {
-    const syncLabel = state.syncConfig.enabled ? `JSONBin: ${state.syncConfig.lastSyncStatus}` : "JSONBin aus";
-    const supabaseLabel = state.supabaseConfig.enabled ? `Supabase: ${state.supabaseConfig.lastSyncStatus}` : "Supabase aus";
-    storageStatus.textContent = `localStorage · ${formatDateTime(state.database.updatedAt)} · ${supabaseLabel} · ${syncLabel}`;
+    let saveLabel;
+    if (state.savePending) {
+      saveLabel = "Speichern läuft…";
+    } else if (state.saveError) {
+      saveLabel = "Nicht gespeichert ⚠";
+    } else if (state.appMode === "cloud") {
+      saveLabel = "Gespeichert";
+    } else {
+      saveLabel = state.supabaseConfig.enabled ? `Supabase: ${state.supabaseConfig.lastSyncStatus}` : "Supabase aus";
+    }
+    storageStatus.textContent = `${formatDateTime(state.database.updatedAt)} · ${saveLabel}`;
   }
 
   function seriesById(seriesId) {
@@ -2566,6 +2258,41 @@
     return Boolean(form.elements[name]?.checked);
   }
 
+  function renderAppModeBanner() {
+    if (state.appMode === "cloud") return null;
+
+    const el = document.createElement("div");
+    el.className = "notice app-mode-banner";
+
+    if (state.appMode === "loading") {
+      el.textContent = "Lade Cloud-Daten…";
+    } else if (state.appMode === "readonly") {
+      el.innerHTML = `<strong>Nicht angemeldet</strong> — letzter lokaler Cache (read-only). Bitte anmelden um Änderungen zu speichern.`;
+    } else if (state.appMode === "offline") {
+      el.innerHTML = `<strong>Supabase nicht erreichbar</strong> — letzter Cache wird angezeigt. Bearbeitung deaktiviert.`;
+    } else if (state.appMode === "setup") {
+      el.innerHTML = `<strong>Supabase noch nicht eingerichtet</strong> — bitte <button type="button" class="link-button" data-action="go-settings">Einstellungen</button> öffnen und URL und Public Key eintragen.`;
+    }
+    return el;
+  }
+
+  function renderFirstTimeDialog() {
+    const el = document.createElement("div");
+    el.className = "modal-overlay";
+    el.innerHTML = `
+      <div class="modal-panel card">
+        <h3>Lokale Daten gefunden</h3>
+        <p>Du hast lokale Manga-Daten, aber noch keine Cloud-Daten in Supabase. Was soll passieren?</p>
+        <div class="actions">
+          <button type="button" class="button" data-action="first-time-migrate">Lokale Daten nach Supabase übernehmen</button>
+          <button type="button" class="secondary-button" data-action="first-time-readonly">Nur ansehen (kein Upload)</button>
+          <button type="button" class="secondary-button" data-action="first-time-cancel">Abbrechen</button>
+        </div>
+      </div>
+    `;
+    return el;
+  }
+
   function render() {
     document.querySelectorAll(".tab").forEach((tab) => {
       tab.classList.toggle("is-active", tab.dataset.tab === state.activeTab);
@@ -2573,11 +2300,19 @@
 
     updateStorageStatus();
     app.innerHTML = "";
+
+    const banner = renderAppModeBanner();
+    if (banner) app.append(banner);
+
     if (state.notice) {
       const notice = document.createElement("div");
       notice.className = "notice";
       notice.textContent = state.notice;
       app.append(notice);
+    }
+
+    if (state.showFirstTimeDialog) {
+      app.append(renderFirstTimeDialog());
     }
 
     const views = {
@@ -3260,31 +2995,6 @@
     return wrapper;
   }
 
-  function renderSyncSizeReport(report) {
-    if (!report) return "";
-    return `
-      <section class="card">
-        <h3>Sync-Datengröße</h3>
-        <p class="muted">${escapeHtml(syncSizeStatusText(report))}</p>
-        <div class="settings-list">
-          <div><strong>Gesamtgröße</strong><span>${escapeHtml(formatKb(report.totalBytes))}</span></div>
-          <div><strong>series Größe</strong><span>${escapeHtml(formatKb(report.seriesBytes))}</span></div>
-          <div><strong>volumes Größe</strong><span>${escapeHtml(formatKb(report.volumesBytes))}</span></div>
-          <div><strong>Serien</strong><span>${escapeHtml(report.seriesCount)}</span></div>
-          <div><strong>Bände</strong><span>${escapeHtml(report.volumeCount)}</span></div>
-          <div><strong>Notizen in Payload</strong><span>${escapeHtml(formatKb(report.notesBytes))}</span></div>
-          <div><strong>Cover-URLs in Payload</strong><span>${escapeHtml(formatKb(report.coverUrlBytes))}</span></div>
-          <div><strong>Backups außerhalb Payload</strong><span>${escapeHtml(formatKb(report.backupsBytes))}</span></div>
-          <div><strong>Release-Konflikte außerhalb Payload</strong><span>${escapeHtml(formatKb(report.releaseConflictsBytes))}</span></div>
-          <div><strong>Sync-Logs außerhalb Payload</strong><span>${escapeHtml(formatKb(report.syncLogsBytes))}</span></div>
-          <div><strong>Release-Cache außerhalb Payload</strong><span>${escapeHtml(formatKb(report.releaseCacheBytes))}</span></div>
-          <div><strong>Preview-State außerhalb Payload</strong><span>${escapeHtml(formatKb(report.previewStateBytes))}</span></div>
-          <div><strong>UI-State außerhalb Payload</strong><span>${escapeHtml(formatKb(report.uiStateBytes))}</span></div>
-        </div>
-      </section>
-    `;
-  }
-
   function formatOptionalDateTime(value) {
     return value ? formatDateTime(value) : "nie";
   }
@@ -3313,13 +3023,13 @@
   }
 
   function getLocalDatabaseSummary() {
-    const payload = createSyncPayload();
+    const db = state.database;
     return {
-      bytes: byteSize(payload),
-      seriesCount: payload.series.length,
-      volumeCount: payload.volumes.length,
-      updatedAt: payload.updatedAt,
-      hasLocalChanges: Boolean(state.supabaseMeta.lastKnownLocalUpdatedAt && state.supabaseMeta.lastKnownLocalUpdatedAt !== payload.updatedAt),
+      bytes: byteSize(db),
+      seriesCount: Array.isArray(db.series) ? db.series.length : 0,
+      volumeCount: Array.isArray(db.volumes) ? db.volumes.length : 0,
+      updatedAt: db.updatedAt,
+      hasLocalChanges: Boolean(state.supabaseMeta.lastKnownLocalUpdatedAt && state.supabaseMeta.lastKnownLocalUpdatedAt !== db.updatedAt),
     };
   }
 
@@ -3339,7 +3049,6 @@
           <div><strong>Lokale Datenbankgröße</strong><span>${escapeHtml(formatKb(summary.bytes))}</span></div>
           <div><strong>Serienanzahl</strong><span>${escapeHtml(summary.seriesCount)}</span></div>
           <div><strong>Bändeanzahl</strong><span>${escapeHtml(summary.volumeCount)}</span></div>
-          <div><strong>JSONBin Legacy aktiv</strong><span>${state.syncConfig.enabled ? "ja" : "nein"}</span></div>
         </div>
       </details>
     `;
@@ -3367,13 +3076,12 @@
 
   function renderSettingsView() {
     const backups = Object.keys(localStorage).filter((key) => key.startsWith(BACKUP_PREFIX)).sort().reverse();
-    const conflicts = JSON.parse(localStorage.getItem(SYNC_CONFLICTS_KEY) || "[]");
     const supabaseConflicts = getSupabaseConflicts();
     const releaseConflicts = getReleaseConflicts();
     const supabaseSummary = getLocalDatabaseSummary();
     const wrapper = document.createElement("section");
     wrapper.innerHTML = `
-      ${viewHeader("Einstellungen", "localStorage bleibt der lokale Cache. Supabase ist der bevorzugte Cloud-Sync; JSONBin bleibt als Legacy-Option erhalten.")}
+      ${viewHeader("Einstellungen", "Supabase ist die führende Datenquelle. localStorage dient als Cache und Backup.")}
       <section class="card">
         <div class="settings-list">
           <div><strong>Schema-Version</strong><span>${state.database.schemaVersion}</span></div>
@@ -3383,10 +3091,6 @@
           <div><strong>Backups</strong><span>${backups.length}</span></div>
           <div><strong>Supabase</strong><span>${escapeHtml(state.supabaseConfig.enabled ? state.supabaseConfig.lastSyncStatus : "deaktiviert")}</span></div>
           <div><strong>Letzter Supabase Sync</strong><span>${escapeHtml(state.supabaseConfig.lastSyncAt ? formatDateTime(state.supabaseConfig.lastSyncAt) : "nie")}</span></div>
-          <div><strong>Sync</strong><span>${escapeHtml(state.syncConfig.enabled ? state.syncConfig.lastSyncStatus : "deaktiviert")}</span></div>
-          <div><strong>Letzter Sync</strong><span>${escapeHtml(state.syncConfig.lastSyncAt ? formatDateTime(state.syncConfig.lastSyncAt) : "nie")}</span></div>
-          <div><strong>Offener Cloud-Push</strong><span>${state.syncConfig.pendingPush ? "ja" : "nein"}</span></div>
-          <div><strong>Konflikte</strong><span>${conflicts.length}</span></div>
           <div><strong>Supabase-Konflikte</strong><span>${supabaseConflicts.length}</span></div>
         </div>
       </section>
@@ -3402,7 +3106,7 @@
       </section>
       <form class="form-panel" data-form="supabase-sync">
         <h3>Supabase Cloud-Sync</h3>
-        <p class="muted">Optionaler neuer Cloud-Sync. Trage nur Supabase URL und Public/Anon Key ein. Niemals einen service_role Key im Browser verwenden.</p>
+        <p class="muted">Trage Supabase URL und Public/Anon Key ein. Niemals einen service_role Key im Browser verwenden.</p>
         ${state.supabaseMessage ? `<div class="notice">${escapeHtml(state.supabaseMessage)}</div>` : ""}
         ${renderSupabaseConflict()}
         <div class="settings-list">
@@ -3418,44 +3122,26 @@
           <div><strong>Lokale Datenbankgröße</strong><span>${escapeHtml(formatKb(supabaseSummary.bytes))}</span></div>
           <div><strong>Serien</strong><span>${escapeHtml(supabaseSummary.seriesCount)}</span></div>
           <div><strong>Bände</strong><span>${escapeHtml(supabaseSummary.volumeCount)}</span></div>
+          <div><strong>Cloud-Sync-Status</strong><span>${state.savePending ? "Speichern läuft…" : state.saveError ? "Nicht gespeichert ⚠" : state.appMode === "cloud" ? "Gespeichert" : state.appMode}</span></div>
           <div><strong>Lokale Änderungen</strong><span>${supabaseSummary.hasLocalChanges ? "ja" : "nein"}</span></div>
         </div>
+        ${state.saveError ? `<div class="actions"><button type="button" class="button" data-action="supabase-retry-save">Erneut speichern</button></div>` : ""}
         <div class="form-grid">
           ${checkboxField("supabaseEnabled", "Supabase Cloud-Sync aktivieren", state.supabaseConfig.enabled)}
           ${textField("supabaseUrl", "Supabase URL", state.supabaseConfig.url)}
           ${textField("supabasePublicKey", "Supabase Public/Anon Key", state.supabaseConfig.publicKey, false, "password")}
           ${textField("supabaseLoginEmail", "Login E-Mail", state.supabaseConfig.loginEmail, false, "email")}
-          ${checkboxField("supabaseAutoPushEnabled", "Auto-Push nach lokalen Änderungen aktivieren", state.supabaseMeta.autoPushEnabled)}
         </div>
         <div class="actions">
           <button type="submit" class="button">Supabase-Einstellungen speichern</button>
           <button type="button" class="secondary-button" data-action="supabase-login">Login-Link senden</button>
           <button type="button" class="secondary-button" data-action="supabase-logout">Logout</button>
-          <button type="button" class="secondary-button" data-action="supabase-push">Cloud speichern</button>
-          <button type="button" class="secondary-button" data-action="supabase-pull">Cloud laden</button>
-          <button type="button" class="secondary-button" data-action="supabase-sync-test">Sync pruefen</button>
-          <button type="button" class="secondary-button" data-action="migrate-jsonbin-supabase">JSONBin zu Supabase migrieren</button>
+          <button type="button" class="secondary-button" data-action="supabase-push">Jetzt speichern</button>
+          <button type="button" class="secondary-button" data-action="supabase-pull">Cloud-Daten neu laden</button>
+          <button type="button" class="secondary-button" data-action="supabase-sync-test">Cloud-Status prüfen</button>
         </div>
         ${renderSupabaseDiagnostics(supabaseSummary)}
       </form>
-      <form class="form-panel" data-form="sync">
-        <h3>Legacy JSONBin Sync</h3>
-        <p class="muted">Der X-Access-Key wird standardmäßig nur für diese Sitzung gespeichert. Verwende einen Key mit bins.read und bins.update, ohne Create/Delete-Rechte.</p>
-        ${state.syncMessage ? `<div class="notice">${escapeHtml(state.syncMessage)}</div>` : ""}
-        <div class="form-grid">
-          ${checkboxField("syncEnabled", "JSONBin Sync aktivieren", state.syncConfig.enabled)}
-          ${textField("syncBinId", "JSONBin Bin-ID", state.syncConfig.binId)}
-          ${textField("syncAccessKey", "X-Access-Key", state.syncConfig.accessKey, false, "password")}
-          ${checkboxField("syncPersistKey", "Key dauerhaft auf diesem Gerät speichern", state.syncConfig.persistKey)}
-        </div>
-        <div class="actions">
-          <button type="submit" class="button">Sync-Einstellungen speichern</button>
-          <button type="button" class="secondary-button" data-action="check-sync-size">Sync-Datengröße prüfen</button>
-          <button type="button" class="secondary-button" data-action="sync-now">Jetzt synchronisieren</button>
-          <button type="button" class="secondary-button" data-action="push-now">Jetzt in Cloud speichern</button>
-        </div>
-      </form>
-      ${renderSyncSizeReport(state.syncSizeReport)}
     `;
     return wrapper;
   }
@@ -3842,8 +3528,24 @@
         return;
       }
       state.database = normalizeDatabase(prepared);
-      saveDatabase();
-      setNotice(`Import erfolgreich. Backup erhalten: ${backupKey}.`);
+      saveLocalDatabase();
+      updateStorageStatus();
+      if (state.appMode === "cloud") {
+        setNotice(`Import lokal geladen. Backup: ${backupKey}. Speichere nach Supabase…`);
+        render();
+        const result = await supabasePush({ force: true });
+        if (result.ok) {
+          state.savePending = false;
+          state.saveError = false;
+          setNotice(`Import erfolgreich und nach Supabase gespeichert. Backup: ${backupKey}.`);
+        } else {
+          state.saveError = true;
+          setNotice(`Import lokal gespeichert, aber Supabase-Upload fehlgeschlagen. Backup: ${backupKey}. Bitte erneut speichern.`);
+        }
+      } else {
+        setNotice(`Import erfolgreich (lokal). Backup: ${backupKey}. Bitte anmelden um nach Supabase zu speichern.`);
+      }
+      render();
     } catch (error) {
       setNotice(`Import fehlgeschlagen. Backup erhalten: ${backupKey}.`);
       console.error(error);
@@ -4041,30 +3743,6 @@
     }, series);
   }
 
-  function handleSyncSubmit(form) {
-    state.syncConfig.enabled = checkedValue(form, "syncEnabled");
-    state.syncConfig.binId = fieldValue(form, "syncBinId");
-    state.syncConfig.accessKey = fieldValue(form, "syncAccessKey");
-    state.syncConfig.persistKey = checkedValue(form, "syncPersistKey");
-    state.syncConfig.pendingPush = state.syncConfig.pendingPush || false;
-    saveSyncConfig();
-
-    if (!state.syncConfig.enabled) {
-      setSyncStatus("disabled", "JSONBin Sync ist deaktiviert.");
-      setNotice("Sync-Einstellungen gespeichert.");
-      return;
-    }
-
-    if (!isSyncConfigured()) {
-      setSyncStatus("missing-config", "JSONBin Sync ist aktiviert, aber Bin-ID oder X-Access-Key fehlt.");
-      setNotice("Sync-Einstellungen gespeichert. Für JSONBin fehlen noch Daten.");
-      return;
-    }
-
-    setNotice("Sync-Einstellungen gespeichert. Synchronisierung wird gestartet.");
-    initSync();
-  }
-
   function handleSupabaseSubmit(form) {
     state.supabaseConfig.pendingPush = state.supabaseConfig.pendingPush || false;
     saveSupabaseFormValues(form);
@@ -4082,7 +3760,7 @@
     }
 
     setNotice("Supabase-Einstellungen gespeichert.");
-    initSupabaseAuth();
+    initSupabase();
   }
 
   function yamlValue(value) {
@@ -4301,7 +3979,6 @@
       state.coverPreview = null;
       setNotice("Cover-Vorschau geschlossen.");
     }
-    if (action === "sync-now") pullFromCloud();
     if (action === "supabase-login") {
       const form = button.closest("form");
       saveSupabaseFormValues(form);
@@ -4314,6 +3991,13 @@
     if (action === "supabase-push") {
       saveSupabaseFormValues(button.closest("form"));
       supabasePush();
+    }
+    if (action === "supabase-retry-save") {
+      state.saveError = false;
+      state.savePending = true;
+      updateStorageStatus();
+      scheduleDebouncedSupabaseSave();
+      render();
     }
     if (action === "supabase-pull") {
       saveSupabaseFormValues(button.closest("form"));
@@ -4334,15 +4018,37 @@
       setSupabaseStatus("conflict-cancelled", "Konflikt abgebrochen. Es wurden keine Daten veraendert.");
       render();
     }
-    if (action === "migrate-jsonbin-supabase") {
-      saveSupabaseFormValues(button.closest("form"));
-      migrateJsonBinToSupabase();
-    }
-    if (action === "check-sync-size") {
-      state.syncSizeReport = getSyncPayloadSizeReport();
+    if (action === "first-time-migrate") {
+      state.showFirstTimeDialog = false;
+      const backupKey = backupDatabaseSnapshot(state.database, "before-first-cloud-upload");
+      supabasePush({ force: true }).then((result) => {
+        if (result.ok) {
+          state.appMode = "cloud";
+          setNotice(`Lokale Daten erfolgreich nach Supabase übernommen. Backup: ${backupKey}.`);
+        } else {
+          state.appMode = "readonly";
+          setNotice(`Upload nach Supabase fehlgeschlagen. Backup: ${backupKey}. Bitte erneut versuchen.`);
+        }
+        render();
+      });
       render();
     }
-    if (action === "push-now") pushToCloud();
+    if (action === "first-time-readonly") {
+      state.showFirstTimeDialog = false;
+      state.appMode = "readonly";
+      setNotice("Ansichtsmodus — keine Daten wurden hochgeladen. Zum Exportieren: Import/Export-Tab.");
+      render();
+    }
+    if (action === "first-time-cancel") {
+      state.showFirstTimeDialog = false;
+      state.appMode = "readonly";
+      setNotice("Abgebrochen. Bitte ab- und wieder anmelden um die Entscheidung erneut zu treffen.");
+      render();
+    }
+    if (action === "go-settings") {
+      state.activeTab = "settings";
+      render();
+    }
   });
 
   app.addEventListener("submit", (event) => {
@@ -4350,7 +4056,6 @@
     const form = event.target;
     if (form.dataset.form === "series") handleSeriesSubmit(form);
     if (form.dataset.form === "volume") handleVolumeSubmit(form);
-    if (form.dataset.form === "sync") handleSyncSubmit(form);
     if (form.dataset.form === "supabase-sync") handleSupabaseSubmit(form);
   });
 
@@ -4369,15 +4074,6 @@
     if (event.target.matches("[data-cover-change]")) {
       updateCoverPreviewSelection(event.target);
       render();
-    }
-  });
-
-  window.addEventListener("online", () => {
-    if (!state.syncConfig.enabled) return;
-    if (state.syncConfig.pendingPush) {
-      pushToCloud({ silent: true });
-    } else {
-      pullFromCloud();
     }
   });
 
@@ -4406,42 +4102,10 @@
     getState: () => state,
   };
 
-  window.mangaTrackerPhase7 = {
-    getDashboardStats,
-    getCollectionSections,
-    createSyncPayload,
-    getSyncPayloadSizeReport,
-    renderVolumeCard,
-    renderVolumeForm,
-    handleVolumeSubmit,
-    pushToCloud,
-    getState: () => state,
-  };
-
-  window.mangaTrackerPhase8 = {
-    supabasePull,
-    supabasePush,
-    supabaseSync,
-    supabaseCheck,
-    supabaseAutoPush,
-    supabaseGetCurrentUser,
-    supabaseSignIn,
-    supabaseSignOut,
-    migrateJsonBinToSupabase,
-    loadSupabaseMeta,
-    saveSupabaseMeta,
-    updateSupabaseMeta,
-    clearSupabaseError,
-    setSupabaseError,
-    maskSecret,
-    getSupabaseKeyType,
-    getLocalDatabaseSummary,
-    showSupabaseConflict,
-    clearSupabaseConflict,
-    getState: () => state,
-  };
+  window.addEventListener("unhandledrejection", (event) => {
+    console.error("Unbehandelte Promise-Ablehnung:", event.reason);
+  });
 
   render();
-  initSync();
-  initSupabaseAuth();
+  initSupabase();
 })();

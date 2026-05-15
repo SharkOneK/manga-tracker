@@ -307,7 +307,6 @@ function assert(condition, message) {
     });
   });
 
-  assert(state.syncConfig.pendingPush === false, "JSONBin Sync-State wurde unerwartet instabil.");
   const exported = after.map((volume) => `${volume.volumeNumber}:${volume.releaseDate}:${volume.owned}:${volume.read}`).join("|");
   assert(exported.includes("1:2025-01-01:true:true"), "Obsidian-relevante Banddaten sind instabil.");
   assert(Object.keys(context.localStorage.store).some((key) => key.startsWith("mangaTracker.backup.release-cache-cover-preview.")), "Backup wurde nicht erstellt.");
