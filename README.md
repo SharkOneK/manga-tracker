@@ -83,6 +83,55 @@ Phase 8 nutzt bewusst ein simples JSONB-Modell:
 6. Danach speichert die App die lokale Datenbank in Supabase.
 7. JSONBin-Konfiguration und lokale Daten werden nicht automatisch geloescht.
 
+## Phase 9: Supabase Sync verwenden
+
+Der Supabase-Bereich in `Einstellungen` zeigt ab Phase 9 mehr Alltagssignale:
+
+- verbunden oder nicht konfiguriert
+- angemeldete E-Mail
+- letzter Push, Pull und Sync-Check
+- letzter bekannter Cloud-Stand
+- letzter Fehler
+- lokale Datenbankgroesse, Serien und Baende
+- kompakte Diagnose mit maskiertem Public Key
+
+Die App speichert dafuer lokale Metadaten unter `mangaTracker.supabaseMeta.v1`. Darin liegen keine Tokens, keine vollstaendigen Keys und keine Manga-Datenbankkopie.
+
+### Aktionen
+
+- `Cloud speichern`: speichert den aktuellen lokalen Stand in Supabase. Wenn die Cloud anders aussieht, zeigt die App zuerst einen Konflikt und ueberschreibt nichts automatisch.
+- `Cloud laden`: laedt Supabase-Daten lokal. Vor jeder lokalen Uebernahme wird ein Backup in `localStorage` angelegt und danach angezeigt.
+- `Sync pruefen`: fragt Login, Remote-Datensatz und `updated_at` ab. Diese Aktion veraendert keine Manga-Daten.
+- `JSONBin zu Supabase migrieren`: erstellt ein lokales Backup, bietet bei vorhandener JSONBin-Konfiguration optional einen JSONBin-Pull an und speichert danach lokal nach Supabase. JSONBin wird nicht geloescht.
+
+### Konflikte
+
+Wenn lokaler Stand und Cloud-Stand unterschiedliche Zeitstempel haben, zeigt die App:
+
+- lokaler Stand mit Datum/Uhrzeit
+- Cloud-Stand mit Datum/Uhrzeit
+- Hinweis, dass bewusst gewaehlt werden muss
+
+Optionen:
+
+1. `Lokale Daten behalten und Cloud ueberschreiben`
+2. `Cloud laden und lokales Backup behalten`
+3. `Abbrechen`
+
+Bei `Cloud laden und lokales Backup behalten` wird immer zuerst ein Backup erstellt. Bei `Abbrechen` werden keine Manga-Daten veraendert. Der Cloud-Stand wird als Konflikt-Sicherung im lokalen Speicher gehalten, damit beide Staende erhalten bleiben.
+
+### Zweites Geraet einrichten
+
+1. Geraet A: anmelden und `Cloud speichern`.
+2. Geraet B: dieselbe Supabase-Konfiguration eintragen, anmelden und `Cloud laden`.
+3. Geraet B: Daten aendern und `Cloud speichern`.
+4. Geraet A: `Sync pruefen`.
+5. Wenn die Cloud neuer ist, zeigt Geraet A den Konflikt. Erst nach bewusster Auswahl wird etwas ueberschrieben.
+
+Auto-Push ist standardmaessig deaktiviert. Wenn aktiviert, pusht die App nur nach lokalen Aenderungen, wenn Supabase konfiguriert ist, ein User angemeldet ist und kein bekannter Konflikt offen ist. Auto-Push laedt niemals automatisch Cloud-Daten lokal.
+
+JSONBin bleibt nur noch `Legacy JSONBin Sync`. Fuer Supabase gehoert ausschliesslich die Project URL und ein Public/Anon bzw. Publishable Key in die App. Niemals einen `service_role` oder Secret Key eintragen.
+
 ### Supabase Smoke-Tests
 
 Manuell nach der Migration pruefen:
@@ -95,9 +144,12 @@ Manuell nach der Migration pruefen:
 6. Erster `Cloud speichern` legt den Datensatz in `manga_tracker_databases` an.
 7. Nach einer lokalen Aenderung aktualisiert ein zweiter `Cloud speichern` denselben Datensatz.
 8. `Cloud laden` erstellt vor lokalem Ueberschreiben ein Backup.
-9. Bei neuerem Cloud-Stand fragt die App vor Uebernahme; bei Abbruch bleibt lokal alles erhalten.
-10. Bei neuerem lokalem Stand blockiert `Cloud laden`, speichert den Cloud-Stand als Backup und ueberschreibt nichts blind.
-11. `Legacy JSONBin Sync` bleibt sichtbar und unveraendert.
+9. `Sync pruefen` veraendert keine Manga-Daten und zeigt nur Status/Konflikt.
+10. Bei abweichendem Cloud-Stand erscheint die Konflikt-Auswahl mit lokalem Stand und Cloud-Stand.
+11. `Abbrechen` im Konflikt veraendert keine Manga-Daten.
+12. `Cloud laden und lokales Backup behalten` meldet den Backup-Key.
+13. Bei aktivem Auto-Push und offenem Konflikt wird kein automatischer Push ausgefuehrt.
+14. `Legacy JSONBin Sync` bleibt sichtbar und unveraendert.
 
 ### Schritt-fuer-Schritt-Test im normalen Browser
 
@@ -112,7 +164,7 @@ Wenn der integrierte Preview-Browser `localhost` oder `file://` blockiert, den T
 7. Redirect URLs um `https://sharkonek.github.io/manga-tracker/` ergaenzen.
 8. App unter `https://sharkonek.github.io/manga-tracker/` oeffnen.
 9. Einstellungen oeffnen und pruefen, dass `Supabase Cloud-Sync` oberhalb von `Legacy JSONBin Sync` sichtbar ist.
-10. Ohne Supabase Config `Cloud speichern`, `Cloud laden` und `Sync testen` anklicken: es muss eine verstaendliche Blockade wegen fehlender Config/Login erscheinen.
+10. Ohne Supabase Config `Cloud speichern`, `Cloud laden` und `Sync pruefen` anklicken: es muss eine verstaendliche Blockade wegen fehlender Config/Login erscheinen.
 11. Supabase Cloud-Sync aktivieren, Project URL und Public/Anon Key eintragen, Login-E-Mail eintragen.
 12. `Login-Link senden` klicken und den Magic Link aus der E-Mail oeffnen.
 13. Nach der Rueckkehr zur App Einstellungen oeffnen: E-Mail oder User-ID muss als angemeldet angezeigt werden.
@@ -120,7 +172,7 @@ Wenn der integrierte Preview-Browser `localhost` oder `file://` blockiert, den T
 15. Lokal eine kleine Test-Serie oder einen Test-Band aendern und erneut `Cloud speichern` klicken: derselbe Datensatz muss aktualisiert werden, kein zweiter Datensatz.
 16. JSON Export herunterladen oder ein Backup im localStorage bestaetigen.
 17. `Cloud laden` klicken: vor einer lokalen Uebernahme muss ein Backup gemeldet werden.
-18. Konflikt testen: In einem zweiten Browser/Profil denselben User anmelden, Daten aendern und in Supabase speichern. Danach im ersten Profil mit aelterem Stand `Cloud laden` testen. Die App darf nicht ohne Nachfrage/Backup ueberschreiben.
+18. Konflikt testen: In einem zweiten Browser/Profil denselben User anmelden, Daten aendern und in Supabase speichern. Danach im ersten Profil mit aelterem Stand `Sync pruefen` testen. Die App darf nicht ohne bewusste Auswahl/Backup ueberschreiben.
 19. `Logout` klicken: Status muss auf abgemeldet wechseln.
 20. JSONBin-Konfiguration bleibt erhalten; keine JSONBin-Werte werden automatisch entfernt.
 
