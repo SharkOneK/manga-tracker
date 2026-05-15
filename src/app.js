@@ -61,6 +61,8 @@
 
   const state = {
     activeTab: "dashboard",
+    appMode: "loading",
+    showFirstTimeDialog: false,
     database: loadDatabase(),
     supabaseConfig: loadSupabaseConfig(),
     supabaseMeta: loadSupabaseMeta(),
@@ -1751,20 +1753,47 @@
     return { ok: true, reason: "equal" };
   }
 
-  async function initSupabaseAuth() {
-    if (!state.supabaseConfig.enabled) {
-      setSupabaseStatus("disabled", "Supabase Cloud-Sync ist deaktiviert.");
-      return;
-    }
+  async function initSupabase() {
     if (!isSupabaseConfigured()) {
-      setSupabaseStatus("missing-config", "Supabase URL oder Public Key fehlt.");
+      state.appMode = "setup";
+      setSupabaseStatus("missing-config", "Supabase noch nicht eingerichtet. Bitte URL und Public Key in den Einstellungen eintragen.");
+      render();
       return;
     }
+
     await supabaseGetCurrentUser();
-    if (state.supabaseUser) {
-      setSupabaseStatus("signed-in", `Angemeldet als ${state.supabaseUser.email || state.supabaseUser.id}.`);
+
+    if (!state.supabaseUser) {
+      state.appMode = "readonly";
+      setSupabaseStatus("signed-out", "Nicht angemeldet. Bitte anmelden um mit deinen Cloud-Daten zu arbeiten.");
+      render();
+      return;
+    }
+
+    state.appMode = "loading";
+    setSupabaseStatus("syncing", "Lade Cloud-Daten…");
+    render();
+
+    const result = await supabasePull();
+
+    if (result.ok) {
+      state.appMode = "cloud";
+      setSupabaseStatus("ok", `Cloud-Daten geladen (${state.supabaseUser.email || state.supabaseUser.id}).`);
+    } else if (result.reason === "empty") {
+      const hasLocalData = state.database.series.length > 0 || state.database.volumes.length > 0;
+      if (hasLocalData) {
+        state.appMode = "readonly";
+        state.showFirstTimeDialog = true;
+        setSupabaseStatus("signed-in", "Cloud leer — lokale Daten gefunden. Bitte entscheiden.");
+      } else {
+        state.appMode = "cloud";
+        setSupabaseStatus("ok", "Bereit. Noch keine Cloud-Daten vorhanden.");
+      }
+    } else if (result.reason === "conflict") {
+      state.appMode = "cloud";
     } else {
-      setSupabaseStatus("signed-out", "Nicht bei Supabase angemeldet.");
+      state.appMode = "offline";
+      setSupabaseStatus("error", "Supabase nicht erreichbar. Letzter lokaler Cache wird angezeigt.");
     }
     render();
   }
@@ -2208,6 +2237,41 @@
     return Boolean(form.elements[name]?.checked);
   }
 
+  function renderAppModeBanner() {
+    if (state.appMode === "cloud") return null;
+
+    const el = document.createElement("div");
+    el.className = "notice app-mode-banner";
+
+    if (state.appMode === "loading") {
+      el.textContent = "Lade Cloud-Daten…";
+    } else if (state.appMode === "readonly") {
+      el.innerHTML = `<strong>Nicht angemeldet</strong> — letzter lokaler Cache (read-only). Bitte anmelden um Änderungen zu speichern.`;
+    } else if (state.appMode === "offline") {
+      el.innerHTML = `<strong>Supabase nicht erreichbar</strong> — letzter Cache wird angezeigt. Bearbeitung deaktiviert.`;
+    } else if (state.appMode === "setup") {
+      el.innerHTML = `<strong>Supabase noch nicht eingerichtet</strong> — bitte <button type="button" class="link-button" data-action="go-settings">Einstellungen</button> öffnen und URL und Public Key eintragen.`;
+    }
+    return el;
+  }
+
+  function renderFirstTimeDialog() {
+    const el = document.createElement("div");
+    el.className = "modal-overlay";
+    el.innerHTML = `
+      <div class="modal-panel card">
+        <h3>Lokale Daten gefunden</h3>
+        <p>Du hast lokale Manga-Daten, aber noch keine Cloud-Daten in Supabase. Was soll passieren?</p>
+        <div class="actions">
+          <button type="button" class="button" data-action="first-time-migrate">Lokale Daten nach Supabase übernehmen</button>
+          <button type="button" class="secondary-button" data-action="first-time-readonly">Nur ansehen (kein Upload)</button>
+          <button type="button" class="secondary-button" data-action="first-time-cancel">Abbrechen</button>
+        </div>
+      </div>
+    `;
+    return el;
+  }
+
   function render() {
     document.querySelectorAll(".tab").forEach((tab) => {
       tab.classList.toggle("is-active", tab.dataset.tab === state.activeTab);
@@ -2215,11 +2279,19 @@
 
     updateStorageStatus();
     app.innerHTML = "";
+
+    const banner = renderAppModeBanner();
+    if (banner) app.append(banner);
+
     if (state.notice) {
       const notice = document.createElement("div");
       notice.className = "notice";
       notice.textContent = state.notice;
       app.append(notice);
+    }
+
+    if (state.showFirstTimeDialog) {
+      app.append(renderFirstTimeDialog());
     }
 
     const views = {
@@ -3649,7 +3721,7 @@
     }
 
     setNotice("Supabase-Einstellungen gespeichert.");
-    initSupabaseAuth();
+    initSupabase();
   }
 
   function yamlValue(value) {
@@ -3900,6 +3972,37 @@
       setSupabaseStatus("conflict-cancelled", "Konflikt abgebrochen. Es wurden keine Daten veraendert.");
       render();
     }
+    if (action === "first-time-migrate") {
+      state.showFirstTimeDialog = false;
+      const backupKey = backupDatabaseSnapshot(state.database, "before-first-cloud-upload");
+      supabasePush({ force: true }).then((result) => {
+        if (result.ok) {
+          state.appMode = "cloud";
+          setNotice(`Lokale Daten erfolgreich nach Supabase übernommen. Backup: ${backupKey}.`);
+        } else {
+          state.appMode = "readonly";
+          setNotice(`Upload nach Supabase fehlgeschlagen. Backup: ${backupKey}. Bitte erneut versuchen.`);
+        }
+        render();
+      });
+      render();
+    }
+    if (action === "first-time-readonly") {
+      state.showFirstTimeDialog = false;
+      state.appMode = "readonly";
+      setNotice("Ansichtsmodus — keine Daten wurden hochgeladen. Zum Exportieren: Import/Export-Tab.");
+      render();
+    }
+    if (action === "first-time-cancel") {
+      state.showFirstTimeDialog = false;
+      state.appMode = "readonly";
+      setNotice("Abgebrochen. Bitte ab- und wieder anmelden um die Entscheidung erneut zu treffen.");
+      render();
+    }
+    if (action === "go-settings") {
+      state.activeTab = "settings";
+      render();
+    }
   });
 
   app.addEventListener("submit", (event) => {
@@ -3958,5 +4061,5 @@
   });
 
   render();
-  initSupabaseAuth();
+  initSupabase();
 })();
