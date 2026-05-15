@@ -164,6 +164,31 @@ Manuell nach Deployment prüfen:
 17. Konflikt-Test: Zwei Geräte, verschiedene Stände → Konfliktpanel erscheint, kein automatisches Überschreiben
 18. Supabase-Ausfall simulieren (Netzwerk offline) → Banner "nicht erreichbar", Bearbeitung blockiert
 
+## Phase 11 UI-Smoke-Test-Checkliste
+
+Manuell im Browser prüfen (Desktop und Mobile-Viewport):
+
+1. App öffnet ohne Console-Fehler — `index.html`, `src/styles.css`, `src/app.js` laden mit HTTP 200.
+2. Ohne Konfiguration: gelber Setup-Banner sichtbar, Bearbeitung blockiert.
+3. Ohne Login: gelber Read-only-Banner sichtbar, Cloud-Statuspill zeigt „Read-only".
+4. Login funktioniert, App-Modus wechselt auf `cloud`, Statuspill zeigt grün „Cloud gespeichert".
+5. Auto-Save sichtbar: Statuspill wechselt sichtbar zwischen „Speichern läuft…" (blau, pulsierend) und „Cloud gespeichert" (grün).
+6. Bei Fehler: Statuspill wechselt auf roten „Nicht gespeichert" und der Retry-Button erscheint in Einstellungen.
+7. Tab-Navigation: aktiver Tab visuell deutlich (Akzent-Hintergrund + Text), Hover/Focus sichtbar, Tastatur-Tab funktioniert.
+8. Dashboard: Stat-Cards zeigen große Zahlen, Insights-Cards (Top Verlag, Bände pro Verlag, Editionen) lesbar, Bar-Listen ohne Überlauf.
+9. Serien-Tab: Status- und Sammlungsstatus erscheinen als farbige Status-Pills (gelesen=grün, am Lesen=blau, geplant=violett, fehlt/kaufbar=gelb).
+10. Band-Tabelle: Gekauft/offen und gelesen/ungelesen sind klar farbcodiert; Badges (Vorbestellbar, Jetzt kaufbar, Release verschoben) haben passende Variante.
+11. Sammlung & Kaufen: Karten mit Cover-Vorschau, gleichmäßige Abstände, Empty States lesbar.
+12. Einstellungen: Sektionen klar getrennt (Datenbank-Übersicht, Release-Daten, Supabase Cloud-Sync). Verbindung/Sync/Konfiguration als Sub-Header.
+13. Service-Role-Warnung als rot umrandete Box im Supabase-Bereich sichtbar.
+14. Import/Export-Tab: drei Karten (JSON Export, JSON Import, Obsidian Export) erkennbar und bedienbar.
+15. Kein JSONBin-Bereich, keine JSONBin-Logs in der Konsole.
+16. Formulare: Inputs und Selects haben Focus-Ring, Checkboxen sind als Custom-Boxen mit Häkchen sichtbar.
+17. Mobile (≤ 480 px): Karten stapeln in einer Spalte, Tabs scrollen horizontal, Buttons strecken über die volle Breite.
+18. Keine horizontalen Scrollbalken auf 320/375/414 px breiten Viewports.
+19. Modal-Dialog beim ersten Cloud-Login: zentriert, abgedunkelter Hintergrund, deutlich lesbar.
+20. Alle Buttons bleiben klickbar; `data-action`-Handler für Serien, Bände, Cover-Prüfung und Supabase-Aktionen funktionieren wie vorher.
+
 ## Phase 4b PoC: Manga-Passion-JSON
 
 Release-Daten und Cover werden im PoC nur über eine manuelle JSON-Datei pro Serie geprüft. Es gibt keinen direkten Browser-Fetch auf Manga Passion, keinen Proxy, keine GitHub Action und kein Massenupdate.
