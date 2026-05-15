@@ -1142,7 +1142,8 @@ tr.is-conflict td {
 /* Highlight the service_role security warning */
 .security-warning {
   display: flex;
-  gap: var(--space-3);
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-3);
   margin-bottom: var(--space-4);
   padding: 12px 14px;
   border: 1px solid rgba(239, 115, 115, 0.32);
@@ -1150,10 +1151,34 @@ tr.is-conflict td {
   background: var(--danger-soft);
   color: var(--danger-text);
   font-size: 0.88rem;
+  line-height: 1.5;
 }
 
 .security-warning strong {
   color: #ffd9d9;
+  flex: 0 0 auto;
+}
+
+.security-warning code {
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.25);
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: #ffd9d9;
+}
+
+.settings-section > h4 {
+  margin: var(--space-5) 0 var(--space-2);
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.settings-section > h4:first-of-type {
+  margin-top: var(--space-3);
 }
 
 /* -------- Modal -------- */

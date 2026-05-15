@@ -3109,61 +3109,85 @@
     const supabaseConflicts = getSupabaseConflicts();
     const releaseConflicts = getReleaseConflicts();
     const supabaseSummary = getLocalDatabaseSummary();
+    const syncStatusLabel = state.savePending
+      ? "Speichern läuft…"
+      : state.saveError
+        ? "Nicht gespeichert"
+        : state.appMode === "cloud"
+          ? "Gespeichert"
+          : state.appMode;
     const wrapper = document.createElement("section");
     wrapper.innerHTML = `
       ${viewHeader("Einstellungen", "Supabase ist die führende Datenquelle. localStorage dient als Cache und Backup.")}
-      <section class="card">
+
+      <section class="settings-section">
+        <h3>Datenbank-Übersicht</h3>
+        <p>Aktueller lokaler Cache-Stand.</p>
         <div class="settings-list">
           <div><strong>Schema-Version</strong><span>${state.database.schemaVersion}</span></div>
           <div><strong>Letzte Aktualisierung</strong><span>${escapeHtml(state.database.updatedAt)}</span></div>
           <div><strong>Serien</strong><span>${state.database.series.length}</span></div>
           <div><strong>Einzelbände</strong><span>${state.database.volumes.length}</span></div>
-          <div><strong>Backups</strong><span>${backups.length}</span></div>
-          <div><strong>Supabase</strong><span>${escapeHtml(state.supabaseConfig.enabled ? state.supabaseConfig.lastSyncStatus : "deaktiviert")}</span></div>
-          <div><strong>Letzter Supabase Sync</strong><span>${escapeHtml(state.supabaseConfig.lastSyncAt ? formatDateTime(state.supabaseConfig.lastSyncAt) : "nie")}</span></div>
-          <div><strong>Supabase-Konflikte</strong><span>${supabaseConflicts.length}</span></div>
+          <div><strong>Backups (localStorage)</strong><span>${backups.length}</span></div>
+          <div><strong>Lokale Datenbankgröße</strong><span>${escapeHtml(formatKb(supabaseSummary.bytes))}</span></div>
         </div>
       </section>
-      <section class="card">
+
+      <section class="settings-section">
         <h3>Release-Daten & Cover</h3>
-        <p class="muted">Phase 4b PoC nutzt nur manuelle Manga-Passion-JSON-Dateien pro Serie. Es gibt keine Webabfrage, keinen Proxy und kein Massenupdate.</p>
+        <p>Phase 4b PoC nutzt nur manuelle Manga-Passion-JSON-Dateien pro Serie. Es gibt keine Webabfrage, keinen Proxy und kein Massenupdate.</p>
         <div class="settings-list">
           <div><strong>Release-Konflikte</strong><span>${releaseConflicts.length}</span></div>
         </div>
         <div class="actions">
-          <button type="button" class="secondary-button" data-action="clear-release-conflicts">Konflikte loeschen</button>
+          <button type="button" class="secondary-button" data-action="clear-release-conflicts">Konflikte löschen</button>
         </div>
       </section>
-      <form class="form-panel" data-form="supabase-sync">
+
+      <form class="settings-section" data-form="supabase-sync">
         <h3>Supabase Cloud-Sync</h3>
-        <p class="muted">Trage Supabase URL und Public/Anon Key ein. Niemals einen service_role Key im Browser verwenden.</p>
+        <p>Trage Supabase URL und Public/Anon Key ein. Auto-Save speichert Änderungen 3 Sekunden nach der letzten Eingabe.</p>
+
+        <div class="security-warning">
+          <strong>Sicherheitshinweis:</strong>
+          <span>Niemals einen <code>service_role</code> Key im Browser oder in <code>localStorage</code> speichern. Nur der Public/Anon Key gehört hierhin — RLS schützt den Rest.</span>
+        </div>
+
         ${state.supabaseMessage ? `<div class="notice">${escapeHtml(state.supabaseMessage)}</div>` : ""}
         ${renderSupabaseConflict()}
+
+        <h4>Verbindung & Status</h4>
         <div class="settings-list">
-          <div><strong>Status</strong><span>${escapeHtml(getSupabaseConnectionLabel())}</span></div>
+          <div><strong>Verbindung</strong><span>${escapeHtml(getSupabaseConnectionLabel())}</span></div>
           <div><strong>Letzter Status</strong><span>${escapeHtml(state.supabaseMeta.lastStatus || state.supabaseConfig.lastSyncStatus || state.supabaseStatus)}</span></div>
-          <div><strong>Angemeldet</strong><span>${escapeHtml(state.supabaseUser ? (state.supabaseUser.email || state.supabaseUser.id) : "nein")}</span></div>
-          <div><strong>User-ID</strong><span>${escapeHtml(state.supabaseUser?.id || "nicht angemeldet")}</span></div>
+          <div><strong>App-Modus</strong><span>${escapeHtml(state.appMode)}</span></div>
+          <div><strong>Cloud-Sync-Status</strong><span>${escapeHtml(syncStatusLabel)}</span></div>
+          <div><strong>Angemeldet als</strong><span>${escapeHtml(state.supabaseUser ? (state.supabaseUser.email || state.supabaseUser.id) : "nicht angemeldet")}</span></div>
+          <div><strong>User-ID</strong><span>${escapeHtml(state.supabaseUser?.id || "—")}</span></div>
+          <div><strong>Lokale Änderungen offen</strong><span>${supabaseSummary.hasLocalChanges ? "ja" : "nein"}</span></div>
+          <div><strong>Supabase-Konflikte</strong><span>${supabaseConflicts.length}</span></div>
+        </div>
+
+        <h4>Sync-Verlauf</h4>
+        <div class="settings-list">
           <div><strong>Letzter Push</strong><span>${escapeHtml(formatOptionalDateTime(state.supabaseMeta.lastPushAt))}</span></div>
           <div><strong>Letzter Pull</strong><span>${escapeHtml(formatOptionalDateTime(state.supabaseMeta.lastPullAt))}</span></div>
           <div><strong>Letzter Sync</strong><span>${escapeHtml(formatOptionalDateTime(state.supabaseMeta.lastSyncAt || state.supabaseConfig.lastSyncAt))}</span></div>
           <div><strong>Letzter Cloud-Stand</strong><span>${escapeHtml(formatOptionalDateTime(state.supabaseMeta.lastRemoteUpdatedAt))}</span></div>
           <div><strong>Letzter Fehler</strong><span>${escapeHtml(state.supabaseMeta.lastError || "keiner")}</span></div>
-          <div><strong>Lokale Datenbankgröße</strong><span>${escapeHtml(formatKb(supabaseSummary.bytes))}</span></div>
-          <div><strong>Serien</strong><span>${escapeHtml(supabaseSummary.seriesCount)}</span></div>
-          <div><strong>Bände</strong><span>${escapeHtml(supabaseSummary.volumeCount)}</span></div>
-          <div><strong>Cloud-Sync-Status</strong><span>${state.savePending ? "Speichern läuft…" : state.saveError ? "Nicht gespeichert ⚠" : state.appMode === "cloud" ? "Gespeichert" : state.appMode}</span></div>
-          <div><strong>Lokale Änderungen</strong><span>${supabaseSummary.hasLocalChanges ? "ja" : "nein"}</span></div>
         </div>
+
         ${state.saveError ? `<div class="actions"><button type="button" class="button" data-action="supabase-retry-save">Erneut speichern</button></div>` : ""}
+
+        <h4>Konfiguration</h4>
         <div class="form-grid">
           ${checkboxField("supabaseEnabled", "Supabase Cloud-Sync aktivieren", state.supabaseConfig.enabled)}
-          ${textField("supabaseUrl", "Supabase URL", state.supabaseConfig.url)}
+          ${textField("supabaseUrl", "Supabase Project URL", state.supabaseConfig.url)}
           ${textField("supabasePublicKey", "Supabase Public/Anon Key", state.supabaseConfig.publicKey, false, "password")}
           ${textField("supabaseLoginEmail", "Login E-Mail", state.supabaseConfig.loginEmail, false, "email")}
         </div>
         <div class="actions">
-          <button type="submit" class="button">Supabase-Einstellungen speichern</button>
+          <button type="submit" class="button">Einstellungen speichern</button>
           <button type="button" class="secondary-button" data-action="supabase-login">Login-Link senden</button>
           <button type="button" class="secondary-button" data-action="supabase-logout">Logout</button>
           <button type="button" class="secondary-button" data-action="supabase-push">Jetzt speichern</button>
