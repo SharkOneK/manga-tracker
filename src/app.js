@@ -209,7 +209,7 @@ function mNextBand(m) {
 // ─── Modal Band-Manager state ──────────────────────────────────────────────
 let modalBands = {};
 let modalBandCovers = {};
-const ST_LABEL = { owned: '📚 Sammlung', reading: '📖 Lese ich', completed: '✅ Gelesen' };
+const ST_LABEL = { owned: '📚 Zu lesen', reading: '📖 Lese ich', completed: '✅ Gelesen' };
 const ST_CYCLE = { owned: 'reading', reading: 'completed', completed: 'owned' };
 
 function renderBandMgr() {
@@ -1044,7 +1044,7 @@ function render() {
       const emptyInfo = {
         reading:   ['📖', 'Kein Band aktuell in Bearbeitung', 'Trage bei einer Serie den aktuell gelesenen Band ein.'],
         completed: ['✅', 'Noch keine Bände als gelesen markiert', 'Sobald du eine Serie liest, erscheinen abgeschlossene Bände hier.'],
-        owned:     ['📚', 'Keine ungelesenen Bände in der Sammlung', 'Gekaufte, noch ungelesene Bände erscheinen hier.'],
+        owned:     ['📚', 'Keine ungelesenen Bände zum Lesen', 'Gekaufte, noch ungelesene Bände erscheinen hier.'],
       };
       const [ic, tt, sub] = emptyInfo[tab] || ['📦','Leer',''];
       hint.textContent = '';
@@ -1075,7 +1075,7 @@ function render() {
     const info = {
       reading:   ['📖', 'Noch nichts in Bearbeitung', 'Füge Mangas hinzu, die du gerade liest.'],
       completed: ['✅', 'Noch nichts abgeschlossen', 'Hier landen Serien, die du vollständig gelesen hast.'],
-      owned:     ['📚', 'Sammlung ist leer', 'Sobald du einen Band als „Gekauft" markierst, erscheint er hier.'],
+      owned:     ['📚', 'Noch nichts zum Lesen', 'Sobald du einen Band als „Gekauft" markierst, erscheint er hier.'],
     };
     const [ic, tt, sub] = info[tab]||['📦','Leer',''];
     el.innerHTML = `<div class="empty">
@@ -1286,10 +1286,10 @@ function markBought(id, e) {
   m.bands[nextBand] = 'owned';
   m.owned = mOwned(m); // Rückwärtskompatibilität
   m.nextDate = null;
-  if (m.status === 'wishlist') m.status = 'owned'; // Von Wunschliste in Sammlung
+  if (m.status === 'wishlist') m.status = 'owned'; // Von Wunschliste in "Zu lesen"
   persist();
   render();
-  toast(`✅ Band ${nextBand} von „${m.title}" zur Sammlung hinzugefügt`);
+  toast(`✅ Band ${nextBand} von „${m.title}" zu „Zu lesen" hinzugefügt`);
 }
 
 // ─── Toast ───────────────────────────────────────────────────────────────
