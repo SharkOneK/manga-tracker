@@ -566,6 +566,13 @@ header h1 .jp { color: #e8405a; }
 .band-status-btn.st-completed{ background: #eff6ff; border-color: #93c5fd; color: #2563eb; }
 .band-remove-btn { background: none; border: none; cursor: pointer; color: var(--text-muted); font-size: 0.85rem; padding: 2px 4px; flex-shrink: 0; }
 .band-remove-btn:hover { color: var(--primary); }
+.band-cover-btn {
+  background: none; border: 1px solid transparent; border-radius: 6px;
+  cursor: pointer; padding: 2px 5px; font-size: 0.85rem; flex-shrink: 0;
+  opacity: 0.35; transition: opacity 0.12s, background 0.12s, border-color 0.12s;
+}
+.band-cover-btn:hover { opacity: 1; background: var(--primary-light); border-color: var(--primary); }
+.band-cover-btn.has-cover { opacity: 1; border-color: var(--primary); background: var(--primary-light); }
 .btn-add-band {
   width: 100%; border: 1.5px dashed var(--border); border-radius: 8px; padding: 7px;
   background: none; cursor: pointer; color: var(--text-muted); font-size: 0.8rem;
@@ -899,12 +906,9 @@ body.dark .kal-avail { background: #064e3b; border-color: #065f46; }
         <input id="f-nextdate" type="date">
       </div>
       <div class="form-group">
-        <label>Cover-Bild URL <span style="font-weight:400;color:var(--text-muted)">optional</span></label>
-        <div style="display:flex;gap:6px">
-          <input id="f-cover" type="url" placeholder="https://..." style="flex:1">
-          <button type="button" onclick="searchCover()" title="Cover automatisch von Open Library laden" style="border:1.5px solid var(--border);border-radius:8px;padding:9px 11px;background:var(--bg);color:var(--text-muted);font-size:0.8rem;cursor:pointer;white-space:nowrap;flex-shrink:0;transition:background 0.12s" onmouseover="this.style.background='var(--primary-light)'" onmouseout="this.style.background='var(--bg)'">🔍 Suchen</button>
-        </div>
-        <button type="button" onclick="mpSyncOne()" title="Band-Cover von Manga Passion laden" style="margin-top:6px;width:100%;border:1.5px solid var(--border);border-radius:8px;padding:8px 11px;background:var(--bg);color:var(--text-muted);font-size:0.78rem;font-weight:700;cursor:pointer;transition:background 0.12s" onmouseover="this.style.background='var(--primary-light)'" onmouseout="this.style.background='var(--bg)'">📥 Band-Cover von Manga Passion laden</button>
+        <label>Cover-Bild URL <span style="font-weight:400;color:var(--text-muted)">optional · Serien-Fallback wenn kein Band-1-Cover vorhanden ist</span></label>
+        <input id="f-cover" type="url" placeholder="https://...">
+        <button type="button" onclick="mpSyncOne()" title="Band-Cover von Manga Passion laden" style="margin-top:6px;width:100%;border:1.5px solid var(--border);border-radius:8px;padding:8px 11px;background:var(--bg);color:var(--text-muted);font-size:0.78rem;font-weight:700;cursor:pointer;transition:background 0.12s" onmouseover="this.style.background='var(--primary-light)'" onmouseout="this.style.background='var(--bg)'">📥 Cover laden</button>
       </div>
       <div class="form-group">
         <label>Genre / Tags</label>
@@ -1120,6 +1124,7 @@ function mNextBand(m) {
 
 // ─── Modal Band-Manager state ──────────────────────────────────────────────
 let modalBands = {};
+let modalBandCovers = {};
 const ST_LABEL = { owned: '📚 Sammlung', reading: '📖 Lese ich', completed: '✅ Gelesen' };
 const ST_CYCLE = { owned: 'reading', reading: 'completed', completed: 'owned' };
 
@@ -1130,13 +1135,25 @@ function renderBandMgr() {
     c.innerHTML = `<div style="color:var(--text-muted);font-size:0.78rem;padding:6px 0">Noch keine Bände eingetragen</div>`;
     return;
   }
-  c.innerHTML = sorted.map(([nr, st]) =>
-    `<div class="band-row">
+  c.innerHTML = sorted.map(([nr, st]) => {
+    const cov = modalBandCovers[nr] || '';
+    const hasCov = !!cov;
+    const tip = hasCov ? ('Cover ändern – aktuell: ' + cov) : ('Cover-URL für Band ' + nr + ' setzen');
+    return `<div class="band-row">
       <span class="band-nr">Band ${nr}</span>
       <button type="button" class="band-status-btn st-${st}" onclick="cycleBand('${nr}')">${ST_LABEL[st]}</button>
+      <button type="button" class="band-cover-btn${hasCov ? ' has-cover' : ''}" onclick="editBandCover('${nr}')" title="${tip.replace(/"/g,'&quot;')}">🖼️</button>
       <button type="button" class="band-remove-btn" onclick="removeBand('${nr}')" title="Entfernen">✕</button>
-    </div>`
-  ).join('');
+    </div>`;
+  }).join('');
+}
+function editBandCover(nr) {
+  const cur = modalBandCovers[nr] || '';
+  const next = prompt(`Cover-URL für Band ${nr}\n(leer lassen zum Entfernen):`, cur);
+  if (next === null) return;
+  const v = next.trim();
+  if (v) modalBandCovers[nr] = v; else delete modalBandCovers[nr];
+  renderBandMgr();
 }
 function cycleBand(nr) { modalBands[nr] = ST_CYCLE[modalBands[nr]] || 'owned'; renderBandMgr(); }
 function removeBand(nr) { delete modalBands[nr]; renderBandMgr(); }
@@ -1158,27 +1175,6 @@ function bulkComplete() {
   document.getElementById('bulk-until').value = '';
   renderBandMgr();
   toast(`✅ Bände 1–${until} als Gelesen markiert`);
-}
-
-// ─── Cover-Suche (nur außerhalb Cowork-Sandbox) ───────────────────────────
-async function searchCover() {
-  const title = document.getElementById('f-title').value.trim();
-  if (!title) { toast('⚠️ Zuerst Titel eingeben'); return; }
-  toast('🔍 Suche Cover…');
-  try {
-    const r = await fetch(`https://openlibrary.org/search.json?title=${encodeURIComponent(title)}&limit=8`);
-    if (!r.ok) throw new Error('HTTP ' + r.status);
-    const j = await r.json();
-    const hit = (j.docs || []).find(d => d.cover_i);
-    if (hit) {
-      document.getElementById('f-cover').value = `https://covers.openlibrary.org/b/id/${hit.cover_i}-L.jpg`;
-      toast('✅ Cover gefunden!');
-    } else {
-      toast('⚠️ Kein Cover gefunden – URL manuell eintragen');
-    }
-  } catch {
-    toast('⚠️ Cover-Suche nicht verfügbar (nur auf GitHub Pages)');
-  }
 }
 
 // ─── Manga Passion API (Band-Cover) ──────────────────────────────────────
@@ -1405,7 +1401,10 @@ function volumeRow(v) {
 // ─── Render helpers ───────────────────────────────────────────────────────
 function coverEl(m, size = 'full', bandNr = null) {
   const c = colorFor(m.title);
-  const img = (bandNr && (m.bandCovers || {})[String(bandNr)]) || m.cover;
+  const bc = m.bandCovers || {};
+  // Serienansicht (bandNr=null): Band-1-Cover bevorzugen, sonst Serien-Fallback
+  const img = bandNr ? (bc[String(bandNr)] || m.cover)
+                     : (bc['1'] || m.cover);
   if (size === 'full') {
     return `<div class="cover" style="background:${c}">
       ${img ? `<img src="${img}" alt="" loading="lazy" onerror="this.remove()">` : ''}
@@ -2018,6 +2017,7 @@ function setTab(t) {
 function openAdd() {
   editId = null;
   modalBands = {};
+  modalBandCovers = {};
   modalGenres = [];
   document.getElementById('modal-title').textContent = 'Manga hinzufügen';
   document.getElementById('f-title').value = '';
@@ -2043,6 +2043,7 @@ function openEdit(id, e) {
   if (!m) return;
   editId = id;
   modalBands = { ...(m.bands || {}) };
+  modalBandCovers = { ...(m.bandCovers || {}) };
   modalGenres = [...(m.genres || [])];
   document.getElementById('modal-title').textContent = 'Manga bearbeiten';
   document.getElementById('f-title').value = m.title||'';
@@ -2135,11 +2136,16 @@ function doSave() {
   // Wenn Serie nicht mehr „komplett gelesen" ist (z.B. Band rückgängig), finishedAt nicht löschen — manuelle Korrektur möglich
   // ────────────────────────────────────────────────────────────────────────
 
+  // bandCovers: nur Einträge behalten, deren Band noch existiert
+  const bandCovers = {};
+  Object.entries(modalBandCovers).forEach(([k, v]) => { if (bands[k] && v) bandCovers[k] = v; });
+
   const entry = {
     id: editId || uid(),
     title,
     pub: document.getElementById('f-publisher').value,
     bands,
+    bandCovers,
     owned: Object.keys(bands).length,           // Rückwärtskompatibilität
     status: document.getElementById('f-wishlist').checked ? 'wishlist' : mSeriesStatus({ bands }),
     current: mCurrent({ bands }),                // abgeleitet
@@ -2152,6 +2158,9 @@ function doSave() {
     startedAt,
     finishedAt,
     at: existing?.at || Date.now(),
+    // Manga-Passion-Mapping erhalten
+    mpEditionId: existing?.mpEditionId,
+    mpVerifiedAt: existing?.mpVerifiedAt,
   };
   if (editId) {
     const i = db.m.findIndex(x => x.id === editId);
