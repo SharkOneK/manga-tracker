@@ -969,9 +969,37 @@ function uid() { return Date.now().toString(36) + Math.random().toString(36).sli
 const SUPA_URL  = 'https://sssxiqtnkctvyghyrqff.supabase.co';
 const SUPA_KEY  = 'sb_publishable_dHER8ble5X15bPpByKRs8g_fK_01io7';
 const SUPA_REST = `${SUPA_URL}/rest/v1/collections`;
-const SUPA_HEAD = { apikey: SUPA_KEY, Authorization: `Bearer ${SUPA_KEY}` };
-// Hardcoded persönliche Collection – kein Onboarding mehr nötig
-const _collId = '4ad0fb9b-4a3d-44a1-942c-c1e526db6ea2';
+
+// Adopt-Link: ?adopt=<collId>&token=<ownerToken> wird einmalig in localStorage uebernommen
+// und danach aus der URL entfernt. So muessen weder Collection-ID noch Owner-Token
+// hartkodiert im Quelltext stehen. Der Token bleibt ausschliesslich lokal im Browser.
+(function adoptOwnerIfPresent() {
+  try {
+    const p = new URLSearchParams(window.location.search);
+    const a = p.get('adopt'), t = p.get('token');
+    const uuidRe = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (a && t && uuidRe.test(a) && uuidRe.test(t)) {
+      localStorage.setItem('mtCollId', a);
+      localStorage.setItem('mtOwnerToken', t);
+      p.delete('adopt'); p.delete('token');
+      const qs = p.toString();
+      history.replaceState(null, '', window.location.pathname + (qs ? '?' + qs : '') + window.location.hash);
+    }
+  } catch {}
+})();
+
+// Owner-State aus localStorage. UUID ist oeffentlicher Lookup-Key; Schreib-Geheimnis
+// ist ausschliesslich mtOwnerToken und wird nie ueber URL oder Source geteilt.
+let _collId     = localStorage.getItem('mtCollId') || null;
+let _ownerToken = localStorage.getItem('mtOwnerToken') || null;
+
+// Header-Helper: x-owner-token wird nur bei Schreiboperationen UND wenn lokal vorhanden gesetzt.
+function supaHead(write = false) {
+  const h = { apikey: SUPA_KEY, Authorization: `Bearer ${SUPA_KEY}` };
+  if (write && _ownerToken) h['x-owner-token'] = _ownerToken;
+  return h;
+}
+
 let _syncTimer = null;
 // Seeding-Flag: während Boot-Seeds keine localStorage-Schreiboperationen ausführen
 let _seeding = false;
@@ -998,11 +1026,12 @@ function persist() {
 
 async function pushCloud() {
   if (readOnly) return; // Profil-Viewer dürfen nicht zurückschreiben
+  if (!_collId || !_ownerToken) return; // Ohne Owner-Token kein Schreibzugriff
   setSyncStatus('🔄', 'Synchronisiert…');
   try {
     const r = await fetch(`${SUPA_REST}?id=eq.${_collId}`, {
       method: 'PATCH',
-      headers: { ...SUPA_HEAD, 'Content-Type': 'application/json', Prefer: 'return=minimal' },
+      headers: { ...supaHead(true), 'Content-Type': 'application/json', Prefer: 'return=minimal' },
       body: JSON.stringify({ data: db })
     });
     if (!r.ok) { const t = await r.text(); throw new Error(`HTTP ${r.status}: ${t.slice(0,80)}`); }
@@ -1013,10 +1042,11 @@ async function pushCloud() {
 }
 
 async function loadFromCloud() {
+  if (!_collId) { setSyncStatus('💾', 'Lokal – keine Sammlung verbunden'); return; }
   setSyncStatus('🔄', 'Lade aus Cloud…');
   try {
     const r = await fetch(`${SUPA_REST}?id=eq.${_collId}&select=data`, {
-      headers: SUPA_HEAD
+      headers: supaHead(false)
     });
     if (!r.ok) { const t = await r.text(); throw new Error(`HTTP ${r.status}: ${t.slice(0,80)}`); }
     const j = await r.json();
@@ -1562,7 +1592,9 @@ function applyDbResult(i) {
 
 // ─── Öffentliches Profil ──────────────────────────────────────────────────
 const _viewColl = new URLSearchParams(window.location.search).get('view');
-const readOnly = !!_viewColl && _viewColl !== _collId;
+// Read-only sobald ?view= gesetzt ist ODER kein Owner-Token im Browser liegt.
+// Der Frontend-Check ist nur UX; der harte Schutz ist die RLS-Policy collections_update_owner.
+const readOnly = !!_viewColl || !_ownerToken;
 
 function applyReadOnly() {
   if (!readOnly) return;
@@ -1583,14 +1615,15 @@ function shareProfile() {
 }
 
 function startOwnCollection() {
-  const base = window.location.origin + window.location.pathname;
-  window.location.href = base; // ohne Parameter → Onboarding
+  // INSERT auf public.collections ist serverseitig verboten. Neue Sammlungen entstehen
+  // nur ueber einen separaten Setup-Prozess + Adopt-Link, der den Owner-Token liefert.
+  toast('ℹ️ Eigene Sammlung kann aktuell nur über einen neuen Adopt-Link/Setup-Prozess erstellt werden.');
 }
 
 async function loadViewCollection() {
   if (!_viewColl) return;
   try {
-    const r = await fetch(`${SUPA_REST}?id=eq.${_viewColl}&select=data`, { headers: SUPA_HEAD });
+    const r = await fetch(`${SUPA_REST}?id=eq.${_viewColl}&select=data`, { headers: supaHead(false) });
     if (!r.ok) throw new Error();
     const j = await r.json();
     const record = Array.isArray(j) && j[0] ? j[0].data : null;
@@ -2961,12 +2994,17 @@ saveLoc();
 // ─── Init ─────────────────────────────────────────────────────────────────
 render();
 applyReadOnly();
-if (readOnly) {
-  // Öffentliche Ansicht: fremde Sammlung laden
+if (_viewColl) {
+  // Öffentliche Ansicht: fremde Sammlung laden (immer read-only)
   loadViewCollection();
-} else {
-  // Cloud-Daten laden – render() läuft nur dann nochmal, wenn sich etwas geändert hat
+} else if (_collId) {
+  // Eigene Cloud-Daten laden – ohne Owner-Token bleibt der Modus read-only,
+  // gesteuert ueber die readOnly-Konstante und die RLS-Policy.
   loadFromCloud();
+} else {
+  // Kein Cloud-Sync konfiguriert: rein lokale Sammlung. Adopt-Link auf einem
+  // Owner-Geraet einmalig oeffnen, um mtCollId + mtOwnerToken zu setzen.
+  setSyncStatus('💾', 'Lokal – kein Cloud-Sync (Adopt-Link öffnen)');
 }
 </script>
 </body>
