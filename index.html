@@ -1199,7 +1199,9 @@ function mpNormPub(p) {
     .replace(/\s+/g,' ').trim();
 }
 async function mpSearchEditions(title) {
-  const r = await fetch(`${MP_API}/editions?title=${encodeURIComponent(title)}&itemsPerPage=15`, {
+  // ?search= ist Fuzzy/Volltext — ?title= macht striktes Substring-Match und scheitert
+  // bei „No.8" vs „No. 8" oder Em-Dash vs Doppelpunkt in DB-Titeln.
+  const r = await fetch(`${MP_API}/editions?search=${encodeURIComponent(title)}&itemsPerPage=15`, {
     headers: { 'Accept': 'application/json' },
     signal: AbortSignal.timeout(8000)
   });
