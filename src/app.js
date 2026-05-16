@@ -738,6 +738,7 @@ function renderStats() {
   // Top-bewertete Serien
 
   el.innerHTML = `<div class="stats-page">
+    ${renderImportExport()}
     <div class="stats-section">
       <h3>Sammlung gesamt</h3>
       <div class="stat-big-grid">
@@ -858,6 +859,338 @@ function applyPubFilter(list) {
 async function manualSync() {
   await loadFromCloud();
   toast('☁️ Daten aktualisiert');
+}
+
+// ─── Import / Export ──────────────────────────────────────────────────────
+const SCHEMA_VERSION = 2;
+
+function renderImportExport() {
+  return `<div class="stats-section">
+    <h3>Import / Export</h3>
+    <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px">
+      <button class="add-btn" onclick="exportJSON()" style="background:#1e40af;padding:9px 14px;font-size:0.82rem">💾 JSON-Backup</button>
+      <button class="add-btn" onclick="triggerImport()" style="background:#065f46;padding:9px 14px;font-size:0.82rem">📂 Importieren</button>
+      <button class="add-btn" onclick="exportObsidian()" style="background:#5b21b6;padding:9px 14px;font-size:0.82rem">📦 Obsidian-Export (ZIP)</button>
+    </div>
+    <p style="color:var(--text-muted);font-size:0.75rem;margin:0">Vor dem Import wird automatisch ein lokales Backup heruntergeladen. Supabase bleibt die einzige Cloud-Sync-Lösung.</p>
+  </div>`;
+}
+
+// A) JSON-Export
+function exportJSON() {
+  const payload = {
+    schemaVersion: SCHEMA_VERSION,
+    exportedAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    series: db.m,
+  };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+  const date = new Date().toISOString().slice(0, 10);
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `manga-tracker-backup-${date}.json`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+  toast('💾 Backup gespeichert');
+}
+
+// Lokales Backup vor Import als Download bereitstellen
+function createLocalBackupDownload() {
+  const payload = {
+    schemaVersion: SCHEMA_VERSION,
+    exportedAt: new Date().toISOString(),
+    series: db.m,
+  };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+  const date = new Date().toISOString().slice(0, 10);
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `manga-tracker-vor-import-${date}.json`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+// B) JSON-Import
+const _VALID_IMPORT_STATUSES = ['reading', 'completed', 'owned', 'wishlist'];
+const _VALID_IMPORT_BAND_STATUSES = ['owned', 'reading', 'completed'];
+const _DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+
+function validateImportEntry(entry, i) {
+  if (!entry || typeof entry !== 'object') return `Eintrag ${i}: kein Objekt`;
+  if (!entry.id || typeof entry.id !== 'string') return `Eintrag ${i}: id fehlt oder ungültig`;
+  if (!entry.title || typeof entry.title !== 'string' || !entry.title.trim())
+    return `Eintrag ${i}: title fehlt oder leer`;
+  if (entry.status && !_VALID_IMPORT_STATUSES.includes(entry.status))
+    return `Eintrag ${i} (\"${entry.title}\"): ungültiger Status \"${entry.status}\"`;
+  if (entry.startedAt && !_DATE_RE.test(entry.startedAt))
+    return `Eintrag ${i} (\"${entry.title}\"): startedAt kein ISO-Datum (YYYY-MM-DD)`;
+  if (entry.finishedAt && !_DATE_RE.test(entry.finishedAt))
+    return `Eintrag ${i} (\"${entry.title}\"): finishedAt kein ISO-Datum (YYYY-MM-DD)`;
+  if (entry.nextDate && !_DATE_RE.test(entry.nextDate))
+    return `Eintrag ${i} (\"${entry.title}\"): nextDate kein ISO-Datum (YYYY-MM-DD)`;
+  if (entry.bands) {
+    for (const [bandNr, status] of Object.entries(entry.bands)) {
+      if (!_VALID_IMPORT_BAND_STATUSES.includes(status))
+        return `Eintrag ${i} (\"${entry.title}\"): Band ${bandNr} hat ungültigen Status \"${status}\"`;
+    }
+  }
+  return null;
+}
+
+function parseImportPayload(raw) {
+  let parsed;
+  try { parsed = JSON.parse(raw); }
+  catch (e) { throw new Error('Ungültiges JSON: ' + e.message); }
+
+  // Unterstützte Formate:
+  //   Neu:  { schemaVersion, series: [...] }
+  //   Alt:  { m: [...] }
+  //   Raw:  [...]
+  let entries;
+  if (Array.isArray(parsed.series)) {
+    entries = parsed.series;
+  } else if (Array.isArray(parsed.m)) {
+    entries = parsed.m;
+  } else if (Array.isArray(parsed)) {
+    entries = parsed;
+  } else {
+    throw new Error('Unbekanntes Backup-Format: weder „series"- noch „m"-Array gefunden');
+  }
+
+  for (let i = 0; i < entries.length; i++) {
+    const err = validateImportEntry(entries[i], i + 1);
+    if (err) throw new Error(err);
+  }
+  return entries;
+}
+
+function triggerImport() {
+  document.getElementById('import-file-input').click();
+}
+
+async function handleImportFile(input) {
+  const file = input.files[0];
+  if (!file) return;
+  input.value = '';
+
+  let raw;
+  try { raw = await file.text(); }
+  catch (e) { toast('❌ Datei konnte nicht gelesen werden'); return; }
+
+  let entries;
+  try { entries = parseImportPayload(raw); }
+  catch (e) {
+    toast('❌ Import fehlgeschlagen: ' + e.message);
+    console.error('Manga Tracker Import-Fehler:', e);
+    return;
+  }
+
+  if (!confirm(
+    `Import: ${entries.length} Serie(n) aus „${file.name}" laden?\n\n` +
+    `Ein lokales Backup wird vorher automatisch heruntergeladen.`
+  )) return;
+
+  // Schritt 1: Backup sichern
+  createLocalBackupDownload();
+
+  // Schritt 2: Daten übernehmen und Migrationen anwenden
+  db = { m: entries };
+  db.m.forEach(m => {
+    if (m.wishlist === true && m.status !== 'wishlist') m.status = 'wishlist';
+    delete m.wishlist;
+    if (m.ongoing === true)  m.ongoing = 'true';
+    if (m.ongoing === false) m.ongoing = 'false';
+    if (!m.bands) {
+      m.bands = {};
+      const n   = Number(m.owned)   || 0;
+      const cur = Number(m.current) || 0;
+      const st  = m.status || 'owned';
+      for (let i = 1; i <= n; i++) {
+        if (st === 'completed')        m.bands[i] = 'completed';
+        else if (st === 'reading') {
+          if (cur > 0 && i < cur)        m.bands[i] = 'completed';
+          else if (cur > 0 && i === cur) m.bands[i] = 'reading';
+          else                           m.bands[i] = 'owned';
+        } else { m.bands[i] = 'owned'; }
+      }
+    }
+  });
+
+  saveLoc();
+
+  // Schritt 3: In Supabase synchronisieren wenn Cloud-Sync aktiv
+  if (_collId && _ownerToken) {
+    toast(`✅ ${entries.length} Serien importiert – synchronisiere…`);
+    await pushCloud();
+  }
+
+  render();
+  toast(`✅ ${entries.length} Serien importiert`);
+}
+
+// C) Obsidian/SharkMind ZIP-Export
+function sanitizeFilename(str) {
+  return (str || 'Unbekannt')
+    .replace(/[\\/:*?"<>|]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .slice(0, 100);
+}
+
+function buildSeriesMd(m) {
+  const owned = mOwned(m);
+  const status = mSeriesStatus(m);
+  const total = (m.total !== null && m.total !== undefined && !isNaN(Number(m.total)) && Number(m.total) > 0)
+    ? Number(m.total) : null;
+
+  let collectionStatus = 'owned';
+  if (status === 'wishlist') {
+    collectionStatus = 'wishlist';
+  } else if (total !== null && owned < total) {
+    collectionStatus = 'missing';
+  }
+
+  const genres = (m.genres || []);
+  const genresYaml = genres.length
+    ? 'genres:\n' + genres.map(g => `  - ${g}`).join('\n')
+    : 'genres: []';
+
+  const bandLines = Object.entries(m.bands || {})
+    .sort((a, b) => Number(a[0]) - Number(b[0]))
+    .map(([nr, st]) => `- [[${sanitizeFilename(m.title)} Band ${nr}]] — ${ST_LABEL[st] || st}`)
+    .join('\n');
+
+  const lines = [
+    '---',
+    'type: manga-series',
+    `title: "${(m.title || '').replace(/"/g, '\\"')}"`,
+    `publisher: "${(m.pub || '').replace(/"/g, '\\"')}"`,
+    `status: "${status}"`,
+    `collectionStatus: "${collectionStatus}"`,
+    `ownedVolumes: ${owned}`,
+    `totalVolumes: ${total !== null ? total : ''}`,
+    `isOngoing: ${m.ongoing === 'true'}`,
+    `nextReleaseDate: ${m.nextDate || ''}`,
+    genresYaml,
+    `startedAt: ${m.startedAt || ''}`,
+    `finishedAt: ${m.finishedAt || ''}`,
+    '---',
+    '',
+    `# ${m.title}`,
+    '',
+  ];
+  if (m.notes) lines.push(`> ${m.notes}`, '');
+  lines.push(
+    `**Verlag:** ${m.pub || 'Unbekannt'}`,
+    `**Bände:** ${owned}${total !== null ? ' / ' + total : ''} Bände`,
+    `**Status:** ${m.ongoing === 'true' ? 'Laufend' : 'Abgeschlossen'}`,
+  );
+  if (m.nextDate) lines.push(`**Nächster Band:** ${m.nextDate}`);
+  if (bandLines) lines.push('', '## Bände', bandLines);
+  return lines.join('\n');
+}
+
+function buildVolumeMd(m, bandNr, bandStatus) {
+  const nr = Number(bandNr);
+  const releaseDate = (m.nextDate && nr === mNextBand(m)) ? m.nextDate : '';
+  const readAt = (bandStatus === 'completed' && m.finishedAt) ? m.finishedAt : '';
+
+  return [
+    '---',
+    'type: manga-volume',
+    `series: "[[${sanitizeFilename(m.title)}]]"`,
+    `volumeNumber: ${nr}`,
+    `readStatus: "${bandStatus}"`,
+    'owned: true',
+    `releaseDate: ${releaseDate}`,
+    'isbn13:',
+    'boughtAt:',
+    `readAt: ${readAt}`,
+    '---',
+    '',
+    `# ${m.title} Band ${nr}`,
+    '',
+    `**Serie:** [[${sanitizeFilename(m.title)}]]`,
+    `**Status:** ${ST_LABEL[bandStatus] || bandStatus}`,
+  ].join('\n');
+}
+
+function buildDashboardMd(dateLabel) {
+  return `# Manga Dashboard
+
+Generiert am ${dateLabel} mit dem Manga Tracker.
+
+## Alle Serien
+
+\`\`\`dataview
+TABLE status, publisher, collectionStatus, ownedVolumes, totalVolumes, nextReleaseDate
+FROM "Manga/Serien"
+SORT file.name ASC
+\`\`\`
+
+## Alle Bände
+
+\`\`\`dataview
+TABLE series, volumeNumber, readStatus, releaseDate
+FROM "Manga/Bände"
+SORT series ASC, volumeNumber ASC
+\`\`\`
+
+## Aktiv lesend
+
+\`\`\`dataview
+TABLE status, ownedVolumes, totalVolumes, nextReleaseDate
+FROM "Manga/Serien"
+WHERE status = "reading"
+SORT file.name ASC
+\`\`\`
+
+## Wunschliste
+
+\`\`\`dataview
+TABLE publisher, totalVolumes
+FROM "Manga/Serien"
+WHERE status = "wishlist"
+SORT file.name ASC
+\`\`\`
+`;
+}
+
+async function exportObsidian() {
+  if (typeof JSZip === 'undefined') {
+    toast('❌ JSZip nicht geladen – Seite neu laden');
+    return;
+  }
+  toast('📦 ZIP wird erstellt…');
+  try {
+    const zip = new JSZip();
+    const mangaFolder = zip.folder('Manga');
+    const serienFolder = mangaFolder.folder('Serien');
+    const baendeFolder = mangaFolder.folder('Bände');
+
+    for (const m of db.m) {
+      const sfn = sanitizeFilename(m.title);
+      serienFolder.file(sfn + '.md', buildSeriesMd(m));
+      for (const [bandNr, bandStatus] of Object.entries(m.bands || {})) {
+        baendeFolder.file(`${sfn} Band ${bandNr}.md`, buildVolumeMd(m, bandNr, bandStatus));
+      }
+    }
+
+    const dateLabel = new Date().toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    mangaFolder.file('Dashboard.md', buildDashboardMd(dateLabel));
+
+    const dateStr = new Date().toISOString().slice(0, 10);
+    const blob = await zip.generateAsync({ type: 'blob' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `manga-obsidian-${dateStr}.zip`;
+    a.click();
+    URL.revokeObjectURL(a.href);
+    toast('✅ Obsidian-Export fertig');
+  } catch (e) {
+    console.error('Obsidian-Export-Fehler:', e);
+    toast('❌ ZIP-Fehler: ' + e.message);
+  }
 }
 
 // ─── Sort ─────────────────────────────────────────────────────────────────
