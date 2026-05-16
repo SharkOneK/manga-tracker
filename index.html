@@ -1,42 +1,2896 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="de">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Manga Tracker</title>
-    <link rel="stylesheet" href="src/styles.css">
-  </head>
-  <body>
-    <div class="app-shell">
-      <header class="app-header">
-        <div>
-          <p class="eyebrow">Physische Manga-Ausgaben</p>
-          <h1>Manga Tracker</h1>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Manga Tracker 🇩🇪</title>
+<meta name="description" content="Tracke deine deutsche Manga-Sammlung und bleib über Erscheinungstermine informiert.">
+<meta name="theme-color" content="#1a1a3e">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Manga Tracker">
+<link rel="manifest" href='data:application/manifest+json,{"name":"Manga Tracker 🇩🇪","short_name":"Manga","start_url":".","display":"standalone","background_color":"%231a1a3e","theme_color":"%231a1a3e","description":"Deutsche Manga-Sammlung tracken","icons":[{"src":"data:image/svg+xml,<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 100 100\"><rect width=\"100\" height=\"100\" rx=\"20\" fill=\"%231a1a3e\"/><text y=\".9em\" font-size=\"72\" x=\"50%\" text-anchor=\"middle\">📚</text></svg>","sizes":"any","type":"image/svg+xml"}]}'>
+<style>
+:root {
+  color-scheme: light;
+  --primary: #e8405a;
+  --primary-light: #ffeef1;
+  --secondary: #1a1a3e;
+  --bg: #f5f5f8;
+  --card-bg: #ffffff;
+  --text: #1a1a2e;
+  --text-muted: #6b7280;
+  --border: #e5e7eb;
+  --success: #10b981;
+  --warning: #f59e0b;
+  --radius: 12px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+}
+
+/* ── Header ── */
+header {
+  background: linear-gradient(135deg, #1a1a3e 0%, #2d1b69 100%);
+  color: white;
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+header h1 { font-size: 1.25rem; font-weight: 800; letter-spacing: -0.5px; }
+header h1 .jp { color: #e8405a; }
+.add-btn {
+  background: #e8405a;
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  transition: background 0.15s;
+}
+.add-btn:hover { background: #c73350; }
+
+/* ── Tabs ── */
+.tabs {
+  display: flex;
+  background: white;
+  border-bottom: 2px solid var(--border);
+  padding: 0 14px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.tabs::-webkit-scrollbar { display: none; }
+.tab {
+  padding: 11px 14px;
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--text-muted);
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.875rem;
+  transition: color 0.15s;
+}
+.tab:hover { color: var(--text); }
+.tab.active { color: var(--primary); border-bottom-color: var(--primary); }
+.badge {
+  background: #f3f4f6;
+  color: var(--text-muted);
+  border-radius: 99px;
+  padding: 1px 7px;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+.tab.active .badge { background: var(--primary); color: white; }
+
+/* ── Stats ── */
+.main { padding: 14px; }
+.stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.stat {
+  background: white;
+  border-radius: 10px;
+  padding: 11px 10px;
+  text-align: center;
+  border: 1px solid var(--border);
+}
+.stat .n { font-size: 1.5rem; font-weight: 800; color: var(--primary); line-height: 1; }
+.stat .l { font-size: 0.68rem; color: var(--text-muted); margin-top: 3px; }
+
+/* ── Manga Grid ── */
+.manga-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 11px;
+}
+.manga-card {
+  background: white;
+  border-radius: var(--radius);
+  overflow: hidden;
+  border: 1px solid var(--border);
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+.manga-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,0.1); }
+
+/* ── Cover ── */
+.cover {
+  width: 100%;
+  aspect-ratio: 2/3;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.cover img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.cover-letter {
+  position: relative;
+  z-index: 1;
+  font-size: 2.8rem;
+  font-weight: 900;
+  color: rgba(255,255,255,0.9);
+  text-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  user-select: none;
+}
+.cover-gradient {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0,0,0,0.4) 0%, transparent 60%);
+  z-index: 1;
+}
+
+/* ── Card Info ── */
+.card-info { padding: 9px 10px; }
+.card-title {
+  font-weight: 700;
+  font-size: 0.82rem;
+  line-height: 1.3;
+  margin-bottom: 3px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.card-pub { font-size: 0.7rem; color: var(--text-muted); margin-bottom: 5px; }
+.card-vols { font-size: 0.78rem; font-weight: 600; color: var(--secondary); }
+.progress {
+  height: 3px;
+  background: var(--border);
+  border-radius: 2px;
+  margin-top: 6px;
+  overflow: hidden;
+}
+.progress-fill { height: 100%; background: var(--primary); border-radius: 2px; }
+.ongoing-pill {
+  display: inline-block;
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 8px;
+  background: #fef3c7;
+  color: #92400e;
+  margin-left: 4px;
+}
+.done-pill {
+  display: inline-block;
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 8px;
+  background: #d1fae5;
+  color: #065f46;
+  margin-left: 4px;
+}
+
+/* ── Buy Tab ── */
+.section-head {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  margin: 14px 0 8px;
+}
+.section-head:first-child { margin-top: 0; }
+.buy-list { display: flex; flex-direction: column; gap: 9px; }
+.buy-card {
+  background: white;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  padding: 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.buy-card.avail { border-left: 3px solid var(--success); }
+.buy-card.soon { border-left: 3px solid var(--warning); }
+.mini-cover {
+  width: 44px;
+  height: 62px;
+  border-radius: 6px;
+  flex-shrink: 0;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.mini-cover img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.mini-letter {
+  font-size: 1.2rem;
+  font-weight: 900;
+  color: rgba(255,255,255,0.9);
+  position: relative;
+  z-index: 1;
+}
+.buy-info { flex: 1; min-width: 0; }
+.buy-title { font-weight: 700; font-size: 0.88rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.buy-band { font-size: 0.8rem; color: var(--primary); font-weight: 700; margin-top: 2px; }
+.buy-pub { font-size: 0.72rem; color: var(--text-muted); margin-top: 1px; }
+.buy-date { font-size: 0.72rem; color: var(--warning); font-weight: 600; margin-top: 3px; }
+.buy-date.avail { color: var(--success); }
+.buy-btns { display: flex; flex-direction: column; gap: 5px; flex-shrink: 0; }
+.btn-xs {
+  padding: 5px 11px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  font-size: 0.75rem;
+  font-weight: 700;
+  white-space: nowrap;
+  transition: background 0.15s;
+}
+.btn-buy { background: var(--primary); color: white; }
+.btn-buy:hover { background: #c73350; }
+.btn-edit { background: #f3f4f6; color: var(--text); border: 1px solid var(--border); }
+.btn-edit:hover { background: #e5e7eb; }
+
+/* ── Empty State ── */
+.empty {
+  text-align: center;
+  padding: 52px 24px;
+  color: var(--text-muted);
+}
+.empty-icon { font-size: 3rem; margin-bottom: 12px; }
+.empty h3 { font-size: 1rem; color: var(--text); margin-bottom: 6px; }
+.empty p { font-size: 0.85rem; margin-bottom: 18px; line-height: 1.5; }
+
+/* ── Modal ── */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(10,10,30,0.55);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  z-index: 100;
+  padding: 0;
+}
+@media (min-width: 520px) {
+  .overlay { align-items: center; padding: 20px; }
+}
+.modal {
+  background: white;
+  border-radius: 20px 20px 0 0;
+  width: 100%;
+  max-width: 500px;
+  max-height: 92vh;
+  overflow-y: auto;
+  padding-bottom: env(safe-area-inset-bottom, 0);
+}
+@media (min-width: 520px) {
+  .modal { border-radius: 20px; }
+}
+.modal-header {
+  padding: 20px 20px 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  background: white;
+  z-index: 5;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--border);
+}
+.modal-header h2 { font-size: 1.05rem; font-weight: 800; }
+.close-btn {
+  background: #f3f4f6;
+  border: none;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+}
+.modal-body { padding: 16px 20px; }
+.form-group { margin-bottom: 14px; }
+.form-group label {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 700;
+  margin-bottom: 5px;
+  color: var(--text);
+}
+.form-group input,
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  padding: 9px 11px;
+  font-size: 0.88rem;
+  font-family: inherit;
+  outline: none;
+  background: white;
+  color: var(--text);
+  transition: border-color 0.15s;
+}
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus { border-color: var(--primary); }
+.row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.modal-footer {
+  padding: 0 20px 20px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  border-top: 1px solid var(--border);
+  padding-top: 14px;
+  margin-top: 4px;
+}
+.btn-full {
+  flex: 1;
+  padding: 11px;
+  border-radius: 9px;
+  border: none;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 0.9rem;
+  transition: background 0.15s;
+}
+.btn-save { background: var(--primary); color: white; }
+.btn-save:hover { background: #c73350; }
+.btn-cancel-full { background: #f3f4f6; color: var(--text); }
+.btn-cancel-full:hover { background: #e5e7eb; }
+.btn-del { background: #fee2e2; color: #dc2626; border: none; padding: 11px 14px; border-radius: 9px; cursor: pointer; font-size: 1rem; flex-shrink: 0; }
+.btn-del:hover { background: #fecaca; }
+
+
+/* ── Toast ── */
+.toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(80px);
+  background: var(--secondary);
+  color: white;
+  padding: 11px 20px;
+  border-radius: 99px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  z-index: 200;
+  transition: transform 0.25s;
+  white-space: nowrap;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+}
+.toast.show { transform: translateX(-50%) translateY(0); }
+
+/* ── Search bar ── */
+.search-bar {
+  background: white;
+  border-bottom: 1px solid var(--border);
+  padding: 9px 14px;
+  position: sticky;
+  top: 50px;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.search-wrap {
+  position: relative;
+  flex: 1;
+}
+.search-wrap svg {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  pointer-events: none;
+}
+.search-input {
+  width: 100%;
+  padding: 8px 32px 8px 34px;
+  border: 1.5px solid var(--border);
+  border-radius: 9px;
+  font-size: 0.875rem;
+  background: var(--bg);
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.15s;
+}
+.search-input:focus { border-color: var(--primary); }
+.search-clear {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-muted);
+  font-size: 1rem;
+  padding: 2px 4px;
+  display: none;
+  line-height: 1;
+}
+.search-clear:hover { color: var(--text); }
+.search-hint {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+.view-toggle {
+  display: flex;
+  gap: 2px;
+  background: var(--bg);
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  padding: 2px;
+  flex-shrink: 0;
+}
+.view-btn {
+  background: none;
+  border: none;
+  border-radius: 6px;
+  padding: 5px 8px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  transition: background 0.12s, color 0.12s;
+  line-height: 1;
+}
+.view-btn.active {
+  background: white;
+  color: var(--primary);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+/* ── Sort select ── */
+.sort-select {
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  padding: 6px 8px;
+  font-size: 0.78rem;
+  background: var(--bg);
+  color: var(--text);
+  cursor: pointer;
+  flex-shrink: 0;
+  outline: none;
+}
+.sort-select:focus { border-color: var(--primary); }
+
+/* ── Volume grid view ── */
+.vol-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 11px;
+}
+.vol-row {
+  background: white;
+  border-radius: var(--radius);
+  overflow: hidden;
+  border: 1px solid var(--border);
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+.vol-row:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,0.1); }
+.vol-cover {
+  width: 100%;
+  aspect-ratio: 2/3;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.vol-cover img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.vol-cover-letter {
+  position: relative;
+  z-index: 1;
+  font-size: 2.8rem;
+  font-weight: 900;
+  color: rgba(255,255,255,0.9);
+  text-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  user-select: none;
+}
+.vol-cover-gradient {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0,0,0,0.5) 0%, transparent 55%);
+  z-index: 1;
+}
+.vol-band-badge {
+  position: absolute;
+  bottom: 6px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  z-index: 2;
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: #fff;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.6);
+}
+.vol-info { padding: 7px 9px 8px; }
+.vol-title { font-weight: 700; font-size: 0.8rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.vol-pub { font-size: 0.68rem; color: var(--text-muted); margin-top: 2px; }
+
+/* ── Band Manager (Modal) ── */
+.band-mgr-list { display: flex; flex-direction: column; gap: 5px; margin-bottom: 6px; max-height: 180px; overflow-y: auto; }
+.band-row { display: flex; align-items: center; gap: 6px; }
+.band-nr { font-size: 0.78rem; font-weight: 600; color: var(--text-muted); min-width: 46px; }
+.band-status-btn {
+  flex: 1; border: 1.5px solid var(--border); border-radius: 7px; padding: 4px 8px;
+  font-size: 0.75rem; font-weight: 600; cursor: pointer; background: var(--bg);
+  text-align: left; transition: background 0.12s;
+}
+.band-status-btn.st-owned    { background: #f0fdf4; border-color: #86efac; color: #16a34a; }
+.band-status-btn.st-reading  { background: #fef3c7; border-color: #fcd34d; color: #d97706; }
+.band-status-btn.st-completed{ background: #eff6ff; border-color: #93c5fd; color: #2563eb; }
+.band-remove-btn { background: none; border: none; cursor: pointer; color: var(--text-muted); font-size: 0.85rem; padding: 2px 4px; flex-shrink: 0; }
+.band-remove-btn:hover { color: var(--primary); }
+.btn-add-band {
+  width: 100%; border: 1.5px dashed var(--border); border-radius: 8px; padding: 7px;
+  background: none; cursor: pointer; color: var(--text-muted); font-size: 0.8rem;
+  font-weight: 600; transition: border-color 0.12s, color 0.12s;
+}
+.btn-add-band:hover { border-color: var(--primary); color: var(--primary); }
+
+/* ── Reading indicator on card ── */
+.reading-badge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: var(--primary);
+  color: white;
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 6px;
+  z-index: 2;
+}
+
+@media (max-width: 420px) {
+  .stats { grid-template-columns: repeat(2, 1fr); }
+  .manga-grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); }
+  .vol-list   { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); }
+}
+
+/* ── Dark Mode ── */
+body.dark {
+  color-scheme: dark;
+  --bg: #0f0f1a;
+  --card-bg: #1a1a2e;
+  --text: #e5e7f0;
+  --text-muted: #9ca3af;
+  --border: #374151;
+}
+body.dark .tabs          { background: #1a1a2e; border-color: #374151; }
+body.dark .search-bar    { background: #1a1a2e; border-color: #374151; }
+body.dark .stat          { background: #1a1a2e; }
+body.dark .manga-card    { background: #1a1a2e; }
+body.dark .vol-row       { background: #1a1a2e; }
+body.dark .buy-card      { background: #1a1a2e; }
+body.dark .vol-row       { background: #1a1a2e; }
+body.dark .modal         { background: #1a1a2e; }
+body.dark .modal-header  { background: #1a1a2e; border-color: #374151; }
+body.dark .badge         { background: #374151; }
+body.dark .close-btn     { background: #374151; }
+body.dark .btn-cancel-full { background: #374151; color: var(--text); }
+body.dark .btn-edit      { background: #374151; color: var(--text); border-color: #4b5563; }
+body.dark .btn-add-band  { border-color: #374151; }
+body.dark .band-mgr-list { border-color: #374151; }
+body.dark .search-input  { background: #0f0f1a; color: var(--text); }
+body.dark .form-group input,
+body.dark .form-group select,
+body.dark .form-group textarea { background: #0f0f1a; color: var(--text); border-color: var(--border); }
+body.dark .view-toggle   { background: #374151; }
+body.dark .sort-select   { background: #0f0f1a; border-color: #374151; }
+body.dark .view-btn.active { background: #1a1a2e; }
+body.dark .modal-footer  { border-color: #374151; }
+body.dark .band-status-btn.st-owned    { background: #052e16; border-color: #166534; color: #86efac; }
+body.dark .band-status-btn.st-reading  { background: #451a03; border-color: #92400e; color: #fcd34d; }
+body.dark .band-status-btn.st-completed{ background: #1e3a5f; border-color: #1d4ed8; color: #93c5fd; }
+
+.card-dates   { font-size: 0.68rem; color: var(--text-muted); margin-top: 3px; }
+.share-btn    { background: none; border: none; font-size: 0.8rem; cursor: pointer; padding: 2px 0; margin-top: 2px;
+  opacity: 0.4; transition: opacity 0.15s; display: block; text-align: left; }
+.share-btn:hover { opacity: 1; }
+
+/* ── Wishlist ── */
+.wishlist-badge {
+  position: absolute; top: 8px; left: 8px;
+  background: #7c3aed; color: white;
+  font-size: 0.6rem; font-weight: 700;
+  padding: 2px 6px; border-radius: 5px; z-index: 2;
+}
+
+/* ── Shop links ── */
+.shop-links { display: flex; gap: 4px; margin-top: 5px; flex-wrap: wrap; }
+.shop-link {
+  font-size: 0.68rem; padding: 3px 8px;
+  border-radius: 5px; border: 1px solid var(--border);
+  background: var(--bg); cursor: pointer; text-decoration: none;
+  color: var(--text-muted); font-weight: 600; transition: background 0.1s, color 0.1s;
+  white-space: nowrap;
+}
+.shop-link:hover { background: var(--primary); color: white; border-color: var(--primary); }
+
+/* ── Genre Chips ── */
+.genre-picker { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+.genre-chip {
+  padding: 4px 10px; border-radius: 99px; font-size: 0.72rem; font-weight: 700;
+  border: 1.5px solid var(--border); background: var(--bg); color: var(--text-muted);
+  cursor: pointer; transition: all 0.12s; user-select: none;
+}
+.genre-chip.on { background: var(--primary); color: white; border-color: var(--primary); }
+.genre-chip:hover:not(.on) { border-color: var(--primary); color: var(--primary); }
+.card-genres { display: flex; flex-wrap: wrap; gap: 3px; margin-top: 3px; }
+.card-genre { padding: 2px 7px; border-radius: 99px; font-size: 0.62rem; font-weight: 700;
+  background: var(--primary-light); color: var(--primary); }
+body.dark .card-genre { background: #3d1520; }
+.genre-filter-wrap { display: flex; flex-wrap: wrap; gap: 5px; padding: 6px 14px 8px;
+  background: white; border-bottom: 1px solid var(--border); }
+.genre-filter-chip {
+  padding: 3px 10px; border-radius: 99px; font-size: 0.72rem; font-weight: 700;
+  border: 1.5px solid var(--border); background: var(--bg); color: var(--text-muted);
+  cursor: pointer; transition: all 0.12s;
+}
+.genre-filter-chip.on { background: var(--primary); color: white; border-color: var(--primary); }
+body.dark .genre-filter-wrap { background: #0f0f1a; }
+
+/* ── Statistiken ── */
+.stats-page { padding: 16px 0; }
+.stats-section { margin-bottom: 24px; }
+.stats-section h3 { font-size: 0.85rem; font-weight: 800; color: var(--text-muted);
+  text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 10px; }
+.stat-big-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 16px; }
+.stat-big-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 14px;
+  padding: 14px 16px; }
+.stat-big-n { font-size: 2rem; font-weight: 900; color: var(--primary); line-height: 1; }
+.stat-big-l { font-size: 0.75rem; color: var(--text-muted); font-weight: 600; margin-top: 3px; }
+.bar-chart { display: flex; flex-direction: column; gap: 6px; }
+.bar-row { display: flex; align-items: center; gap: 8px; }
+.bar-label { font-size: 0.72rem; color: var(--text-muted); font-weight: 600; min-width: 80px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bar-track { flex: 1; background: var(--bg); border-radius: 99px; height: 14px; overflow: hidden; }
+.bar-fill { height: 100%; border-radius: 99px; background: var(--primary); transition: width 0.4s; }
+.bar-val { font-size: 0.72rem; font-weight: 700; color: var(--text-muted); min-width: 24px; text-align: right; }
+.month-chart { display: flex; align-items: flex-end; gap: 4px; height: 80px; }
+.month-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; }
+.month-bar { width: 100%; background: var(--primary); border-radius: 4px 4px 0 0; min-height: 2px;
+  transition: height 0.4s; opacity: 0.85; }
+.month-lbl { font-size: 0.58rem; color: var(--text-muted); font-weight: 700; }
+body.dark .stat-big-card { background: #1a1a2e; }
+
+/* ── AniList Suche ── */
+.db-search-wrap { position: relative; margin-bottom: 14px; }
+.db-search-input {
+  width: 100%; padding: 10px 36px 10px 13px;
+  border: 2px solid var(--primary); border-radius: 10px;
+  font-size: 0.875rem; background: var(--bg); color: var(--text);
+  outline: none; font-family: inherit;
+}
+.db-search-spinner { position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+  font-size: 1rem; display: none; }
+.db-results {
+  background: var(--card-bg); border: 1.5px solid var(--border);
+  border-radius: 10px; max-height: 260px; overflow-y: auto;
+  margin-top: 4px; box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+}
+.db-result-item {
+  display: flex; align-items: center; gap: 10px; padding: 9px 12px;
+  cursor: pointer; border-bottom: 1px solid var(--border); transition: background 0.1s;
+}
+.db-result-item:last-child { border-bottom: none; }
+.db-result-item:hover { background: var(--primary-light); }
+.db-result-cover { width: 32px; height: 46px; border-radius: 4px; object-fit: cover; flex-shrink: 0; background: var(--bg); }
+.db-result-info { flex: 1; min-width: 0; }
+.db-result-title { font-weight: 700; font-size: 0.82rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.db-result-sub { font-size: 0.7rem; color: var(--text-muted); margin-top: 1px; }
+body.dark .db-results { background: #1a1a2e; }
+body.dark .db-result-item:hover { background: #2d1b69; }
+
+/* ── Öffentliches Profil ── */
+.readonly-banner {
+  background: linear-gradient(135deg, #2d1b69, #1a1a3e);
+  color: white; padding: 10px 16px; font-size: 0.82rem;
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+}
+.readonly-banner strong { font-weight: 800; }
+.readonly-btn {
+  background: rgba(255,255,255,0.15); color: white; border: 1px solid rgba(255,255,255,0.3);
+  border-radius: 8px; padding: 6px 12px; font-size: 0.78rem; font-weight: 700;
+  cursor: pointer; white-space: nowrap; transition: background 0.15s;
+}
+.readonly-btn:hover { background: rgba(255,255,255,0.25); }
+
+/* ── Kalender ── */
+.kal-month { font-size: 0.8rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase;
+  letter-spacing: 0.08em; padding: 14px 0 6px; }
+.kal-row {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 9px 13px;
+  margin-bottom: 6px;
+  cursor: pointer;
+  transition: transform 0.12s, box-shadow 0.12s;
+}
+.kal-row:hover { transform: translateX(3px); box-shadow: 0 2px 10px rgba(0,0,0,0.08); }
+.kal-date-box {
+  min-width: 44px;
+  text-align: center;
+  flex-shrink: 0;
+}
+.kal-day { font-size: 1.35rem; font-weight: 900; color: var(--primary); line-height: 1; }
+.kal-mon { font-size: 0.7rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; }
+.kal-info { flex: 1; min-width: 0; }
+.kal-title { font-weight: 700; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.kal-sub { font-size: 0.75rem; color: var(--text-muted); margin-top: 2px; }
+.kal-avail { background: #d1fae5; border-color: #a7f3d0; }
+.kal-avail .kal-day { color: #059669; }
+body.dark .kal-row { background: #1a1a2e; }
+body.dark .kal-avail { background: #064e3b; border-color: #065f46; }
+</style>
+</head>
+<body>
+
+<header>
+  <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+    <h1><span class="jp">マンガ</span> Tracker 🇩🇪</h1>
+    <span id="sync-dot" title="Jetzt synchronisieren" style="font-size:0.9rem;opacity:0.85;cursor:pointer" onclick="manualSync()">🔄</span>
+  </div>
+  <div style="display:flex;gap:6px">
+    <button class="add-btn" id="btn-share-profile" style="background:rgba(255,255,255,0.15);padding:8px 10px" onclick="shareProfile()" title="Sammlung öffentlich teilen">🔗</button>
+    <button class="add-btn" id="btn-add" onclick="openAdd()">＋ Hinzufügen</button>
+  </div>
+</header>
+
+<div class="readonly-banner" id="readonly-banner" style="display:none">
+  <span>👁 <strong>Öffentliche Ansicht</strong> — Du siehst die Sammlung von jemandem anderen</span>
+  <button class="readonly-btn" onclick="startOwnCollection()">✨ Eigene Sammlung starten</button>
+</div>
+
+<div class="tabs" id="tabs">
+  <div class="tab active" data-tab="reading" onclick="setTab('reading')">📖 Lese ich <span class="badge" id="c-reading">0</span></div>
+  <div class="tab" data-tab="completed" onclick="setTab('completed')">✅ Gelesen <span class="badge" id="c-completed">0</span></div>
+  <div class="tab" data-tab="owned" onclick="setTab('owned')">📚 Sammlung <span class="badge" id="c-owned">0</span></div>
+  <div class="tab" data-tab="wishlist" onclick="setTab('wishlist')">💜 Wunschliste <span class="badge" id="c-wishlist">0</span></div>
+  <div class="tab" data-tab="buy" onclick="setTab('buy')">🛒 Zu kaufen <span class="badge" id="c-buy">0</span></div>
+  <div class="tab" data-tab="kalender" onclick="setTab('kalender')">📅 Kalender <span class="badge" id="c-kalender">0</span></div>
+  <div class="tab" data-tab="stats" onclick="setTab('stats')">📊 Statistiken</div>
+</div>
+<div class="genre-filter-wrap" id="genre-filter-wrap" style="display:none"></div>
+
+<div class="search-bar">
+  <div class="search-wrap">
+    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    <input class="search-input" id="search-input" type="search" placeholder="Manga suchen…" oninput="onSearch(this.value)" autocomplete="off">
+    <button class="search-clear" id="search-clear" onclick="clearSearch()" title="Suche löschen">✕</button>
+  </div>
+  <span class="search-hint" id="search-hint"></span>
+  <select class="sort-select" id="pub-filter" onchange="setPubFilter(this.value)" title="Verlag filtern">
+    <option value="">Alle Verlage</option>
+  </select>
+  <select class="sort-select" id="sort-select" onchange="setSort(this.value)" title="Sortierung">
+    <option value="az">A–Z</option>
+    <option value="za">Z–A</option>
+    <option value="next">Nächster Band</option>
+    <option value="added">Hinzugefügt</option>
+  </select>
+  <div class="view-toggle" id="view-toggle">
+    <button class="view-btn active" id="vbtn-series" onclick="setView('series')" title="Serienansicht">⊞</button>
+    <button class="view-btn" id="vbtn-volumes" onclick="setView('volumes')" title="Bändenliste">☰</button>
+  </div>
+  <button class="view-btn" id="btn-fetch-covers" onclick="fetchAllCovers()" title="Band-Cover von MangaDex laden" style="display:none;font-size:0.8rem;padding:5px 8px">🖼️</button>
+</div>
+
+<div class="main">
+  <div id="content"></div>
+</div>
+
+<!-- Modal -->
+<div class="overlay" id="overlay" style="display:none" onclick="overlayClick(event)">
+  <div class="modal" id="modal">
+    <div class="modal-header">
+      <h2 id="modal-title">Manga hinzufügen</h2>
+      <button class="close-btn" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="db-search-wrap">
+        <input class="db-search-input" id="db-search" type="search" placeholder="🔍 Manga in Datenbank suchen…" oninput="onDbSearch(this.value)" autocomplete="off">
+        <span class="db-search-spinner" id="db-spinner">⏳</span>
+        <div class="db-results" id="db-results" style="display:none"></div>
+      </div>
+      <div class="form-group">
+        <label>Titel *</label>
+        <input id="f-title" type="text" placeholder="z.B. Fullmetal Alchemist">
+      </div>
+      <div class="row2">
+        <div class="form-group">
+          <label>Verlag (DE)</label>
+          <select id="f-publisher">
+            <option value="">– Verlag –</option>
+            <option>Altraverse</option>
+            <option>Carlsen Manga</option>
+            <option>Cross Cult</option>
+            <option>Crunchyroll Manga</option>
+            <option>dani books</option>
+            <option>Dokico</option>
+            <option>Egmont Manga</option>
+            <option>Hayabusa</option>
+            <option>Kazé Manga</option>
+            <option>Manga Cult</option>
+            <option>MangaMoon</option>
+            <option>Panini Manga</option>
+            <option>Planet Manga</option>
+            <option>Splitter Verlag</option>
+            <option>Tokyopop</option>
+            <option>Yomeru</option>
+            <option value="Anderer">Anderer</option>
+          </select>
         </div>
-        <div class="storage-status" id="storageStatus" role="status" aria-live="polite">Cloud-Status laden…</div>
-      </header>
+        <div class="form-group">
+          <label>Serie</label>
+          <select id="f-ongoing">
+            <option value="true">Laufend 🔄</option>
+            <option value="false">Abgeschlossen ✓</option>
+          </select>
+        </div>
+      </div>
+      <div class="row2">
+        <div class="form-group">
+          <label>Bände erschienen (DE)</label>
+          <input id="f-total" type="number" min="0" placeholder="z.B. 27">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Meine Bände <span style="font-weight:400;color:var(--text-muted);font-size:0.75rem">– Klicken zum Status wechseln</span></label>
+        <div class="band-mgr-list" id="band-mgr"></div>
+        <button type="button" class="btn-add-band" onclick="addNextBand()">＋ Nächsten Band hinzufügen</button>
+        <div style="display:flex;gap:6px;margin-top:7px">
+          <input type="number" id="bulk-until" min="1" placeholder="Bis Band Nr. …" style="flex:1;border:1.5px solid var(--border);border-radius:8px;padding:7px 10px;font-size:0.82rem;font-family:inherit;outline:none;background:var(--bg);color:var(--text)">
+          <button type="button" onclick="bulkComplete()" style="border:1.5px solid var(--border);border-radius:8px;padding:7px 12px;background:var(--bg);color:var(--text-muted);font-size:0.78rem;font-weight:700;cursor:pointer;white-space:nowrap;transition:background 0.12s" onmouseover="this.style.background='#d1fae5';this.style.color='#065f46'" onmouseout="this.style.background='var(--bg)';this.style.color='var(--text-muted)'">✓ Alle abschließen</button>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Nächster Band erscheint (DE) <span style="font-weight:400;color:var(--text-muted)">– Erscheinungsdatum</span></label>
+        <input id="f-nextdate" type="date">
+      </div>
+      <div class="form-group">
+        <label>Cover-Bild URL <span style="font-weight:400;color:var(--text-muted)">optional</span></label>
+        <div style="display:flex;gap:6px">
+          <input id="f-cover" type="url" placeholder="https://..." style="flex:1">
+          <button type="button" onclick="searchCover()" title="Cover automatisch von Open Library laden" style="border:1.5px solid var(--border);border-radius:8px;padding:9px 11px;background:var(--bg);color:var(--text-muted);font-size:0.8rem;cursor:pointer;white-space:nowrap;flex-shrink:0;transition:background 0.12s" onmouseover="this.style.background='var(--primary-light)'" onmouseout="this.style.background='var(--bg)'">🔍 Suchen</button>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Genre / Tags</label>
+        <div class="genre-picker" id="genre-picker"></div>
+      </div>
+      <div class="form-group">
+        <label>Notizen</label>
+        <textarea id="f-notes" rows="2" placeholder="Eigene Notizen..." style="resize:vertical"></textarea>
+      </div>
+      <div class="row2">
+        <div class="form-group">
+          <label>Begonnen am <span style="font-weight:400;color:var(--text-muted)">optional</span></label>
+          <input id="f-started" type="date">
+        </div>
+        <div class="form-group">
+          <label>Abgeschlossen am <span style="font-weight:400;color:var(--text-muted)">optional</span></label>
+          <input id="f-finished" type="date">
+        </div>
+      </div>
+      <div class="form-group">
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:700;font-size:0.8rem">
+          <input type="checkbox" id="f-wishlist" style="width:16px;height:16px;accent-color:#7c3aed;cursor:pointer">
+          💜 Auf Wunschliste setzen
+          <span style="font-weight:400;color:var(--text-muted)">(Serien die du noch kaufen/starten möchtest)</span>
+        </label>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-del" id="btn-del" onclick="doDelete()" style="display:none" title="Löschen">🗑</button>
+      <button class="btn-full btn-cancel-full" onclick="closeModal()">Abbrechen</button>
+      <button class="btn-full btn-save" onclick="doSave()">Speichern</button>
+    </div>
+  </div>
+</div>
 
-      <nav class="tabs" aria-label="Hauptnavigation" id="tabs">
-        <button type="button" class="tab is-active" data-tab="dashboard">Dashboard</button>
-        <button type="button" class="tab" data-tab="series">Serien</button>
-        <button type="button" class="tab" data-tab="collection">Sammlung</button>
-        <button type="button" class="tab" data-tab="buy">Kaufen</button>
-        <button type="button" class="tab" data-tab="calendar">Kalender</button>
-        <button type="button" class="tab" data-tab="importExport">Import/Export</button>
-        <button type="button" class="tab" data-tab="settings">Einstellungen</button>
-      </nav>
 
-      <main id="app" class="app-main" aria-live="polite"></main>
+<div class="toast" id="toast"></div>
+
+<script>
+// ─── Palette ──────────────────────────────────────────────────────────────
+const PALETTE = [
+  '#e8405a','#2d3561','#f59e0b','#10b981','#7c3aed',
+  '#06b6d4','#ec4899','#f97316','#4f46e5','#0d9488'
+];
+function colorFor(str) {
+  let h = 5381;
+  for (let i = 0; i < str.length; i++) h = ((h << 5) + h) ^ str.charCodeAt(i);
+  return PALETTE[Math.abs(h) % PALETTE.length];
+}
+
+// ─── Storage ──────────────────────────────────────────────────────────────
+let db = (() => {
+  try { return JSON.parse(localStorage.getItem('mtDE') || '{"m":[]}'); }
+  catch { return { m: [] }; }
+})();
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
+
+// ─── Supabase Cloud Sync ──────────────────────────────────────────────────
+const SUPA_URL  = 'https://sssxiqtnkctvyghyrqff.supabase.co';
+const SUPA_KEY  = 'sb_publishable_dHER8ble5X15bPpByKRs8g_fK_01io7';
+const SUPA_REST = `${SUPA_URL}/rest/v1/collections`;
+const SUPA_HEAD = { apikey: SUPA_KEY, Authorization: `Bearer ${SUPA_KEY}` };
+// Hardcoded persönliche Collection – kein Onboarding mehr nötig
+const _collId = '4ad0fb9b-4a3d-44a1-942c-c1e526db6ea2';
+let _syncTimer = null;
+// Seeding-Flag: während Boot-Seeds keine localStorage-Schreiboperationen ausführen
+let _seeding = false;
+// Seed-Termine: von upsertManga() befüllt, überschreiben Cloud-Daten beim Laden
+// → die geplante Aufgabe aktualisiert nur den HTML-Seed, kein JSONBin-Zugriff nötig
+const SEED_DATES = {};
+// Seed-Genres: werden nach Cloud-Load auf Einträge ohne Genres angewandt,
+// damit neue HTML-Genres auch in der bereits in der Cloud existierenden Sammlung greifen
+const SEED_GENRES = {};
+
+function setSyncStatus(icon, tip) {
+  const el = document.getElementById('sync-dot');
+  if (el) { el.textContent = icon; el.title = tip; }
+}
+
+function saveLoc() { localStorage.setItem('mtDE', JSON.stringify(db)); }
+
+function persist() {
+  if (_seeding) return; // Seeds werden gebündelt am Ende geschrieben
+  saveLoc();
+  clearTimeout(_syncTimer);
+  _syncTimer = setTimeout(pushCloud, 1500);
+}
+
+async function pushCloud() {
+  if (readOnly) return; // Profil-Viewer dürfen nicht zurückschreiben
+  setSyncStatus('🔄', 'Synchronisiert…');
+  try {
+    const r = await fetch(`${SUPA_REST}?id=eq.${_collId}`, {
+      method: 'PATCH',
+      headers: { ...SUPA_HEAD, 'Content-Type': 'application/json', Prefer: 'return=minimal' },
+      body: JSON.stringify({ data: db })
+    });
+    if (!r.ok) { const t = await r.text(); throw new Error(`HTTP ${r.status}: ${t.slice(0,80)}`); }
+    setSyncStatus('☁️', 'Cloud-Sync aktiv');
+  } catch(e) {
+    setSyncStatus('⚠️', 'Sync fehlgeschlagen');
+  }
+}
+
+async function loadFromCloud() {
+  setSyncStatus('🔄', 'Lade aus Cloud…');
+  try {
+    const r = await fetch(`${SUPA_REST}?id=eq.${_collId}&select=data`, {
+      headers: SUPA_HEAD
+    });
+    if (!r.ok) { const t = await r.text(); throw new Error(`HTTP ${r.status}: ${t.slice(0,80)}`); }
+    const j = await r.json();
+    const record = Array.isArray(j) && j[0] ? j[0].data : null;
+    if (record && Array.isArray(record.m) && record.m.length > 0) {
+      // Smart Re-Render: nur wenn sich die Cloud-Daten von den lokalen unterscheiden
+      const before = JSON.stringify(db);
+      db = record;
+      let genresAdded = false;
+      // Seed-Termine immer aktuell halten: HTML-Seed schlägt Cloud-Daten
+      db.m.forEach(m => {
+        const titleLc = m.title.toLowerCase();
+        const dateKey = Object.keys(SEED_DATES).find(k => titleLc.includes(k));
+        if (dateKey) {
+          const s = SEED_DATES[dateKey];
+          if (s.nextDate !== null && s.nextDate !== undefined) m.nextDate = s.nextDate;
+          m.total = s.total;
+          m.ongoing = s.ongoing;
+        }
+        // Seed-Genres anwenden, wenn der Cloud-Eintrag noch keine hat
+        if (!m.genres || !m.genres.length) {
+          const genreKey = Object.keys(SEED_GENRES).find(k => titleLc.includes(k));
+          if (genreKey) {
+            m.genres = [...SEED_GENRES[genreKey]];
+            genresAdded = true;
+          }
+        }
+        // Bands-Migration falls Cloud-Daten noch im alten Format
+        if (!m.bands) {
+          m.bands = {};
+          const n = Number(m.owned)||0, cur = Number(m.current)||0, st = m.status||'owned';
+          for (let i = 1; i <= n; i++) {
+            if (st === 'completed')        m.bands[i] = 'completed';
+            else if (st === 'reading') {
+              if (cur > 0 && i < cur)        m.bands[i] = 'completed';
+              else if (cur > 0 && i === cur) m.bands[i] = 'reading';
+              else                           m.bands[i] = 'owned';
+            } else { m.bands[i] = 'owned'; }
+          }
+        }
+      });
+      const after = JSON.stringify(db);
+      if (before !== after) {
+        saveLoc();
+        render();
+      }
+      // Wenn HTML-Seeds Genres ergänzt haben, sofort zurück in die Cloud schreiben,
+      // damit alle Geräte (iPhone, Desktop) ohne weiteres Eingreifen die Tags sehen
+      if (genresAdded) pushCloud();
+    }
+    setSyncStatus('☁️', 'Cloud-Sync aktiv');
+  } catch(e) {
+    setSyncStatus('⚠️', 'Offline – lokale Daten');
+  }
+}
+
+
+// ─── Migration: owned/current/status → bands ──────────────────────────────
+// Boot-Phase: ein einziger persist() am Ende statt ~58 (Migration + Seeds)
+_seeding = true;
+(function migrateBands() {
+  // Migration: wishlist:true → status:'wishlist'
+  db.m.forEach(m => {
+    if (m.wishlist === true && m.status !== 'wishlist') m.status = 'wishlist';
+    delete m.wishlist;
+  });
+  db.m.forEach(m => {
+    if (m.bands) return;
+    m.bands = {};
+    const n   = Number(m.owned)   || 0;
+    const cur = Number(m.current) || 0;
+    const st  = m.status || 'owned';
+    for (let i = 1; i <= n; i++) {
+      if (st === 'completed') {
+        m.bands[i] = 'completed';
+      } else if (st === 'reading') {
+        if (cur > 0 && i < cur)      m.bands[i] = 'completed';
+        else if (cur > 0 && i === cur) m.bands[i] = 'reading';
+        else                           m.bands[i] = 'owned';
+      } else {
+        m.bands[i] = 'owned';
+      }
+    }
+  });
+})();
+
+// ─── MangaDex Cover Fetching ──────────────────────────────────────────────
+const MDEX_API = 'https://api.mangadex.org';
+
+async function fetchMdexCovers(m) {
+  if (!m.title) return false;
+  try {
+    const query = encodeURIComponent(m.title);
+    const searchRes = await fetch(`${MDEX_API}/manga?title=${query}&limit=5`, { signal: AbortSignal.timeout(8000) });
+    if (!searchRes.ok) return false;
+    const searchData = await searchRes.json();
+    if (!searchData.data?.length) return false;
+
+    // Besten Treffer finden (erster Treffer meist korrekt)
+    const mangaId = searchData.data[0].id;
+
+    // Alle Cover laden, nach Volume sortiert
+    let offset = 0, allCovers = [];
+    while (true) {
+      const cr = await fetch(`${MDEX_API}/cover?manga[]=${mangaId}&limit=100&offset=${offset}&order[volume]=asc`, { signal: AbortSignal.timeout(8000) });
+      if (!cr.ok) break;
+      const cd = await cr.json();
+      if (!cd.data?.length) break;
+      allCovers = allCovers.concat(cd.data);
+      if (allCovers.length >= (cd.total || 0)) break;
+      offset += 100;
+    }
+    if (!allCovers.length) return false;
+
+    // Bände zuordnen: Deutsche Cover bevorzugen, sonst Japanisch/beliebig
+    const byVol = {};
+    allCovers.forEach(c => {
+      const vol = c.attributes?.volume;
+      if (!vol) return;
+      const n = parseInt(vol);
+      if (isNaN(n) || n < 1) return;
+      const key = String(n);
+      const locale = c.attributes?.locale || '';
+      const url = `https://uploads.mangadex.org/covers/${mangaId}/${c.attributes.fileName}.256.jpg`;
+      if (!byVol[key] || locale === 'de' || (locale === 'ja' && !byVol[key])) byVol[key] = url;
+    });
+    if (!Object.keys(byVol).length) return false;
+    m.bandCovers = { ...(m.bandCovers || {}), ...byVol };
+    return true;
+  } catch (e) {
+    console.warn('MangaDex fetch error:', m.title, e);
+    return false;
+  }
+}
+
+let _fetchingCovers = false;
+async function fetchAllCovers() {
+  if (_fetchingCovers) return;
+  _fetchingCovers = true;
+  const btn = document.getElementById('btn-fetch-covers');
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ Lädt…'; }
+  let count = 0;
+  const toFetch = db.m.filter(m => mOwned(m) > 1);
+  for (const m of toFetch) {
+    try {
+      const ok = await fetchMdexCovers(m);
+      if (ok) { count++; saveLoc(); }
+    } catch {}
+    await new Promise(r => setTimeout(r, 400));
+  }
+  if (count > 0) { pushCloud(); render(); }
+  toast(`✅ ${count} Serien mit Band-Covers aktualisiert`);
+  if (btn) { btn.disabled = false; btn.textContent = '🖼️ Covers laden'; }
+  _fetchingCovers = false;
+}
+
+// ─── Per-manga helpers (use bands as source of truth) ─────────────────────
+function mOwned(m)  { return Object.keys(m.bands || {}).length; }
+function mCurrent(m) {
+  const e = Object.entries(m.bands || {}).find(([,v]) => v === 'reading');
+  return e ? Number(e[0]) : null;
+}
+function mSeriesStatus(m) {
+  if (m.status === 'wishlist') return 'wishlist';
+  const vals = Object.values(m.bands || {});
+  if (!vals.length) return 'owned';
+  if (vals.includes('reading')) return 'reading';
+  if (vals.every(v => v === 'completed')) return 'completed';
+  return 'owned';
+}
+function mNextBand(m) {
+  const keys = Object.keys(m.bands || {}).map(Number);
+  return keys.length ? Math.max(...keys) + 1 : 1;
+}
+
+// ─── Modal Band-Manager state ──────────────────────────────────────────────
+let modalBands = {};
+const ST_LABEL = { owned: '📚 Sammlung', reading: '📖 Lese ich', completed: '✅ Gelesen' };
+const ST_CYCLE = { owned: 'reading', reading: 'completed', completed: 'owned' };
+
+function renderBandMgr() {
+  const c = document.getElementById('band-mgr');
+  const sorted = Object.entries(modalBands).sort(([a],[b]) => Number(a)-Number(b));
+  if (!sorted.length) {
+    c.innerHTML = `<div style="color:var(--text-muted);font-size:0.78rem;padding:6px 0">Noch keine Bände eingetragen</div>`;
+    return;
+  }
+  c.innerHTML = sorted.map(([nr, st]) =>
+    `<div class="band-row">
+      <span class="band-nr">Band ${nr}</span>
+      <button type="button" class="band-status-btn st-${st}" onclick="cycleBand('${nr}')">${ST_LABEL[st]}</button>
+      <button type="button" class="band-remove-btn" onclick="removeBand('${nr}')" title="Entfernen">✕</button>
+    </div>`
+  ).join('');
+}
+function cycleBand(nr) { modalBands[nr] = ST_CYCLE[modalBands[nr]] || 'owned'; renderBandMgr(); }
+function removeBand(nr) { delete modalBands[nr]; renderBandMgr(); }
+function addNextBand() {
+  const keys = Object.keys(modalBands).map(Number);
+  const next = String(keys.length ? Math.max(...keys) + 1 : 1);
+  modalBands[next] = 'owned';
+  renderBandMgr();
+}
+
+// ─── Dark Mode (permanent) ────────────────────────────────────────────────
+document.body.classList.add('dark');
+
+// ─── Bulk Complete ────────────────────────────────────────────────────────
+function bulkComplete() {
+  const until = parseInt(document.getElementById('bulk-until').value);
+  if (!until || until < 1) { toast('⚠️ Bitte eine Band-Nummer eingeben'); return; }
+  for (let i = 1; i <= until; i++) modalBands[String(i)] = 'completed';
+  document.getElementById('bulk-until').value = '';
+  renderBandMgr();
+  toast(`✅ Bände 1–${until} als Gelesen markiert`);
+}
+
+// ─── Cover-Suche (nur außerhalb Cowork-Sandbox) ───────────────────────────
+async function searchCover() {
+  const title = document.getElementById('f-title').value.trim();
+  if (!title) { toast('⚠️ Zuerst Titel eingeben'); return; }
+  toast('🔍 Suche Cover…');
+  try {
+    const r = await fetch(`https://openlibrary.org/search.json?title=${encodeURIComponent(title)}&limit=8`);
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    const j = await r.json();
+    const hit = (j.docs || []).find(d => d.cover_i);
+    if (hit) {
+      document.getElementById('f-cover').value = `https://covers.openlibrary.org/b/id/${hit.cover_i}-L.jpg`;
+      toast('✅ Cover gefunden!');
+    } else {
+      toast('⚠️ Kein Cover gefunden – URL manuell eintragen');
+    }
+  } catch {
+    toast('⚠️ Cover-Suche nicht verfügbar (nur auf GitHub Pages)');
+  }
+}
+
+// ─── State ────────────────────────────────────────────────────────────────
+let tab = 'reading';
+let editId = null;
+let searchQ = '';
+let viewMode = 'series'; // 'series' | 'volumes'
+let sortMode = 'az';     // 'az' | 'za' | 'next' | 'added'
+let filterPub = '';      // Verlagsfilter
+
+function setView(mode) {
+  viewMode = mode;
+  document.getElementById('vbtn-series').classList.toggle('active', mode === 'series');
+  document.getElementById('vbtn-volumes').classList.toggle('active', mode === 'volumes');
+  document.getElementById('view-toggle').style.display = (tab === 'buy' || tab === 'wishlist') ? 'none' : 'flex';
+  const coverBtn = document.getElementById('btn-fetch-covers');
+  if (coverBtn) coverBtn.style.display = (mode === 'volumes' || tab === 'buy' || tab === 'kalender') ? 'flex' : 'none';
+  render();
+}
+
+function onSearch(val) {
+  searchQ = val.trim().toLowerCase();
+  document.getElementById('search-clear').style.display = searchQ ? 'block' : 'none';
+  render();
+}
+function clearSearch() {
+  searchQ = '';
+  document.getElementById('search-input').value = '';
+  document.getElementById('search-clear').style.display = 'none';
+  document.getElementById('search-hint').textContent = '';
+  render();
+}
+function applySearch(list) {
+  if (!searchQ) return list;
+  return list.filter(m => m.title.toLowerCase().includes(searchQ) || (m.pub||'').toLowerCase().includes(searchQ));
+}
+
+// ─── Computed ─────────────────────────────────────────────────────────────
+function toBuyList() {
+  const today = new Date(); today.setHours(0,0,0,0);
+  return db.m
+    .filter(m => {
+      const total = Number(m.total);
+      const owned = mOwned(m);
+      return !isNaN(total) && total > 0 && total > owned;
+    })
+    .map(m => ({ ...m, next: mNextBand(m) }))
+    .sort((a, b) => {
+      // available first, then by date, then alpha
+      const da = a.nextDate ? new Date(a.nextDate) : null;
+      const db2 = b.nextDate ? new Date(b.nextDate) : null;
+      const aAvail = !da || da <= today;
+      const bAvail = !db2 || db2 <= today;
+      if (aAvail && !bAvail) return -1;
+      if (!aAvail && bAvail) return 1;
+      if (da && db2) return da - db2;
+      if (da && !db2) return -1;
+      if (!da && db2) return 1;
+      return a.title.localeCompare(b.title, 'de');
+    });
+}
+
+// ─── Volume list helpers ──────────────────────────────────────────────────
+function bandStatus(m, bandNr) {
+  return (m.bands || {})[String(bandNr)] || 'owned';
+}
+
+function volumeRow(v) {
+  const c = colorFor(v.title);
+  const bandCover = (v.bandCovers || {})[String(v._band)] || v.cover;
+  return `<div class="vol-row" onclick="openEdit('${v.id}')">
+    <div class="vol-cover" style="background:${c}">
+      ${bandCover ? `<img src="${bandCover}" alt="" loading="lazy" onerror="this.remove()">` : ''}
+      <div class="vol-cover-gradient"></div>
+      <div class="vol-band-badge">Band ${v._band}</div>
+    </div>
+    <div class="vol-info">
+      <div class="vol-title">${v.title}</div>
+      <div class="vol-pub">${v.pub || ''}</div>
+    </div>
+  </div>`;
+}
+
+// ─── Render helpers ───────────────────────────────────────────────────────
+function coverEl(m, size = 'full', bandNr = null) {
+  const c = colorFor(m.title);
+  const img = (bandNr && (m.bandCovers || {})[String(bandNr)]) || m.cover;
+  if (size === 'full') {
+    return `<div class="cover" style="background:${c}">
+      ${img ? `<img src="${img}" alt="" loading="lazy" onerror="this.remove()">` : ''}
+      <div class="cover-gradient"></div>
+    </div>`;
+  }
+  return `<div class="mini-cover" style="background:${c}">
+    ${img ? `<img src="${img}" alt="" loading="lazy" onerror="this.remove()">` : ''}
+  </div>`;
+}
+
+function mangaCard(m) {
+  const total = Number(m.total);
+  const owned = mOwned(m);
+  const cur   = mCurrent(m);
+  const hasProg = !isNaN(total) && total > 0;
+  const prog = hasProg ? Math.min(100, Math.round(owned / total * 100)) : 0;
+  const volText = hasProg ? `${owned} / ${total} Bände` : `${owned} Bände`;
+  const statusPill = m.ongoing === 'true'
+    ? '<span class="ongoing-pill">laufend</span>'
+    : '<span class="done-pill">abgeschlossen</span>';
+  const readingBadge = cur ? `<div class="reading-badge">Band ${cur}</div>` : '';
+  const wishBadge = mSeriesStatus(m) === 'wishlist' ? `<div class="wishlist-badge">💜 Wunsch</div>` : '';
+
+  return `<div class="manga-card"${readOnly ? '' : ` onclick="openEdit('${m.id}')"`}>
+    <div style="position:relative">
+      ${coverEl(m)}
+      ${readingBadge}
+      ${wishBadge}
+    </div>
+    <div class="card-info">
+      <div class="card-title">${m.title}</div>
+      <div class="card-pub">${m.pub || 'Unbekannt'} ${statusPill}</div>
+      <div class="card-vols">${volText}</div>
+      ${hasProg ? `<div class="progress"><div class="progress-fill" style="width:${prog}%"></div></div>` : ''}
+      ${(m.genres||[]).length ? `<div class="card-genres">${(m.genres).map(g=>`<span class="card-genre">${g}</span>`).join('')}</div>` : ''}
+      ${(m.startedAt||m.finishedAt) ? `<div class="card-dates">${m.startedAt?'📖 '+new Date(m.startedAt+'T00:00:00').toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit',year:'numeric'}):''}${m.startedAt&&m.finishedAt?' – ':''}${m.finishedAt?'✅ '+new Date(m.finishedAt+'T00:00:00').toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit',year:'numeric'}):''}</div>`:''}
+      <button class="share-btn" onclick="shareManga('${m.id}',event)" title="Empfehlung teilen">📤</button>
+    </div>
+  </div>`;
+}
+
+function buyCard(m, isAvail) {
+  const today = new Date(); today.setHours(0,0,0,0);
+  let dateLabel = '';
+  if (m.nextDate) {
+    const d = new Date(m.nextDate + 'T00:00:00');
+    if (d <= today) {
+      dateLabel = `<div class="buy-date avail">✓ Jetzt erhältlich</div>`;
+    } else {
+      dateLabel = `<div class="buy-date">📅 ${d.toLocaleDateString('de-DE', {day:'2-digit',month:'2-digit',year:'numeric'})}</div>`;
+    }
+  }
+  const q = encodeURIComponent(`${m.title} Manga Band ${m.next}`);
+  const shopLinks = `<div class="shop-links">
+    <a class="shop-link" href="https://www.thalia.de/suche?sq=${q}" target="_blank" rel="noopener">Thalia</a>
+    <a class="shop-link" href="https://www.amazon.de/s?k=${q}" target="_blank" rel="noopener">Amazon</a>
+  </div>`;
+  return `<div class="buy-card ${isAvail ? 'avail' : 'soon'}">
+    ${coverEl(m, 'mini', m.next)}
+    <div class="buy-info">
+      <div class="buy-title">${m.title}</div>
+      <div class="buy-band">Band ${m.next} kaufen</div>
+      <div class="buy-pub">${m.pub || ''}</div>
+      ${dateLabel}
+      ${shopLinks}
+    </div>
+    <div class="buy-btns">
+      <button class="btn-xs btn-buy" onclick="markBought('${m.id}',event)">Gekauft ✓</button>
+      <button class="btn-xs btn-edit" onclick="openEdit('${m.id}',event)">Bearbeiten</button>
+    </div>
+  </div>`;
+}
+
+// ─── AniList Datenbank-Suche ──────────────────────────────────────────────
+const GENRE_MAP = {
+  'Action':'Action','Adventure':'Action','Comedy':'Comedy','Drama':'Drama',
+  'Fantasy':'Fantasy','Horror':'Horror','Mystery':'Mystery','Romance':'Romance',
+  'Sci-Fi':'Sci-Fi','Science Fiction':'Sci-Fi','Slice of Life':'Slice of Life',
+  'Sports':'Sports','Supernatural':'Supernatural','Thriller':'Thriller','Mecha':'Mecha',
+  'Psychological':'Thriller','Ecchi':'Shōnen','Shounen':'Shōnen','Shoujo':'Shōjo',
+  'Seinen':'Seinen','Josei':'Josei',
+};
+let _dbTimer = null;
+let _dbResults = [];
+
+function onDbSearch(val) {
+  clearTimeout(_dbTimer);
+  const q = val.trim();
+  const res = document.getElementById('db-results');
+  if (q.length < 2) { res.style.display = 'none'; return; }
+  _dbTimer = setTimeout(() => fetchAniList(q), 400);
+}
+
+async function fetchAniList(query) {
+  document.getElementById('db-spinner').style.display = 'block';
+  const gql = `query($s:String){Page(perPage:6){media(search:$s,type:MANGA,isAdult:false){id title{romaji english native}coverImage{medium}genres status volumes}}}`;
+  try {
+    const r = await fetch('https://graphql.anilist.co', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ query: gql, variables: { s: query } })
+    });
+    const j = await r.json();
+    _dbResults = j.data?.Page?.media || [];
+    renderDbResults();
+  } catch {
+    _dbResults = [];
+    renderDbResults();
+  } finally {
+    document.getElementById('db-spinner').style.display = 'none';
+  }
+}
+
+function renderDbResults() {
+  const el = document.getElementById('db-results');
+  if (!_dbResults.length) {
+    el.innerHTML = '<div style="padding:12px;color:var(--text-muted);font-size:0.8rem;text-align:center">Keine Ergebnisse</div>';
+    el.style.display = 'block'; return;
+  }
+  el.style.display = 'block';
+  el.innerHTML = _dbResults.map((m,i) => {
+    const title = m.title.english || m.title.romaji || m.title.native || '';
+    const vols = m.volumes ? `${m.volumes} Bde.` : (m.status === 'RELEASING' ? 'laufend' : '');
+    const genres = (m.genres||[]).slice(0,2).join(', ');
+    return `<div class="db-result-item" onclick="applyDbResult(${i})">
+      ${m.coverImage?.medium ? `<img class="db-result-cover" src="${m.coverImage.medium}" loading="lazy">` : '<div class="db-result-cover"></div>'}
+      <div class="db-result-info">
+        <div class="db-result-title">${title}</div>
+        <div class="db-result-sub">${[vols,genres].filter(Boolean).join(' · ')}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function applyDbResult(i) {
+  const m = _dbResults[i];
+  if (!m) return;
+  const title = m.title.english || m.title.romaji || m.title.native || '';
+  document.getElementById('f-title').value = title;
+  if (m.volumes) document.getElementById('f-total').value = m.volumes;
+  document.getElementById('f-ongoing').value = m.status === 'RELEASING' ? 'true' : 'false';
+  if (m.coverImage?.medium) document.getElementById('f-cover').value = m.coverImage.medium;
+  // Genres mappen
+  const mapped = [...new Set((m.genres||[]).map(g => GENRE_MAP[g]).filter(Boolean))];
+  modalGenres = mapped.filter(g => ALL_GENRES.includes(g));
+  renderGenrePicker();
+  // Suche schließen
+  document.getElementById('db-results').style.display = 'none';
+  document.getElementById('db-search').value = '';
+  toast(`✅ „${title}" aus Datenbank übernommen`);
+}
+
+// ─── Öffentliches Profil ──────────────────────────────────────────────────
+const _viewColl = new URLSearchParams(window.location.search).get('view');
+const readOnly = !!_viewColl && _viewColl !== _collId;
+
+function applyReadOnly() {
+  if (!readOnly) return;
+  document.getElementById('readonly-banner').style.display = 'flex';
+  document.getElementById('btn-add').style.display = 'none';
+  document.getElementById('btn-share-profile').style.display = 'none';
+}
+
+function shareProfile() {
+  if (!_collId) { toast('⚠️ Noch keine Sammlung erstellt'); return; }
+  const base = window.location.origin + window.location.pathname;
+  const url = `${base}?view=${_collId}`;
+  if (navigator.share) {
+    navigator.share({ title: 'Meine Manga-Sammlung', url }).catch(()=>{});
+  } else {
+    navigator.clipboard.writeText(url).then(() => toast('📋 Link kopiert — teile ihn mit Freunden!'));
+  }
+}
+
+function startOwnCollection() {
+  const base = window.location.origin + window.location.pathname;
+  window.location.href = base; // ohne Parameter → Onboarding
+}
+
+async function loadViewCollection() {
+  if (!_viewColl) return;
+  try {
+    const r = await fetch(`${SUPA_REST}?id=eq.${_viewColl}&select=data`, { headers: SUPA_HEAD });
+    if (!r.ok) throw new Error();
+    const j = await r.json();
+    const record = Array.isArray(j) && j[0] ? j[0].data : null;
+    if (record?.m) {
+      db = record;
+      db.m.forEach(m => {
+        const key = Object.keys(SEED_DATES).find(k => m.title.toLowerCase().includes(k));
+        if (!key) return;
+        const s = SEED_DATES[key];
+        if (s.nextDate !== null && s.nextDate !== undefined) m.nextDate = s.nextDate;
+        m.total = s.total; m.ongoing = s.ongoing;
+      });
+      render();
+    }
+  } catch { toast('⚠️ Sammlung konnte nicht geladen werden'); }
+}
+
+// ─── Statistiken ──────────────────────────────────────────────────────────
+function renderStats() {
+  const year = new Date().getFullYear();
+  const MONATE = ['Jan','Feb','Mär','Apr','Mai','Jun','Jul','Aug','Sep','Okt','Nov','Dez'];
+  const el = document.getElementById('content');
+  document.getElementById('view-toggle').style.display = 'none';
+  updateGenreFilter();
+
+  // Sammlung gesamt
+  const totalSeries  = db.m.length;
+  const totalVols    = db.m.reduce((s,m) => s + mOwned(m), 0);
+  const readingSeries = db.m.filter(m => mSeriesStatus(m) === 'reading').length;
+  // Abgeschlossene BÄNDE (nicht Serien) — Status 'completed' im bands-Objekt
+  const completedVols = db.m.reduce((s,m) =>
+    s + Object.values(m.bands || {}).filter(v => v === 'completed').length, 0);
+  const buyCount = toBuyList().length;
+
+  const startedYear = db.m.filter(m => m.startedAt && m.startedAt.startsWith(year)).length;
+  const finishedYear = db.m.filter(m => m.finishedAt && m.finishedAt.startsWith(year)).length;
+
+  // Monatliche Abschlüsse dieses Jahres
+  const monthCount = Array(12).fill(0);
+  db.m.forEach(m => { if (m.finishedAt?.startsWith(year)) monthCount[new Date(m.finishedAt+'T00:00:00').getMonth()]++; });
+  const maxMonth = Math.max(...monthCount, 1);
+
+  // Publisher-Verteilung
+  const pubMap = {};
+  db.m.forEach(m => { if (m.pub) pubMap[m.pub] = (pubMap[m.pub]||0)+1; });
+  const pubEntries = Object.entries(pubMap).sort((a,b)=>b[1]-a[1]).slice(0,6);
+  const maxPub = pubEntries[0]?.[1] || 1;
+
+  // Genre-Verteilung
+  const genreMap = {};
+  db.m.forEach(m => (m.genres||[]).forEach(g => { genreMap[g]=(genreMap[g]||0)+1; }));
+  const genreEntries = Object.entries(genreMap).sort((a,b)=>b[1]-a[1]).slice(0,8);
+  const maxGenre = genreEntries[0]?.[1] || 1;
+
+  // Top-bewertete Serien
+
+  el.innerHTML = `<div class="stats-page">
+    <div class="stats-section">
+      <h3>Sammlung gesamt</h3>
+      <div class="stat-big-grid">
+        <div class="stat-big-card"><div class="stat-big-n">${totalSeries}</div><div class="stat-big-l">Serien</div></div>
+        <div class="stat-big-card"><div class="stat-big-n">${totalVols}</div><div class="stat-big-l">Bände besessen</div></div>
+        <div class="stat-big-card"><div class="stat-big-n">${readingSeries}</div><div class="stat-big-l">Aktiv lesend</div></div>
+        <div class="stat-big-card"><div class="stat-big-n">${completedVols}</div><div class="stat-big-l">Bände abgeschlossen</div></div>
+        <div class="stat-big-card"><div class="stat-big-n">${buyCount}</div><div class="stat-big-l">Zu kaufen</div></div>
+      </div>
     </div>
 
-    <template id="emptyStateTemplate">
-      <div class="empty-state">
-        <h2></h2>
-        <p></p>
+    <div class="stats-section">
+      <h3>Jahresrückblick ${year}</h3>
+      <div class="stat-big-grid">
+        <div class="stat-big-card"><div class="stat-big-n">${startedYear}</div><div class="stat-big-l">Serien begonnen</div></div>
+        <div class="stat-big-card"><div class="stat-big-n">${finishedYear}</div><div class="stat-big-l">Serien abgeschlossen</div></div>
       </div>
-    </template>
+    </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
-    <script src="src/app.js" defer></script>
-  </body>
+    <div class="stats-section">
+      <h3>Monatliche Aktivität ${year}</h3>
+      <div class="month-chart">
+        ${MONATE.map((m,i)=>`<div class="month-col">
+          <div class="month-bar" style="height:${Math.round(monthCount[i]/maxMonth*100)}%" title="${monthCount[i]} abgeschlossen"></div>
+          <div class="month-lbl">${m}</div>
+        </div>`).join('')}
+      </div>
+    </div>
+
+    ${pubEntries.length ? `<div class="stats-section">
+      <h3>Verlage</h3>
+      <div class="bar-chart">
+        ${pubEntries.map(([p,n])=>`<div class="bar-row">
+          <div class="bar-label">${p}</div>
+          <div class="bar-track"><div class="bar-fill" style="width:${Math.round(n/maxPub*100)}%"></div></div>
+          <div class="bar-val">${n}</div>
+        </div>`).join('')}
+      </div>
+    </div>` : ''}
+
+    ${genreEntries.length ? `<div class="stats-section">
+      <h3>Genre-Verteilung</h3>
+      <div class="bar-chart">
+        ${genreEntries.map(([g,n])=>`<div class="bar-row">
+          <div class="bar-label">${g}</div>
+          <div class="bar-track"><div class="bar-fill" style="width:${Math.round(n/maxGenre*100)}%;background:#7c3aed"></div></div>
+          <div class="bar-val">${n}</div>
+        </div>`).join('')}
+      </div>
+    </div>` : ''}
+
+  </div>`;
+}
+
+// ─── Genre / Tags ─────────────────────────────────────────────────────────
+const ALL_GENRES = ['Shōnen','Shōjo','Seinen','Josei','Isekai','Fantasy','Action',
+  'Romance','Horror','Sci-Fi','Comedy','Slice of Life','Sports','Mecha','Thriller',
+  'Mystery','Drama','Supernatural'];
+
+let modalGenres = [];
+let filterGenre = '';
+
+function renderGenrePicker() {
+  const el = document.getElementById('genre-picker');
+  el.innerHTML = ALL_GENRES.map(g =>
+    `<span class="genre-chip${modalGenres.includes(g)?' on':''}" onclick="toggleGenre('${g}')">${g}</span>`
+  ).join('');
+}
+
+function toggleGenre(g) {
+  if (modalGenres.includes(g)) modalGenres = modalGenres.filter(x => x !== g);
+  else modalGenres.push(g);
+  renderGenrePicker();
+}
+
+function updateGenreFilter() {
+  const wrap = document.getElementById('genre-filter-wrap');
+  const usedGenres = [...new Set(db.m.flatMap(m => m.genres||[]))].sort();
+  if (!usedGenres.length || ['buy','kalender','stats'].includes(tab)) {
+    wrap.style.display = 'none'; return;
+  }
+  wrap.style.display = 'flex';
+  wrap.innerHTML = ['', ...usedGenres].map(g =>
+    `<span class="genre-filter-chip${filterGenre===g?' on':''}" onclick="setGenreFilter('${g}')">${g||'Alle'}</span>`
+  ).join('');
+}
+
+function setGenreFilter(g) {
+  filterGenre = g;
+  render();
+}
+
+function applyGenreFilter(list) {
+  if (!filterGenre) return list;
+  return list.filter(m => (m.genres||[]).includes(filterGenre));
+}
+
+// ─── Publisher Filter ────────────────────────────────────────────────────
+function setPubFilter(val) {
+  filterPub = val;
+  render();
+}
+
+function updatePubFilter() {
+  const sel = document.getElementById('pub-filter');
+  const cur = sel.value;
+  const pubs = [...new Set(db.m.map(m => m.pub).filter(Boolean))].sort((a,b) => a.localeCompare(b,'de'));
+  sel.innerHTML = '<option value="">Alle Verlage</option>' +
+    pubs.map(p => `<option value="${p}"${p===cur?' selected':''}>${p}</option>`).join('');
+}
+
+function applyPubFilter(list) {
+  if (!filterPub) return list;
+  return list.filter(m => m.pub === filterPub);
+}
+
+// ─── Manual Sync ─────────────────────────────────────────────────────────
+async function manualSync() {
+  await loadFromCloud();
+  toast('☁️ Daten aktualisiert');
+}
+
+// ─── Sort ─────────────────────────────────────────────────────────────────
+function setSort(val) {
+  sortMode = val;
+  render();
+}
+
+function applySort(items) {
+  // Sortiert in-place – alle Aufrufer übergeben frische Arrays aus .filter()/.map()
+  const today = new Date(); today.setHours(0,0,0,0);
+  return items.sort((a, b) => {
+    if (sortMode === 'az') return a.title.localeCompare(b.title, 'de');
+    if (sortMode === 'za') return b.title.localeCompare(a.title, 'de');
+    if (sortMode === 'added') return (b.at || 0) - (a.at || 0);
+    if (sortMode === 'next') {
+      // Serien mit konkretem Datum zuerst, dann ohne Datum, dann schon erschienen
+      const da = a.nextDate ? new Date(a.nextDate + 'T00:00:00') : null;
+      const db_ = b.nextDate ? new Date(b.nextDate + 'T00:00:00') : null;
+      const aFuture = da && da > today;
+      const bFuture = db_ && db_ > today;
+      if (aFuture && bFuture) return da - db_;
+      if (aFuture) return -1;
+      if (bFuture) return 1;
+      return a.title.localeCompare(b.title, 'de');
+    }
+    return 0;
+  });
+}
+
+// ─── Teilen ───────────────────────────────────────────────────────────────
+function shareManga(id, e) {
+  e.stopPropagation();
+  const m = db.m.find(x => x.id === id);
+  if (!m) return;
+  const total = m.total ? `${m.total} Bände` : 'laufend';
+  const ongoing = m.ongoing === 'true' ? 'laufend 🔄' : 'abgeschlossen ✓';
+  const next = m.nextDate ? `\n📅 Nächster Band: ${new Date(m.nextDate+'T00:00:00').toLocaleDateString('de-DE',{day:'2-digit',month:'long',year:'numeric'})}` : '';
+  const q = encodeURIComponent(`${m.title} Manga`);
+  const text = `📚 ${m.title}\n${m.pub||'Unbekannt'} · ${total} · ${ongoing}${next}\n🔗 https://www.thalia.de/suche?sq=${q}`;
+  if (navigator.share) {
+    navigator.share({ title: m.title, text }).catch(()=>{});
+  } else {
+    navigator.clipboard.writeText(text).then(() => toast('📋 Empfehlung kopiert!'));
+  }
+}
+
+// ─── Main Render ─────────────────────────────────────────────────────────
+function render() {
+  const today = new Date(); today.setHours(0,0,0,0);
+
+  // counts (derived from bands)
+  const cnt = { reading:0, completed:0, owned:0, wishlist:0 };
+  db.m.forEach(m => { const st = mSeriesStatus(m); if (cnt[st] !== undefined) cnt[st]++; });
+  const ownedCount = cnt.owned;
+  const buyItems = toBuyList();
+  const wishItems = db.m.filter(m => mSeriesStatus(m) === 'wishlist');
+  // Kalender: alle Serien mit nextDate die noch kommen oder jetzt erschienen sind
+  const kalItems = db.m.filter(m => m.nextDate).sort((a,b) => new Date(a.nextDate)-new Date(b.nextDate));
+  document.getElementById('c-reading').textContent = cnt.reading;
+  document.getElementById('c-completed').textContent = cnt.completed;
+  document.getElementById('c-owned').textContent = ownedCount;
+  document.getElementById('c-wishlist').textContent = wishItems.length;
+  document.getElementById('c-buy').textContent = buyItems.length;
+  document.getElementById('c-kalender').textContent = kalItems.length;
+
+  // search hint
+  const hint = document.getElementById('search-hint');
+
+  const el = document.getElementById('content');
+
+  if (tab === 'stats') { renderStats(); return; }
+
+  if (tab === 'kalender') {
+    document.getElementById('view-toggle').style.display = 'none';
+    const filtered = applySearch(kalItems);
+    hint.textContent = filtered.length ? `${filtered.length} Termin${filtered.length!==1?'e':''}` : '';
+    if (!kalItems.length) {
+      el.innerHTML = `<div class="empty"><div class="empty-icon">📅</div><h3>Keine Termine</h3><p>Sobald für eine Serie ein Erscheinungsdatum bekannt ist, erscheint es hier.</p></div>`;
+      return;
+    }
+    // Nach Monat gruppieren
+    const grouped = {};
+    const monate = ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
+    filtered.forEach(m => {
+      const d = new Date(m.nextDate + 'T00:00:00');
+      const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+      const label = `${monate[d.getMonth()]} ${d.getFullYear()}`;
+      if (!grouped[key]) grouped[key] = { label, items:[] };
+      grouped[key].items.push(m);
+    });
+    let html = '';
+    Object.keys(grouped).sort().forEach(key => {
+      const { label, items: gi } = grouped[key];
+      html += `<div class="kal-month">${label}</div>`;
+      gi.forEach(m => {
+        const d = new Date(m.nextDate + 'T00:00:00');
+        const isAvail = d <= today;
+        const day = String(d.getDate()).padStart(2,'0');
+        const mon = monate[d.getMonth()].slice(0,3);
+        const next = mNextBand(m);
+        html += `<div class="kal-row${isAvail?' kal-avail':''}" onclick="openEdit('${m.id}')">
+          <div class="kal-date-box">
+            <div class="kal-day">${isAvail ? '✓' : day}</div>
+            <div class="kal-mon">${isAvail ? 'Jetzt' : mon}</div>
+          </div>
+          ${coverEl(m,'mini',next)}
+          <div class="kal-info">
+            <div class="kal-title">${m.title}</div>
+            <div class="kal-sub">Band ${next} · ${m.pub||'Unbekannt'}</div>
+          </div>
+        </div>`;
+      });
+    });
+    el.innerHTML = html;
+    return;
+  }
+
+  if (tab === 'buy') {
+    const filtered = applySearch(applySort(applyPubFilter(buyItems)));
+    if (searchQ) hint.textContent = `${filtered.length} von ${buyItems.length} Ergebnis${filtered.length!==1?'se':''}`;
+    else hint.textContent = '';
+    if (!buyItems.length) {
+      el.innerHTML = `<div class="empty">
+        <div class="empty-icon">🎉</div>
+        <h3>Alles auf dem neuesten Stand!</h3>
+        <p>Sobald ein neuer Band einer deiner Serien erscheint, taucht er hier automatisch auf.<br>Dafür einfach die Anzahl der verfügbaren deutschen Bände aktualisieren.</p>
+      </div>`;
+      return;
+    }
+    if (searchQ && !filtered.length) {
+      el.innerHTML = `<div class="empty"><div class="empty-icon">🔍</div><h3>Keine Treffer für „${searchQ}"</h3><p>Versuche einen anderen Suchbegriff.</p></div>`;
+      return;
+    }
+    const avail = filtered.filter(m => !m.nextDate || new Date(m.nextDate+'T00:00:00') <= today);
+    const upcoming = filtered.filter(m => m.nextDate && new Date(m.nextDate+'T00:00:00') > today);
+    let html = '';
+    if (avail.length) {
+      html += `<div class="section-head">🟢 Jetzt erhältlich – ${avail.length} Band${avail.length>1?'e':''}</div>`;
+      html += `<div class="buy-list">${avail.map(m=>buyCard(m,true)).join('')}</div>`;
+    }
+    if (upcoming.length) {
+      html += `<div class="section-head">📅 Vorgemerkt – ${upcoming.length} Band${upcoming.length>1?'e':''}</div>`;
+      html += `<div class="buy-list">${upcoming.map(m=>buyCard(m,false)).join('')}</div>`;
+    }
+    el.innerHTML = html;
+    return;
+  }
+
+  if (tab === 'wishlist') {
+    document.getElementById('view-toggle').style.display = 'none';
+    const filtered = applySearch(applySort(applyPubFilter(wishItems)));
+    if (searchQ) hint.textContent = `${filtered.length} von ${wishItems.length} Ergebnis${filtered.length!==1?'se':''}`;
+    else hint.textContent = '';
+    if (!wishItems.length) {
+      el.innerHTML = `<div class="empty">
+        <div class="empty-icon">💜</div>
+        <h3>Wunschliste ist leer</h3>
+        <p>Füge Serien hinzu, die du noch kaufen oder starten möchtest.<br>Beim Bearbeiten einfach „Auf Wunschliste setzen" anhaken.</p>
+        <button class="add-btn" onclick="openAdd()" style="margin:0 auto;display:flex">＋ Manga hinzufügen</button>
+      </div>`;
+      return;
+    }
+    if (!filtered.length) {
+      el.innerHTML = `<div class="empty"><div class="empty-icon">🔍</div><h3>Keine Treffer für „${searchQ}"</h3></div>`;
+      return;
+    }
+    el.innerHTML = `<div class="manga-grid">${filtered.map(mangaCard).join('')}</div>`;
+    return;
+  }
+
+  document.getElementById('view-toggle').style.display = 'flex';
+
+  // ── Bändenmodus: quer durch alle Manga, nur Bände mit passendem Bandstatus ──
+  if (viewMode === 'volumes') {
+    const searched = applySearch(db.m);
+    const vols = [];
+    searched.forEach(m => {
+      Object.entries(m.bands || {}).forEach(([bandNr, st]) => {
+        if (st === tab) vols.push({ ...m, _band: Number(bandNr) });
+      });
+    });
+    if (!vols.length) {
+      const emptyInfo = {
+        reading:   ['📖', 'Kein Band aktuell in Bearbeitung', 'Trage bei einer Serie den aktuell gelesenen Band ein.'],
+        completed: ['✅', 'Noch keine Bände als gelesen markiert', 'Sobald du eine Serie liest, erscheinen abgeschlossene Bände hier.'],
+        owned:     ['📚', 'Keine ungelesenen Bände in der Sammlung', 'Gekaufte, noch ungelesene Bände erscheinen hier.'],
+      };
+      const [ic, tt, sub] = emptyInfo[tab] || ['📦','Leer',''];
+      hint.textContent = '';
+      el.innerHTML = `<div class="empty"><div class="empty-icon">${ic}</div><h3>${tt}</h3><p>${sub}</p></div>`;
+      return;
+    }
+    const serienCount = new Set(vols.map(v => v.id)).size;
+    hint.textContent = `${vols.length} Band${vols.length!==1?'e':''} aus ${serienCount} Serie${serienCount!==1?'n':''}`;
+    // Sortierung auch in der Bändenansicht anwenden (primär nach sortMode, sekundär nach Bandnummer)
+    const sortedVols = vols.slice().sort((a, b) => {
+      if (sortMode === 'za') { const t = b.title.localeCompare(a.title,'de'); return t !== 0 ? t : a._band - b._band; }
+      if (sortMode === 'added') { const t = (b.at||0)-(a.at||0); return t !== 0 ? t : a._band - b._band; }
+      // az (default)
+      const t = a.title.localeCompare(b.title,'de'); return t !== 0 ? t : a._band - b._band;
+    });
+    el.innerHTML = `<div class="vol-list">${sortedVols.map(volumeRow).join('')}</div>`;
+    return;
+  }
+
+  // ── Serienansicht (Standard) ───────────────────────────────────────────
+  const rawItems = applySort(applyGenreFilter(applyPubFilter(db.m.filter(m => mSeriesStatus(m) === tab))));
+  const items = applySearch(rawItems);
+
+  if (searchQ) hint.textContent = `${items.length} von ${rawItems.length} Ergebnis${items.length!==1?'se':''}`;
+  else hint.textContent = '';
+
+  if (!rawItems.length) {
+    const info = {
+      reading:   ['📖', 'Noch nichts in Bearbeitung', 'Füge Mangas hinzu, die du gerade liest.'],
+      completed: ['✅', 'Noch nichts abgeschlossen', 'Hier landen Serien, die du vollständig gelesen hast.'],
+      owned:     ['📚', 'Sammlung ist leer', 'Sobald du einen Band als „Gekauft" markierst, erscheint er hier.'],
+    };
+    const [ic, tt, sub] = info[tab]||['📦','Leer',''];
+    el.innerHTML = `<div class="empty">
+      <div class="empty-icon">${ic}</div>
+      <h3>${tt}</h3>
+      <p>${sub}</p>
+      <button class="add-btn" onclick="openAdd()" style="margin:0 auto;display:flex">＋ Manga hinzufügen</button>
+    </div>`;
+    return;
+  }
+  if (!items.length) {
+    el.innerHTML = `<div class="empty"><div class="empty-icon">🔍</div><h3>Keine Treffer für „${searchQ}"</h3><p>Versuche einen anderen Suchbegriff.</p></div>`;
+    return;
+  }
+  el.innerHTML = `<div class="manga-grid">${items.map(mangaCard).join('')}</div>`;
+  updatePubFilter();
+  updateGenreFilter();
+}
+
+// ─── Tabs ─────────────────────────────────────────────────────────────────
+function setTab(t) {
+  tab = t;
+  document.querySelectorAll('.tab').forEach(el => {
+    el.classList.toggle('active', el.dataset.tab === t);
+  });
+  document.getElementById('view-toggle').style.display = (t === 'buy' || t === 'wishlist' || t === 'kalender' || t === 'stats') ? 'none' : 'flex';
+  const coverBtn = document.getElementById('btn-fetch-covers');
+  if (coverBtn) coverBtn.style.display = (t === 'buy' || t === 'kalender' || viewMode === 'volumes') ? 'flex' : 'none';
+  render();
+}
+
+// ─── Modal ────────────────────────────────────────────────────────────────
+function openAdd() {
+  editId = null;
+  modalBands = {};
+  modalGenres = [];
+  document.getElementById('modal-title').textContent = 'Manga hinzufügen';
+  document.getElementById('f-title').value = '';
+  document.getElementById('f-publisher').value = '';
+  document.getElementById('f-total').value = '';
+  document.getElementById('f-ongoing').value = 'true';
+  document.getElementById('f-nextdate').value = '';
+  document.getElementById('f-cover').value = '';
+  document.getElementById('f-notes').value = '';
+  document.getElementById('f-started').value = '';
+  document.getElementById('f-finished').value = '';
+  document.getElementById('f-wishlist').checked = (tab === 'wishlist');
+  document.getElementById('btn-del').style.display = 'none';
+  renderBandMgr();
+  renderGenrePicker();
+  document.getElementById('overlay').style.display = 'flex';
+  setTimeout(() => document.getElementById('f-title').focus(), 50);
+}
+
+function openEdit(id, e) {
+  if (e) e.stopPropagation();
+  const m = db.m.find(x => x.id === id);
+  if (!m) return;
+  editId = id;
+  modalBands = { ...(m.bands || {}) };
+  modalGenres = [...(m.genres || [])];
+  document.getElementById('modal-title').textContent = 'Manga bearbeiten';
+  document.getElementById('f-title').value = m.title||'';
+  document.getElementById('f-publisher').value = m.pub||'';
+  document.getElementById('f-total').value = m.total??'';
+  document.getElementById('f-ongoing').value = m.ongoing??'true';
+  document.getElementById('f-nextdate').value = m.nextDate??'';
+  document.getElementById('f-cover').value = m.cover??'';
+  document.getElementById('f-notes').value = m.notes??'';
+  document.getElementById('f-started').value = m.startedAt || '';
+  document.getElementById('f-finished').value = m.finishedAt || '';
+  document.getElementById('f-wishlist').checked = (m.status === 'wishlist');
+  document.getElementById('btn-del').style.display = 'block';
+  renderBandMgr();
+  renderGenrePicker();
+  document.getElementById('overlay').style.display = 'flex';
+}
+
+function closeModal() {
+  document.getElementById('overlay').style.display = 'none';
+  document.getElementById('db-results').style.display = 'none';
+  document.getElementById('db-search').value = '';
+  editId = null;
+}
+
+function overlayClick(e) {
+  if (e.target === document.getElementById('overlay')) closeModal();
+}
+
+// ─── Duplikaterkennung ────────────────────────────────────────────────────
+function normTitle(t) {
+  return t.toLowerCase()
+    .replace(/[^a-z0-9äöüß\s]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+function levenshtein(a, b) {
+  if (Math.abs(a.length - b.length) > 4) return 99;
+  const dp = Array.from({length: a.length + 1}, (_, i) =>
+    Array.from({length: b.length + 1}, (_, j) => i === 0 ? j : j === 0 ? i : 0)
+  );
+  for (let i = 1; i <= a.length; i++)
+    for (let j = 1; j <= b.length; j++)
+      dp[i][j] = a[i-1] === b[j-1] ? dp[i-1][j-1] : 1 + Math.min(dp[i-1][j-1], dp[i-1][j], dp[i][j-1]);
+  return dp[a.length][b.length];
+}
+function findDuplicates(title) {
+  const norm = normTitle(title);
+  return db.m.filter(m => {
+    const n = normTitle(m.title);
+    if (n === norm) return true;
+    if (norm.length > 4 && (n.includes(norm) || norm.includes(n))) return true;
+    return norm.length > 5 && levenshtein(n, norm) <= 2;
+  });
+}
+
+function doSave() {
+  const title = document.getElementById('f-title').value.trim();
+  if (!title) { alert('Bitte einen Titel eingeben.'); return; }
+  if (!editId) {
+    const dupes = findDuplicates(title);
+    if (dupes.length > 0) {
+      const names = dupes.map(d => `„${d.title}"`).join('\n');
+      if (!confirm(`⚠️ Mögliches Duplikat gefunden:\n${names}\n\nTrotzdem hinzufügen?`)) return;
+    }
+  }
+  const bands = { ...modalBands };
+  const total = document.getElementById('f-total').value !== '' ? parseInt(document.getElementById('f-total').value) : null;
+  const ongoing = document.getElementById('f-ongoing').value;
+
+  // ── Auto-Setting für startedAt / finishedAt ─────────────────────────────
+  // Nicht überschreiben was der User manuell eingegeben hat oder was schon im Eintrag steht
+  const existing = editId ? db.m.find(x => x.id === editId) : null;
+  const manualStarted  = document.getElementById('f-started').value || null;
+  const manualFinished = document.getElementById('f-finished').value || null;
+  const today = new Date().toISOString().slice(0, 10);
+  const bandValues = Object.values(bands);
+  const hasReadOrCompleted = bandValues.some(v => v === 'reading' || v === 'completed');
+  const allCompleted = bandValues.length > 0 && bandValues.every(v => v === 'completed');
+  const seriesComplete = allCompleted && ongoing === 'false' && total != null && total > 0
+                         && Object.keys(bands).length >= total;
+
+  // startedAt: heute setzen wenn Serie zum ersten Mal als „lesend" oder „gelesen" markiert wird
+  let startedAt = manualStarted || existing?.startedAt || null;
+  if (!startedAt && hasReadOrCompleted) startedAt = today;
+
+  // finishedAt: heute setzen wenn alle Bände gelesen UND Serie als abgeschlossen markiert UND komplett
+  let finishedAt = manualFinished || existing?.finishedAt || null;
+  if (!finishedAt && seriesComplete) finishedAt = today;
+  // Wenn Serie nicht mehr „komplett gelesen" ist (z.B. Band rückgängig), finishedAt nicht löschen — manuelle Korrektur möglich
+  // ────────────────────────────────────────────────────────────────────────
+
+  const entry = {
+    id: editId || uid(),
+    title,
+    pub: document.getElementById('f-publisher').value,
+    bands,
+    owned: Object.keys(bands).length,           // Rückwärtskompatibilität
+    status: document.getElementById('f-wishlist').checked ? 'wishlist' : mSeriesStatus({ bands }),
+    current: mCurrent({ bands }),                // abgeleitet
+    total,
+    ongoing,
+    nextDate: document.getElementById('f-nextdate').value || null,
+    cover: document.getElementById('f-cover').value.trim() || null,
+    notes: document.getElementById('f-notes').value.trim(),
+    genres: [...modalGenres],
+    startedAt,
+    finishedAt,
+    at: existing?.at || Date.now(),
+  };
+  if (editId) {
+    const i = db.m.findIndex(x => x.id === editId);
+    if (i !== -1) db.m[i] = entry;
+  } else {
+    db.m.push(entry);
+  }
+  persist();
+  closeModal();
+  render();
+  toast(editId ? '✅ Manga aktualisiert' : `✅ „${title}" hinzugefügt`);
+}
+
+function doDelete() {
+  if (!editId || !confirm('Manga wirklich löschen?')) return;
+  const title = db.m.find(x=>x.id===editId)?.title||'Manga';
+  db.m = db.m.filter(x => x.id !== editId);
+  persist();
+  closeModal();
+  render();
+  toast(`🗑 „${title}" gelöscht`);
+}
+
+function markBought(id, e) {
+  if (e) e.stopPropagation();
+  const m = db.m.find(x => x.id === id);
+  if (!m) return;
+  if (!m.bands) m.bands = {};
+  const nextBand = String(mNextBand(m));
+  m.bands[nextBand] = 'owned';
+  m.owned = mOwned(m); // Rückwärtskompatibilität
+  m.nextDate = null;
+  if (m.status === 'wishlist') m.status = 'owned'; // Von Wunschliste in Sammlung
+  persist();
+  render();
+  toast(`✅ Band ${nextBand} von „${m.title}" zur Sammlung hinzugefügt`);
+}
+
+// ─── Toast ───────────────────────────────────────────────────────────────
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(el._t);
+  el._t = setTimeout(() => el.classList.remove('show'), 2800);
+}
+
+// ─── Seed ─────────────────────────────────────────────────────────────────
+(function seedParasiteInLove() {
+  const existing = db.m.find(m => m.title.toLowerCase().includes('parasite in love'));
+  const seedData = {
+    title: 'Parasite in Love',
+    pub: 'Egmont Manga',
+    status: 'reading',
+    owned: 3,
+    total: 3,
+    current: 3,
+    ongoing: 'false',
+    nextDate: null,
+    // German vol.1 cover via Open Library (ISBN 9783770438211)
+    cover: 'https://covers.openlibrary.org/b/isbn/9783770438211-L.jpg',
+    notes: 'Abgeschlossene Serie – 3 Bände (DE). Story: Sugaru Miaki, Zeichnung: Yuuki Hotate.',
+  genres: ['Romance', 'Drama', 'Slice of Life'],
+  };
+  if (seedData.genres && seedData.genres.length) SEED_GENRES['parasite in love'] = [...seedData.genres];
+  if (existing) {
+    existing.pub     = seedData.pub;
+    existing.total   = seedData.total;
+    existing.ongoing = seedData.ongoing;
+    existing.cover   = existing.cover || seedData.cover;
+    existing.notes   = existing.notes || seedData.notes;
+    if (!existing.genres || !existing.genres.length) existing.genres = [...seedData.genres];
+  } else {
+    db.m.push({ ...seedData, id: uid(), at: Date.now() });
+  }
+  persist();
+})();
+
+// ─── Seed helper ─────────────────────────────────────────────────────────
+function upsertManga(key, data) {
+  // Seed-Termine für Cloud-Merge merken (geplante Aufgabe aktualisiert nur diese)
+  SEED_DATES[key] = { nextDate: data.nextDate, total: data.total, ongoing: data.ongoing };
+  // Seed-Genres für Cloud-Merge merken (Einträge ohne Genres werden ergänzt)
+  if (data.genres && data.genres.length) SEED_GENRES[key] = [...data.genres];
+  // Bei mehreren Treffern den spezifischsten (kürzesten Titel) nehmen,
+  // damit z.B. 'kaiju no.8' nicht 'Kaiju No.8 Side' trifft
+  const matches = db.m.filter(m => m.title.toLowerCase().includes(key));
+  const existing = matches.sort((a, b) => a.title.length - b.title.length)[0];
+  if (existing) {
+    if (!existing.pub)      existing.pub      = data.pub;
+    if (!existing.cover)    existing.cover    = data.cover;
+    if (!existing.notes)    existing.notes    = data.notes;
+    // Genres nur setzen wenn der Eintrag noch keine hat (manuelle Tags bleiben erhalten)
+    if (data.genres && (!existing.genres || !existing.genres.length)) {
+      existing.genres = [...data.genres];
+    }
+    existing.total    = data.total;
+    existing.ongoing  = data.ongoing;
+    // nextDate: Seed-Datum nur setzen wenn seed einen konkreten Wert hat ODER
+    // wenn der bestehende Wert null/leer ist (kein Datum vorhanden)
+    if (data.nextDate !== null && data.nextDate !== undefined) {
+      existing.nextDate = data.nextDate;
+    } else if (!existing.nextDate) {
+      existing.nextDate = null;
+    }
+    // → bestehende Termine (von geplanter Aufgabe gesetzt) bleiben erhalten wenn seed null hat
+  } else {
+    db.m.push({ ...data, id: uid(), at: Date.now() });
+  }
+  persist();
+}
+
+// ─── Seed: Wie die Götter es wollen ──────────────────────────────────────
+upsertManga('wie die götter', {
+  title: 'Wie die Götter es wollen', pub: 'Tokyopop',
+  status: 'reading', owned: 1, total: 1, current: 1,
+  ongoing: 'false', nextDate: null,
+  cover: 'https://covers.openlibrary.org/b/isbn/9783842082847-L.jpg',
+  notes: 'Einzelband, 356 Seiten. Erschienen: Februar 2023. Von Hiroaki Iwaki & Nanashi Uematsu.',
+  genres: ['Drama', 'Thriller', 'Supernatural'],
+});
+
+// ─── Seed: Vagabond Master Edition ───────────────────────────────────────
+upsertManga('vagabond', {
+  title: 'Vagabond – Master Edition', pub: 'Egmont Manga',
+  status: 'reading', owned: 7, total: 19, current: 7,
+  ongoing: 'false', nextDate: null, // Band 8 seit 07.04.2026 verfügbar
+  cover: 'https://covers.openlibrary.org/b/isbn/9783755504618-L.jpg',
+  notes: 'Doppelband-Edition (2-in-1). Band 8 seit 07.04.2026 verfügbar. Manga von Takehiko Inoue (auf Hiatus seit 2015, 37 Originalbände = ca. 19 ME-Bände).',
+  genres: ['Seinen', 'Action', 'Drama'],
+});
+
+// ─── Seed: Uzumaki Deluxe ────────────────────────────────────────────────
+upsertManga('uzumaki', {
+  title: 'Uzumaki Deluxe', pub: 'Carlsen Manga',
+  status: 'reading', owned: 1, total: 1, current: 1,
+  ongoing: 'false', nextDate: null,
+  cover: 'https://covers.openlibrary.org/b/isbn/9783551757524-L.jpg',
+  notes: '3-in-1 Deluxe Hardcover, 656 Seiten mit Farbseiten. Von Junji Ito.',
+  genres: ['Horror', 'Supernatural', 'Mystery'],
+});
+
+// ─── Seed: Tomb Town Deluxe ──────────────────────────────────────────────
+upsertManga('tomb town', {
+  title: 'Tomb Town Deluxe – Der steinerne Tod', pub: 'Carlsen Manga',
+  status: 'reading', owned: 1, total: 1, current: 1,
+  ongoing: 'false', nextDate: null,
+  cover: 'https://covers.openlibrary.org/b/isbn/9783551714879-L.jpg',
+  notes: 'Deluxe Einzelband, 418 Seiten. Erschienen: 29.08.2023. Von Junji Ito.',
+  genres: ['Horror', 'Supernatural'],
+});
+
+// ─── Seed: Tokyo Revengers Doppelband ────────────────────────────────────
+upsertManga('tokyo revengers', {
+  title: 'Tokyo Revengers – Doppelband-Edition', pub: 'Carlsen Manga',
+  status: 'reading', owned: 8, total: 16, current: 8,
+  ongoing: 'false', nextDate: null, // Band 9+ bereits erhältlich
+  cover: null,
+  notes: 'Doppelband-Edition. Band 9 und weitere bereits verfügbar. Originalserie abgeschlossen (31 Bände = 16 Doppelbände). Von Ken Wakui.',
+  genres: ['Shōnen', 'Action', 'Drama'],
+});
+
+// ─── Seed: Mujina into the Deep ──────────────────────────────────────────
+upsertManga('mujina', {
+  title: 'Mujina into the Deep', pub: 'Tokyopop',
+  status: 'reading', owned: 3, total: 4, current: 3,
+  ongoing: 'true', nextDate: null, // Band 4 seit April 2026 verfügbar
+  cover: null,
+  notes: 'Band 4 (DE) seit April 2026 verfügbar. Quartalsrhythmus. Von Inio Asano.',
+  genres: ['Seinen', 'Action', 'Thriller'],
+});
+
+// ─── Seed: MoMo – the blood taker ────────────────────────────────────────
+upsertManga('momo', {
+  title: 'MoMo – the blood taker', pub: 'Crunchyroll Manga',
+  status: 'reading', owned: 9, total: 9, current: 9,
+  ongoing: 'false', nextDate: null,
+  cover: 'https://covers.openlibrary.org/b/isbn/9782889515837-L.jpg',
+  notes: 'Abgeschlossen – 9 Bände. Startete bei Kazé, ab Band 4 Crunchyroll. Von Akira Sugito.',
+  genres: ['Action', 'Supernatural', 'Horror'],
+});
+
+// ─── Seed: Mirai Nikki – New Edition ─────────────────────────────────────
+upsertManga('mirai nikki', {
+  title: 'Mirai Nikki – New Edition', pub: 'Egmont Manga',
+  status: 'reading', owned: 2, total: 6, current: 2,
+  ongoing: 'true', nextDate: '2026-06-09', // 2-in-1 Format; Band 3 April 2026 ✓, Band 4 09.06.2026
+  cover: null,
+  notes: '2-in-1 Doppelbände. Band 1: Dez. 2025, Band 2: Feb. 2026, Band 3: Apr. 2026. 6 Bände geplant (12 Orig.). Von Sakae Esuno.',
+  genres: ['Thriller', 'Action', 'Supernatural'],
+});
+
+// ─── Seed: Mars Red ──────────────────────────────────────────────────────
+upsertManga('mars red', {
+  title: 'Mars Red', pub: 'Crunchyroll Manga',
+  status: 'reading', owned: 3, total: 3, current: 3,
+  ongoing: 'false', nextDate: null,
+  cover: 'https://covers.openlibrary.org/b/isbn/9782889516810-L.jpg',
+  notes: 'Abgeschlossen – 3 Bände (DE = JP). Von KarakaraKemuri.',
+  genres: ['Drama', 'Supernatural', 'Action'],
+});
+
+// ─── Seed: Maria's Judgement ─────────────────────────────────────────────
+upsertManga("maria's judgement", {
+  title: "Maria's Judgement", pub: 'Egmont Manga',
+  status: 'reading', owned: 5, total: 6, current: 5,
+  ongoing: 'true', nextDate: '2026-05-11', // Band 6 (letzter) erscheint 11.05.2026
+  cover: 'https://covers.openlibrary.org/b/isbn/9783755504054-L.jpg',
+  notes: '6 Bände geplant. Band 1: Dez. 2024, Band 6: 11.05.2026. Von Kazuki & Junto Kamejima.',
+  genres: ['Drama', 'Thriller'],
+});
+
+// ─── Seed: Look Back ─────────────────────────────────────────────────────
+upsertManga('look back', {
+  title: 'Look Back', pub: 'Egmont Manga',
+  status: 'reading', owned: 1, total: 1, current: 1,
+  ongoing: 'false', nextDate: null,
+  cover: 'https://covers.openlibrary.org/b/isbn/9783755500933-L.jpg',
+  notes: 'Einzelband, 144 Seiten. Erschienen: 12.10.2022. Von Tatsuki Fujimoto.',
+  genres: ['Drama', 'Slice of Life'],
+});
+
+// ─── Seed: Lili-Men ──────────────────────────────────────────────────────
+upsertManga('lili-men', {
+  title: 'Lili-Men', pub: 'Egmont Manga',
+  status: 'reading', owned: 5, total: 8, current: 5,
+  ongoing: 'true', nextDate: '2026-06-09', // Band 8 (DE) erscheint 09.06.2026
+  cover: null,
+  notes: '13 Bände geplant (JP). Band 5: Dez. 2025. Band 6 wahrsch. März 2026. Von Takuma Tokashiki.',
+  genres: ['Action', 'Supernatural', 'Horror'],
+});
+
+// ─── Seed: Kijin Gentosho: Dämonenjäger ──────────────────────────────────
+upsertManga('kijin', {
+  title: 'Kijin Gentosho: Dämonenjäger', pub: 'Panini Manga',
+  status: 'reading', owned: 1, total: 8, current: 1,
+  ongoing: 'true', nextDate: null, // Band 2–8 alle bereits verfügbar
+  cover: 'https://covers.openlibrary.org/b/isbn/9783741632402-L.jpg',
+  notes: 'Band 8 seit Jan. 2026 verfügbar. Band 2–8 alle erhältlich. Von Motoo Nakanishi & Yu Satomi.',
+  genres: ['Action', 'Supernatural', 'Fantasy'],
+});
+
+// ─── Seed: Kaiju No.8 Side ───────────────────────────────────────────────
+upsertManga('kaiju no.8 side', {
+  title: 'Kaiju No.8 Side', pub: 'Crunchyroll Manga',
+  status: 'reading', owned: 2, total: 2, current: 2,
+  ongoing: 'false', nextDate: null,
+  cover: null,
+  notes: 'Abgeschlossen – 2 Bände. Spin-off über Hoshina. Start: Nov. 2024.',
+  genres: ['Shōnen', 'Action', 'Sci-Fi'],
+});
+
+// ─── Seed: Kaiju No.8 ────────────────────────────────────────────────────
+upsertManga('kaiju no.8', {
+  title: 'Kaiju No.8', pub: 'Crunchyroll Manga',
+  status: 'reading', owned: 15, total: 16, current: 15,
+  ongoing: 'false', nextDate: null, // Band 16 (Finale) seit ca. März 2026 verfügbar
+  cover: 'https://covers.openlibrary.org/b/isbn/9782889516717-L.jpg',
+  notes: 'Abgeschlossen – 16 Bände. Band 16 (Finale) seit März 2026 verfügbar. Von Naoya Matsumoto.',
+  genres: ['Shōnen', 'Action', 'Sci-Fi'],
+});
+
+// ─── Seed: Kagurabachi ───────────────────────────────────────────────────
+upsertManga('kagurabachi', {
+  title: 'Kagurabachi', pub: 'Carlsen Manga',
+  status: 'reading', owned: 6, total: 7, current: 6,
+  ongoing: 'true', nextDate: '2026-05-26', // Band 7 erscheint 26.05.2026!
+  cover: null,
+  notes: 'Band 7 erscheint 26.05.2026. Band 8: 28.07.2026. Von Takeru Hokazono.',
+  genres: ['Shōnen', 'Action', 'Supernatural'],
+});
+
+// ─── Seed: Jujutsu Kaisen ────────────────────────────────────────────────
+upsertManga('jujutsu kaisen', {
+  title: 'Jujutsu Kaisen', pub: 'Kazé Manga',
+  status: 'reading', owned: 2, total: 30, current: 1,
+  ongoing: 'false', nextDate: null, // Serie abgeschlossen, Band 2–30 alle verfügbar
+  cover: null,
+  notes: 'Abgeschlossen – 30 Bände (inkl. Band 0). Band 2–30 alle bereits verfügbar. Von Gege Akutami.',
+  genres: ['Shōnen', 'Action', 'Supernatural'],
+});
+
+// ─── Seed: Happiness ─────────────────────────────────────────────────────
+upsertManga('happiness', {
+  title: 'Happiness', pub: 'Manga Cult',
+  status: 'reading', owned: 5, total: 5, current: 5,
+  ongoing: 'false', nextDate: null,
+  cover: null,
+  notes: 'Abgeschlossen – 5 Doppelbände (= 10 Orig.-Bände). Von Shuzo Oshimi.',
+  genres: ['Horror', 'Supernatural', 'Drama'],
+});
+
+// ─── Seed: Gute Nacht, Punpun ────────────────────────────────────────────
+upsertManga('punpun', {
+  title: 'Gute Nacht, Punpun', pub: 'Tokyopop',
+  status: 'reading', owned: 13, total: 13, current: 13,
+  ongoing: 'false', nextDate: null,
+  cover: 'https://covers.openlibrary.org/b/isbn/9783842006874-L.jpg',
+  notes: 'Abgeschlossen – 13 Bände. Auch als Komplettbox erhältlich. Von Inio Asano.',
+  genres: ['Seinen', 'Drama', 'Slice of Life'],
+});
+
+// ─── Seed: Real Account ──────────────────────────────────────────────────
+upsertManga('real account', {
+  title: 'Real Account', pub: 'Tokyopop',
+  status: 'reading', owned: 5, total: 6, current: 5,
+  ongoing: 'false', nextDate: null,
+  cover: 'https://covers.openlibrary.org/b/isbn/9783842072787-L.jpg',
+  notes: 'DE-Ausgabe scheinbar bei Band 6 eingestellt (Band 6 vergriffen). Original JP: 24 Bände. Von Okushou & Shizumu Watanabe.',
+  genres: ['Thriller', 'Mystery', 'Action'],
+});
+
+// ─── Seed: Neon Genesis Evangelion – Perfect Edition ─────────────────────
+upsertManga('evangelion', {
+  title: 'Neon Genesis Evangelion – Perfect Edition', pub: 'Carlsen Manga',
+  status: 'reading', owned: 7, total: 7, current: 7,
+  ongoing: 'false', nextDate: null,
+  cover: 'https://covers.openlibrary.org/b/isbn/9783551775450-L.jpg',
+  notes: 'Abgeschlossene Perfect Edition – 7 Sammelbände (komplette Serie). Von Yoshiyuki Sadamoto.',
+  genres: ['Mecha', 'Sci-Fi', 'Drama'],
+});
+
+// ─── Seed: Neck mich nicht, Nagatoro-san ─────────────────────────────────
+upsertManga('nagatoro', {
+  title: 'Neck mich nicht, Nagatoro-san', pub: 'dani books',
+  status: 'reading', owned: 4, total: 6, current: 4,
+  ongoing: 'true', nextDate: null, // Band 5 seit 31.03.2026 verfügbar; Band 6 Sommer 2026 (ISBN 978-3-95956-176-1)
+  cover: 'https://covers.openlibrary.org/b/isbn/9783959561717-L.jpg',
+  notes: 'Band 5 seit 31.03.2026 verfügbar. Von Nanashi. Auch als Special Edition + Schuber erhältlich.',
+  genres: ['Romance', 'Comedy', 'Slice of Life'],
+});
+
+// ─── Seed: Reincarnated as a Sword: Another Wish ─────────────────────────
+upsertManga('reincarnated as a sword', {
+  title: 'Reincarnated as a Sword: Another Wish', pub: 'Dokico',
+  status: 'reading', owned: 1, total: 4, current: 1,
+  ongoing: 'true', nextDate: null, // Band 2: April 2026 ✓; Band 3: August 2026 (kein genauer Termin)
+  cover: 'https://covers.openlibrary.org/b/isbn/9783987451750-L.jpg',
+  notes: '6 Bände geplant (3-Monats-Rhythmus). Band 2: 21.04.2026 ✓. Band 3: ca. Aug. 2026. Von Yuu Tanaka & Hinako Inoue.',
+  genres: ['Isekai', 'Fantasy', 'Action'],
+});
+
+// ─── Seed: Sakura – I want to eat your pancreas ──────────────────────────
+upsertManga('pancreas', {
+  title: 'Sakura – I want to eat your pancreas', pub: 'Carlsen Manga',
+  status: 'reading', owned: 2, total: 2, current: 2,
+  ongoing: 'false', nextDate: null,
+  cover: 'https://covers.openlibrary.org/b/isbn/9783551735794-L.jpg',
+  notes: 'Abgeschlossene Serie – 2 Bände. Von Yoru Sumino & Idumi Kirihara. Neue Pearls Edition (Doppelband) erscheint 28.07.2026.',
+  genres: ['Drama', 'Romance'],
+});
+
+// ─── Seed: Solo Leveling ─────────────────────────────────────────────────
+upsertManga('solo leveling', {
+  title: 'Solo Leveling', pub: 'Altraverse',
+  status: 'reading', owned: 15, total: 15, current: 15,
+  ongoing: 'false', nextDate: null,
+  cover: 'https://covers.openlibrary.org/b/isbn/9783753940274-L.jpg',
+  notes: 'Hauptstory abgeschlossen (15 Bände). Band 14: Nov. 2025, Band 15: 27.02.2026. Manhwa von Chugong & DUBU. Sequel: Solo Leveling: Ragnarok.',
+  genres: ['Action', 'Fantasy', 'Supernatural'],
+});
+
+// ─── Seed: Spy x Family ──────────────────────────────────────────────────
+upsertManga('spy x family', {
+  title: 'Spy x Family', pub: 'Crunchyroll Manga',
+  status: 'reading', owned: 3, total: 15, current: 3,
+  ongoing: 'true', nextDate: null, // Band 4–15 alle bereits verfügbar (DE)
+  cover: null,
+  notes: 'Band 15 (DE) seit 03.04.2026 verfügbar. Japan: 17 Bände. Von Tatsuya Endo.',
+  genres: ['Comedy', 'Action', 'Slice of Life'],
+});
+
+// ─── Seed: Takopi und die Sache mit dem Glück ────────────────────────────
+upsertManga('takopi', {
+  title: 'Takopi und die Sache mit dem Glück', pub: 'Hayabusa',
+  status: 'reading', owned: 2, total: 2, current: 2,
+  ongoing: 'false', nextDate: null,
+  cover: 'https://covers.openlibrary.org/b/isbn/9783551624048-L.jpg',
+  notes: 'Abgeschlossene Serie – 2 Bände. Von taizan5.',
+  genres: ['Drama', 'Sci-Fi'],
+});
+
+// ─── Seed: The Eminence in Shadow ────────────────────────────────────────
+upsertManga('eminence in shadow', {
+  title: 'The Eminence in Shadow', pub: 'Tokyopop',
+  status: 'reading', owned: 8, total: 9, current: 8,
+  ongoing: 'true',
+  nextDate: '2026-06-01', // Band 9 ca. Sommer 2026 (Schätzung, Tokyopop-Programm Mär–Aug 2026)
+  cover: 'https://covers.openlibrary.org/b/isbn/9783842097179-L.jpg',
+  notes: 'Band 9 im Tokyopop-Programm Mär–Aug 2026 (ca. Juni 2026). Quartalsweise Erscheinung. Von Daisuke Aizawa & Anri Sakano.',
+  genres: ['Isekai', 'Fantasy', 'Comedy'],
+});
+
+// ─── Seed: Tengu – Das Böse im Blut ─────────────────────────────────────
+upsertManga('tengu', {
+  title: 'Tengu – Das Böse im Blut', pub: 'Kazé Manga',
+  status: 'reading', owned: 7, total: 7, current: 7,
+  ongoing: 'false', nextDate: null,
+  cover: 'https://covers.openlibrary.org/b/isbn/9782832471487-L.jpg',
+  notes: 'Abgeschlossene Serie – Band 7 ist der Abschlussband. Von Shinta Harekawa.',
+  genres: ['Supernatural', 'Horror'],
+});
+
+// ─── Seed: The Vote ──────────────────────────────────────────────────────
+upsertManga('the vote', {
+  title: 'The Vote', pub: 'Hayabusa',
+  status: 'reading', owned: 7, total: 7, current: 7,
+  ongoing: 'false', nextDate: null,
+  cover: 'https://covers.openlibrary.org/b/isbn/9783551620835-L.jpg',
+  notes: 'Abgeschlossene Serie, 7 Bände (DE = JP). Von Ryuya Kasai & Edogawa Edogawa. Ab 16 Jahren.',
+  genres: ['Thriller', 'Drama'],
+});
+
+// ─── Seed: Witch and Hound ────────────────────────────────────────────────
+(function seedWitchAndHound() {
+  const existing = db.m.find(m => m.title.toLowerCase().includes('witch and hound'));
+  const seedData = {
+    title: 'Witch and Hound',
+    pub: 'Egmont Manga',
+    status: 'reading',
+    owned: 2,
+    total: 4,         // Band 3: 11.05.2026 | Band 4: 04.08.2026
+    current: 2,
+    ongoing: 'true',
+    nextDate: '2026-05-11', // Band 3 erscheint 11.05.2026
+    cover: 'https://covers.openlibrary.org/b/isbn/9783755506485-L.jpg',
+    notes: 'Band 1: 19.01.2026 | Band 2: 10.03.2026 | Band 3: 11.05.2026 | Band 4: 04.08.2026. Von Rainy Kamitsuki & LAM.',
+  genres: ['Fantasy', 'Action', 'Romance'],
+  };
+  if (seedData.genres && seedData.genres.length) SEED_GENRES['witch and hound'] = [...seedData.genres];
+  if (existing) {
+    existing.pub     = existing.pub || seedData.pub;
+    existing.total   = seedData.total;
+    existing.ongoing = seedData.ongoing;
+    // Force-update nextDate (wie upsertManga): Seed überschreibt bestehende Termine
+    if (seedData.nextDate !== null && seedData.nextDate !== undefined) {
+      existing.nextDate = seedData.nextDate;
+    } else if (!existing.nextDate) {
+      existing.nextDate = null;
+    }
+    existing.cover   = existing.cover || seedData.cover;
+    existing.notes   = existing.notes || seedData.notes;
+    if (!existing.genres || !existing.genres.length) existing.genres = [...seedData.genres];
+  } else {
+    db.m.push({ ...seedData, id: uid(), at: Date.now() });
+  }
+  persist();
+})();
+
+// ─── Seed: Yakuza Reincarnation ──────────────────────────────────────────
+(function seedYakuzaReincarnation() {
+  const existing = db.m.find(m => m.title.toLowerCase().includes('yakuza reincarnation'));
+  const seedData = {
+    title: 'Yakuza Reincarnation',
+    pub: 'Manga Cult',
+    status: 'reading',
+    owned: 14,
+    total: 16,   // Band 15 (DE) erschienen 02.10.2025; Band 16 (DE) erscheint 11.06.2026
+    current: 14,
+    ongoing: 'true',
+    nextDate: '2026-06-11',  // Band 16 (DE) erscheint 11.06.2026 (Quelle: cross-cult.de)
+    cover: 'https://covers.openlibrary.org/b/isbn/3964337056-L.jpg',
+    notes: 'Band 15 (DE) seit Okt. 2025 verfügbar. Band 16 bei cross-cult.de gelistet – Anzahl ggf. anpassen. Japan: 19+ Bände. Von Takeshi Natsuhara & Hiroki Miyashita.',
+  genres: ['Isekai', 'Action', 'Comedy'],
+  };
+  if (seedData.genres && seedData.genres.length) SEED_GENRES['yakuza reincarnation'] = [...seedData.genres];
+  if (existing) {
+    existing.pub     = existing.pub || seedData.pub;
+    existing.total   = seedData.total;
+    existing.ongoing = seedData.ongoing;
+    // Force-update nextDate (wie upsertManga): Seed überschreibt bestehende Termine
+    if (seedData.nextDate !== null && seedData.nextDate !== undefined) {
+      existing.nextDate = seedData.nextDate;
+    } else if (!existing.nextDate) {
+      existing.nextDate = null;
+    }
+    existing.cover   = existing.cover || seedData.cover;
+    existing.notes   = existing.notes || seedData.notes;
+    if (!existing.genres || !existing.genres.length) existing.genres = [...seedData.genres];
+  } else {
+    db.m.push({ ...seedData, id: uid(), at: Date.now() });
+  }
+  persist();
+})();
+
+// ─── Seed: Yandere Dark Elf ───────────────────────────────────────────────
+(function seedYandereDarkElf() {
+  const existing = db.m.find(m => m.title.toLowerCase().includes('yandere dark elf'));
+  const seedData = {
+    title: 'Yandere Dark Elf',
+    pub: 'MangaMoon',
+    status: 'reading',
+    owned: 2,
+    total: 3,      // Band 3 erscheint 29.05.2026
+    current: 2,
+    ongoing: 'true',
+    nextDate: '2026-05-29',  // Band 3 (DE)
+    cover: 'https://covers.openlibrary.org/b/isbn/9783691940053-L.jpg',
+    notes: 'Band 3 erscheint 29. Mai 2026 (ISBN: 978-3-69194-007-7). Von Nakanosora.',
+  genres: ['Isekai', 'Romance', 'Comedy'],
+  };
+  if (seedData.genres && seedData.genres.length) SEED_GENRES['yandere dark elf'] = [...seedData.genres];
+  if (existing) {
+    existing.pub      = existing.pub || seedData.pub;
+    existing.total    = seedData.total;
+    existing.ongoing  = seedData.ongoing;
+    // Force-update nextDate (wie upsertManga): Seed überschreibt bestehende Termine
+    if (seedData.nextDate !== null && seedData.nextDate !== undefined) {
+      existing.nextDate = seedData.nextDate;
+    } else if (!existing.nextDate) {
+      existing.nextDate = null;
+    }
+    existing.cover    = existing.cover || seedData.cover;
+    existing.notes    = existing.notes || seedData.notes;
+    if (!existing.genres || !existing.genres.length) existing.genres = [...seedData.genres];
+  } else {
+    db.m.push({ ...seedData, id: uid(), at: Date.now() });
+  }
+  persist();
+})();
+
+// ─── Seed: Gushing over Magical Girls ─────────────────────────────────────
+upsertManga('gushing over magical girls', {
+  title: 'Gushing over Magical Girls', pub: 'MangaMoon',
+  status: 'reading', owned: 2, total: 4, current: 2,
+  ongoing: 'true', nextDate: null,
+  cover: 'https://covers.openlibrary.org/b/isbn/9783691940282-L.jpg',
+  notes: 'Laufende Serie bei MangaMoon. Von Akihiro Ononaka.',
+  genres: ['Action', 'Fantasy', 'Drama'],
+});
+
+// ─── Seed: Goodbye, Eri ───────────────────────────────────────────────────
+upsertManga('goodbye, eri', {
+  title: 'Goodbye, Eri', pub: 'Egmont Manga',
+  status: 'completed', owned: 1, total: 1, current: 1,
+  ongoing: 'false', nextDate: null,
+  cover: 'https://covers.openlibrary.org/b/isbn/9783770404278-L.jpg',
+  notes: 'Einzelband. Erschienen April 2023. Von Tatsuki Fujimoto.',
+  genres: ['Drama', 'Slice of Life'],
+});
+
+// ─── Seed: Gannibal ───────────────────────────────────────────────────────
+upsertManga('gannibal', {
+  title: 'Gannibal', pub: 'Hayabusa',
+  status: 'reading', owned: 13, total: 13, current: 13,
+  ongoing: 'false', nextDate: null,
+  cover: 'https://covers.openlibrary.org/b/isbn/9783833246227-L.jpg',
+  notes: 'Abgeschlossene Serie, 13 Bände. Von Masaaki Ninomiya.',
+  genres: ['Seinen', 'Horror', 'Thriller'],
+});
+
+// ─── Seed: From the Red Fog ───────────────────────────────────────────────
+upsertManga('from the red fog', {
+  title: 'From the Red Fog', pub: 'Manga Cult',
+  status: 'reading', owned: 1, total: 5, current: 1,
+  ongoing: 'false', nextDate: null,
+  cover: 'https://covers.openlibrary.org/b/isbn/9783964337047-L.jpg',
+  notes: 'Abgeschlossene Serie, 5 Bände. Von Mosae Nohara.',
+  genres: ['Horror', 'Supernatural', 'Mystery'],
+});
+
+// ─── Seed: Frankenstein von Junji Ito ─────────────────────────────────────
+upsertManga('frankenstein', {
+  title: 'Frankenstein von Junji Ito', pub: 'Carlsen Manga',
+  status: 'completed', owned: 1, total: 1, current: 1,
+  ongoing: 'false', nextDate: null,
+  cover: 'https://covers.openlibrary.org/b/isbn/9783551792674-L.jpg',
+  notes: 'Einzelband. Erschienen Februar 2023. ISBN: 978-3-551-79267-4. Von Junji Ito.',
+  genres: ['Horror', 'Supernatural'],
+});
+
+// ─── Seed: Fairy Tail ─────────────────────────────────────────────────────
+upsertManga('fairy tail', {
+  title: 'Fairy Tail', pub: 'Carlsen Manga',
+  status: 'reading', owned: 15, total: 63, current: 15,
+  ongoing: 'false', nextDate: null,
+  cover: 'https://covers.openlibrary.org/b/isbn/9783551763570-L.jpg',
+  notes: 'Abgeschlossene Serie, 63 Bände (DE). Von Hiro Mashima.',
+  genres: ['Shōnen', 'Fantasy', 'Action'],
+});
+
+// ─── Seed: Elfen Lied ─────────────────────────────────────────────────────
+upsertManga('elfen lied', {
+  title: 'Elfen Lied', pub: 'Tokyopop',
+  status: 'completed', owned: 6, total: 6, current: 6,
+  ongoing: 'false', nextDate: null,
+  cover: 'https://covers.openlibrary.org/b/isbn/9783842069831-L.jpg',
+  notes: 'Abgeschlossen, 6 Doppelbände (DE). Von Lynn Okamoto.',
+  genres: ['Horror', 'Sci-Fi', 'Drama'],
+});
+
+// ─── Seed: Die letzte Elfe ────────────────────────────────────────────────
+upsertManga('letzte elfe', {
+  title: 'Die letzte Elfe', pub: 'Yomeru',
+  status: 'reading', owned: 1, total: 3, current: 1,
+  ongoing: 'true', nextDate: '2026-12-25', // Band 3 erscheint 25.12.2026
+  cover: 'https://covers.openlibrary.org/b/isbn/9783911024549-L.jpg',
+  notes: 'Band 2 (DE) erschienen 27.03.2026. Band 3: 25.12.2026. Von Waichi Shinta.',
+  genres: ['Fantasy', 'Drama'],
+});
+
+// ─── Seed: Die Blutprinzessin ─────────────────────────────────────────────
+upsertManga('blutprinzessin', {
+  title: 'Die Blutprinzessin', pub: 'Egmont Manga',
+  status: 'completed', owned: 5, total: 5, current: 5,
+  ongoing: 'false', nextDate: null,
+  cover: 'https://covers.openlibrary.org/b/isbn/9783770457649-L.jpg',
+  notes: 'Abgeschlossene Serie, 5 Bände (DE). Von Setz Shiina.',
+  genres: ['Horror', 'Supernatural', 'Drama'],
+});
+
+// ─── Seed: Demon King of God Killing ──────────────────────────────────────
+upsertManga('demon king', {
+  title: 'Demon King of God Killing', pub: 'Egmont Manga',
+  status: 'reading', owned: 3, total: 4, current: 3,
+  ongoing: 'true', nextDate: null, // Band 4 erschienen 11.05.2026; Serie laufend (JP 5+ Bände)
+  cover: 'https://covers.openlibrary.org/b/isbn/9783770458417-L.jpg',
+  notes: 'Band 4 erschienen 11.05.2026. Serie laufend (JP: 5+ Bände). Von Riku Misora & BUNBUN.',
+  genres: ['Fantasy', 'Action'],
+});
+
+// ─── Seed: Dandadan ───────────────────────────────────────────────────────
+upsertManga('dandadan', {
+  title: 'Dandadan', pub: 'Kazé Manga',
+  status: 'reading', owned: 20, total: 21, current: 20,
+  ongoing: 'true', nextDate: '2026-07-03', // Band 21 erscheint 03.07.2026
+  cover: 'https://covers.openlibrary.org/b/isbn/9782889517190-L.jpg',
+  notes: 'Laufende Serie. Band 20 (DE) erschienen 06.03.2026. Band 21: 03.07.2026. Von Yukinobu Tatsu.',
+  genres: ['Action', 'Supernatural', 'Comedy'],
+});
+
+// ─── Seed: Dai Dark ───────────────────────────────────────────────────────
+upsertManga('dai dark', {
+  title: 'Dai Dark', pub: 'Manga Cult',
+  status: 'reading', owned: 7, total: 9, current: 7,
+  ongoing: 'true', nextDate: '2026-06-11', // Band 9 erscheint 11.06.2026
+  cover: 'https://covers.openlibrary.org/b/isbn/9783964337573-L.jpg',
+  notes: 'Band 8 (DE) erschienen 05.02.2026. Band 9: 11.06.2026. Von Q Hayashida.',
+  genres: ['Sci-Fi', 'Fantasy', 'Action'],
+});
+
+// ─── Seed: Colorless ──────────────────────────────────────────────────────
+upsertManga('colorless', {
+  title: 'Colorless', pub: 'Manga Cult',
+  status: 'completed', owned: 2, total: 2, current: 2,
+  ongoing: 'false', nextDate: null,
+  cover: 'https://covers.openlibrary.org/b/isbn/9783964337313-L.jpg',
+  notes: 'Abgeschlossen, 2 Bände (Aug 2023 – Aug 2024). Von Natsume Ono.',
+  genres: ['Drama', 'Mystery'],
+});
+
+// ─── Seed: CHILDEATH ──────────────────────────────────────────────────────
+upsertManga('childeath', {
+  title: 'CHILDEATH', pub: 'Altraverse',
+  status: 'completed', owned: 3, total: 3, current: 3,
+  ongoing: 'false', nextDate: null,
+  cover: 'https://covers.openlibrary.org/b/isbn/9783753907314-L.jpg',
+  notes: 'Abgeschlossen, 3 Bände. Band 1: Feb 2025. Von Hirokazu Mukoura.',
+  genres: ['Horror', 'Drama'],
+});
+
+// ─── Seed: Chainsaw Man ───────────────────────────────────────────────────
+upsertManga('chainsaw man', {
+  title: 'Chainsaw Man', pub: 'Egmont Manga',
+  status: 'reading', owned: 20, total: 23, current: 20,
+  ongoing: 'true', nextDate: '2026-08-04', // Band 22 erscheint 04.08.2026
+  cover: 'https://covers.openlibrary.org/b/isbn/9783770403172-L.jpg',
+  notes: 'Band 21 (DE) erschienen 07.04.2026. Band 22: 04.08.2026. Serie hat 23 DE-Bände. Von Tatsuki Fujimoto.',
+  genres: ['Shōnen', 'Action', 'Horror'],
+});
+
+// ─── Seed: Call of the Night ──────────────────────────────────────────────
+upsertManga('call of the night', {
+  title: 'Call of the Night', pub: 'Tokyopop',
+  status: 'completed', owned: 20, total: 20, current: 20,
+  ongoing: 'false', nextDate: null,
+  cover: 'https://covers.openlibrary.org/b/isbn/9783842082571-L.jpg',
+  notes: 'Abgeschlossen mit Band 20 (Abschlussband, Okt 2025). Von Kotoyama.',
+  genres: ['Romance', 'Supernatural', 'Comedy'],
+});
+
+// ─── Seed: Brynhildr in the Darkness ─────────────────────────────────────
+upsertManga('brynhildr', {
+  title: 'Brynhildr in the Darkness', pub: 'Tokyopop',
+  status: 'reading', owned: 11, total: 18, current: 11,
+  ongoing: 'false', nextDate: null,
+  cover: 'https://covers.openlibrary.org/b/isbn/9783842009240-L.jpg',
+  notes: 'Abgeschlossene Serie, 18 Bände (DE). Von Lynn Okamoto.',
+  genres: ['Sci-Fi', 'Horror', 'Romance'],
+});
+
+// ─── Seed: Blood on the Tracks ────────────────────────────────────────────
+upsertManga('blood on the tracks', {
+  title: 'Blood on the Tracks', pub: 'Manga Cult',
+  status: 'completed', owned: 17, total: 17, current: 17,
+  ongoing: 'false', nextDate: null,
+  cover: 'https://covers.openlibrary.org/b/isbn/9783964337818-L.jpg',
+  notes: 'Abgeschlossene Serie, 17 Bände (DE). Von Shuzo Oshimi.',
+  genres: ['Drama', 'Thriller', 'Horror'],
+});
+
+// ─── Seed: Blood Lad EXTREME ──────────────────────────────────────────────
+upsertManga('blood lad extreme', {
+  title: 'Blood Lad EXTREME', pub: 'Tokyopop',
+  status: 'completed', owned: 8, total: 8, current: 8,
+  ongoing: 'false', nextDate: null,
+  cover: 'https://covers.openlibrary.org/b/isbn/9783842083479-L.jpg',
+  notes: 'Abgeschlossen, 8 Sammelbände (je ~2 Originalbände, exklusive Cover & Buchrücken). Von Yuuki Kodama.',
+  genres: ['Action', 'Supernatural', 'Comedy'],
+});
+
+// ─── Seed: Blood Blade ────────────────────────────────────────────────────
+upsertManga('blood blade', {
+  title: 'Blood Blade', pub: 'Hayabusa',
+  status: 'reading', owned: 3, total: 5, current: 3,
+  ongoing: 'true', nextDate: '2026-06-30',
+  cover: 'https://covers.openlibrary.org/b/isbn/9783551624860-L.jpg',
+  notes: 'Band 5 (DE) erscheint 30.06.2026. Band 4 bereits erhältlich. Von Sei Oma.',
+  genres: ['Action', 'Supernatural', 'Horror'],
+});
+
+// ─── Seed: Berserk Master Edition ─────────────────────────────────────────
+upsertManga('berserk master', {
+  title: 'Berserk Master Edition', pub: 'Panini Manga',
+  status: 'reading', owned: 4, total: 14, current: 4,
+  ongoing: 'true', nextDate: '2026-06-16',
+  cover: 'https://covers.openlibrary.org/b/isbn/9783741641756-L.jpg',
+  notes: 'Je 3 Originalbände im Hardcover. Band 5 erschienen 17.03.2026 (bereits erhältlich). Band 6: 16.06.2026. Ca. 14 ME-Bände gesamt. Von Kentaro Miura.',
+  genres: ['Seinen', 'Action', 'Fantasy'],
+});
+
+// ─── Seed: August 9th, I will be eaten by you ─────────────────────────────
+upsertManga('august 9th', {
+  title: 'August 9th, I will be eaten by you', pub: 'Hayabusa',
+  status: 'reading', owned: 4, total: 6, current: 4,
+  ongoing: 'true', nextDate: '2026-12-01',
+  cover: 'https://covers.openlibrary.org/b/isbn/9783551622464-L.jpg',
+  notes: 'Band 6 (DE) angekündigt für Dezember 2026. Laufende Serie. Von tomomi.',
+  genres: ['Horror', 'Romance', 'Drama'],
+});
+
+// ─── Seed: Attack on Titan ────────────────────────────────────────────────
+upsertManga('attack on titan', {
+  title: 'Attack on Titan', pub: 'Carlsen Manga',
+  status: 'completed', owned: 34, total: 34, current: 34,
+  ongoing: 'false', nextDate: null,
+  cover: 'https://covers.openlibrary.org/b/isbn/9783551737649-L.jpg',
+  notes: 'Abgeschlossene Serie, 34 Bände (DE = JP). Abschlussband erschienen 01.02.2022. Von Hajime Isayama.',
+  genres: ['Shōnen', 'Action', 'Drama'],
+});
+
+// ─── Seed: Arifureta Zero ─────────────────────────────────────────────────
+upsertManga('arifureta', {
+  title: 'Arifureta: Der Kampf zurück in meine Welt – Zero', pub: 'Altraverse',
+  status: 'reading', owned: 2, total: 8, current: 2,
+  ongoing: 'true', nextDate: '2026-06-01',
+  cover: 'https://covers.openlibrary.org/b/isbn/9783753907468-L.jpg',
+  notes: 'Prequel-Manga, 8 Bände gesamt (JP abgeschlossen). Quartalsweise DE-Release: Band 1 Dez 2025, Band 2 Mrz 2026, Band 3 ~Jun 2026. Von Ataru Kamichi.',
+  genres: ['Isekai', 'Fantasy', 'Action'],
+});
+
+// ─── Seed: Adou ───────────────────────────────────────────────────────────
+upsertManga('adou', {
+  title: 'Adou', pub: 'Altraverse',
+  status: 'reading', owned: 2, total: 12, current: 2,
+  ongoing: 'true', nextDate: null,
+  cover: 'https://covers.openlibrary.org/b/isbn/9783753907093-L.jpg',
+  notes: 'Band 11 (DE) erschienen 23.03.2026. Serie nähert sich dem Abschluss. Band 3+ bereits erhältlich. Von Hajime Isayama Nao Emoto.',
+  genres: ['Horror', 'Thriller', 'Drama'],
+});
+
+// ─── Seed: Adabana ────────────────────────────────────────────────────────
+upsertManga('adabana', {
+  title: 'adabana', pub: 'Tokyopop',
+  status: 'completed', owned: 3, total: 3, current: 3,
+  ongoing: 'false', nextDate: null,
+  cover: 'https://covers.openlibrary.org/b/isbn/9783842093973-L.jpg',
+  notes: 'Abgeschlossen, 3 Bände. Band 1 erschienen 14.05.2025. Von NON.',
+  genres: ['Drama', 'Mystery'],
+});
+
+// ─── Seed: Isekai Soapland ───────────────────────────────────────────────
+upsertManga('isekai soapland', {
+  title: 'Isekai Soapland', pub: 'MangaMoon',
+  status: 'reading', owned: 1, total: 8, current: 1,
+  ongoing: 'true', nextDate: '2026-07-31',
+  cover: null,
+  notes: 'Band 1 April 2026, Band 2: 31.07.2026. JP 8+ Bände (Nihon Bungeisha, ab 2018). Ab 18. Von Shinobu Inokuma.',
+  genres: ['Isekai', 'Comedy', 'Seinen'],
+});
+
+// ─── Seed-Phase abschließen: ein einziger localStorage-Write statt ~58 ────
+_seeding = false;
+saveLoc();
+
+// ─── Init ─────────────────────────────────────────────────────────────────
+render();
+applyReadOnly();
+if (readOnly) {
+  // Öffentliche Ansicht: fremde Sammlung laden
+  loadViewCollection();
+} else {
+  // Cloud-Daten laden – render() läuft nur dann nochmal, wenn sich etwas geändert hat
+  loadFromCloud();
+}
+</script>
+</body>
 </html>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
