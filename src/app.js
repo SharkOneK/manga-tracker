@@ -9,39 +9,17 @@ let db = (() => {
 })();
 function uid() { return window.MangaTrackerUtils.uid(); }
 
-// ─── Supabase Cloud Sync ──────────────────────────────────────────────────
-const SUPA_URL  = 'https://sssxiqtnkctvyghyrqff.supabase.co';
-const SUPA_KEY  = 'sb_publishable_dHER8ble5X15bPpByKRs8g_fK_01io7';
-const SUPA_REST = `${SUPA_URL}/rest/v1/collections`;
+// ─── Supabase Cloud Sync (adapter defined in src/supabase.js) ────────────
+const SupabaseAdapter = window.MangaTrackerSupabase;
 
-// Adopt-Link: ?adopt=<collId>&token=<ownerToken> wird einmalig in localStorage uebernommen
-// und danach aus der URL entfernt. So muessen weder Collection-ID noch Owner-Token
-// hartkodiert im Quelltext stehen. Der Token bleibt ausschliesslich lokal im Browser.
-(function adoptOwnerIfPresent() {
-  try {
-    const p = new URLSearchParams(window.location.search);
-    const a = p.get('adopt'), t = p.get('token');
-    const uuidRe = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-    if (a && t && uuidRe.test(a) && uuidRe.test(t)) {
-      localStorage.setItem('mtCollId', a);
-      localStorage.setItem('mtOwnerToken', t);
-      p.delete('adopt'); p.delete('token');
-      const qs = p.toString();
-      history.replaceState(null, '', window.location.pathname + (qs ? '?' + qs : '') + window.location.hash);
-    }
-  } catch {}
-})();
+SupabaseAdapter.adoptOwnerIfPresent();
 
-// Owner-State aus localStorage. UUID ist oeffentlicher Lookup-Key; Schreib-Geheimnis
-// ist ausschliesslich mtOwnerToken und wird nie ueber URL oder Source geteilt.
-let _collId     = localStorage.getItem('mtCollId') || null;
-let _ownerToken = localStorage.getItem('mtOwnerToken') || null;
+const _ownerState = SupabaseAdapter.getOwnerState();
+let _collId     = _ownerState.collId;
+let _ownerToken = _ownerState.ownerToken;
 
-// Header-Helper: x-owner-token wird nur bei Schreiboperationen UND wenn lokal vorhanden gesetzt.
 function supaHead(write = false) {
-  const h = { apikey: SUPA_KEY, Authorization: `Bearer ${SUPA_KEY}` };
-  if (write && _ownerToken) h['x-owner-token'] = _ownerToken;
-  return h;
+  return SupabaseAdapter.headers(_ownerToken, write);
 }
 
 let _syncTimer = null;
@@ -69,16 +47,11 @@ function persist() {
 }
 
 async function pushCloud() {
-  if (readOnly) return; // Profil-Viewer dürfen nicht zurückschreiben
-  if (!_collId || !_ownerToken) return; // Ohne Owner-Token kein Schreibzugriff
+  if (readOnly) return;
+  if (!_collId || !_ownerToken) return;
   setSyncStatus('🔄', 'Synchronisiert…');
   try {
-    const r = await fetch(`${SUPA_REST}?id=eq.${_collId}`, {
-      method: 'PATCH',
-      headers: { ...supaHead(true), 'Content-Type': 'application/json', Prefer: 'return=minimal' },
-      body: JSON.stringify({ data: db })
-    });
-    if (!r.ok) { const t = await r.text(); throw new Error(`HTTP ${r.status}: ${t.slice(0,80)}`); }
+    await SupabaseAdapter.patchCollection(_collId, _ownerToken, db);
     setSyncStatus('☁️', 'Cloud-Sync aktiv');
   } catch(e) {
     setSyncStatus('⚠️', 'Sync fehlgeschlagen');
@@ -89,12 +62,7 @@ async function loadFromCloud() {
   if (!_collId) { setSyncStatus('💾', 'Lokal – keine Sammlung verbunden'); return; }
   setSyncStatus('🔄', 'Lade aus Cloud…');
   try {
-    const r = await fetch(`${SUPA_REST}?id=eq.${_collId}&select=data`, {
-      headers: supaHead(false)
-    });
-    if (!r.ok) { const t = await r.text(); throw new Error(`HTTP ${r.status}: ${t.slice(0,80)}`); }
-    const j = await r.json();
-    const record = Array.isArray(j) && j[0] ? j[0].data : null;
+    const record = await SupabaseAdapter.fetchCollection(_collId, _ownerToken);
     if (record && Array.isArray(record.m) && record.m.length > 0) {
       // Smart Re-Render: nur wenn sich die Cloud-Daten von den lokalen unterscheiden
       const before = JSON.stringify(db);
@@ -667,10 +635,7 @@ function startOwnCollection() {
 async function loadViewCollection() {
   if (!_viewColl) return;
   try {
-    const r = await fetch(`${SUPA_REST}?id=eq.${_viewColl}&select=data`, { headers: supaHead(false) });
-    if (!r.ok) throw new Error();
-    const j = await r.json();
-    const record = Array.isArray(j) && j[0] ? j[0].data : null;
+    const record = await SupabaseAdapter.fetchCollection(_viewColl, _ownerToken);
     if (record?.m) {
       db = record;
       db.m.forEach(m => {
