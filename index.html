@@ -381,6 +381,48 @@ header h1 .jp { color: #e8405a; }
 .btn-del { background: #fee2e2; color: #dc2626; border: none; padding: 11px 14px; border-radius: 9px; cursor: pointer; font-size: 1rem; flex-shrink: 0; }
 .btn-del:hover { background: #fecaca; }
 
+/* ── Manga-Passion Picker ── */
+.mp-picker-modal { max-width: 720px; }
+.mp-picker-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 12px;
+  padding: 4px 0 8px;
+}
+.mp-cand {
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  padding: 8px;
+  cursor: pointer;
+  background: var(--bg);
+  transition: border-color 0.12s, background 0.12s, transform 0.12s;
+  text-align: left;
+}
+.mp-cand:hover { border-color: var(--primary); background: var(--primary-light); transform: translateY(-1px); }
+.mp-cand-cover {
+  aspect-ratio: 11/16;
+  border-radius: 6px;
+  overflow: hidden;
+  background: #e5e7eb;
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.mp-cand-cover img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.mp-cand-nocover { font-size: 2rem; color: var(--text-muted); }
+.mp-cand-title { font-size: 0.78rem; font-weight: 700; color: var(--text); line-height: 1.25; margin-bottom: 3px;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.mp-cand-meta { font-size: 0.7rem; color: var(--text-muted); line-height: 1.2;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.mp-cand-none { background: #fef2f2; border-style: dashed; }
+.mp-cand-none:hover { background: #fee2e2; border-color: #ef4444; }
+body.dark .mp-cand { background: #1f2937; border-color: #374151; }
+body.dark .mp-cand:hover { background: #312e81; border-color: var(--primary); }
+body.dark .mp-cand-cover { background: #374151; }
+body.dark .mp-cand-none { background: #3f1d1d; }
+body.dark .mp-cand-none:hover { background: #4b1f1f; }
+
 
 /* ── Toast ── */
 .toast {
@@ -824,6 +866,7 @@ body.dark .kal-avail { background: #064e3b; border-color: #065f46; }
     <button class="view-btn active" id="vbtn-series" onclick="setView('series')" title="Serienansicht">⊞</button>
     <button class="view-btn" id="vbtn-volumes" onclick="setView('volumes')" title="Bändenliste">☰</button>
   </div>
+  <button class="view-btn" id="btn-mp-sync" onclick="mpSyncAll()" title="Alle Band-Cover via Manga Passion synchronisieren" style="font-size:0.85rem;padding:5px 9px">🖼️</button>
 </div>
 
 <div class="main">
@@ -904,6 +947,7 @@ body.dark .kal-avail { background: #064e3b; border-color: #065f46; }
           <input id="f-cover" type="url" placeholder="https://..." style="flex:1">
           <button type="button" onclick="searchCover()" title="Cover automatisch von Open Library laden" style="border:1.5px solid var(--border);border-radius:8px;padding:9px 11px;background:var(--bg);color:var(--text-muted);font-size:0.8rem;cursor:pointer;white-space:nowrap;flex-shrink:0;transition:background 0.12s" onmouseover="this.style.background='var(--primary-light)'" onmouseout="this.style.background='var(--bg)'">🔍 Suchen</button>
         </div>
+        <button type="button" onclick="mpSyncOne()" title="Band-Cover von Manga Passion laden" style="margin-top:6px;width:100%;border:1.5px solid var(--border);border-radius:8px;padding:8px 11px;background:var(--bg);color:var(--text-muted);font-size:0.78rem;font-weight:700;cursor:pointer;transition:background 0.12s" onmouseover="this.style.background='var(--primary-light)'" onmouseout="this.style.background='var(--bg)'">📥 Band-Cover von Manga Passion laden</button>
       </div>
       <div class="form-group">
         <label>Genre / Tags</label>
@@ -939,6 +983,19 @@ body.dark .kal-avail { background: #064e3b; border-color: #065f46; }
   </div>
 </div>
 
+<!-- Manga-Passion Picker Modal -->
+<div class="overlay" id="mp-picker-overlay" style="display:none" onclick="if(event.target===this)mpPickerCancel()">
+  <div class="modal mp-picker-modal">
+    <div class="modal-header">
+      <h2 id="mp-picker-title">Manga-Passion: Edition auswählen</h2>
+      <button class="close-btn" onclick="mpPickerCancel()">✕</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:0.8rem;color:var(--text-muted);margin-bottom:12px">Tippe auf die passende Edition, um die Band-Cover zu übernehmen.</p>
+      <div class="mp-picker-grid" id="mp-picker-grid"></div>
+    </div>
+  </div>
+</div>
 
 <div class="toast" id="toast"></div>
 
@@ -1179,6 +1236,166 @@ async function searchCover() {
   } catch {
     toast('⚠️ Cover-Suche nicht verfügbar (nur auf GitHub Pages)');
   }
+}
+
+// ─── Manga Passion API (Band-Cover) ──────────────────────────────────────
+const MP_API = 'https://api.manga-passion.de';
+
+function mpEscape(s) {
+  return (s == null ? '' : String(s))
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+function mpNormTitle(t) {
+  return (t||'').toLowerCase()
+    .replace(/[äÄ]/g,'a').replace(/[öÖ]/g,'o').replace(/[üÜ]/g,'u').replace(/[ß]/g,'ss')
+    .replace(/[–—−]/g,'-')
+    .replace(/[^a-z0-9\s-]/g,' ')
+    .replace(/\s+/g,' ').trim();
+}
+function mpNormPub(p) {
+  return (p||'').toLowerCase()
+    .replace(/[!.,]/g,'')
+    .replace(/[äÄ]/g,'a').replace(/[öÖ]/g,'o').replace(/[üÜ]/g,'u').replace(/[ß]/g,'ss')
+    .replace(/\s+/g,' ').trim();
+}
+async function mpSearchEditions(title) {
+  const r = await fetch(`${MP_API}/editions?title=${encodeURIComponent(title)}&itemsPerPage=15`, {
+    headers: { 'Accept': 'application/json' },
+    signal: AbortSignal.timeout(8000)
+  });
+  if (!r.ok) throw new Error('MP search HTTP ' + r.status);
+  return r.json();
+}
+function mpScore(m, candidate) {
+  const a = mpNormTitle(m.title);
+  const b = mpNormTitle(candidate.title);
+  let score = 0;
+  if (a === b) score += 100;
+  else if (b.startsWith(a) || a.startsWith(b)) score += 60;
+  else if (b.includes(a) || a.includes(b)) score += 35;
+  else {
+    const d = levenshtein(a, b);
+    if (d <= 2) score += 25;
+    else if (d <= 5) score += 10;
+  }
+  const myPub = mpNormPub(m.pub);
+  const cands = (candidate.publishers || []).map(p => mpNormPub(p.name));
+  if (myPub && cands.some(c => c === myPub || c.includes(myPub) || myPub.includes(c))) score += 30;
+  const t = (candidate.title || '').toLowerCase();
+  if (t.includes('ebook')) score -= 30;
+  if (t.includes('light novel') || /\bnovel\b/.test(t) || /\broman\b/.test(t)) score -= 25;
+  if (t.includes('wimmelbuch') || t.includes('kochbuch') || t.includes('artbook')) score -= 40;
+  if ((candidate.numVolumes || 0) >= 5) score += 5;
+  return score;
+}
+async function mpFindEdition(m, opts) {
+  opts = opts || {};
+  if (m.mpEditionId && m.mpEditionId !== 'none' && !opts.force) return m.mpEditionId;
+  let hits;
+  try { hits = await mpSearchEditions(m.title); }
+  catch (e) { console.warn('MP search error:', m.title, e); return null; }
+  if (!Array.isArray(hits) || !hits.length) return null;
+  const scored = hits.map(h => ({ ed: h, score: mpScore(m, h) })).sort((a,b) => b.score - a.score);
+  const top = scored[0], second = scored[1];
+  if (opts.auto && top.score >= 100 && (!second || second.score < top.score - 30)) return top.ed.id;
+  return await mpPickerOpen(m, scored.slice(0, 8).map(s => s.ed));
+}
+
+let _mpPickerResolve = null;
+function mpPickerOpen(m, candidates) {
+  return new Promise(resolve => {
+    _mpPickerResolve = resolve;
+    const grid = document.getElementById('mp-picker-grid');
+    grid.innerHTML = candidates.map(c => `
+      <div class="mp-cand" onclick="mpPickerChoose(${c.id})" title="${mpEscape(c.title)}">
+        <div class="mp-cand-cover">${c.cover ? `<img src="${mpEscape(c.cover)}" loading="lazy" alt="">` : '<div class="mp-cand-nocover">📕</div>'}</div>
+        <div class="mp-cand-title">${mpEscape(c.title)}</div>
+        <div class="mp-cand-meta">${(c.publishers||[]).map(p => mpEscape(p.name)).join(', ')||'?'} · ${c.numVolumes||'?'} Bd.</div>
+      </div>`).join('') +
+      `<div class="mp-cand mp-cand-none" onclick="mpPickerChoose('none')"><div class="mp-cand-cover"><div class="mp-cand-nocover">❌</div></div><div class="mp-cand-title">Keiner davon</div><div class="mp-cand-meta">Nicht erneut suchen</div></div>`;
+    document.getElementById('mp-picker-title').textContent = `Welche Edition entspricht „${m.title}"?`;
+    document.getElementById('mp-picker-overlay').style.display = 'flex';
+  });
+}
+function mpPickerChoose(editionId) {
+  document.getElementById('mp-picker-overlay').style.display = 'none';
+  if (_mpPickerResolve) { _mpPickerResolve(editionId); _mpPickerResolve = null; }
+}
+function mpPickerCancel() { mpPickerChoose(null); }
+
+async function mpFetchCovers(m, opts) {
+  opts = opts || {};
+  let edId = m.mpEditionId;
+  if (!edId || edId === 'none' || opts.force) {
+    edId = await mpFindEdition(m, opts);
+    if (!edId) { return { ok: false, reason: 'cancelled' }; }
+    if (edId === 'none') { m.mpEditionId = 'none'; saveLoc(); return { ok: false, reason: 'no-match' }; }
+    m.mpEditionId = edId;
+  }
+  let r;
+  try {
+    r = await fetch(`${MP_API}/editions/${edId}/volumes?itemsPerPage=300`, {
+      headers: { 'Accept': 'application/json' },
+      signal: AbortSignal.timeout(10000)
+    });
+  } catch (e) { return { ok: false, reason: 'network' }; }
+  if (!r.ok) return { ok: false, reason: 'http-' + r.status };
+  const vols = await r.json();
+  if (!Array.isArray(vols) || !vols.length) return { ok: false, reason: 'no-volumes' };
+  const byVol = {};
+  let added = 0;
+  vols.forEach(v => {
+    if (v.specialType) return;
+    if (typeof v.number !== 'number' || v.number < 1) return;
+    if (!v.cover) return;
+    byVol[String(v.number)] = v.cover;
+    added++;
+  });
+  if (!added) return { ok: false, reason: 'no-covers' };
+  m.bandCovers = { ...(m.bandCovers||{}), ...byVol };
+  m.mpVerifiedAt = new Date().toISOString();
+  saveLoc();
+  return { ok: true, count: added };
+}
+
+let _mpBusy = false;
+async function mpSyncOne() {
+  if (_mpBusy) return;
+  if (!editId) { toast('⚠️ Erst Serie speichern'); return; }
+  const m = db.m.find(x => x.id === editId);
+  if (!m) return;
+  _mpBusy = true;
+  toast('🔍 Suche bei Manga Passion…');
+  try {
+    const res = await mpFetchCovers(m);
+    if (res.ok) { toast(`✅ ${res.count} Band-Cover für „${m.title}" geladen`); pushCloud(); render(); }
+    else if (res.reason === 'cancelled') toast('⏹ Abgebrochen');
+    else toast(`⚠️ Kein Treffer (${res.reason})`);
+  } catch (e) { console.warn('MP error:', e); toast('⚠️ Manga-Passion-Fehler'); }
+  _mpBusy = false;
+}
+
+async function mpSyncAll() {
+  if (_mpBusy) return;
+  _mpBusy = true;
+  const btn = document.getElementById('btn-mp-sync');
+  if (btn) { btn.disabled = true; btn.textContent = '⏳'; }
+  const list = db.m.filter(m => mOwned(m) > 1 && m.mpEditionId !== 'none');
+  let ok = 0, miss = 0, cancelled = false;
+  for (const m of list) {
+    try {
+      const res = await mpFetchCovers(m, { auto: true });
+      if (res.ok) ok++;
+      else if (res.reason === 'cancelled') { cancelled = true; break; }
+      else miss++;
+    } catch { miss++; }
+    await new Promise(r => setTimeout(r, 350));
+  }
+  if (ok > 0) { pushCloud(); render(); }
+  toast(`${cancelled?'⏹':'✅'} ${ok} aktualisiert · ${miss} ohne Treffer${cancelled?' (Abbruch)':''}`);
+  if (btn) { btn.disabled = false; btn.textContent = '🖼️'; }
+  _mpBusy = false;
 }
 
 // ─── State ────────────────────────────────────────────────────────────────
@@ -2818,4 +3035,3 @@ if (readOnly) {
 </script>
 </body>
 </html>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   
