@@ -46,9 +46,14 @@ function persist() {
   _syncTimer = setTimeout(pushCloud, 1500);
 }
 
+function validateDatabase() {
+  return db && Array.isArray(db.m);
+}
+
 async function pushCloud() {
   if (readOnly) return;
   if (!_collId || !_ownerToken) return;
+  if (!validateDatabase()) { setSyncStatus('⚠️', 'Daten ungültig – Sync übersprungen'); return; }
   setSyncStatus('🔄', 'Synchronisiert…');
   try {
     await SupabaseAdapter.patchCollection(_collId, _ownerToken, db);
@@ -107,7 +112,7 @@ async function loadFromCloud() {
       }
       // Wenn HTML-Seeds Genres ergänzt haben, sofort zurück in die Cloud schreiben,
       // damit alle Geräte (iPhone, Desktop) ohne weiteres Eingreifen die Tags sehen
-      if (genresAdded) pushCloud();
+      if (genresAdded) { setSyncStatus('🔄', 'Genre-Seeds sichern…'); await pushCloud(); }
     }
     setSyncStatus('☁️', 'Cloud-Sync aktiv');
   } catch(e) {
