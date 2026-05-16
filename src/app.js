@@ -46,8 +46,25 @@ function persist() {
   _syncTimer = setTimeout(pushCloud, 1500);
 }
 
-function validateDatabase() {
-  return db && Array.isArray(db.m);
+// Returns null if entry is valid, or a description string if not.
+function entryError(m) {
+  if (m === null || typeof m !== 'object') return 'kein Objekt';
+  if (typeof m.id !== 'string' || !m.id) return 'id fehlt oder leer';
+  if (typeof m.title !== 'string' || !m.title.trim()) return 'title fehlt oder leer';
+  return null;
+}
+
+function validateDatabase(candidate) {
+  const target = (candidate !== undefined) ? candidate : db;
+  if (!target || !Array.isArray(target.m)) return false;
+  for (let i = 0; i < target.m.length; i++) {
+    const err = entryError(target.m[i]);
+    if (err) {
+      console.error(`validateDatabase: Eintrag ${i} ungültig – ${err}`, target.m[i]);
+      return false;
+    }
+  }
+  return true;
 }
 
 async function pushCloud() {
@@ -69,6 +86,13 @@ async function loadFromCloud() {
   try {
     const record = await SupabaseAdapter.fetchCollection(_collId, _ownerToken);
     if (record && Array.isArray(record.m) && record.m.length > 0) {
+      // Validierung VOR Übernahme: kaputte Cloud-Daten dürfen lokale Sammlung nicht überschreiben
+      if (!validateDatabase(record)) {
+        setSyncStatus('⚠️', 'Cloud-Daten ungültig – lokale Sammlung behalten');
+        toast('⚠️ Cloud-Sync abgebrochen: ungültige Einträge gefunden (Details in der Browser-Konsole)');
+        console.error('loadFromCloud: Cloud-Record abgelehnt, lokale Daten bleiben erhalten');
+        return;
+      }
       // Smart Re-Render: nur wenn sich die Cloud-Daten von den lokalen unterscheiden
       const before = JSON.stringify(db);
       db = record;
@@ -125,12 +149,25 @@ async function loadFromCloud() {
 // Boot-Phase: ein einziger persist() am Ende statt ~58 (Migration + Seeds)
 _seeding = true;
 (function migrateBands() {
+  if (!Array.isArray(db.m)) return;
+
   // Migration: wishlist:true → status:'wishlist'
   db.m.forEach(m => {
+    if (m === null || typeof m !== 'object') { console.warn('migrateBands: null/ungültiger Eintrag übersprungen', m); return; }
     if (m.wishlist === true && m.status !== 'wishlist') m.status = 'wishlist';
     delete m.wishlist;
   });
+
+  // Migration: ongoing Boolean → String (externe oder alte Daten)
   db.m.forEach(m => {
+    if (m === null || typeof m !== 'object') return;
+    if (m.ongoing === true)  m.ongoing = 'true';
+    if (m.ongoing === false) m.ongoing = 'false';
+  });
+
+  // Migration: owned/current/status → bands
+  db.m.forEach(m => {
+    if (m === null || typeof m !== 'object') return;
     if (m.bands) return;
     m.bands = {};
     const n   = Number(m.owned)   || 0;
@@ -140,7 +177,7 @@ _seeding = true;
       if (st === 'completed') {
         m.bands[i] = 'completed';
       } else if (st === 'reading') {
-        if (cur > 0 && i < cur)      m.bands[i] = 'completed';
+        if (cur > 0 && i < cur)        m.bands[i] = 'completed';
         else if (cur > 0 && i === cur) m.bands[i] = 'reading';
         else                           m.bands[i] = 'owned';
       } else {
@@ -641,7 +678,13 @@ async function loadViewCollection() {
   if (!_viewColl) return;
   try {
     const record = await SupabaseAdapter.fetchCollection(_viewColl, _ownerToken);
-    if (record?.m) {
+    if (record && Array.isArray(record.m)) {
+      // Validierung VOR Übernahme: kaputte fremde Sammlung nicht rendern
+      if (!validateDatabase(record)) {
+        toast('⚠️ Diese Sammlung enthält ungültige Daten und kann nicht angezeigt werden');
+        console.error('loadViewCollection: Sammlung abgelehnt – ungültige Einträge');
+        return;
+      }
       db = record;
       db.m.forEach(m => {
         const key = Object.keys(SEED_DATES).find(k => m.title.toLowerCase().includes(k));
@@ -1160,7 +1203,8 @@ function doSave() {
     }
   }
   const bands = { ...modalBands };
-  const total = document.getElementById('f-total').value !== '' ? parseInt(document.getElementById('f-total').value) : null;
+  const _rawTotal = parseInt(document.getElementById('f-total').value);
+  const total = (!isNaN(_rawTotal) && _rawTotal > 0) ? _rawTotal : null;
   const ongoing = document.getElementById('f-ongoing').value;
 
   // ── Auto-Setting für startedAt / finishedAt ─────────────────────────────
