@@ -686,10 +686,17 @@ body.dark .genre-filter-wrap { background: #0f0f1a; }
 .stats-section h3 { font-size: 0.85rem; font-weight: 800; color: var(--text-muted);
   text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 10px; }
 .stat-big-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 16px; }
+.stat-big-grid.cols-3 { grid-template-columns: repeat(3, 1fr); }
 .stat-big-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 14px;
   padding: 14px 16px; }
 .stat-big-n { font-size: 2rem; font-weight: 900; color: var(--primary); line-height: 1; }
 .stat-big-l { font-size: 0.75rem; color: var(--text-muted); font-weight: 600; margin-top: 3px; }
+.stat-progress-row { margin-top: -4px; margin-bottom: 4px; }
+.stat-progress-meta { display: flex; justify-content: space-between; align-items: baseline;
+  font-size: 0.75rem; color: var(--text-muted); font-weight: 600; margin-bottom: 5px; }
+.stat-progress-pct { font-size: 1rem; font-weight: 900; color: var(--primary); }
+.stat-progress-na { font-size: 0.72rem; color: var(--text-muted); font-style: italic; margin: 0 0 4px; }
+.stat-progress-bar { height: 8px; margin-top: 0; }
 .bar-chart { display: flex; flex-direction: column; gap: 6px; }
 .bar-row { display: flex; align-items: center; gap: 8px; }
 .bar-label { font-size: 0.72rem; color: var(--text-muted); font-weight: 600; min-width: 80px;
