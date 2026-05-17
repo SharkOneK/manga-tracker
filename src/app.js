@@ -883,7 +883,7 @@ function renderStats() {
     </div>
 
     <div class="stats-section">
-      <h3>Nächste Kaufempfehlungen</h3>
+      <h3>Nächste Käufe &amp; Vormerkungen</h3>
       ${buyPreviewItems.length === 0
         ? `<p class="stats-empty-note">Aktuell keine offenen Käufe.</p>`
         : `<div class="stats-buy-preview">${buyPreviewItems.map(item => {
