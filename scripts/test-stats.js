@@ -113,6 +113,25 @@ function calcBuyPreview(mangaList, maxItems = 5) {
     .slice(0, maxItems);
 }
 
+// Phase 17c: Release-cache stats (mirrors renderStats; gated by loaded status)
+function calcReleaseCacheStats(mangaList, cache, status, baseDate = '2026-05-17') {
+  if (status !== 'loaded' || !cache || !Array.isArray(cache.items)) return null;
+  const today = new Date(baseDate + 'T00:00:00');
+  const in30Days = new Date(today);
+  in30Days.setDate(in30Days.getDate() + 30);
+  const upcoming30 = cache.items.filter(item => {
+    if (!item || !item.releaseDate) return false;
+    const d = new Date(item.releaseDate + 'T00:00:00');
+    return !isNaN(d.getTime()) && d >= today && d <= in30Days;
+  }).length;
+  return {
+    seriesWithNextDate: mangaList.filter(m => !!m.nextDate).length,
+    upcoming30,
+    seriesWithReleaseIds: mangaList.filter(m => !!m.isbn13 || (!!m.mpEditionId && m.mpEditionId !== 'none')).length,
+    itemCount: cache.items.length,
+    generatedAt: cache.generatedAt || null,
+  };
+}
 // ─── Test-Runner ──────────────────────────────────────────────────────────
 
 let passed = 0;
@@ -380,6 +399,47 @@ test('Kaufvorschau: Serie ohne total nicht in der Vorschau', () => {
   assert.strictEqual(result.length, 0, 'Serie ohne total darf nicht in der Kaufvorschau erscheinen');
 });
 
+// Phase 17c Tests ----------------------------------------------------------
+
+console.log('\nPhase 17c — Release-Cache-Statistiken Tests\n');
+
+test('Release-Cache-Stats: nicht geladener Cache rendert keine Stats', () => {
+  const result = calcReleaseCacheStats([{ nextDate: '2026-06-01' }], { items: [] }, 'missing');
+  assert.strictEqual(result, null);
+});
+
+test('Release-Cache-Stats: zaehlt Serien mit nextDate', () => {
+  const list = [
+    { title: 'A', nextDate: '2026-06-01' },
+    { title: 'B', nextDate: null },
+    { title: 'C', nextDate: '2026-07-01' },
+  ];
+  const result = calcReleaseCacheStats(list, { items: [] }, 'loaded');
+  assert.strictEqual(result.seriesWithNextDate, 2);
+});
+
+test('Release-Cache-Stats: zaehlt kommende Releases in den naechsten 30 Tagen inkl. heute', () => {
+  const cache = { items: [
+    { releaseDate: '2026-05-17' },
+    { releaseDate: '2026-06-16' },
+    { releaseDate: '2026-06-17' },
+    { releaseDate: '2026-05-16' },
+    { releaseDate: 'ungueltig' },
+  ] };
+  const result = calcReleaseCacheStats([], cache, 'loaded', '2026-05-17');
+  assert.strictEqual(result.upcoming30, 2);
+});
+
+test('Release-Cache-Stats: zaehlt Serien mit ISBN-13 oder Manga-Passion-ID', () => {
+  const list = [
+    { title: 'A', isbn13: '9783551737649' },
+    { title: 'B', mpEditionId: 1234 },
+    { title: 'C', mpEditionId: 'none' },
+    { title: 'D' },
+  ];
+  const result = calcReleaseCacheStats(list, { items: [] }, 'loaded');
+  assert.strictEqual(result.seriesWithReleaseIds, 2);
+});
 // ─── Ergebnis ─────────────────────────────────────────────────────────────
 
 console.log(`\n${passed + failed} Tests — ${passed} bestanden, ${failed} fehlgeschlagen\n`);
