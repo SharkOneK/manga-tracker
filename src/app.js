@@ -2684,11 +2684,11 @@ upsertManga('dai dark', {
 // ─── Seed: Colorless ──────────────────────────────────────────────────────
 upsertManga('colorless', {
   title: 'Colorless', pub: 'Manga Cult',
-  status: 'completed', owned: 2, total: 2, current: 2,
+  status: 'reading', owned: 2, total: 7, current: 2,
   ongoing: 'false', nextDate: null,
   cover: 'https://covers.openlibrary.org/b/isbn/9783964337313-L.jpg',
-  notes: 'Abgeschlossen, 2 Bände (Aug 2023 – Aug 2024). Von Natsume Ono.',
-  genres: ['Drama', 'Mystery'],
+  notes: 'Abgeschlossen, 7 Bände (DE bei Manga Cult, Abschlussband August 2024). Von KENT.',
+  genres: ['Action', 'Adventure', 'Drama', 'Mystery', 'Sci-Fi'],
 });
 
 // ─── Seed: CHILDEATH ──────────────────────────────────────────────────────
