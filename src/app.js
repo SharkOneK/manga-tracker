@@ -822,6 +822,26 @@ function renderStats() {
   const today = new Date(); today.setHours(0,0,0,0);
   const buyPreviewItems = toBuyList().slice(0, BUY_PREVIEW_MAX);
 
+  // Phase 17c: Release-Cache-Statistiken (nur bei geladenem Cache rendern)
+  const releaseStatsAvailable = releaseCacheStatus === 'loaded'
+    && releaseCache
+    && Array.isArray(releaseCache.items);
+  const releaseStats = releaseStatsAvailable ? (() => {
+    const in30Days = new Date(today);
+    in30Days.setDate(in30Days.getDate() + 30);
+    const upcoming30 = releaseCache.items.filter(item => {
+      if (!item || !item.releaseDate) return false;
+      const d = new Date(item.releaseDate + 'T00:00:00');
+      return !isNaN(d.getTime()) && d >= today && d <= in30Days;
+    }).length;
+    return {
+      seriesWithNextDate: db.m.filter(m => !!m.nextDate).length,
+      upcoming30,
+      seriesWithReleaseIds: db.m.filter(m => !!m.isbn13 || (!!m.mpEditionId && m.mpEditionId !== 'none')).length,
+      itemCount: releaseCache.items.length,
+      generatedAt: releaseCache.generatedAt || null,
+    };
+  })() : null;
   el.innerHTML = `<div class="stats-page">
     ${renderImportExport()}
     <div class="stats-section">
@@ -906,6 +926,15 @@ function renderStats() {
           }).join('')}</div>`}
     </div>
 
+    ${releaseStats ? `<div class="stats-section">
+      <h3>Release-Cache</h3>
+      <div class="stat-big-grid cols-3">
+        <div class="stat-big-card"><div class="stat-big-n">${releaseStats.seriesWithNextDate}</div><div class="stat-big-l">Serien mit Release-Datum</div></div>
+        <div class="stat-big-card"><div class="stat-big-n">${releaseStats.upcoming30}</div><div class="stat-big-l">Releases in 30 Tagen</div></div>
+        <div class="stat-big-card"><div class="stat-big-n">${releaseStats.seriesWithReleaseIds}</div><div class="stat-big-l">Serien mit ISBN/MP-ID</div></div>
+      </div>
+      <p class="stats-empty-note">Cache: ${releaseStats.itemCount} Einträge${releaseStats.generatedAt ? ` · Stand ${new Date(releaseStats.generatedAt).toLocaleString('de-DE')}` : ''}</p>
+    </div>` : ''}
     <div class="stats-section">
       <h3>Jahresrückblick ${year}</h3>
       <div class="stat-big-grid">
@@ -1959,6 +1988,7 @@ async function loadReleaseCache() {
   releaseCacheStatus = 'loaded';
   console.info(`[Phase 15] release-cache.json geladen: ${data.items.length} Item(s), Stand: ${data.generatedAt || 'unbekannt'}`);
   updateReleaseCacheButton();
+  if (tab === 'stats') renderStats();
 }
 
 // Aktualisiert Sichtbarkeit und Tooltip des Release-Check-Buttons im Modal
