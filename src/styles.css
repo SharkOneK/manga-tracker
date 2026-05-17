@@ -710,6 +710,22 @@ body.dark .genre-filter-wrap { background: #0f0f1a; }
   transition: height 0.4s; opacity: 0.85; }
 .month-lbl { font-size: 0.58rem; color: var(--text-muted); font-weight: 700; }
 body.dark .stat-big-card { background: #1a1a2e; }
+/* Phase 17b: Kaufvorschau im Statistik-Tab */
+.stats-empty-note { font-size: 0.78rem; color: var(--text-muted); font-style: italic; margin: 0; }
+.stats-buy-preview { display: flex; flex-direction: column; gap: 8px; }
+.stats-buy-item { display: flex; justify-content: space-between; align-items: center; gap: 10px;
+  padding: 10px 12px; border-radius: 10px; background: var(--card-bg);
+  border: 1px solid var(--border); border-left-width: 3px; }
+.stats-buy-item.avail { border-left-color: var(--success); }
+.stats-buy-item.soon  { border-left-color: var(--warning); }
+.stats-buy-main { flex: 1; min-width: 0; }
+.stats-buy-title { font-weight: 700; font-size: 0.85rem; display: block;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.stats-buy-band { font-size: 0.75rem; color: var(--primary); font-weight: 700; display: block; margin-top: 1px; }
+.stats-buy-meta { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; flex-shrink: 0; }
+.stats-buy-pub  { font-size: 0.68rem; color: var(--text-muted); }
+.stats-buy-date { font-size: 0.72rem; color: var(--warning); font-weight: 600; }
+.stats-buy-item.avail .stats-buy-date { color: var(--success); }
 
 /* ── AniList Suche ── */
 .db-search-wrap { position: relative; margin-bottom: 14px; }
