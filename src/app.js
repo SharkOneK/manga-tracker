@@ -806,6 +806,22 @@ function renderStats() {
   const finishedCount = db.m.filter(m => m.ongoing === 'false').length;
   const unknownCount  = db.m.filter(m => m.ongoing !== 'true' && m.ongoing !== 'false').length;
 
+  // Phase 17b: Sammlungsstatus-Verteilung
+  const statusCounts = { reading: 0, completed: 0, owned: 0, wishlist: 0 };
+  db.m.forEach(m => {
+    const st = mSeriesStatus(m);
+    if (statusCounts[st] !== undefined) statusCounts[st]++;
+  });
+  const statusMax = Math.max(
+    statusCounts.reading, statusCounts.completed,
+    statusCounts.owned,   statusCounts.wishlist, 1
+  );
+
+  // Phase 17b: Kaufvorschau (max. 5, available-first via toBuyList())
+  const BUY_PREVIEW_MAX = 5;
+  const today = new Date(); today.setHours(0,0,0,0);
+  const buyPreviewItems = toBuyList().slice(0, BUY_PREVIEW_MAX);
+
   el.innerHTML = `<div class="stats-page">
     ${renderImportExport()}
     <div class="stats-section">
@@ -838,6 +854,56 @@ function renderStats() {
         <div class="stat-big-card"><div class="stat-big-n">${finishedCount}</div><div class="stat-big-l">Abgeschlossen</div></div>
         <div class="stat-big-card"><div class="stat-big-n">${unknownCount}</div><div class="stat-big-l">Unbekannt</div></div>
       </div>
+    </div>
+
+    <div class="stats-section">
+      <h3>Sammlungsstatus</h3>
+      <div class="bar-chart">
+        <div class="bar-row">
+          <div class="bar-label">Zu lesen</div>
+          <div class="bar-track"><div class="bar-fill" style="width:${Math.round(statusCounts.owned/statusMax*100)}%"></div></div>
+          <div class="bar-val">${statusCounts.owned}</div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-label">Lese ich</div>
+          <div class="bar-track"><div class="bar-fill" style="width:${Math.round(statusCounts.reading/statusMax*100)}%;background:#10b981"></div></div>
+          <div class="bar-val">${statusCounts.reading}</div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-label">Gelesen</div>
+          <div class="bar-track"><div class="bar-fill" style="width:${Math.round(statusCounts.completed/statusMax*100)}%;background:#7c3aed"></div></div>
+          <div class="bar-val">${statusCounts.completed}</div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-label">Wunschliste</div>
+          <div class="bar-track"><div class="bar-fill" style="width:${Math.round(statusCounts.wishlist/statusMax*100)}%;background:#ec4899"></div></div>
+          <div class="bar-val">${statusCounts.wishlist}</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="stats-section">
+      <h3>Nächste Kaufempfehlungen</h3>
+      ${buyPreviewItems.length === 0
+        ? `<p class="stats-empty-note">Aktuell keine offenen Käufe.</p>`
+        : `<div class="stats-buy-preview">${buyPreviewItems.map(item => {
+            const d = item.nextDate ? new Date(item.nextDate + 'T00:00:00') : null;
+            const isAvail = !d || d <= today;
+            const dateLabel = d
+              ? (isAvail
+                  ? 'Jetzt erhältlich'
+                  : d.toLocaleDateString('de-DE', {day:'2-digit',month:'2-digit',year:'numeric'}))
+              : '';
+            const pubHtml    = item.pub    ? `<span class="stats-buy-pub">${item.pub}</span>` : '';
+            const dateHtml   = dateLabel  ? `<span class="stats-buy-date">${dateLabel}</span>` : '';
+            return `<div class="stats-buy-item${isAvail ? ' avail' : ' soon'}">
+              <div class="stats-buy-main">
+                <span class="stats-buy-title">${item.title}</span>
+                <span class="stats-buy-band">Band ${item.next}</span>
+              </div>
+              <div class="stats-buy-meta">${pubHtml}${dateHtml}</div>
+            </div>`;
+          }).join('')}</div>`}
     </div>
 
     <div class="stats-section">

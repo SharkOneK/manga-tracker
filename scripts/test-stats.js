@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// scripts/test-stats.js — Phase 17a: Statistik-Kennzahlen testen
+// scripts/test-stats.js — Phase 17a + 17b: Statistik-Kennzahlen testen
 // Läuft direkt mit Node, kein Test-Framework nötig.
 'use strict';
 
@@ -63,6 +63,54 @@ function calcStats(mangaList) {
     completeSeries, seriesWithMissing,
     ongoingCount, finishedCount, unknownCount,
   };
+}
+
+// ─── Phase 17b: Sammlungsstatus-Verteilung ────────────────────────────────
+
+// Spiegelt mSeriesStatus(m) aus app.js
+function mSeriesStatus(m) {
+  if (m.status === 'wishlist') return 'wishlist';
+  const vals = Object.values(m.bands || {});
+  if (!vals.length) return 'owned';
+  if (vals.includes('reading')) return 'reading';
+  if (vals.every(v => v === 'completed')) return 'completed';
+  return 'owned';
+}
+
+function calcStatusCounts(mangaList) {
+  const counts = { reading: 0, completed: 0, owned: 0, wishlist: 0 };
+  mangaList.forEach(m => {
+    const st = mSeriesStatus(m);
+    if (counts[st] !== undefined) counts[st]++;
+  });
+  return counts;
+}
+
+// ─── Phase 17b: Kaufvorschau ──────────────────────────────────────────────
+
+function calcBuyPreview(mangaList, maxItems = 5) {
+  const today = new Date(); today.setHours(0,0,0,0);
+  return mangaList
+    .filter(m => {
+      const total = Number(m.total);
+      const owned = mOwned(m);
+      if (isNaN(total) || total <= 0 || total <= owned) return false;
+      return mFirstMissingBand(m) !== null;
+    })
+    .map(m => ({ ...m, next: mFirstMissingBand(m) }))
+    .sort((a, b) => {
+      const da  = a.nextDate ? new Date(a.nextDate) : null;
+      const db2 = b.nextDate ? new Date(b.nextDate) : null;
+      const aAvail = !da  || da  <= today;
+      const bAvail = !db2 || db2 <= today;
+      if (aAvail && !bAvail) return -1;
+      if (!aAvail && bAvail) return  1;
+      if (da && db2) return da - db2;
+      if (da && !db2) return -1;
+      if (!da && db2) return  1;
+      return a.title.localeCompare(b.title, 'de');
+    })
+    .slice(0, maxItems);
 }
 
 // ─── Test-Runner ──────────────────────────────────────────────────────────
@@ -196,6 +244,140 @@ test('Laufende Serie vollständig gesammelt — completeSeries (nicht auf ongoin
   const s = calcStats(list);
   assert.strictEqual(s.completeSeries, 1, 'Muss vollständig gesammelt zählen');
   assert.strictEqual(s.seriesWithMissing, 0);
+});
+
+// ─── Phase 17b Tests ─────────────────────────────────────────────────────
+
+console.log('\nPhase 17b — Sammlungsstatus & Kaufvorschau Tests\n');
+
+test('Sammlungsstatus: Leere Sammlung — alle Werte 0', () => {
+  const c = calcStatusCounts([]);
+  assert.strictEqual(c.reading,   0);
+  assert.strictEqual(c.completed, 0);
+  assert.strictEqual(c.owned,     0);
+  assert.strictEqual(c.wishlist,  0);
+});
+
+test('Sammlungsstatus: Wishlist via m.status === wishlist', () => {
+  const list = [{ status: 'wishlist', bands: {}, total: null }];
+  const c = calcStatusCounts(list);
+  assert.strictEqual(c.wishlist, 1);
+  assert.strictEqual(c.reading,  0);
+  assert.strictEqual(c.owned,    0);
+});
+
+test('Sammlungsstatus: Serie ohne Bände → owned', () => {
+  const list = [{ bands: {}, total: 5, ongoing: 'true' }];
+  const c = calcStatusCounts(list);
+  assert.strictEqual(c.owned, 1, 'Serie ohne bands-Einträge zählt als owned');
+});
+
+test('Sammlungsstatus: Alle Bände completed → completed', () => {
+  const list = [{ bands: { '1': 'completed', '2': 'completed' }, total: 2, ongoing: 'false' }];
+  const c = calcStatusCounts(list);
+  assert.strictEqual(c.completed, 1);
+  assert.strictEqual(c.reading,   0);
+});
+
+test('Sammlungsstatus: Ein Band reading → reading', () => {
+  const list = [{ bands: { '1': 'owned', '2': 'reading' }, total: 5, ongoing: 'true' }];
+  const c = calcStatusCounts(list);
+  assert.strictEqual(c.reading, 1);
+  assert.strictEqual(c.owned,   0);
+});
+
+test('Sammlungsstatus: Gemischte Sammlung — alle vier Werte korrekt', () => {
+  const list = [
+    { status: 'wishlist', bands: {},                                total: null  },
+    { bands: { '1': 'reading', '2': 'owned' },                     total: 5     },
+    { bands: { '1': 'completed', '2': 'completed' },               total: 2     },
+    { bands: { '1': 'owned' },                                     total: 3     },
+    { bands: { '1': 'owned' },                                     total: 3     },
+  ];
+  const c = calcStatusCounts(list);
+  assert.strictEqual(c.wishlist,  1);
+  assert.strictEqual(c.reading,   1);
+  assert.strictEqual(c.completed, 1);
+  assert.strictEqual(c.owned,     2);
+  assert.strictEqual(c.reading + c.completed + c.owned + c.wishlist, list.length,
+    'Summe muss Gesamtanzahl ergeben');
+});
+
+test('Kaufvorschau: Leere Sammlung → leeres Array, kein Fehler', () => {
+  const result = calcBuyPreview([]);
+  assert.strictEqual(result.length, 0);
+});
+
+test('Kaufvorschau: Vollständige Serie erscheint nicht', () => {
+  const list = [{
+    title: 'Vollständige Serie', pub: 'Test',
+    bands: { '1': 'owned', '2': 'owned', '3': 'owned' },
+    total: 3, ongoing: 'false', nextDate: null,
+  }];
+  const result = calcBuyPreview(list);
+  assert.strictEqual(result.length, 0, 'Vollständige Serie darf nicht in der Kaufvorschau erscheinen');
+});
+
+test('Kaufvorschau: Serie mit fehlendem Band erscheint', () => {
+  const list = [{
+    title: 'Lückenserie', pub: 'Test',
+    bands: { '1': 'owned', '2': 'owned' },
+    total: 5, ongoing: 'true', nextDate: null,
+  }];
+  const result = calcBuyPreview(list);
+  assert.strictEqual(result.length, 1);
+  assert.strictEqual(result[0].next, 3, 'Erste fehlende Bandnummer muss 3 sein');
+});
+
+test('Kaufvorschau: Serie mit Lücke nutzt erste fehlende Bandnummer', () => {
+  const list = [{
+    title: 'Lückenserie', pub: 'Test',
+    bands: { '1': 'owned', '3': 'owned' }, // Band 2 fehlt
+    total: 5, ongoing: 'true', nextDate: null,
+  }];
+  const result = calcBuyPreview(list);
+  assert.strictEqual(result[0].next, 2, 'Erste fehlende Bandnummer muss 2 sein, nicht 4');
+});
+
+test('Kaufvorschau: Maximal 5 Einträge (maxItems-Limit)', () => {
+  const list = Array.from({ length: 8 }, (_, i) => ({
+    title: `Serie ${i+1}`, pub: 'Test',
+    bands: { '1': 'owned' },
+    total: 5, ongoing: 'true', nextDate: null,
+  }));
+  const result = calcBuyPreview(list, 5);
+  assert.strictEqual(result.length, 5, 'Kaufvorschau muss auf maxItems begrenzt sein');
+});
+
+test('Kaufvorschau: Konfigurierbares maxItems', () => {
+  const list = Array.from({ length: 10 }, (_, i) => ({
+    title: `Serie ${i+1}`, pub: 'Test',
+    bands: { '1': 'owned' },
+    total: 3, ongoing: 'true', nextDate: null,
+  }));
+  assert.strictEqual(calcBuyPreview(list, 3).length, 3);
+  assert.strictEqual(calcBuyPreview(list, 1).length, 1);
+});
+
+test("Kaufvorschau: Serie mit ongoing 'unknown' und fehlendem Band erscheint", () => {
+  const list = [{
+    title: 'Unbekannte Serie', pub: 'Test',
+    bands: { '1': 'owned' },
+    total: 4, ongoing: 'unknown', nextDate: null,
+  }];
+  const result = calcBuyPreview(list);
+  assert.strictEqual(result.length, 1, "ongoing: 'unknown' darf in der Kaufvorschau erscheinen");
+  assert.strictEqual(result[0].next, 2);
+});
+
+test('Kaufvorschau: Serie ohne total nicht in der Vorschau', () => {
+  const list = [{
+    title: 'Kein Total', pub: 'Test',
+    bands: { '1': 'owned' },
+    total: null, ongoing: 'true', nextDate: null,
+  }];
+  const result = calcBuyPreview(list);
+  assert.strictEqual(result.length, 0, 'Serie ohne total darf nicht in der Kaufvorschau erscheinen');
 });
 
 // ─── Ergebnis ─────────────────────────────────────────────────────────────
