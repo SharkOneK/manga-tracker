@@ -227,6 +227,19 @@ function mNextBand(m) {
   const keys = Object.keys(m.bands || {}).map(Number);
   return keys.length ? Math.max(...keys) + 1 : 1;
 }
+function mFirstMissingBand(m) {
+  const owned = m.bands || {};
+  const total = Number(m.total);
+  const hasTotalKnown = !isNaN(total) && total > 0;
+  const ownedNums = new Set(Object.keys(owned).map(Number));
+  const maxOwned = ownedNums.size ? Math.max(...ownedNums) : 0;
+  const searchUpTo = hasTotalKnown ? total : (maxOwned + 1);
+  for (let i = 1; i <= searchUpTo; i++) {
+    if (!ownedNums.has(i)) return i;
+  }
+  // Alle Bände bis total vorhanden → kein fehlender Band
+  return null;
+}
 
 // ─── Modal Band-Manager state ──────────────────────────────────────────────
 let modalBands = {};
@@ -472,9 +485,10 @@ function toBuyList() {
     .filter(m => {
       const total = Number(m.total);
       const owned = mOwned(m);
-      return !isNaN(total) && total > 0 && total > owned;
+      if (isNaN(total) || total <= 0 || total <= owned) return false;
+      return mFirstMissingBand(m) !== null;
     })
-    .map(m => ({ ...m, next: mNextBand(m) }))
+    .map(m => ({ ...m, next: mFirstMissingBand(m) }))
     .sort((a, b) => {
       // available first, then by date, then alpha
       const da = a.nextDate ? new Date(a.nextDate) : null;
@@ -1120,7 +1134,7 @@ function buildSeriesMd(m) {
 
 function buildVolumeMd(m, bandNr, bandStatus) {
   const nr = Number(bandNr);
-  const releaseDate = (m.nextDate && nr === mNextBand(m)) ? m.nextDate : '';
+  const releaseDate = (m.nextDate && nr === (mFirstMissingBand(m) ?? mNextBand(m))) ? m.nextDate : '';
   const readAt = (bandStatus === 'completed' && m.finishedAt) ? m.finishedAt : '';
 
   return [
@@ -1319,7 +1333,7 @@ function render() {
         const isAvail = d <= today;
         const day = String(d.getDate()).padStart(2,'0');
         const mon = monate[d.getMonth()].slice(0,3);
-        const next = mNextBand(m);
+        const next = mFirstMissingBand(m) ?? mNextBand(m);
         html += `<div class="kal-row${isAvail?' kal-avail':''}" onclick="openEdit('${m.id}')">
           <div class="kal-date-box">
             <div class="kal-day">${isAvail ? '✓' : day}</div>
@@ -1649,11 +1663,19 @@ function markBought(id, e) {
   const m = db.m.find(x => x.id === id);
   if (!m) return;
   if (!m.bands) m.bands = {};
-  const nextBand = String(mNextBand(m));
+  const nextBand = String(mFirstMissingBand(m) ?? mNextBand(m));
   m.bands[nextBand] = 'owned';
   m.owned = mOwned(m); // Rückwärtskompatibilität
+  // nextDate nur löschen wenn es sich auf den gerade gekauften Band bezog;
+  // danach prüfen ob Release-Cache für den neuen nächsten fehlenden Band ein Datum liefert
   m.nextDate = null;
-  if (m.status === 'wishlist') m.status = 'owned'; // Von Wunschliste in "Zu lesen"
+  if (releaseCache && releaseCacheStatus === 'loaded') {
+    const cacheMatches = findReleaseMatchesForSeries(m); // jetzt für neuen nächsten Band
+    if (cacheMatches.length && cacheMatches[0].releaseDate) {
+      m.nextDate = cacheMatches[0].releaseDate;
+    }
+  }
+  if (m.status === 'wishlist') m.status = 'owned';
   persist();
   render();
   toast(`✅ Band ${nextBand} von „${m.title}" zu „Zu lesen" hinzugefügt`);
@@ -1849,7 +1871,8 @@ function findReleaseMatchesForSeries(m) {
   if (!releaseCache || !Array.isArray(releaseCache.items)) return [];
   const normT   = normalizeReleaseTitle(m.title);
   const normP   = normalizeReleasePublisher(m.pub || '');
-  const nextVol = mNextBand(m); // Nächster noch nicht besessener Band
+  const nextVol = mFirstMissingBand(m) ?? mNextBand(m);
+  if (nextVol === null) return [];
 
   return releaseCache.items.filter(item => {
     if (!item || typeof item !== 'object') return false;
@@ -1880,7 +1903,7 @@ function findReleaseMatchesForSeries(m) {
 function buildReleasePreview(m) {
   const matches = findReleaseMatchesForSeries(m);
   if (!matches.length) {
-    const nextVol = mNextBand(m);
+    const nextVol = mFirstMissingBand(m) ?? mNextBand(m);
     return `<div style="color:var(--text-muted);padding:16px 0;text-align:center;font-size:0.88rem">
       Keine passenden Einträge in release-cache.json für<br>
       <strong>${m.title}</strong> Band ${nextVol} gefunden.<br>
