@@ -1699,10 +1699,11 @@ function toast(msg) {
 // ── 15b: Normalisierung ───────────────────────────────────────────────────
 
 // Normalisiert einen Serientitel für den Abgleich (ähnlich mpNormTitle)
+// Umlaute als Digraphen (ae/oe/ue), damit der Output mit update-release-cache.js übereinstimmt
 function normalizeReleaseTitle(value) {
   return (value || '')
     .toLowerCase()
-    .replace(/[äÄ]/g, 'a').replace(/[öÖ]/g, 'o').replace(/[üÜ]/g, 'u').replace(/[ß]/g, 'ss')
+    .replace(/[äÄ]/g, 'ae').replace(/[öÖ]/g, 'oe').replace(/[üÜ]/g, 'ue').replace(/[ß]/g, 'ss')
     .replace(/[^a-z0-9\s]/g, ' ')
     .replace(/\s+/g, ' ')
     .trim();
@@ -1744,10 +1745,11 @@ const _PUB_RELATED_GROUPS = [
 ];
 
 // Normalisiert einen Verlagsnamen und löst bekannte Aliases auf
+// Umlaute als Digraphen (ae/oe/ue), konsistent mit update-release-cache.js
 function normalizeReleasePublisher(value) {
   const raw = (value || '')
     .toLowerCase()
-    .replace(/[äÄ]/g, 'a').replace(/[öÖ]/g, 'o').replace(/[üÜ]/g, 'u').replace(/[ß]/g, 'ss')
+    .replace(/[äÄ]/g, 'ae').replace(/[öÖ]/g, 'oe').replace(/[üÜ]/g, 'ue').replace(/[ß]/g, 'ss')
     .replace(/[!.,]/g, '')
     .replace(/\s+/g, ' ')
     .trim();
@@ -1888,10 +1890,12 @@ function findReleaseMatchesForSeries(m) {
       || (normT.length  >= 3 && cacheT.includes(normT));
     if (!titleMatch) return false;
 
-    // Verlags-Abgleich
-    const cacheP = item.normalizedPublisher
+    // Verlags-Abgleich — gespeicherten normalizedPublisher auch durch Alias-Map leiten,
+    // da das Update-Script andere Zeichen entfernt (z. B. é → '') als app.js (é bleibt)
+    const rawCacheP = item.normalizedPublisher
       ? item.normalizedPublisher
       : normalizeReleasePublisher(item.publisher || '');
+    const cacheP = _PUB_ALIAS_MAP[rawCacheP] || rawCacheP;
     if (!_releasePubsMatch(normP, cacheP)) return false;
 
     // Bandnummer muss dem nächsten erwarteten Band entsprechen
