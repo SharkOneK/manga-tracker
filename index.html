@@ -135,6 +135,7 @@
       <div class="form-group">
         <label>Nächster Band erscheint (DE) <span style="font-weight:400;color:var(--text-muted)">– Erscheinungsdatum</span></label>
         <input id="f-nextdate" type="date">
+        <button type="button" id="btn-release-check" onclick="openReleasePreviewForCurrentSeries()" title="Release-Cache noch nicht geladen" style="margin-top:6px;width:100%;border:1.5px solid var(--border);border-radius:8px;padding:8px 11px;background:var(--bg);color:var(--text-muted);font-size:0.78rem;font-weight:700;cursor:pointer;transition:background 0.12s;display:none;opacity:0.4" onmouseover="this.style.background='var(--primary-light)'" onmouseout="this.style.background='var(--bg)'">📅 Release-Daten prüfen</button>
       </div>
       <div class="form-group">
         <label>Cover-Bild URL <span style="font-weight:400;color:var(--text-muted)">optional · Serien-Fallback wenn kein Band-1-Cover vorhanden ist</span></label>
@@ -176,6 +177,22 @@
 </div>
 
 <div class="toast" id="toast"></div>
+
+<!-- Release-Preview-Overlay (Phase 15c/15d) — nutzt bestehende Modal-CSS-Klassen, keine Designänderung -->
+<div class="overlay" id="release-preview-overlay" style="display:none;z-index:110" onclick="overlayClickReleasePreview(event)">
+  <div class="modal" id="release-preview-modal">
+    <div class="modal-header">
+      <h2 id="release-preview-title">Release-Daten prüfen</h2>
+      <button class="close-btn" onclick="closeReleasePreview()">✕</button>
+    </div>
+    <div class="modal-body" id="release-preview-body" style="max-height:55vh;overflow-y:auto;min-height:80px">
+    </div>
+    <div class="modal-footer">
+      <button class="btn-full btn-cancel-full" onclick="closeReleasePreview()">Abbrechen</button>
+      <button class="btn-full btn-save" onclick="applySelectedReleaseUpdates()">Ausgewählte übernehmen</button>
+    </div>
+  </div>
+</div>
 
 <input type="file" id="import-file-input" accept=".json" style="display:none" onchange="handleImportFile(this)">
 <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>

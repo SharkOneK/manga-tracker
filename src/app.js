@@ -27,6 +27,8 @@ let _syncTimer = null;
 let _seeding = false;
 // Seed-Termine: von upsertManga() befüllt, überschreiben Cloud-Daten beim Laden
 // → die geplante Aufgabe aktualisiert nur den HTML-Seed, kein JSONBin-Zugriff nötig
+// TODO Phase 15g: SEED_DATES als Fallback erhalten; release-cache.json hat nach
+//   Nutzerbestätigung (applySelectedReleaseUpdates) Priorität für nextDate.
 const SEED_DATES = {};
 // Seed-Genres: werden nach Cloud-Load auf Einträge ohne Genres angewandt,
 // damit neue HTML-Genres auch in der bereits in der Cloud existierenden Sammlung greifen
@@ -412,6 +414,11 @@ let searchQ = '';
 let viewMode = 'series'; // 'series' | 'volumes'
 let sortMode = 'az';     // 'az' | 'za' | 'next' | 'added'
 let filterPub = '';      // Verlagsfilter
+
+// ─── Release Cache State (Phase 15b) ─────────────────────────────────────
+let releaseCache        = null;         // Geladene release-cache.json oder null
+let releaseCacheStatus  = 'not-loaded'; // 'not-loaded' | 'loaded' | 'missing' | 'invalid'
+let _currentReleaseMatches = [];        // Zwischenspeicher für aktuelle Vorschau (Phase 15c)
 
 function setView(mode) {
   viewMode = mode;
@@ -1458,6 +1465,9 @@ function openAdd() {
   document.getElementById('btn-del').style.display = 'none';
   renderBandMgr();
   renderGenrePicker();
+  // Phase 15c: Release-Check-Button im Hinzufügen-Dialog ausblenden (nur bei Bearbeitung sinnvoll)
+  const _btnRcAdd = document.getElementById('btn-release-check');
+  if (_btnRcAdd) _btnRcAdd.style.display = 'none';
   document.getElementById('overlay').style.display = 'flex';
   setTimeout(() => document.getElementById('f-title').focus(), 50);
 }
@@ -1484,6 +1494,9 @@ function openEdit(id, e) {
   document.getElementById('btn-del').style.display = 'block';
   renderBandMgr();
   renderGenrePicker();
+  // Phase 15c: Release-Check-Button einblenden und Status aktualisieren
+  const _btnRcEdit = document.getElementById('btn-release-check');
+  if (_btnRcEdit) { _btnRcEdit.style.display = 'block'; updateReleaseCacheButton(); }
   document.getElementById('overlay').style.display = 'flex';
 }
 
@@ -1634,6 +1647,384 @@ function toast(msg) {
   el._t = setTimeout(() => el.classList.remove('show'), 2800);
 }
 
+// ─── Phase 15: Release-Cache ─────────────────────────────────────────────
+// Lädt data/release-cache.json read-only. Nutzerdaten werden NICHT automatisch
+// verändert. Jede Übernahme erfordert Vorschau und explizite Nutzerbestätigung.
+
+// ── 15b: Normalisierung ───────────────────────────────────────────────────
+
+// Normalisiert einen Serientitel für den Abgleich (ähnlich mpNormTitle)
+function normalizeReleaseTitle(value) {
+  return (value || '')
+    .toLowerCase()
+    .replace(/[äÄ]/g, 'a').replace(/[öÖ]/g, 'o').replace(/[üÜ]/g, 'u').replace(/[ß]/g, 'ss')
+    .replace(/[^a-z0-9\s]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+// Publisher-Alias-Map: normalisierter Name → kanonischer Name
+const _PUB_ALIAS_MAP = {
+  'carlsen':           'carlsen manga',
+  'carlsen manga':     'carlsen manga',
+  'tokyopop':          'tokyopop',
+  'tokyo pop':         'tokyopop',
+  'kaze manga':        'kaze manga',
+  'kaze':              'kaze manga',
+  'kazé manga':        'kaze manga',
+  'kaz manga':         'kaze manga',   // nach Umlaut-Normalisierung
+  'crunchyroll manga': 'crunchyroll manga',
+  'crunchyroll':       'crunchyroll manga',
+  'panini manga':      'panini manga',
+  'panini':            'panini manga',
+  'egmont manga':      'egmont manga',
+  'egmont':            'egmont manga',
+  'hayabusa':          'hayabusa',
+  'manga cult':        'manga cult',
+  'mangacult':         'manga cult',
+  'altraverse':        'altraverse',
+  'dokico':            'dokico',
+  'mangamoon':         'mangamoon',
+  'manga moon':        'mangamoon',
+  'dani books':        'dani books',
+  'cross cult':        'cross cult',
+  'splitter verlag':   'splitter verlag',
+  'splitter':          'splitter verlag',
+  'yomeru':            'yomeru',
+};
+
+// Verwandte Verlagsgruppen (Serien wechseln manchmal den Verlag)
+const _PUB_RELATED_GROUPS = [
+  new Set(['kaze manga', 'crunchyroll manga']),
+];
+
+// Normalisiert einen Verlagsnamen und löst bekannte Aliases auf
+function normalizeReleasePublisher(value) {
+  const raw = (value || '')
+    .toLowerCase()
+    .replace(/[äÄ]/g, 'a').replace(/[öÖ]/g, 'o').replace(/[üÜ]/g, 'u').replace(/[ß]/g, 'ss')
+    .replace(/[!.,]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+  return _PUB_ALIAS_MAP[raw] || raw;
+}
+
+// Prüft ob zwei normalisierte Verlagsnamen matchen (inkl. verwandter Gruppen)
+function _releasePubsMatch(a, b) {
+  if (!a || !b) return true; // Fehlender Verlag schließt nicht aus
+  if (a === b) return true;
+  for (const group of _PUB_RELATED_GROUPS) {
+    if (group.has(a) && group.has(b)) return true;
+  }
+  return false;
+}
+
+// Normalisiert und validiert ISBN-13 — gibt null zurück wenn ungültig
+function normalizeIsbn13(value) {
+  if (!value) return null;
+  const digits = String(value).replace(/[^0-9]/g, '');
+  return digits.length === 13 ? digits : null;
+}
+
+// ── 15b: Browser-Validator ────────────────────────────────────────────────
+
+// Leichtgewichtige Client-seitige Validierung (tolerant, kein harter Fehler pro Item)
+function validateReleaseCacheClient(cache) {
+  if (!cache || typeof cache !== 'object') {
+    console.warn('[Phase 15] release-cache.json: kein gültiges Objekt');
+    return false;
+  }
+  if (cache.schemaVersion !== 1) {
+    console.warn('[Phase 15] release-cache.json: schemaVersion muss 1 sein, erhalten:', cache.schemaVersion);
+    return false;
+  }
+  if (!Array.isArray(cache.items)) {
+    console.warn('[Phase 15] release-cache.json: "items" ist kein Array');
+    return false;
+  }
+  // Stichproben-Check — tolerant, einzelne schlechte Items werden ignoriert, nicht abgelehnt
+  cache.items.forEach((item, i) => {
+    if (!item || typeof item !== 'object') {
+      console.warn(`[Phase 15] Item ${i}: kein Objekt, wird beim Matching ignoriert`);
+      return;
+    }
+    if (typeof item.seriesTitle !== 'string' || !item.seriesTitle) {
+      console.warn(`[Phase 15] Item ${i}: seriesTitle fehlt`);
+    }
+    if (typeof item.volumeNumber !== 'number' || item.volumeNumber < 1) {
+      console.warn(`[Phase 15] Item ${i} ("${item.seriesTitle || '?'}"): ungültige volumeNumber`);
+    }
+  });
+  return true;
+}
+
+// ── 15b: Laden ────────────────────────────────────────────────────────────
+
+// Lädt data/release-cache.json read-only — ändert KEINE Nutzerdaten
+async function loadReleaseCache() {
+  let res;
+  try {
+    res = await fetch('./data/release-cache.json', { cache: 'no-store' });
+  } catch (e) {
+    releaseCache       = null;
+    releaseCacheStatus = 'missing';
+    console.warn('[Phase 15] release-cache.json nicht erreichbar — App läuft ohne Release-Cache:', e.message);
+    updateReleaseCacheButton();
+    return;
+  }
+  if (!res.ok) {
+    releaseCache       = null;
+    releaseCacheStatus = 'missing';
+    console.warn(`[Phase 15] release-cache.json nicht gefunden (HTTP ${res.status}) — App läuft ohne Release-Cache`);
+    updateReleaseCacheButton();
+    return;
+  }
+  let data;
+  try {
+    data = await res.json();
+  } catch (e) {
+    releaseCache       = null;
+    releaseCacheStatus = 'invalid';
+    console.warn('[Phase 15] release-cache.json: ungültiges JSON —', e.message);
+    updateReleaseCacheButton();
+    return;
+  }
+  if (!validateReleaseCacheClient(data)) {
+    releaseCache       = null;
+    releaseCacheStatus = 'invalid';
+    console.warn('[Phase 15] release-cache.json: Validierung fehlgeschlagen — App läuft ohne Release-Cache');
+    updateReleaseCacheButton();
+    return;
+  }
+  releaseCache       = data;
+  releaseCacheStatus = 'loaded';
+  console.info(`[Phase 15] release-cache.json geladen: ${data.items.length} Item(s), Stand: ${data.generatedAt || 'unbekannt'}`);
+  updateReleaseCacheButton();
+}
+
+// Aktualisiert Sichtbarkeit und Tooltip des Release-Check-Buttons im Modal
+function updateReleaseCacheButton() {
+  const btn = document.getElementById('btn-release-check');
+  if (!btn) return;
+  const statusLabel = {
+    'not-loaded': 'noch nicht geladen',
+    'missing':    'nicht gefunden',
+    'invalid':    'ungültig',
+    'loaded':     'geladen',
+  };
+  if (releaseCacheStatus === 'loaded') {
+    btn.title   = `Release-Cache geladen (${releaseCache ? releaseCache.items.length : 0} Einträge) — Klicken zum Prüfen`;
+    btn.style.opacity = '1';
+  } else {
+    btn.title   = `Release-Cache ${statusLabel[releaseCacheStatus] || releaseCacheStatus} — kein Prüfen möglich`;
+    btn.style.opacity = '0.4';
+  }
+}
+
+// ── 15c: Matching ─────────────────────────────────────────────────────────
+
+// Findet passende Cache-Einträge für einen Manga aus der Sammlung
+function findReleaseMatchesForSeries(m) {
+  if (!releaseCache || !Array.isArray(releaseCache.items)) return [];
+  const normT   = normalizeReleaseTitle(m.title);
+  const normP   = normalizeReleasePublisher(m.pub || '');
+  const nextVol = mNextBand(m); // Nächster noch nicht besessener Band
+
+  return releaseCache.items.filter(item => {
+    if (!item || typeof item !== 'object') return false;
+
+    // Titel-Abgleich (Substring in beide Richtungen, wie upsertManga)
+    const cacheT = item.normalizedSeriesTitle
+      ? item.normalizedSeriesTitle
+      : normalizeReleaseTitle(item.seriesTitle || '');
+    const titleMatch = normT === cacheT
+      || (cacheT.length >= 3 && normT.includes(cacheT))
+      || (normT.length  >= 3 && cacheT.includes(normT));
+    if (!titleMatch) return false;
+
+    // Verlags-Abgleich
+    const cacheP = item.normalizedPublisher
+      ? item.normalizedPublisher
+      : normalizeReleasePublisher(item.publisher || '');
+    if (!_releasePubsMatch(normP, cacheP)) return false;
+
+    // Bandnummer muss dem nächsten erwarteten Band entsprechen
+    return item.volumeNumber === nextVol;
+  });
+}
+
+// ── 15c: Vorschau ─────────────────────────────────────────────────────────
+
+// Baut die HTML-Vorschau für einen Manga und seine Cache-Matches
+function buildReleasePreview(m) {
+  const matches = findReleaseMatchesForSeries(m);
+  if (!matches.length) {
+    const nextVol = mNextBand(m);
+    return `<div style="color:var(--text-muted);padding:16px 0;text-align:center;font-size:0.88rem">
+      Keine passenden Einträge in release-cache.json für<br>
+      <strong>${m.title}</strong> Band ${nextVol} gefunden.<br>
+      <span style="font-size:0.78rem">Normalisierter Titel: "${normalizeReleaseTitle(m.title)}"</span>
+    </div>`;
+  }
+  const confLabel = { high: '✓ Verifiziert', medium: '~ Wahrscheinlich', low: '? Unsicher' };
+  return matches.map((item, idx) => {
+    const hasNewDate  = !!item.releaseDate;
+    const hasNewIsbn  = !!(item.isbn13 && normalizeIsbn13(item.isbn13));
+    const hasNewCover = !!item.coverUrl;
+    const hasCurrDate  = !!m.nextDate;
+    const hasCurrIsbn  = !!m.isbn13;
+    const hasCurrCover = !!(m.cover || (m.bandCovers && m.bandCovers[String(item.volumeNumber)]));
+    // Checkbox-Default: AN wenn Feld leer und neuer Wert vorhanden
+    const chkDate  = hasNewDate  && !hasCurrDate;
+    const chkIsbn  = hasNewIsbn  && !hasCurrIsbn;
+    const chkCover = hasNewCover && !hasCurrCover;
+    const src = [item.sourceName, confLabel[item.confidence] || item.confidence].filter(Boolean).join(' · ');
+    return `<div class="release-match-item" data-match-idx="${idx}" style="padding:4px 0">
+      <div style="font-weight:700;font-size:0.9rem;margin-bottom:4px">${m.title} — Band ${item.volumeNumber}</div>
+      <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:10px">Quelle: ${src}</div>
+
+      ${hasNewDate ? `<label style="display:flex;align-items:center;gap:8px;margin-bottom:8px;cursor:pointer;font-size:0.82rem">
+        <input type="checkbox" class="release-check-date" ${chkDate ? 'checked' : ''} style="width:15px;height:15px;accent-color:#7c3aed;cursor:pointer;flex-shrink:0">
+        <span>Erscheinungsdatum:
+          <span style="color:var(--text-muted);${hasCurrDate ? 'text-decoration:line-through' : ''}">${hasCurrDate ? m.nextDate : 'leer'}</span>
+          <span style="color:#10b981;font-weight:700"> → ${item.releaseDate}</span>
+        </span>
+      </label>` : ''}
+
+      ${hasNewIsbn ? `<label style="display:flex;align-items:center;gap:8px;margin-bottom:8px;cursor:pointer;font-size:0.82rem">
+        <input type="checkbox" class="release-check-isbn" ${chkIsbn ? 'checked' : ''} style="width:15px;height:15px;accent-color:#7c3aed;cursor:pointer;flex-shrink:0">
+        <span>ISBN-13:
+          <span style="color:var(--text-muted);${hasCurrIsbn ? 'text-decoration:line-through' : ''}">${hasCurrIsbn ? (m.isbn13 || 'vorhanden') : 'leer'}</span>
+          <span style="color:#10b981;font-weight:700"> → ${item.isbn13}</span>
+        </span>
+      </label>` : ''}
+
+      ${hasNewCover ? `<label style="display:flex;align-items:center;gap:8px;margin-bottom:8px;cursor:pointer;font-size:0.82rem">
+        <input type="checkbox" class="release-check-cover" ${chkCover ? 'checked' : ''} style="width:15px;height:15px;accent-color:#7c3aed;cursor:pointer;flex-shrink:0">
+        <span>Band-Cover (Band ${item.volumeNumber}):
+          <span style="color:var(--text-muted)">${hasCurrCover ? 'bereits vorhanden' : 'leer'}</span>
+          <span style="color:#10b981;font-weight:700"> → neues Cover</span>
+        </span>
+      </label>` : ''}
+
+      ${!hasNewDate && !hasNewIsbn && !hasNewCover
+        ? `<div style="color:var(--text-muted);font-size:0.8rem">Keine übernehmenden Felder im Cache (Datum, ISBN und Cover sind leer).</div>`
+        : ''}
+    </div>`;
+  }).join('<hr style="border:none;border-top:1px solid var(--border);margin:12px 0">');
+}
+
+// Rendert Vorschau-HTML in den Preview-Body
+function renderReleasePreview(m) {
+  const bodyEl = document.getElementById('release-preview-body');
+  if (bodyEl) bodyEl.innerHTML = buildReleasePreview(m);
+}
+
+// Öffnet die Release-Vorschau für die aktuell im Modal geöffnete Serie
+function openReleasePreviewForCurrentSeries() {
+  if (!editId) { toast('⚠️ Erst eine Serie öffnen'); return; }
+  if (releaseCacheStatus !== 'loaded') {
+    const lbl = { 'not-loaded': 'noch nicht geladen', 'missing': 'nicht gefunden', 'invalid': 'ungültig' };
+    toast(`ℹ️ Release-Cache ${lbl[releaseCacheStatus] || releaseCacheStatus} — kein Prüfen möglich`);
+    return;
+  }
+  const m = db.m.find(x => x.id === editId);
+  if (!m) return;
+  _currentReleaseMatches = findReleaseMatchesForSeries(m);
+  const titleEl = document.getElementById('release-preview-title');
+  if (titleEl) titleEl.textContent = `Release-Daten: ${m.title}`;
+  renderReleasePreview(m);
+  document.getElementById('release-preview-overlay').style.display = 'flex';
+}
+
+// Schließt die Release-Vorschau
+function closeReleasePreview() {
+  const el = document.getElementById('release-preview-overlay');
+  if (el) el.style.display = 'none';
+  _currentReleaseMatches = [];
+}
+
+function overlayClickReleasePreview(e) {
+  if (e.target === document.getElementById('release-preview-overlay')) closeReleasePreview();
+}
+
+// ── 15d: Backup ───────────────────────────────────────────────────────────
+
+// Erstellt einen vollständigen DB-Snapshot in localStorage vor jeder Übernahme
+function createReleaseUpdateBackup(reason) {
+  try {
+    const key = 'mangaTracker.releaseBackup.' + new Date().toISOString();
+    localStorage.setItem(key, JSON.stringify({
+      reason:               reason || 'release-cache-apply',
+      createdAt:            new Date().toISOString(),
+      seriesId:             editId || null,
+      fullDatabaseSnapshot: JSON.parse(JSON.stringify(db)),
+    }));
+    console.info('[Phase 15] Backup erstellt:', key);
+  } catch (e) {
+    console.warn('[Phase 15] Backup konnte nicht erstellt werden:', e.message);
+  }
+}
+
+// ── 15d: Übernahme ────────────────────────────────────────────────────────
+
+// Übernimmt die vom Nutzer ausgewählten Felder — persist() erst nach Bestätigung
+function applySelectedReleaseUpdates() {
+  if (!editId) { closeReleasePreview(); return; }
+  const m = db.m.find(x => x.id === editId);
+  if (!m) { closeReleasePreview(); return; }
+
+  const matchEls = document.querySelectorAll('.release-match-item');
+
+  // Prüfen ob überhaupt etwas ausgewählt ist
+  let anySelected = false;
+  matchEls.forEach(el => {
+    if (el.querySelector('.release-check-date')?.checked)  anySelected = true;
+    if (el.querySelector('.release-check-isbn')?.checked)  anySelected = true;
+    if (el.querySelector('.release-check-cover')?.checked) anySelected = true;
+  });
+  if (!anySelected) { toast('ℹ️ Keine Felder ausgewählt'); return; }
+
+  // Backup VOR erster Änderung
+  createReleaseUpdateBackup('release-cache-apply:' + (m.title || editId));
+
+  let changed = false;
+  matchEls.forEach(el => {
+    const idx  = parseInt(el.dataset.matchIdx, 10);
+    const item = _currentReleaseMatches[idx];
+    if (!item) return;
+
+    // Erscheinungsdatum
+    if (el.querySelector('.release-check-date')?.checked && item.releaseDate) {
+      m.nextDate = item.releaseDate;
+      changed = true;
+    }
+    // ISBN-13 (Feld neu setzen, nicht überschreiben wenn bereits vorhanden und nicht ausgewählt)
+    if (el.querySelector('.release-check-isbn')?.checked && item.isbn13) {
+      m.isbn13 = item.isbn13;
+      changed = true;
+    }
+    // Cover: bevorzugt als Band-Cover setzen, Serien-Cover nur als Fallback
+    if (el.querySelector('.release-check-cover')?.checked && item.coverUrl) {
+      if (!m.bandCovers) m.bandCovers = {};
+      m.bandCovers[String(item.volumeNumber)] = item.coverUrl;
+      changed = true;
+    }
+  });
+
+  if (changed) {
+    persist(); // Erst nach Bestätigung — greift in bestehende persist()/Cloud-Sync-Logik ein
+    render();
+    toast('✅ Release-Daten übernommen');
+    // Datumsfeld im noch offenen Modal aktualisieren
+    const ndEl = document.getElementById('f-nextdate');
+    if (ndEl && m.nextDate) ndEl.value = m.nextDate;
+  }
+
+  closeReleasePreview();
+}
+// ─── Ende Phase 15 ────────────────────────────────────────────────────────
+
 // ─── Seed ─────────────────────────────────────────────────────────────────
 (function seedParasiteInLove() {
   const existing = db.m.find(m => m.title.toLowerCase().includes('parasite in love'));
@@ -1666,6 +2057,9 @@ function toast(msg) {
 })();
 
 // ─── Seed helper ─────────────────────────────────────────────────────────
+// TODO Phase 15g: nextDate-Werte in allen upsertManga()-Aufrufen auf null setzen,
+//   sobald release-cache.json die Release-Termine zuverlässig liefert.
+//   Dirty-Check einbauen: persist() nur aufrufen wenn tatsächlich Felder geändert wurden.
 function upsertManga(key, data) {
   // Seed-Termine für Cloud-Merge merken (geplante Aufgabe aktualisiert nur diese)
   SEED_DATES[key] = { nextDate: data.nextDate, total: data.total, ongoing: data.ongoing };
@@ -2379,12 +2773,16 @@ upsertManga('isekai soapland', {
 });
 
 // ─── Seed-Phase abschließen: ein einziger localStorage-Write statt ~58 ────
+// TODO Phase 15g: hardcoded nextDate-Werte in den Seeds schrittweise auf null setzen.
+//   Release-Daten kommen dann aus data/release-cache.json, nach Nutzerbestätigung.
 _seeding = false;
 saveLoc();
 
 // ─── Init ─────────────────────────────────────────────────────────────────
 render();
 applyReadOnly();
+// Phase 15b: Release-Cache laden (non-blocking; Fehler dürfen App-Start nicht blockieren)
+loadReleaseCache().catch(e => console.warn('[Phase 15] Unerwarteter Ladefehler:', e));
 if (_viewColl) {
   // Öffentliche Ansicht: fremde Sammlung laden (immer read-only)
   loadViewCollection();

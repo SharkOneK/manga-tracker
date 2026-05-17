@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-05-16T12:00:00.000Z",
+  "source": "manual-seed",
+  "itemCount": 1,
+  "items": [
+    {
+      "seriesTitle": "Kagurabachi",
+      "normalizedSeriesTitle": "kagurabachi",
+      "publisher": "Carlsen Manga",
+      "normalizedPublisher": "carlsen manga",
+      "volumeNumber": 7,
+      "releaseDate": "2026-05-26",
+      "isbn13": null,
+      "coverUrl": null,
+      "sourceUrl": "https://www.carlsen.de",
+      "sourceName": "Carlsen Manga",
+      "confidence": "high",
+      "notes": null,
+      "checkedAt": "2026-05-16T12:00:00.000Z"
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "requestPolicy": {
+    "minDelayMs": 1200,
+    "timeoutMs": 12000,
+    "maxItemsPerSource": 200,
+    "userAgent": "MangaTrackerReleaseBot/1.0"
+  },
+  "sources": [
+    {
+      "id": "carlsen",
+      "name": "Carlsen Manga",
+      "publisherAliases": ["Carlsen", "Carlsen Manga"],
+      "baseUrl": "https://www.carlsen.de",
+      "allowedUrls": ["https://www.carlsen.de"],
+      "enabled": true,
+      "type": "curated"
+    },
+    {
+      "id": "manga-passion",
+      "name": "Manga Passion",
+      "publisherAliases": [],
+      "baseUrl": "https://www.manga-passion.de",
+      "allowedUrls": ["https://www.manga-passion.de"],
+      "enabled": true,
+      "type": "curated"
+    }
+  ]
+}
