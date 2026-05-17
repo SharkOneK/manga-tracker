@@ -1,0 +1,57 @@
+﻿name: Update Release Cache
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '17 4 * * 1'
+
+permissions:
+  contents: write
+
+jobs:
+  update-release-cache:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Check update script syntax
+        run: node --check scripts/update-release-cache.js
+
+      - name: Check validator syntax
+        run: node --check scripts/validate-release-cache.js
+
+      - name: Update release cache
+        run: node scripts/update-release-cache.js
+
+      - name: Validate release cache
+        run: node scripts/validate-release-cache.js
+
+      - name: Detect release cache changes
+        id: changes
+        shell: bash
+        run: |
+          if git diff --quiet -- data/release-cache.json; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "No release-cache changes detected."
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            echo "release-cache.json changed."
+            git diff --stat -- data/release-cache.json
+          fi
+
+      - name: Commit and push release cache
+        if: steps.changes.outputs.changed == 'true'
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/release-cache.json
+          git commit -m "chore: update release cache"
+          git push origin HEAD:main
