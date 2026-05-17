@@ -434,6 +434,35 @@ async function tryMangaPassion(seedCandidate, aliasMap, policy, checkedAt) {
   }
 }
 
+function stripCheckedAt(item) {
+  const copy = { ...item };
+  delete copy.checkedAt;
+  return copy;
+}
+
+function itemsContentSignature(items) {
+  return JSON.stringify(sortItems(items.map(item => stripCheckedAt(item))));
+}
+
+function sameItemContent(a, b) {
+  return JSON.stringify(stripCheckedAt(a)) === JSON.stringify(stripCheckedAt(b));
+}
+
+function reconcileCheckedAt(existingItems, newItems, checkedAt) {
+  const existingByKey = new Map();
+  for (const item of existingItems) {
+    if (validCacheItem(item)) existingByKey.set(cacheKey(item), item);
+  }
+
+  return newItems.map(item => {
+    const existing = existingByKey.get(cacheKey(item));
+    if (existing && sameItemContent(existing, item)) {
+      return { ...item, checkedAt: existing.checkedAt };
+    }
+    return { ...item, checkedAt };
+  });
+}
+
 function sortItems(items) {
   return items.sort((a, b) =>
     a.normalizedSeriesTitle.localeCompare(b.normalizedSeriesTitle, 'de') ||
@@ -494,17 +523,26 @@ async function main() {
     }
   }
 
-  const items = sortItems([...map.values()]);
+  const generatedItems = sortItems([...map.values()]);
+  const items = reconcileCheckedAt(existingItems, generatedItems, startedAt);
+  const existingComparableItems = Array.isArray(existingCache.items) ? existingCache.items : [];
+  const hasContentChanges = itemsContentSignature(existingComparableItems) !== itemsContentSignature(items);
+
   const output = {
     schemaVersion: 1,
-    generatedAt: startedAt,
+    generatedAt: hasContentChanges ? startedAt : existingCache.generatedAt,
     source: 'update-release-cache.js',
     itemCount: items.length,
     items,
   };
-  writeJson(cacheFile, output);
 
-  console.log('\nRelease-Cache aktualisiert.');
+  if (hasContentChanges) {
+    writeJson(cacheFile, output);
+  } else {
+    console.log('\nNo release-cache content changes detected; keeping existing file.');
+  }
+
+  console.log(hasContentChanges ? '\nRelease-Cache aktualisiert.' : '\nRelease-Cache geprueft.');
   console.log(`  Vorherige Items: ${stats.existingInput}`);
   console.log(`  Vorhandene valide übernommen: ${stats.existingKept}`);
   console.log(`  App-Seeds mit nextDate gefunden: ${stats.appSeedsFound}`);
@@ -533,3 +571,5 @@ module.exports = {
   isValidHttpsUrl,
   sleep,
 };
+
+
