@@ -1873,10 +1873,12 @@ function updateReleaseCacheButton() {
 // Findet passende Cache-Einträge für einen Manga aus der Sammlung
 function findReleaseMatchesForSeries(m) {
   if (!releaseCache || !Array.isArray(releaseCache.items)) return [];
-  const normT   = normalizeReleaseTitle(m.title);
-  const normP   = normalizeReleasePublisher(m.pub || '');
-  const nextVol = mFirstMissingBand(m) ?? mNextBand(m);
-  if (nextVol === null) return [];
+  const normT      = normalizeReleaseTitle(m.title);
+  const normP      = normalizeReleasePublisher(m.pub || '');
+  const firstMiss  = mFirstMissingBand(m);
+  // Abgeschlossene Serie ohne Lücken: kein nächster Band möglich
+  if (firstMiss === null && m.ongoing === 'false') return [];
+  const nextVol = firstMiss ?? mNextBand(m);
 
   return releaseCache.items.filter(item => {
     if (!item || typeof item !== 'object') return false;
@@ -1909,6 +1911,13 @@ function findReleaseMatchesForSeries(m) {
 function buildReleasePreview(m) {
   const matches = findReleaseMatchesForSeries(m);
   if (!matches.length) {
+    // Serie abgeschlossen und vollständig → eigene Meldung, kein Cache-Fehler
+    if (m.ongoing === 'false' && mFirstMissingBand(m) === null) {
+      return `<div style="color:var(--text-muted);padding:16px 0;text-align:center;font-size:0.88rem">
+        Serie abgeschlossen — alle ${mOwned(m)} Bände vorhanden.<br>
+        <span style="font-size:0.78rem">Kein nächster Band erwartet.</span>
+      </div>`;
+    }
     const nextVol = mFirstMissingBand(m) ?? mNextBand(m);
     return `<div style="color:var(--text-muted);padding:16px 0;text-align:center;font-size:0.88rem">
       Keine passenden Einträge in release-cache.json für<br>
