@@ -55,5 +55,5 @@ jobs:
       - name: Secret check
         run: node scripts/check-secrets.js
 
-      - name: Stats tests — Phase 17a Kennzahlen
+      - name: Stats tests — Phase 17a + 17b
         run: node scripts/test-stats.js
