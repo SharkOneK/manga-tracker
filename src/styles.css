@@ -189,6 +189,16 @@ header h1 .jp { color: #e8405a; }
   color: #065f46;
   margin-left: 4px;
 }
+.unknown-pill {
+  display: inline-block;
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 8px;
+  background: #e5e7eb;
+  color: #374151;
+  margin-left: 4px;
+}
 
 /* ── Buy Tab ── */
 .section-head {

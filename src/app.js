@@ -552,7 +552,9 @@ function mangaCard(m) {
   const volText = hasProg ? `${owned} / ${total} Bände` : `${owned} Bände`;
   const statusPill = m.ongoing === 'true'
     ? '<span class="ongoing-pill">laufend</span>'
-    : '<span class="done-pill">abgeschlossen</span>';
+    : m.ongoing === 'false'
+      ? '<span class="done-pill">abgeschlossen</span>'
+      : '<span class="unknown-pill">unbekannt</span>';
   const readingBadge = cur ? `<div class="reading-badge">Band ${cur}</div>` : '';
   const wishBadge = mSeriesStatus(m) === 'wishlist' ? `<div class="wishlist-badge">💜 Wunsch</div>` : '';
 
@@ -1111,7 +1113,7 @@ function buildSeriesMd(m) {
     `collectionStatus: "${collectionStatus}"`,
     `ownedVolumes: ${owned}`,
     `totalVolumes: ${total !== null ? total : ''}`,
-    `isOngoing: ${m.ongoing === 'true'}`,
+    `isOngoing: ${m.ongoing === 'true' ? 'true' : m.ongoing === 'false' ? 'false' : 'unknown'}`,
     `nextReleaseDate: ${m.nextDate || ''}`,
     genresYaml,
     `startedAt: ${m.startedAt || ''}`,
@@ -1125,7 +1127,7 @@ function buildSeriesMd(m) {
   lines.push(
     `**Verlag:** ${m.pub || 'Unbekannt'}`,
     `**Bände:** ${owned}${total !== null ? ' / ' + total : ''} Bände`,
-    `**Status:** ${m.ongoing === 'true' ? 'Laufend' : 'Abgeschlossen'}`,
+    `**Status:** ${m.ongoing === 'true' ? 'Laufend' : m.ongoing === 'false' ? 'Abgeschlossen' : 'Unbekannt'}`,
   );
   if (m.nextDate) lines.push(`**Nächster Band:** ${m.nextDate}`);
   if (bandLines) lines.push('', '## Bände', bandLines);
@@ -1269,7 +1271,7 @@ function shareManga(id, e) {
   const m = db.m.find(x => x.id === id);
   if (!m) return;
   const total = m.total ? `${m.total} Bände` : 'laufend';
-  const ongoing = m.ongoing === 'true' ? 'laufend 🔄' : 'abgeschlossen ✓';
+  const ongoing = m.ongoing === 'true' ? 'laufend 🔄' : m.ongoing === 'false' ? 'abgeschlossen ✓' : 'unbekannt ?';
   const next = m.nextDate ? `\n📅 Nächster Band: ${new Date(m.nextDate+'T00:00:00').toLocaleDateString('de-DE',{day:'2-digit',month:'long',year:'numeric'})}` : '';
   const q = encodeURIComponent(`${m.title} Manga`);
   const text = `📚 ${m.title}\n${m.pub||'Unbekannt'} · ${total} · ${ongoing}${next}\n🔗 https://www.thalia.de/suche?sq=${q}`;
