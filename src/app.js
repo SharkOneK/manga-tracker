@@ -25,14 +25,33 @@ function supaHead(write = false) {
 let _syncTimer = null;
 // Seeding-Flag: während Boot-Seeds keine localStorage-Schreiboperationen ausführen
 let _seeding = false;
-// Seed-Termine: von upsertManga() befüllt, überschreiben Cloud-Daten beim Laden
+// Seed-Termine: von upsertManga() befüllt, dienen nur noch als Fallback für leere Felder
 // → die geplante Aufgabe aktualisiert nur den HTML-Seed, kein JSONBin-Zugriff nötig
-// TODO Phase 15g: SEED_DATES als Fallback erhalten; release-cache.json hat nach
+// Phase 15g: SEED_DATES bleiben Fallback; release-cache.json hat erst nach
 //   Nutzerbestätigung (applySelectedReleaseUpdates) Priorität für nextDate.
 const SEED_DATES = {};
 // Seed-Genres: werden nach Cloud-Load auf Einträge ohne Genres angewandt,
 // damit neue HTML-Genres auch in der bereits in der Cloud existierenden Sammlung greifen
 const SEED_GENRES = {};
+let seedDirty = false;
+
+function isEmptySeedField(value) {
+  return value === null || value === undefined || value === '';
+}
+
+function setIfEmpty(target, field, value) {
+  if (value === undefined || value === null) return false;
+  if (!isEmptySeedField(target[field])) return false;
+  target[field] = value;
+  return true;
+}
+
+function setNextDateIfEmpty(target, value) {
+  if (value === null || value === undefined || value === '') return false;
+  if (!isEmptySeedField(target.nextDate)) return false;
+  target.nextDate = value;
+  return true;
+}
 
 function setSyncStatus(icon, tip) {
   const el = document.getElementById('sync-dot');
@@ -99,15 +118,15 @@ async function loadFromCloud() {
       const before = JSON.stringify(db);
       db = record;
       let genresAdded = false;
-      // Seed-Termine immer aktuell halten: HTML-Seed schlägt Cloud-Daten
+      // Seed-Termine nur als Fallback anwenden: Cloud-/Nutzerdaten behalten Vorrang
       db.m.forEach(m => {
         const titleLc = m.title.toLowerCase();
         const dateKey = Object.keys(SEED_DATES).find(k => titleLc.includes(k));
         if (dateKey) {
           const s = SEED_DATES[dateKey];
-          if (s.nextDate !== null && s.nextDate !== undefined) m.nextDate = s.nextDate;
-          m.total = s.total;
-          m.ongoing = s.ongoing;
+          setNextDateIfEmpty(m, s.nextDate);
+          setIfEmpty(m, 'total', s.total);
+          setIfEmpty(m, 'ongoing', s.ongoing);
         }
         // Seed-Genres anwenden, wenn der Cloud-Eintrag noch keine hat
         if (!m.genres || !m.genres.length) {
@@ -149,6 +168,7 @@ async function loadFromCloud() {
 
 // ─── Migration: owned/current/status → bands ──────────────────────────────
 // Boot-Phase: ein einziger persist() am Ende statt ~58 (Migration + Seeds)
+const bootDataBefore = JSON.stringify(db);
 _seeding = true;
 (function migrateBands() {
   if (!Array.isArray(db.m)) return;
@@ -697,8 +717,9 @@ async function loadViewCollection() {
         const key = Object.keys(SEED_DATES).find(k => m.title.toLowerCase().includes(k));
         if (!key) return;
         const s = SEED_DATES[key];
-        if (s.nextDate !== null && s.nextDate !== undefined) m.nextDate = s.nextDate;
-        m.total = s.total; m.ongoing = s.ongoing;
+        setNextDateIfEmpty(m, s.nextDate);
+        setIfEmpty(m, 'total', s.total);
+        setIfEmpty(m, 'ongoing', s.ongoing);
       });
       render();
     }
@@ -2043,23 +2064,27 @@ function applySelectedReleaseUpdates() {
   genres: ['Romance', 'Drama', 'Slice of Life'],
   };
   if (seedData.genres && seedData.genres.length) SEED_GENRES['parasite in love'] = [...seedData.genres];
+  let changed = false;
   if (existing) {
-    existing.pub     = seedData.pub;
-    existing.total   = seedData.total;
-    existing.ongoing = seedData.ongoing;
-    existing.cover   = existing.cover || seedData.cover;
-    existing.notes   = existing.notes || seedData.notes;
-    if (!existing.genres || !existing.genres.length) existing.genres = [...seedData.genres];
+    changed = setIfEmpty(existing, 'pub', seedData.pub) || changed;
+    changed = setIfEmpty(existing, 'total', seedData.total) || changed;
+    changed = setIfEmpty(existing, 'ongoing', seedData.ongoing) || changed;
+    changed = setNextDateIfEmpty(existing, seedData.nextDate) || changed;
+    changed = setIfEmpty(existing, 'cover', seedData.cover) || changed;
+    changed = setIfEmpty(existing, 'notes', seedData.notes) || changed;
+    if (seedData.genres && (!existing.genres || !existing.genres.length)) {
+      existing.genres = [...seedData.genres];
+      changed = true;
+    }
   } else {
     db.m.push({ ...seedData, id: uid(), at: Date.now() });
+    changed = true;
   }
-  persist();
+  seedDirty = seedDirty || changed;
 })();
 
 // ─── Seed helper ─────────────────────────────────────────────────────────
-// TODO Phase 15g: nextDate-Werte in allen upsertManga()-Aufrufen auf null setzen,
-//   sobald release-cache.json die Release-Termine zuverlässig liefert.
-//   Dirty-Check einbauen: persist() nur aufrufen wenn tatsächlich Felder geändert wurden.
+// Phase 15g: Seeds ergänzen nur leere Felder; bestehende Nutzerwerte bleiben erhalten.
 function upsertManga(key, data) {
   // Seed-Termine für Cloud-Merge merken (geplante Aufgabe aktualisiert nur diese)
   SEED_DATES[key] = { nextDate: data.nextDate, total: data.total, ongoing: data.ongoing };
@@ -2069,30 +2094,26 @@ function upsertManga(key, data) {
   // damit z.B. 'kaiju no.8' nicht 'Kaiju No.8 Side' trifft
   const matches = db.m.filter(m => m.title.toLowerCase().includes(key));
   const existing = matches.sort((a, b) => a.title.length - b.title.length)[0];
+  let changed = false;
   if (existing) {
-    if (!existing.pub)      existing.pub      = data.pub;
-    if (!existing.cover)    existing.cover    = data.cover;
-    if (!existing.notes)    existing.notes    = data.notes;
+    changed = setIfEmpty(existing, 'pub', data.pub) || changed;
+    changed = setIfEmpty(existing, 'cover', data.cover) || changed;
+    changed = setIfEmpty(existing, 'notes', data.notes) || changed;
+    changed = setIfEmpty(existing, 'total', data.total) || changed;
+    changed = setIfEmpty(existing, 'ongoing', data.ongoing) || changed;
+    changed = setNextDateIfEmpty(existing, data.nextDate) || changed;
     // Genres nur setzen wenn der Eintrag noch keine hat (manuelle Tags bleiben erhalten)
     if (data.genres && (!existing.genres || !existing.genres.length)) {
       existing.genres = [...data.genres];
+      changed = true;
     }
-    existing.total    = data.total;
-    existing.ongoing  = data.ongoing;
-    // nextDate: Seed-Datum nur setzen wenn seed einen konkreten Wert hat ODER
-    // wenn der bestehende Wert null/leer ist (kein Datum vorhanden)
-    if (data.nextDate !== null && data.nextDate !== undefined) {
-      existing.nextDate = data.nextDate;
-    } else if (!existing.nextDate) {
-      existing.nextDate = null;
-    }
-    // → bestehende Termine (von geplanter Aufgabe gesetzt) bleiben erhalten wenn seed null hat
   } else {
     db.m.push({ ...data, id: uid(), at: Date.now() });
+    changed = true;
   }
-  persist();
+  seedDirty = seedDirty || changed;
+  return changed;
 }
-
 // ─── Seed: Wie die Götter es wollen ──────────────────────────────────────
 upsertManga('wie die götter', {
   title: 'Wie die Götter es wollen', pub: 'Tokyopop',
@@ -2167,7 +2188,7 @@ upsertManga('momo', {
 upsertManga('mirai nikki', {
   title: 'Mirai Nikki – New Edition', pub: 'Egmont Manga',
   status: 'reading', owned: 2, total: 6, current: 2,
-  ongoing: 'true', nextDate: '2026-06-09', // 2-in-1 Format; Band 3 April 2026 ✓, Band 4 09.06.2026
+  ongoing: 'true', nextDate: null, // 2-in-1 Format; Band 3 April 2026 ✓, Band 4 09.06.2026
   cover: null,
   notes: '2-in-1 Doppelbände. Band 1: Dez. 2025, Band 2: Feb. 2026, Band 3: Apr. 2026. 6 Bände geplant (12 Orig.). Von Sakae Esuno.',
   genres: ['Thriller', 'Action', 'Supernatural'],
@@ -2207,7 +2228,7 @@ upsertManga('look back', {
 upsertManga('lili-men', {
   title: 'Lili-Men', pub: 'Egmont Manga',
   status: 'reading', owned: 5, total: 8, current: 5,
-  ongoing: 'true', nextDate: '2026-06-09', // Band 8 (DE) erscheint 09.06.2026
+  ongoing: 'true', nextDate: null, // Band 8 (DE) erscheint 09.06.2026
   cover: null,
   notes: '13 Bände geplant (JP). Band 5: Dez. 2025. Band 6 wahrsch. März 2026. Von Takuma Tokashiki.',
   genres: ['Action', 'Supernatural', 'Horror'],
@@ -2247,7 +2268,7 @@ upsertManga('kaiju no.8', {
 upsertManga('kagurabachi', {
   title: 'Kagurabachi', pub: 'Carlsen Manga',
   status: 'reading', owned: 6, total: 7, current: 6,
-  ongoing: 'true', nextDate: '2026-05-26', // Band 7 erscheint 26.05.2026!
+  ongoing: 'true', nextDate: null, // Band 7 erscheint 26.05.2026!
   cover: null,
   notes: 'Band 7 erscheint 26.05.2026. Band 8: 28.07.2026. Von Takeru Hokazono.',
   genres: ['Shōnen', 'Action', 'Supernatural'],
@@ -2411,23 +2432,23 @@ upsertManga('the vote', {
   genres: ['Fantasy', 'Action', 'Romance'],
   };
   if (seedData.genres && seedData.genres.length) SEED_GENRES['witch and hound'] = [...seedData.genres];
+  let changed = false;
   if (existing) {
-    existing.pub     = existing.pub || seedData.pub;
-    existing.total   = seedData.total;
-    existing.ongoing = seedData.ongoing;
-    // Force-update nextDate (wie upsertManga): Seed überschreibt bestehende Termine
-    if (seedData.nextDate !== null && seedData.nextDate !== undefined) {
-      existing.nextDate = seedData.nextDate;
-    } else if (!existing.nextDate) {
-      existing.nextDate = null;
+    changed = setIfEmpty(existing, 'pub', seedData.pub) || changed;
+    changed = setIfEmpty(existing, 'total', seedData.total) || changed;
+    changed = setIfEmpty(existing, 'ongoing', seedData.ongoing) || changed;
+    changed = setNextDateIfEmpty(existing, seedData.nextDate) || changed;
+    changed = setIfEmpty(existing, 'cover', seedData.cover) || changed;
+    changed = setIfEmpty(existing, 'notes', seedData.notes) || changed;
+    if (seedData.genres && (!existing.genres || !existing.genres.length)) {
+      existing.genres = [...seedData.genres];
+      changed = true;
     }
-    existing.cover   = existing.cover || seedData.cover;
-    existing.notes   = existing.notes || seedData.notes;
-    if (!existing.genres || !existing.genres.length) existing.genres = [...seedData.genres];
   } else {
     db.m.push({ ...seedData, id: uid(), at: Date.now() });
+    changed = true;
   }
-  persist();
+  seedDirty = seedDirty || changed;
 })();
 
 // ─── Seed: Yakuza Reincarnation ──────────────────────────────────────────
@@ -2447,23 +2468,23 @@ upsertManga('the vote', {
   genres: ['Isekai', 'Action', 'Comedy'],
   };
   if (seedData.genres && seedData.genres.length) SEED_GENRES['yakuza reincarnation'] = [...seedData.genres];
+  let changed = false;
   if (existing) {
-    existing.pub     = existing.pub || seedData.pub;
-    existing.total   = seedData.total;
-    existing.ongoing = seedData.ongoing;
-    // Force-update nextDate (wie upsertManga): Seed überschreibt bestehende Termine
-    if (seedData.nextDate !== null && seedData.nextDate !== undefined) {
-      existing.nextDate = seedData.nextDate;
-    } else if (!existing.nextDate) {
-      existing.nextDate = null;
+    changed = setIfEmpty(existing, 'pub', seedData.pub) || changed;
+    changed = setIfEmpty(existing, 'total', seedData.total) || changed;
+    changed = setIfEmpty(existing, 'ongoing', seedData.ongoing) || changed;
+    changed = setNextDateIfEmpty(existing, seedData.nextDate) || changed;
+    changed = setIfEmpty(existing, 'cover', seedData.cover) || changed;
+    changed = setIfEmpty(existing, 'notes', seedData.notes) || changed;
+    if (seedData.genres && (!existing.genres || !existing.genres.length)) {
+      existing.genres = [...seedData.genres];
+      changed = true;
     }
-    existing.cover   = existing.cover || seedData.cover;
-    existing.notes   = existing.notes || seedData.notes;
-    if (!existing.genres || !existing.genres.length) existing.genres = [...seedData.genres];
   } else {
     db.m.push({ ...seedData, id: uid(), at: Date.now() });
+    changed = true;
   }
-  persist();
+  seedDirty = seedDirty || changed;
 })();
 
 // ─── Seed: Yandere Dark Elf ───────────────────────────────────────────────
@@ -2483,23 +2504,23 @@ upsertManga('the vote', {
   genres: ['Isekai', 'Romance', 'Comedy'],
   };
   if (seedData.genres && seedData.genres.length) SEED_GENRES['yandere dark elf'] = [...seedData.genres];
+  let changed = false;
   if (existing) {
-    existing.pub      = existing.pub || seedData.pub;
-    existing.total    = seedData.total;
-    existing.ongoing  = seedData.ongoing;
-    // Force-update nextDate (wie upsertManga): Seed überschreibt bestehende Termine
-    if (seedData.nextDate !== null && seedData.nextDate !== undefined) {
-      existing.nextDate = seedData.nextDate;
-    } else if (!existing.nextDate) {
-      existing.nextDate = null;
+    changed = setIfEmpty(existing, 'pub', seedData.pub) || changed;
+    changed = setIfEmpty(existing, 'total', seedData.total) || changed;
+    changed = setIfEmpty(existing, 'ongoing', seedData.ongoing) || changed;
+    changed = setNextDateIfEmpty(existing, seedData.nextDate) || changed;
+    changed = setIfEmpty(existing, 'cover', seedData.cover) || changed;
+    changed = setIfEmpty(existing, 'notes', seedData.notes) || changed;
+    if (seedData.genres && (!existing.genres || !existing.genres.length)) {
+      existing.genres = [...seedData.genres];
+      changed = true;
     }
-    existing.cover    = existing.cover || seedData.cover;
-    existing.notes    = existing.notes || seedData.notes;
-    if (!existing.genres || !existing.genres.length) existing.genres = [...seedData.genres];
   } else {
     db.m.push({ ...seedData, id: uid(), at: Date.now() });
+    changed = true;
   }
-  persist();
+  seedDirty = seedDirty || changed;
 })();
 
 // ─── Seed: Gushing over Magical Girls ─────────────────────────────────────
@@ -2606,7 +2627,7 @@ upsertManga('demon king', {
 upsertManga('dandadan', {
   title: 'Dandadan', pub: 'Kazé Manga',
   status: 'reading', owned: 20, total: 21, current: 20,
-  ongoing: 'true', nextDate: '2026-07-03', // Band 21 erscheint 03.07.2026
+  ongoing: 'true', nextDate: null, // Band 21 erscheint 03.07.2026
   cover: 'https://covers.openlibrary.org/b/isbn/9782889517190-L.jpg',
   notes: 'Laufende Serie. Band 20 (DE) erschienen 06.03.2026. Band 21: 03.07.2026. Von Yukinobu Tatsu.',
   genres: ['Action', 'Supernatural', 'Comedy'],
@@ -2646,7 +2667,7 @@ upsertManga('childeath', {
 upsertManga('chainsaw man', {
   title: 'Chainsaw Man', pub: 'Egmont Manga',
   status: 'reading', owned: 20, total: 23, current: 20,
-  ongoing: 'true', nextDate: '2026-08-04', // Band 22 erscheint 04.08.2026
+  ongoing: 'true', nextDate: null, // Band 22 erscheint 04.08.2026
   cover: 'https://covers.openlibrary.org/b/isbn/9783770403172-L.jpg',
   notes: 'Band 21 (DE) erschienen 07.04.2026. Band 22: 04.08.2026. Serie hat 23 DE-Bände. Von Tatsuki Fujimoto.',
   genres: ['Shōnen', 'Action', 'Horror'],
@@ -2696,7 +2717,7 @@ upsertManga('blood lad extreme', {
 upsertManga('blood blade', {
   title: 'Blood Blade', pub: 'Hayabusa',
   status: 'reading', owned: 3, total: 5, current: 3,
-  ongoing: 'true', nextDate: '2026-06-30',
+  ongoing: 'true', nextDate: null,
   cover: 'https://covers.openlibrary.org/b/isbn/9783551624860-L.jpg',
   notes: 'Band 5 (DE) erscheint 30.06.2026. Band 4 bereits erhältlich. Von Sei Oma.',
   genres: ['Action', 'Supernatural', 'Horror'],
@@ -2706,7 +2727,7 @@ upsertManga('blood blade', {
 upsertManga('berserk master', {
   title: 'Berserk Master Edition', pub: 'Panini Manga',
   status: 'reading', owned: 4, total: 14, current: 4,
-  ongoing: 'true', nextDate: '2026-06-16',
+  ongoing: 'true', nextDate: null,
   cover: 'https://covers.openlibrary.org/b/isbn/9783741641756-L.jpg',
   notes: 'Je 3 Originalbände im Hardcover. Band 5 erschienen 17.03.2026 (bereits erhältlich). Band 6: 16.06.2026. Ca. 14 ME-Bände gesamt. Von Kentaro Miura.',
   genres: ['Seinen', 'Action', 'Fantasy'],
@@ -2766,17 +2787,16 @@ upsertManga('adabana', {
 upsertManga('isekai soapland', {
   title: 'Isekai Soapland', pub: 'MangaMoon',
   status: 'reading', owned: 1, total: 8, current: 1,
-  ongoing: 'true', nextDate: '2026-07-31',
+  ongoing: 'true', nextDate: null,
   cover: null,
   notes: 'Band 1 April 2026, Band 2: 31.07.2026. JP 8+ Bände (Nihon Bungeisha, ab 2018). Ab 18. Von Shinobu Inokuma.',
   genres: ['Isekai', 'Comedy', 'Seinen'],
 });
 
 // ─── Seed-Phase abschließen: ein einziger localStorage-Write statt ~58 ────
-// TODO Phase 15g: hardcoded nextDate-Werte in den Seeds schrittweise auf null setzen.
-//   Release-Daten kommen dann aus data/release-cache.json, nach Nutzerbestätigung.
+// Phase 15g: Nur speichern, wenn Migration oder Seeds tatsächlich etwas geändert haben.
 _seeding = false;
-saveLoc();
+if (seedDirty || bootDataBefore !== JSON.stringify(db)) saveLoc();
 
 // ─── Init ─────────────────────────────────────────────────────────────────
 render();
