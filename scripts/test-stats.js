@@ -24,7 +24,7 @@ function mFirstMissingBand(m) {
   return null;
 }
 
-// ─── Neue Statistik-Berechnungen aus renderStats() ────────────────────────
+// ─── Statistik-Berechnungen aus dem Dashboard ─────────────────────────────
 
 function calcStats(mangaList) {
   const totalVols = mangaList.reduce((s, m) => s + mOwned(m), 0);
@@ -113,7 +113,7 @@ function calcBuyPreview(mangaList, maxItems = 5) {
     .slice(0, maxItems);
 }
 
-// Phase 17c: Release-cache stats (mirrors renderStats; gated by loaded status)
+// Phase 17c: Release-cache stats (mirrors dashboard rendering; gated by loaded status)
 function calcReleaseCacheStats(mangaList, cache, status, baseDate = '2026-05-17') {
   if (status !== 'loaded' || !cache || !Array.isArray(cache.items)) return null;
   const today = new Date(baseDate + 'T00:00:00');

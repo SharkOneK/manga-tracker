@@ -742,8 +742,8 @@ async function loadViewCollection() {
   } catch { toast('⚠️ Sammlung konnte nicht geladen werden'); }
 }
 
-// ─── Statistiken ──────────────────────────────────────────────────────────
-function renderStats() {
+// ─── Dashboard ────────────────────────────────────────────────────────────
+function renderDashboard() {
   const year = new Date().getFullYear();
   const MONATE = ['Jan','Feb','Mär','Apr','Mai','Jun','Jul','Aug','Sep','Okt','Nov','Dez'];
   const el = document.getElementById('content');
@@ -822,7 +822,7 @@ function renderStats() {
   const today = new Date(); today.setHours(0,0,0,0);
   const buyPreviewItems = toBuyList().slice(0, BUY_PREVIEW_MAX);
 
-  // Phase 17c: Release-Cache-Statistiken (nur bei geladenem Cache rendern)
+  // Phase 17c: Release-Cache-Kennzahlen (nur bei geladenem Cache rendern)
   const releaseStatsAvailable = releaseCacheStatus === 'loaded'
     && releaseCache
     && Array.isArray(releaseCache.items);
@@ -1002,7 +1002,7 @@ function toggleGenre(g) {
 function updateGenreFilter() {
   const wrap = document.getElementById('genre-filter-wrap');
   const usedGenres = [...new Set(db.m.flatMap(m => m.genres||[]))].sort();
-  if (!usedGenres.length || ['buy','kalender','stats'].includes(tab)) {
+  if (!usedGenres.length || ['buy','kalender','dashboard'].includes(tab)) {
     wrap.style.display = 'none'; return;
   }
   wrap.style.display = 'flex';
@@ -1447,7 +1447,7 @@ function render() {
 
   const el = document.getElementById('content');
 
-  if (tab === 'stats') { renderStats(); return; }
+  if (tab === 'dashboard') { renderDashboard(); return; }
 
   if (tab === 'kalender') {
     document.getElementById('view-toggle').style.display = 'none';
@@ -1619,7 +1619,7 @@ function setTab(t) {
   document.querySelectorAll('.tab').forEach(el => {
     el.classList.toggle('active', el.dataset.tab === t);
   });
-  document.getElementById('view-toggle').style.display = (t === 'buy' || t === 'wishlist' || t === 'kalender' || t === 'stats') ? 'none' : 'flex';
+  document.getElementById('view-toggle').style.display = (t === 'buy' || t === 'wishlist' || t === 'kalender' || t === 'dashboard') ? 'none' : 'flex';
   render();
 }
 
@@ -1988,7 +1988,7 @@ async function loadReleaseCache() {
   releaseCacheStatus = 'loaded';
   console.info(`[Phase 15] release-cache.json geladen: ${data.items.length} Item(s), Stand: ${data.generatedAt || 'unbekannt'}`);
   updateReleaseCacheButton();
-  if (tab === 'stats') renderStats();
+  if (tab === 'dashboard') renderDashboard();
 }
 
 // Aktualisiert Sichtbarkeit und Tooltip des Release-Check-Buttons im Modal
