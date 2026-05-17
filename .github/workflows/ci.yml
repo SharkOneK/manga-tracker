@@ -1,0 +1,51 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  lint-and-validate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      # ── Syntax-Checks ──────────────────────────────────────────────────────
+      - name: Syntax — src/app.js
+        run: node --check src/app.js
+
+      - name: Syntax — src/utils.js
+        run: node --check src/utils.js
+
+      - name: Syntax — src/supabase.js
+        run: node --check src/supabase.js
+
+      - name: Syntax — scripts/validate-release-cache.js
+        run: node --check scripts/validate-release-cache.js
+
+      - name: Syntax — scripts/update-release-cache.js
+        run: node --check scripts/update-release-cache.js
+
+      - name: Syntax — scripts/smoke-test-static.js
+        run: node --check scripts/smoke-test-static.js
+
+      - name: Syntax — scripts/check-secrets.js
+        run: node --check scripts/check-secrets.js
+
+      # ── Validierung ────────────────────────────────────────────────────────
+      - name: Validate release cache
+        run: node scripts/validate-release-cache.js
+
+      - name: Smoke test — statische Struktur
+        run: node scripts/smoke-test-static.js
+
+      - name: Secret check
+        run: node scripts/check-secrets.js
