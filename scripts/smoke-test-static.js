@@ -73,6 +73,26 @@ REQUIRED_IDS.forEach(id => {
 });
 if (idErrors === 0) pass('Alle ' + REQUIRED_IDS.length + ' Pflicht-IDs vorhanden');
 
+// ── Favicon ────────────────────────────────────────────────────────────────
+const faviconLinkRe = /<link[^>]+rel=["']icon["'][^>]*>/i;
+if (!faviconLinkRe.test(html)) {
+  fail('Kein <link rel="icon"> in index.html gefunden');
+} else {
+  const faviconHrefMatch = html.match(/<link[^>]+rel=["']icon["'][^>]+href=["']([^"']+)["']/i)
+    || html.match(/<link[^>]+href=["']([^"']+)["'][^>]+rel=["']icon["']/i);
+  if (faviconHrefMatch) {
+    const ref = faviconHrefMatch[1];
+    const filePath = path.join(repoRoot, ref.replace(/^\.\//, ''));
+    if (!fs.existsSync(filePath)) {
+      fail('Favicon-Datei nicht gefunden: ' + ref);
+    } else {
+      pass('Favicon verlinkt und Datei vorhanden: ' + ref);
+    }
+  } else {
+    pass('Favicon <link rel="icon"> vorhanden');
+  }
+}
+
 // ── Lokale Script-Referenzen ───────────────────────────────────────────────
 const LOCAL_SCRIPTS = [
   './src/utils.js',
