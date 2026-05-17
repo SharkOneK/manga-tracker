@@ -40,6 +40,9 @@ jobs:
       - name: Syntax — scripts/check-secrets.js
         run: node --check scripts/check-secrets.js
 
+      - name: Syntax — scripts/test-stats.js
+        run: node --check scripts/test-stats.js
+
       # ── Validierung ────────────────────────────────────────────────────────
       - name: Validate release cache
         run: node scripts/validate-release-cache.js
@@ -49,3 +52,6 @@ jobs:
 
       - name: Secret check
         run: node scripts/check-secrets.js
+
+      - name: Stats tests — Phase 17a Kennzahlen
+        run: node scripts/test-stats.js

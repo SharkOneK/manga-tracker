@@ -779,7 +779,32 @@ function renderStats() {
   const genreEntries = Object.entries(genreMap).sort((a,b)=>b[1]-a[1]).slice(0,8);
   const maxGenre = genreEntries[0]?.[1] || 1;
 
-  // Top-bewertete Serien
+  // Phase 17a: Fehlende Bände, Fortschritt, Vollständigkeit
+  const totalKnown = db.m.reduce((s, m) => {
+    const t = Number(m.total);
+    return s + (isNaN(t) || t <= 0 ? 0 : t);
+  }, 0);
+  const totalMissing = db.m.reduce((s, m) => {
+    const t = Number(m.total);
+    if (isNaN(t) || t <= 0) return s;
+    return s + Math.max(0, t - mOwned(m));
+  }, 0);
+  const buyProgress = totalKnown > 0
+    ? Math.round((totalVols / totalKnown) * 100)
+    : null;
+  const completeSeries = db.m.filter(m => {
+    const t = Number(m.total);
+    return !isNaN(t) && t > 0 && mFirstMissingBand(m) === null;
+  }).length;
+  const seriesWithMissing = db.m.filter(m => {
+    const t = Number(m.total);
+    return !isNaN(t) && t > 0 && mFirstMissingBand(m) !== null;
+  }).length;
+
+  // Phase 17a: Publikationsstatus
+  const ongoingCount  = db.m.filter(m => m.ongoing === 'true').length;
+  const finishedCount = db.m.filter(m => m.ongoing === 'false').length;
+  const unknownCount  = db.m.filter(m => m.ongoing !== 'true' && m.ongoing !== 'false').length;
 
   el.innerHTML = `<div class="stats-page">
     ${renderImportExport()}
@@ -791,6 +816,27 @@ function renderStats() {
         <div class="stat-big-card"><div class="stat-big-n">${readingSeries}</div><div class="stat-big-l">Aktiv lesend</div></div>
         <div class="stat-big-card"><div class="stat-big-n">${completedVols}</div><div class="stat-big-l">Bände abgeschlossen</div></div>
         <div class="stat-big-card"><div class="stat-big-n">${buyCount}</div><div class="stat-big-l">Zu kaufen</div></div>
+        <div class="stat-big-card"><div class="stat-big-n">${totalMissing}</div><div class="stat-big-l">Fehlende Bände</div></div>
+        <div class="stat-big-card"><div class="stat-big-n">${completeSeries}</div><div class="stat-big-l">Vollständig gesammelt</div></div>
+        <div class="stat-big-card"><div class="stat-big-n">${seriesWithMissing}</div><div class="stat-big-l">Serien mit fehlenden Bänden</div></div>
+      </div>
+      ${buyProgress !== null
+        ? `<div class="stat-progress-row">
+            <div class="stat-progress-meta">
+              <span>Kauf-Fortschritt: ${totalVols} von ${totalKnown} Bänden</span>
+              <span class="stat-progress-pct">${buyProgress} %</span>
+            </div>
+            <div class="progress stat-progress-bar"><div class="progress-fill" style="width:${buyProgress}%"></div></div>
+          </div>`
+        : `<p class="stat-progress-na">Kauf-Fortschritt nicht berechenbar</p>`}
+    </div>
+
+    <div class="stats-section">
+      <h3>Publikationsstatus</h3>
+      <div class="stat-big-grid cols-3">
+        <div class="stat-big-card"><div class="stat-big-n">${ongoingCount}</div><div class="stat-big-l">Laufend</div></div>
+        <div class="stat-big-card"><div class="stat-big-n">${finishedCount}</div><div class="stat-big-l">Abgeschlossen</div></div>
+        <div class="stat-big-card"><div class="stat-big-n">${unknownCount}</div><div class="stat-big-l">Unbekannt</div></div>
       </div>
     </div>
 
