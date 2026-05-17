@@ -680,7 +680,7 @@ body.dark .card-genre { background: #3d1520; }
 .genre-filter-chip.on { background: var(--primary); color: white; border-color: var(--primary); }
 body.dark .genre-filter-wrap { background: #0f0f1a; }
 
-/* ── Statistiken ── */
+/* ── Dashboard ── */
 .stats-page { padding: 16px 0; }
 .stats-section { margin-bottom: 24px; }
 .stats-section h3 { font-size: 0.85rem; font-weight: 800; color: var(--text-muted);
@@ -710,7 +710,7 @@ body.dark .genre-filter-wrap { background: #0f0f1a; }
   transition: height 0.4s; opacity: 0.85; }
 .month-lbl { font-size: 0.58rem; color: var(--text-muted); font-weight: 700; }
 body.dark .stat-big-card { background: #1a1a2e; }
-/* Phase 17b: Kaufvorschau im Statistik-Tab */
+/* Phase 17b: Kaufvorschau im Dashboard-Tab */
 .stats-empty-note { font-size: 0.78rem; color: var(--text-muted); font-style: italic; margin: 0; }
 .stats-buy-preview { display: flex; flex-direction: column; gap: 8px; }
 .stats-buy-item { display: flex; justify-content: space-between; align-items: center; gap: 10px;
