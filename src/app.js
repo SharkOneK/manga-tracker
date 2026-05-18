@@ -766,8 +766,11 @@ function buildDashboardReleaseCheckPreview() {
       if (!matches.length) return;
       const best = matches[0];
       candidates.push({
+        id: `${m.id}:${best.volumeNumber || targetVolume}:${best.releaseDate}`,
+        seriesId: m.id,
         title: m.title || '',
         publisher: m.pub || '',
+        targetVolume,
         volumeNumber: best.volumeNumber || targetVolume,
         currentDate: m.nextDate || '',
         releaseDate: best.releaseDate,
@@ -802,7 +805,6 @@ function renderDashboardReleaseCheckPreview(result) {
   const cacheNote = result.cacheLoaded
     ? `Release-Cache geladen (${result.cacheItems} Einträge).`
     : `Release-Cache ${statusLabel[result.cacheStatus] || result.cacheStatus}; Prüfung ohne Treffer.`;
-  const previewLimit = 12;
   return `<div id="dashboard-release-check-result" class="dashboard-release-preview">
     <div class="stat-big-grid cols-3 dashboard-action-stats">
       <div class="stat-big-card"><div class="stat-big-n">${result.checkedSeries}</div><div class="stat-big-l">Serien/Ziel-Bände geprüft</div></div>
@@ -811,10 +813,11 @@ function renderDashboardReleaseCheckPreview(result) {
     </div>
     <p class="stats-empty-note">${cacheNote} Nur Vorschau — es werden keine Daten überschrieben.</p>
     ${result.candidates.length ? `<div class="dashboard-release-candidates">
-      ${result.candidates.slice(0, previewLimit).map(item => {
+      ${result.candidates.map((item, idx) => {
         const current = item.currentDate ? escapeHtml(item.currentDate) : 'leer';
         const src = [item.sourceName, item.confidence].filter(Boolean).join(' · ');
-        return `<div class="dashboard-release-candidate">
+        return `<label class="dashboard-release-candidate">
+          <input type="checkbox" class="dashboard-release-apply-check" data-candidate-idx="${idx}">
           <div class="dashboard-release-candidate-main">
             <strong>${escapeHtml(item.title)}</strong>
             <span>Band ${escapeHtml(item.volumeNumber)}</span>
@@ -824,9 +827,10 @@ function renderDashboardReleaseCheckPreview(result) {
             <span>${current} → <strong>${escapeHtml(item.releaseDate)}</strong></span>
             ${src ? `<span>${escapeHtml(src)}</span>` : ''}
           </div>
-        </div>`;
+        </label>`;
       }).join('')}
-      ${result.candidates.length > previewLimit ? `<p class="stats-empty-note">… und ${result.candidates.length - previewLimit} weitere Kandidaten.</p>` : ''}
+      <button type="button" class="add-btn dashboard-action-btn dashboard-release-apply-btn" onclick="applySelectedDashboardReleaseDates()">Ausgewählte Release-Daten übernehmen</button>
+      <p class="stats-empty-note">Standardmäßig ist nichts ausgewählt. Übernommen wird nur das Release-Datum des angezeigten Ziel-Bandes.</p>
     </div>` : ''}
   </div>`;
 }
@@ -836,6 +840,73 @@ function runDashboardReleaseDateCheck() {
   const el = document.getElementById('dashboard-release-check-result');
   if (el) el.outerHTML = renderDashboardReleaseCheckPreview(_dashboardReleasePreview);
   toast(`📅 Release-Daten geprüft: ${_dashboardReleasePreview.releaseDateHits} Treffer, ${_dashboardReleasePreview.noHits} ohne Treffer`);
+}
+
+function getSelectedDashboardReleaseCandidates() {
+  if (!_dashboardReleasePreview || !Array.isArray(_dashboardReleasePreview.candidates)) return [];
+  return Array.from(document.querySelectorAll('.dashboard-release-apply-check:checked'))
+    .map(el => _dashboardReleasePreview.candidates[parseInt(el.dataset.candidateIdx, 10)])
+    .filter(Boolean);
+}
+
+function applySelectedDashboardReleaseDates() {
+  const selected = getSelectedDashboardReleaseCandidates();
+  if (!selected.length) {
+    toast('ℹ️ Keine Release-Daten ausgewählt');
+    return;
+  }
+
+  const valid = selected.filter(item => {
+    const m = db.m.find(x => x.id === item.seriesId);
+    if (!m) return false;
+    const currentTargetVolume = mFirstMissingBand(m) ?? mNextBand(m);
+    return currentTargetVolume === item.targetVolume
+      && item.volumeNumber === item.targetVolume
+      && item.releaseDate
+      && item.releaseDate !== m.nextDate;
+  });
+
+  if (!valid.length) {
+    toast('ℹ️ Keine gültigen Release-Daten mehr ausgewählt');
+    return;
+  }
+
+  const summary = valid.slice(0, 8).map(item =>
+    `• ${item.title} Band ${item.volumeNumber}: ${item.currentDate || 'leer'} → ${item.releaseDate}`
+  ).join('\n');
+  const more = valid.length > 8 ? `\n… und ${valid.length - 8} weitere` : '';
+  const ok = confirm(`Ausgewählte Release-Daten übernehmen?\n\n${summary}${more}\n\nEs wird vorher ein lokales Backup erstellt. Es wird ausschließlich nextDate geändert.`);
+  if (!ok) {
+    toast('ℹ️ Übernahme abgebrochen');
+    return;
+  }
+
+  const backupKey = createReleaseUpdateBackup('dashboard-release-date-apply');
+  if (!backupKey) {
+    toast('⚠️ Backup konnte nicht erstellt werden — keine Daten geändert');
+    return;
+  }
+
+  let changed = 0;
+  valid.forEach(item => {
+    const m = db.m.find(x => x.id === item.seriesId);
+    if (!m) return;
+    const currentTargetVolume = mFirstMissingBand(m) ?? mNextBand(m);
+    if (currentTargetVolume !== item.targetVolume || item.volumeNumber !== item.targetVolume) return;
+    if (!item.releaseDate || item.releaseDate === m.nextDate) return;
+    m.nextDate = item.releaseDate;
+    changed++;
+  });
+
+  if (!changed) {
+    toast('ℹ️ Keine Änderungen übernommen');
+    return;
+  }
+
+  persist();
+  _dashboardReleasePreview = buildDashboardReleaseCheckPreview();
+  render();
+  toast(`✅ ${changed} Release-Datum${changed === 1 ? '' : 'en'} übernommen`);
 }
 function renderDashboard() {
   const year = new Date().getFullYear();
@@ -2272,8 +2343,10 @@ function createReleaseUpdateBackup(reason) {
       fullDatabaseSnapshot: JSON.parse(JSON.stringify(db)),
     }));
     console.info('[Phase 15] Backup erstellt:', key);
+    return key;
   } catch (e) {
     console.warn('[Phase 15] Backup konnte nicht erstellt werden:', e.message);
+    return null;
   }
 }
 
