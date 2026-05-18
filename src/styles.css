@@ -815,3 +815,12 @@ body.dark .kal-avail { background: #064e3b; border-color: #065f46; }
   color: var(--text-muted); font-size: 0.7rem; }
 body.dark .dashboard-release-candidate { background: #1a1a2e; }
 .dashboard-release-apply-btn { align-self: flex-start; margin-top: 3px; }
+.dashboard-series-status-preview { margin-top: 12px; }
+.dashboard-series-status-candidates { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
+.dashboard-series-status-candidate { padding: 10px 12px; border: 1px solid var(--border); border-left: 3px solid #f59e0b;
+  border-radius: 10px; background: var(--card-bg); }
+.dashboard-series-status-reasons { margin: 8px 0 0 18px; padding: 0; color: var(--text); font-size: 0.74rem; }
+.dashboard-series-status-reasons li { margin-bottom: 6px; }
+.dashboard-series-status-reasons span { color: var(--text-muted); }
+.stats-empty-note.success { color: #059669; font-style: normal; }
+body.dark .dashboard-series-status-candidate { background: #1a1a2e; }
