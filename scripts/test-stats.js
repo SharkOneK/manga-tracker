@@ -132,6 +132,99 @@ function calcReleaseCacheStats(mangaList, cache, status, baseDate = '2026-05-17'
     generatedAt: cache.generatedAt || null,
   };
 }
+
+// Phase 18c: Dashboard-Release-Daten-Prüfung (Preview-only)
+function normalizeReleaseTitle(value) {
+  return (value || '')
+    .toLowerCase()
+    .replace(/[äÄ]/g, 'ae').replace(/[öÖ]/g, 'oe').replace(/[üÜ]/g, 'ue').replace(/[ß]/g, 'ss')
+    .replace(/[^a-z0-9\s]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+const _PUB_ALIAS_MAP = {
+  'carlsen': 'carlsen manga',
+  'carlsen manga': 'carlsen manga',
+  'tokyopop': 'tokyopop',
+  'tokyo pop': 'tokyopop',
+  'egmont': 'egmont manga',
+  'egmont manga': 'egmont manga',
+  'altraverse': 'altraverse',
+};
+
+function normalizeReleasePublisher(value) {
+  const raw = (value || '')
+    .toLowerCase()
+    .replace(/[äÄ]/g, 'ae').replace(/[öÖ]/g, 'oe').replace(/[üÜ]/g, 'ue').replace(/[ß]/g, 'ss')
+    .replace(/[!.,]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+  return _PUB_ALIAS_MAP[raw] || raw;
+}
+
+function mNextBand(m) {
+  const keys = Object.keys(m.bands || {}).map(Number);
+  return keys.length ? Math.max(...keys) + 1 : 1;
+}
+
+function releasePubsMatch(a, b) {
+  if (!a || !b) return true;
+  return a === b;
+}
+
+function findReleaseMatchesForSeriesForTest(m, cache) {
+  if (!cache || !Array.isArray(cache.items)) return [];
+  const normT = normalizeReleaseTitle(m.title);
+  const normP = normalizeReleasePublisher(m.pub || '');
+  const firstMiss = mFirstMissingBand(m);
+  if (firstMiss === null && m.ongoing === 'false') return [];
+  const nextVol = firstMiss ?? mNextBand(m);
+
+  return cache.items.filter(item => {
+    if (!item || typeof item !== 'object') return false;
+    const cacheT = item.normalizedSeriesTitle || normalizeReleaseTitle(item.seriesTitle || '');
+    const titleMatch = normT === cacheT
+      || (cacheT.length >= 3 && normT.includes(cacheT))
+      || (normT.length >= 3 && cacheT.includes(normT));
+    if (!titleMatch) return false;
+    const rawCacheP = item.normalizedPublisher || normalizeReleasePublisher(item.publisher || '');
+    const cacheP = _PUB_ALIAS_MAP[rawCacheP] || rawCacheP;
+    if (!releasePubsMatch(normP, cacheP)) return false;
+    return item.volumeNumber === nextVol;
+  });
+}
+
+function buildDashboardReleaseCheckPreviewForTest(mangaList, cache, status) {
+  const before = JSON.stringify(mangaList);
+  const cacheLoaded = status === 'loaded' && cache && Array.isArray(cache.items);
+  const checkedSeries = Array.isArray(mangaList) ? mangaList.length : 0;
+  const candidates = [];
+  if (cacheLoaded) {
+    mangaList.forEach(m => {
+      const targetVolume = mFirstMissingBand(m) ?? mNextBand(m);
+      const matches = findReleaseMatchesForSeriesForTest(m, cache)
+        .filter(item => item && item.releaseDate && item.releaseDate !== m.nextDate);
+      if (!matches.length) return;
+      const best = matches[0];
+      candidates.push({
+        title: m.title || '',
+        volumeNumber: best.volumeNumber || targetVolume,
+        currentDate: m.nextDate || '',
+        releaseDate: best.releaseDate,
+      });
+    });
+  }
+  assert.strictEqual(JSON.stringify(mangaList), before, 'Preview darf Manga-Daten nicht mutieren');
+  return {
+    cacheLoaded,
+    checkedSeries,
+    checkedVolumes: checkedSeries,
+    releaseDateHits: candidates.length,
+    noHits: Math.max(0, checkedSeries - candidates.length),
+    candidates,
+  };
+}
 // ─── Test-Runner ──────────────────────────────────────────────────────────
 
 let passed = 0;
@@ -446,6 +539,55 @@ test('Release-Cache-Stats: zaehlt Serien mit ISBN-13 oder Manga-Passion-ID', () 
   ];
   const result = calcReleaseCacheStats(list, { items: [] }, 'loaded');
   assert.strictEqual(result.seriesWithReleaseIds, 2);
+});
+
+// Phase 18c Tests ----------------------------------------------------------
+
+console.log('\nPhase 18c — Dashboard Release-Daten-Prüfung Tests\n');
+
+test('Dashboard-Action: Button und Preview-Container sind in app.js vorhanden', () => {
+  const appJs = require('fs').readFileSync('src/app.js', 'utf8');
+  assert.ok(appJs.includes('Prüfen &amp; Korrigieren'), 'Dashboard-Bereich fehlt');
+  assert.ok(appJs.includes('Alle Release-Daten prüfen'), 'Button fehlt');
+  assert.ok(appJs.includes('dashboard-release-check-result'), 'Preview-Container fehlt');
+});
+
+test('Dashboard-Release-Check: robuster Preview bei leerem/nicht geladenem Cache', () => {
+  const list = [{ title: 'Solo Leveling', pub: 'Altraverse', bands: { '1': 'owned' }, total: 2, nextDate: null }];
+  const result = buildDashboardReleaseCheckPreviewForTest(list, null, 'missing');
+  assert.strictEqual(result.cacheLoaded, false);
+  assert.strictEqual(result.checkedSeries, 1);
+  assert.strictEqual(result.releaseDateHits, 0);
+  assert.strictEqual(result.noHits, 1);
+  assert.deepStrictEqual(result.candidates, []);
+});
+
+test('Dashboard-Release-Check: findet Release-Datum-Treffer aus geladenem Cache', () => {
+  const list = [{ title: 'Solo Leveling', pub: 'Altraverse', bands: { '1': 'owned' }, total: 3, nextDate: null }];
+  const cache = { items: [{ seriesTitle: 'Solo Leveling', publisher: 'Altraverse', volumeNumber: 2, releaseDate: '2026-06-01' }] };
+  const result = buildDashboardReleaseCheckPreviewForTest(list, cache, 'loaded');
+  assert.strictEqual(result.cacheLoaded, true);
+  assert.strictEqual(result.releaseDateHits, 1);
+  assert.strictEqual(result.noHits, 0);
+  assert.strictEqual(result.candidates[0].releaseDate, '2026-06-01');
+  assert.strictEqual(result.candidates[0].volumeNumber, 2);
+});
+
+test('Dashboard-Release-Check: ignoriert Cache-Treffer ohne neues/abweichendes Datum', () => {
+  const list = [{ title: 'Manga A', pub: 'Egmont Manga', bands: { '1': 'owned' }, total: 2, nextDate: '2026-07-01' }];
+  const cache = { items: [{ seriesTitle: 'Manga A', publisher: 'Egmont', volumeNumber: 2, releaseDate: '2026-07-01' }] };
+  const result = buildDashboardReleaseCheckPreviewForTest(list, cache, 'loaded');
+  assert.strictEqual(result.releaseDateHits, 0);
+  assert.strictEqual(result.noHits, 1);
+});
+
+test('Dashboard-Release-Check: Preview mutiert keine Manga-Daten', () => {
+  const list = [{ title: 'Manga B', pub: 'Tokyopop', bands: { '1': 'owned' }, total: 2, nextDate: null }];
+  const before = JSON.stringify(list);
+  const cache = { items: [{ seriesTitle: 'Manga B', publisher: 'Tokyopop', volumeNumber: 2, releaseDate: '2026-08-15' }] };
+  const result = buildDashboardReleaseCheckPreviewForTest(list, cache, 'loaded');
+  assert.strictEqual(result.releaseDateHits, 1);
+  assert.strictEqual(JSON.stringify(list), before, 'nextDate darf nicht automatisch gesetzt werden');
 });
 // ─── Ergebnis ─────────────────────────────────────────────────────────────
 
