@@ -208,7 +208,10 @@ function buildDashboardReleaseCheckPreviewForTest(mangaList, cache, status) {
       if (!matches.length) return;
       const best = matches[0];
       candidates.push({
+        seriesId: m.id,
+        id: `${m.id}:${best.volumeNumber || targetVolume}:${best.releaseDate}`,
         title: m.title || '',
+        targetVolume,
         volumeNumber: best.volumeNumber || targetVolume,
         currentDate: m.nextDate || '',
         releaseDate: best.releaseDate,
@@ -226,6 +229,70 @@ function buildDashboardReleaseCheckPreviewForTest(mangaList, cache, status) {
   };
 }
 // ─── Test-Runner ──────────────────────────────────────────────────────────
+
+function renderDashboardReleaseCheckPreviewForTest(result) {
+  if (!result) return 'Noch keine Pruefung ausgefuehrt';
+  return (result.candidates || []).map((item, idx) =>
+    `<label class="dashboard-release-candidate"><input type="checkbox" class="dashboard-release-apply-check" data-candidate-idx="${idx}">` +
+    `<strong>${item.title}</strong><span>Band ${item.volumeNumber}</span><span>${item.currentDate || 'leer'} -> ${item.releaseDate}</span></label>`
+  ).join('') +
+    ((result.candidates || []).length
+      ? '<button type="button" onclick="applySelectedDashboardReleaseDates()">Ausgewaehlte Release-Daten uebernehmen</button>'
+      : '');
+}
+
+function applySelectedDashboardReleaseDatesForTest(mangaList, preview, selectedIndexes, options = {}) {
+  const events = [];
+  const selected = selectedIndexes.map(idx => preview.candidates[idx]).filter(Boolean);
+  if (!selected.length) return { changed: 0, backupCreated: false, events };
+
+  const valid = selected.filter(item => {
+    const m = mangaList.find(x => x.id === item.seriesId);
+    if (!m) return false;
+    const currentTargetVolume = mFirstMissingBand(m) ?? mNextBand(m);
+    return currentTargetVolume === item.targetVolume
+      && item.volumeNumber === item.targetVolume
+      && item.releaseDate
+      && item.releaseDate !== m.nextDate;
+  });
+  if (!valid.length) return { changed: 0, backupCreated: false, events };
+
+  events.push('confirm');
+  if (options.confirm === false) return { changed: 0, backupCreated: false, events };
+
+  events.push('backup');
+  if (options.backupFails) return { changed: 0, backupCreated: false, events };
+
+  let changed = 0;
+  valid.forEach(item => {
+    const m = mangaList.find(x => x.id === item.seriesId);
+    if (!m) return;
+    const protectedBefore = {
+      owned: m.owned,
+      read: m.read,
+      boughtAt: m.boughtAt,
+      readAt: m.readAt,
+      coverUrl: m.coverUrl,
+      isbn13: m.isbn13,
+      collectionStatus: m.collectionStatus,
+      ongoing: m.ongoing,
+    };
+    m.nextDate = item.releaseDate;
+    changed++;
+    assert.deepStrictEqual({
+      owned: m.owned,
+      read: m.read,
+      boughtAt: m.boughtAt,
+      readAt: m.readAt,
+      coverUrl: m.coverUrl,
+      isbn13: m.isbn13,
+      collectionStatus: m.collectionStatus,
+      ongoing: m.ongoing,
+    }, protectedBefore, 'Nur nextDate darf geaendert werden');
+  });
+  events.push('persist');
+  return { changed, backupCreated: true, events };
+}
 
 let passed = 0;
 let failed = 0;
@@ -588,6 +655,83 @@ test('Dashboard-Release-Check: Preview mutiert keine Manga-Daten', () => {
   const result = buildDashboardReleaseCheckPreviewForTest(list, cache, 'loaded');
   assert.strictEqual(result.releaseDateHits, 1);
   assert.strictEqual(JSON.stringify(list), before, 'nextDate darf nicht automatisch gesetzt werden');
+});
+
+// Phase 18d Tests ----------------------------------------------------------
+
+console.log('\nPhase 18d - Explizite Dashboard-Release-Daten-Uebernahme Tests\n');
+
+test('Dashboard-Release-Uebernahme: Kandidaten haben Checkboxen und Apply-Button', () => {
+  const list = [{ id: 'm1', title: 'Manga C', pub: 'Tokyopop', bands: { '1': 'owned' }, total: 2, nextDate: null }];
+  const cache = { items: [{ seriesTitle: 'Manga C', publisher: 'Tokyopop', volumeNumber: 2, releaseDate: '2026-09-01' }] };
+  const preview = buildDashboardReleaseCheckPreviewForTest(list, cache, 'loaded');
+  const html = renderDashboardReleaseCheckPreviewForTest(preview);
+  assert.ok(html.includes('type="checkbox"'), 'Checkbox fehlt');
+  assert.ok(html.includes('dashboard-release-apply-check'), 'Auswahl-Klasse fehlt');
+  assert.ok(html.includes('Ausgewaehlte Release-Daten uebernehmen'), 'Apply-Button fehlt');
+  assert.ok(!html.includes('checked'), 'Checkboxen duerfen standardmaessig nicht aktiv sein');
+});
+
+test('Dashboard-Release-Uebernahme: ohne Auswahl keine Mutation', () => {
+  const list = [{ id: 'm1', title: 'Manga D', pub: 'Tokyopop', bands: { '1': 'owned' }, total: 2, nextDate: null }];
+  const cache = { items: [{ seriesTitle: 'Manga D', publisher: 'Tokyopop', volumeNumber: 2, releaseDate: '2026-09-02' }] };
+  const preview = buildDashboardReleaseCheckPreviewForTest(list, cache, 'loaded');
+  const before = JSON.stringify(list);
+  const result = applySelectedDashboardReleaseDatesForTest(list, preview, []);
+  assert.strictEqual(result.changed, 0);
+  assert.strictEqual(result.backupCreated, false);
+  assert.strictEqual(JSON.stringify(list), before);
+});
+
+test('Dashboard-Release-Uebernahme: Abbruch im Bestaetigungsdialog mutiert nichts', () => {
+  const list = [{ id: 'm1', title: 'Manga E', pub: 'Tokyopop', bands: { '1': 'owned' }, total: 2, nextDate: null }];
+  const cache = { items: [{ seriesTitle: 'Manga E', publisher: 'Tokyopop', volumeNumber: 2, releaseDate: '2026-09-03' }] };
+  const preview = buildDashboardReleaseCheckPreviewForTest(list, cache, 'loaded');
+  const before = JSON.stringify(list);
+  const result = applySelectedDashboardReleaseDatesForTest(list, preview, [0], { confirm: false });
+  assert.deepStrictEqual(result.events, ['confirm']);
+  assert.strictEqual(result.changed, 0);
+  assert.strictEqual(JSON.stringify(list), before);
+});
+
+test('Dashboard-Release-Uebernahme: schreibt nur erlaubtes Release-Datum', () => {
+  const list = [{
+    id: 'm1', title: 'Manga F', pub: 'Tokyopop', bands: { '1': 'owned' }, total: 2, nextDate: null,
+    owned: 1, read: 0, boughtAt: '2026-01-01', readAt: '2026-01-02',
+    coverUrl: 'cover.jpg', isbn13: '9781234567890', collectionStatus: 'owned', ongoing: 'true',
+  }];
+  const cache = { items: [{
+    seriesTitle: 'Manga F', publisher: 'Tokyopop', volumeNumber: 2, releaseDate: '2026-09-04',
+    isbn13: '9789999999999', coverUrl: 'new-cover.jpg',
+  }] };
+  const preview = buildDashboardReleaseCheckPreviewForTest(list, cache, 'loaded');
+  const result = applySelectedDashboardReleaseDatesForTest(list, preview, [0]);
+  assert.strictEqual(result.changed, 1);
+  assert.strictEqual(list[0].nextDate, '2026-09-04');
+  assert.strictEqual(list[0].isbn13, '9781234567890');
+  assert.strictEqual(list[0].coverUrl, 'cover.jpg');
+  assert.strictEqual(list[0].collectionStatus, 'owned');
+  assert.strictEqual(list[0].ongoing, 'true');
+});
+
+test('Dashboard-Release-Uebernahme: Backup wird vor Mutation erstellt', () => {
+  const list = [{ id: 'm1', title: 'Manga G', pub: 'Tokyopop', bands: { '1': 'owned' }, total: 2, nextDate: null }];
+  const cache = { items: [{ seriesTitle: 'Manga G', publisher: 'Tokyopop', volumeNumber: 2, releaseDate: '2026-09-05' }] };
+  const preview = buildDashboardReleaseCheckPreviewForTest(list, cache, 'loaded');
+  const result = applySelectedDashboardReleaseDatesForTest(list, preview, [0]);
+  assert.deepStrictEqual(result.events, ['confirm', 'backup', 'persist']);
+  assert.strictEqual(result.backupCreated, true);
+  assert.strictEqual(list[0].nextDate, '2026-09-05');
+});
+
+test('Dashboard-Release-Uebernahme: fehlgeschlagenes Backup verhindert Mutation', () => {
+  const list = [{ id: 'm1', title: 'Manga H', pub: 'Tokyopop', bands: { '1': 'owned' }, total: 2, nextDate: null }];
+  const cache = { items: [{ seriesTitle: 'Manga H', publisher: 'Tokyopop', volumeNumber: 2, releaseDate: '2026-09-06' }] };
+  const preview = buildDashboardReleaseCheckPreviewForTest(list, cache, 'loaded');
+  const result = applySelectedDashboardReleaseDatesForTest(list, preview, [0], { backupFails: true });
+  assert.deepStrictEqual(result.events, ['confirm', 'backup']);
+  assert.strictEqual(result.changed, 0);
+  assert.strictEqual(list[0].nextDate, null);
 });
 // ─── Ergebnis ─────────────────────────────────────────────────────────────
 
