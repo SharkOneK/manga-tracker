@@ -65,23 +65,23 @@ function calcStats(mangaList) {
   };
 }
 
-// ─── Phase 17b: Sammlungsstatus-Verteilung ────────────────────────────────
+// ─── Phase 18b: Bände nach Sammlungsstatus ──────────────────────────────────
 
-// Spiegelt mSeriesStatus(m) aus app.js
-function mSeriesStatus(m) {
-  if (m.status === 'wishlist') return 'wishlist';
-  const vals = Object.values(m.bands || {});
-  if (!vals.length) return 'owned';
-  if (vals.includes('reading')) return 'reading';
-  if (vals.every(v => v === 'completed')) return 'completed';
-  return 'owned';
-}
-
+// Spiegelt die neue Logik aus app.js (Phase 18b):
+// Wishlist-Serien zählen ihre Bände als Wishlist (min 1),
+// alle anderen zählen jeden Band einzeln nach seinem Status.
 function calcStatusCounts(mangaList) {
   const counts = { reading: 0, completed: 0, owned: 0, wishlist: 0 };
   mangaList.forEach(m => {
-    const st = mSeriesStatus(m);
-    if (counts[st] !== undefined) counts[st]++;
+    if (m.status === 'wishlist') {
+      // Wishlist-Serien: Anzahl Bände zählen, mindestens 1
+      counts.wishlist += Math.max(Object.keys(m.bands || {}).length, 1);
+    } else {
+      // Alle anderen: jeden Band einzeln nach seinem Status zählen
+      Object.values(m.bands || {}).forEach(st => {
+        if (counts[st] !== undefined) counts[st]++;
+      });
+    }
   });
   return counts;
 }
@@ -269,7 +269,7 @@ test('Laufende Serie vollständig gesammelt — completeSeries (nicht auf ongoin
 
 console.log('\nPhase 17b — Sammlungsstatus & Kaufvorschau Tests\n');
 
-test('Sammlungsstatus: Leere Sammlung — alle Werte 0', () => {
+test('Bände nach Sammlungsstatus: Leere Sammlung — alle Werte 0', () => {
   const c = calcStatusCounts([]);
   assert.strictEqual(c.reading,   0);
   assert.strictEqual(c.completed, 0);
@@ -277,49 +277,56 @@ test('Sammlungsstatus: Leere Sammlung — alle Werte 0', () => {
   assert.strictEqual(c.wishlist,  0);
 });
 
-test('Sammlungsstatus: Wishlist via m.status === wishlist', () => {
+test('Bände nach Sammlungsstatus: Wishlist ohne Bände → 1 Wishlist-Eintrag', () => {
   const list = [{ status: 'wishlist', bands: {}, total: null }];
   const c = calcStatusCounts(list);
-  assert.strictEqual(c.wishlist, 1);
+  assert.strictEqual(c.wishlist, 1, 'Wishlist-Serie ohne Bände zählt als 1');
   assert.strictEqual(c.reading,  0);
   assert.strictEqual(c.owned,    0);
 });
 
-test('Sammlungsstatus: Serie ohne Bände → owned', () => {
+test('Bände nach Sammlungsstatus: Wishlist mit 3 Bänden → 3 Wishlist-Einträge', () => {
+  const list = [{ status: 'wishlist', bands: { '1': 'owned', '2': 'owned', '3': 'owned' }, total: 3 }];
+  const c = calcStatusCounts(list);
+  assert.strictEqual(c.wishlist, 3, 'Wishlist-Serie mit 3 Bänden zählt als 3');
+  assert.strictEqual(c.owned,    0, 'Bände in Wishlist-Serie nicht als owned zählen');
+});
+
+test('Bände nach Sammlungsstatus: Serie ohne Bände → 0 Zählpunkte', () => {
   const list = [{ bands: {}, total: 5, ongoing: 'true' }];
   const c = calcStatusCounts(list);
-  assert.strictEqual(c.owned, 1, 'Serie ohne bands-Einträge zählt als owned');
+  assert.strictEqual(c.owned,    0, 'Serie ohne bands-Einträge liefert 0 owned');
+  assert.strictEqual(c.reading,  0);
+  assert.strictEqual(c.completed, 0);
 });
 
-test('Sammlungsstatus: Alle Bände completed → completed', () => {
+test('Bände nach Sammlungsstatus: 2 completed-Bände → completed: 2', () => {
   const list = [{ bands: { '1': 'completed', '2': 'completed' }, total: 2, ongoing: 'false' }];
   const c = calcStatusCounts(list);
-  assert.strictEqual(c.completed, 1);
+  assert.strictEqual(c.completed, 2, 'Jeder completed-Band zählt einzeln');
   assert.strictEqual(c.reading,   0);
+  assert.strictEqual(c.owned,     0);
 });
 
-test('Sammlungsstatus: Ein Band reading → reading', () => {
+test('Bände nach Sammlungsstatus: 1 reading + 1 owned → korrekte Einzelzählung', () => {
   const list = [{ bands: { '1': 'owned', '2': 'reading' }, total: 5, ongoing: 'true' }];
   const c = calcStatusCounts(list);
-  assert.strictEqual(c.reading, 1);
-  assert.strictEqual(c.owned,   0);
+  assert.strictEqual(c.reading, 1, 'Reading-Band wird gezählt');
+  assert.strictEqual(c.owned,   1, 'Owned-Band wird ebenfalls gezählt');
 });
 
-test('Sammlungsstatus: Gemischte Sammlung — alle vier Werte korrekt', () => {
+test('Bände nach Sammlungsstatus: Gemischte Sammlung — Bändezählung korrekt', () => {
   const list = [
-    { status: 'wishlist', bands: {},                                total: null  },
-    { bands: { '1': 'reading', '2': 'owned' },                     total: 5     },
-    { bands: { '1': 'completed', '2': 'completed' },               total: 2     },
-    { bands: { '1': 'owned' },                                     total: 3     },
-    { bands: { '1': 'owned' },                                     total: 3     },
+    { status: 'wishlist', bands: {},                                                        total: null },
+    { bands: { '1': 'reading', '2': 'owned' },                                             total: 5   },
+    { bands: { '1': 'completed', '2': 'completed' },                                       total: 2   },
+    { bands: { '1': 'owned', '2': 'owned', '3': 'owned' },                                total: 3   },
   ];
   const c = calcStatusCounts(list);
-  assert.strictEqual(c.wishlist,  1);
-  assert.strictEqual(c.reading,   1);
-  assert.strictEqual(c.completed, 1);
-  assert.strictEqual(c.owned,     2);
-  assert.strictEqual(c.reading + c.completed + c.owned + c.wishlist, list.length,
-    'Summe muss Gesamtanzahl ergeben');
+  assert.strictEqual(c.wishlist,  1, '1 Wishlist-Eintrag (ohne Bände → min 1)');
+  assert.strictEqual(c.reading,   1, '1 reading-Band');
+  assert.strictEqual(c.completed, 2, '2 completed-Bände');
+  assert.strictEqual(c.owned,     4, '1 owned aus Serie 2 + 3 owned aus Serie 4');
 });
 
 test('Kaufvorschau: Leere Sammlung → leeres Array, kein Fehler', () => {
