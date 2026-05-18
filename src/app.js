@@ -806,11 +806,18 @@ function renderDashboard() {
   const finishedCount = db.m.filter(m => m.ongoing === 'false').length;
   const unknownCount  = db.m.filter(m => m.ongoing !== 'true' && m.ongoing !== 'false').length;
 
-  // Phase 17b: Sammlungsstatus-Verteilung
+  // Phase 18b: Sammlungsstatus-Verteilung nach Bänden
   const statusCounts = { reading: 0, completed: 0, owned: 0, wishlist: 0 };
   db.m.forEach(m => {
-    const st = mSeriesStatus(m);
-    if (statusCounts[st] !== undefined) statusCounts[st]++;
+    if (m.status === 'wishlist') {
+      // Wishlist-Serien: Anzahl Bände als Wishlist zählen, mindestens 1
+      statusCounts.wishlist += Math.max(Object.keys(m.bands || {}).length, 1);
+    } else {
+      // Alle anderen: jeden Band einzeln nach seinem Status zählen
+      Object.values(m.bands || {}).forEach(st => {
+        if (statusCounts[st] !== undefined) statusCounts[st]++;
+      });
+    }
   });
   const statusMax = Math.max(
     statusCounts.reading, statusCounts.completed,
@@ -877,7 +884,7 @@ function renderDashboard() {
     </div>
 
     <div class="stats-section">
-      <h3>Sammlungsstatus</h3>
+      <h3>Bände nach Sammlungsstatus</h3>
       <div class="bar-chart">
         <div class="bar-row">
           <div class="bar-label">Zu lesen</div>
