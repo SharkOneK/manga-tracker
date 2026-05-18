@@ -452,6 +452,7 @@ let filterPub = '';      // Verlagsfilter
 let releaseCache        = null;         // Geladene release-cache.json oder null
 let releaseCacheStatus  = 'not-loaded'; // 'not-loaded' | 'loaded' | 'missing' | 'invalid'
 let _currentReleaseMatches = [];        // Zwischenspeicher für aktuelle Vorschau (Phase 15c)
+let _dashboardReleasePreview = null;     // Phase 18c: Dashboard-Preview für Release-Daten-Prüfung
 
 function setView(mode) {
   viewMode = mode;
@@ -743,6 +744,99 @@ async function loadViewCollection() {
 }
 
 // ─── Dashboard ────────────────────────────────────────────────────────────
+function escapeHtml(value) {
+  return String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function buildDashboardReleaseCheckPreview() {
+  const cacheLoaded = releaseCacheStatus === 'loaded' && releaseCache && Array.isArray(releaseCache.items);
+  const checkedSeries = Array.isArray(db.m) ? db.m.length : 0;
+  const candidates = [];
+
+  if (cacheLoaded) {
+    db.m.forEach(m => {
+      const targetVolume = mFirstMissingBand(m) ?? mNextBand(m);
+      const matches = findReleaseMatchesForSeries(m)
+        .filter(item => item && item.releaseDate && item.releaseDate !== m.nextDate);
+      if (!matches.length) return;
+      const best = matches[0];
+      candidates.push({
+        title: m.title || '',
+        publisher: m.pub || '',
+        volumeNumber: best.volumeNumber || targetVolume,
+        currentDate: m.nextDate || '',
+        releaseDate: best.releaseDate,
+        sourceName: best.sourceName || '',
+        confidence: best.confidence || '',
+      });
+    });
+  }
+
+  return {
+    cacheLoaded,
+    cacheStatus: releaseCacheStatus,
+    cacheItems: cacheLoaded ? releaseCache.items.length : 0,
+    checkedSeries,
+    checkedVolumes: checkedSeries,
+    releaseDateHits: candidates.length,
+    noHits: Math.max(0, checkedSeries - candidates.length),
+    candidates,
+  };
+}
+
+function renderDashboardReleaseCheckPreview(result) {
+  if (!result) {
+    return `<p class="stats-empty-note" id="dashboard-release-check-result">Noch keine Prüfung ausgeführt. Es werden keine Daten automatisch geändert.</p>`;
+  }
+  const statusLabel = {
+    'not-loaded': 'noch nicht geladen',
+    'missing':    'nicht gefunden',
+    'invalid':    'ungültig',
+    'loaded':     'geladen',
+  };
+  const cacheNote = result.cacheLoaded
+    ? `Release-Cache geladen (${result.cacheItems} Einträge).`
+    : `Release-Cache ${statusLabel[result.cacheStatus] || result.cacheStatus}; Prüfung ohne Treffer.`;
+  const previewLimit = 12;
+  return `<div id="dashboard-release-check-result" class="dashboard-release-preview">
+    <div class="stat-big-grid cols-3 dashboard-action-stats">
+      <div class="stat-big-card"><div class="stat-big-n">${result.checkedSeries}</div><div class="stat-big-l">Serien/Ziel-Bände geprüft</div></div>
+      <div class="stat-big-card"><div class="stat-big-n">${result.releaseDateHits}</div><div class="stat-big-l">Release-Datum-Treffer</div></div>
+      <div class="stat-big-card"><div class="stat-big-n">${result.noHits}</div><div class="stat-big-l">Ohne Treffer</div></div>
+    </div>
+    <p class="stats-empty-note">${cacheNote} Nur Vorschau — es werden keine Daten überschrieben.</p>
+    ${result.candidates.length ? `<div class="dashboard-release-candidates">
+      ${result.candidates.slice(0, previewLimit).map(item => {
+        const current = item.currentDate ? escapeHtml(item.currentDate) : 'leer';
+        const src = [item.sourceName, item.confidence].filter(Boolean).join(' · ');
+        return `<div class="dashboard-release-candidate">
+          <div class="dashboard-release-candidate-main">
+            <strong>${escapeHtml(item.title)}</strong>
+            <span>Band ${escapeHtml(item.volumeNumber)}</span>
+          </div>
+          <div class="dashboard-release-candidate-meta">
+            ${item.publisher ? `<span>${escapeHtml(item.publisher)}</span>` : ''}
+            <span>${current} → <strong>${escapeHtml(item.releaseDate)}</strong></span>
+            ${src ? `<span>${escapeHtml(src)}</span>` : ''}
+          </div>
+        </div>`;
+      }).join('')}
+      ${result.candidates.length > previewLimit ? `<p class="stats-empty-note">… und ${result.candidates.length - previewLimit} weitere Kandidaten.</p>` : ''}
+    </div>` : ''}
+  </div>`;
+}
+
+function runDashboardReleaseDateCheck() {
+  _dashboardReleasePreview = buildDashboardReleaseCheckPreview();
+  const el = document.getElementById('dashboard-release-check-result');
+  if (el) el.outerHTML = renderDashboardReleaseCheckPreview(_dashboardReleasePreview);
+  toast(`📅 Release-Daten geprüft: ${_dashboardReleasePreview.releaseDateHits} Treffer, ${_dashboardReleasePreview.noHits} ohne Treffer`);
+}
 function renderDashboard() {
   const year = new Date().getFullYear();
   const MONATE = ['Jan','Feb','Mär','Apr','Mai','Jun','Jul','Aug','Sep','Okt','Nov','Dez'];
@@ -851,6 +945,15 @@ function renderDashboard() {
   })() : null;
   el.innerHTML = `<div class="stats-page">
     ${renderImportExport()}
+    <div class="stats-section">
+      <h3>Prüfen &amp; Korrigieren</h3>
+      <div class="dashboard-actions">
+        <button type="button" class="add-btn dashboard-action-btn" onclick="runDashboardReleaseDateCheck()">Alle Release-Daten prüfen</button>
+        <p class="stats-empty-note">Prüft vorhandene Serien gegen den lokalen Release-Cache und zeigt nur eine Vorschau an.</p>
+      </div>
+      ${renderDashboardReleaseCheckPreview(_dashboardReleasePreview)}
+    </div>
+
     <div class="stats-section">
       <h3>Sammlung gesamt</h3>
       <div class="stat-big-grid">
