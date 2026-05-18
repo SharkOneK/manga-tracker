@@ -11,6 +11,15 @@ function mOwned(m) {
   return Object.keys(m.bands || {}).length;
 }
 
+function mSeriesStatus(m) {
+  if (m.status === 'wishlist') return 'wishlist';
+  const vals = Object.values(m.bands || {});
+  if (!vals.length) return 'owned';
+  if (vals.includes('reading')) return 'reading';
+  if (vals.every(v => v === 'completed')) return 'completed';
+  return 'owned';
+}
+
 function mFirstMissingBand(m) {
   const owned = m.bands || {};
   const total = Number(m.total);
@@ -22,6 +31,15 @@ function mFirstMissingBand(m) {
     if (!ownedNums.has(i)) return i;
   }
   return null;
+}
+
+function mCollectionStatus(m) {
+  if (m.status === 'wishlist') return 'wishlist';
+  const total = Number(m.total);
+  const totalKnown = !isNaN(total) && total > 0;
+  if (totalKnown && mFirstMissingBand(m) !== null) return 'missing';
+  if (totalKnown && mFirstMissingBand(m) === null) return 'complete';
+  return mOwned(m) > 0 ? 'owned' : 'empty';
 }
 
 // ─── Statistik-Berechnungen aus dem Dashboard ─────────────────────────────
@@ -226,6 +244,63 @@ function buildDashboardReleaseCheckPreviewForTest(mangaList, cache, status) {
     releaseDateHits: candidates.length,
     noHits: Math.max(0, checkedSeries - candidates.length),
     candidates,
+  };
+}
+
+// Phase 18e: Dashboard-Serienstatus-Prüfung (Preview-only)
+function inspectSeriesStatusForTest(m) {
+  const total = Number(m.total);
+  const totalKnown = !isNaN(total) && total > 0;
+  const owned = mOwned(m);
+  const firstMissing = mFirstMissingBand(m);
+  const missingCount = totalKnown ? Math.max(0, total - owned) : 0;
+  const collectionStatus = mCollectionStatus(m);
+  const seriesStatus = mSeriesStatus(m);
+  const bandValues = Object.values(m.bands || {});
+  const allKnownVolumesCollected = totalKnown && firstMissing === null;
+  const allKnownVolumesRead = allKnownVolumesCollected && bandValues.length >= total && bandValues.every(v => v === 'completed');
+  const reasons = [];
+
+  if (m.ongoing === 'false' && firstMissing !== null) {
+    reasons.push({ code: 'finished_missing_volumes', text: `abgeschlossen mit ${missingCount} fehlenden Baenden` });
+  }
+  if (m.ongoing === 'false' && m.nextDate) {
+    reasons.push({ code: 'finished_has_next_date', text: 'abgeschlossen mit nextDate' });
+  }
+  if (m.ongoing === 'true' && allKnownVolumesRead && !m.nextDate) {
+    reasons.push({ code: 'ongoing_complete_read_no_next_date', text: 'laufend, vollstaendig gelesen, ohne nextDate' });
+  } else if (m.ongoing === 'true' && allKnownVolumesCollected && !m.nextDate) {
+    reasons.push({ code: 'ongoing_complete_no_next_date', text: 'laufend, vollstaendig gesammelt, ohne nextDate' });
+  }
+  if (seriesStatus === 'completed' && firstMissing !== null) {
+    reasons.push({ code: 'completed_display_missing_volumes', text: 'completed Anzeige mit fehlenden Baenden' });
+  }
+
+  return {
+    title: m.title || '',
+    status: m.ongoing === 'true' || m.ongoing === 'false' ? m.ongoing : 'unknown',
+    collectionStatus,
+    seriesStatus,
+    owned,
+    total: totalKnown ? total : null,
+    firstMissing,
+    nextDate: m.nextDate || '',
+    reasons,
+  };
+}
+
+function buildDashboardSeriesStatusPreviewForTest(mangaList, hooks = {}) {
+  const before = JSON.stringify(mangaList);
+  const checked = (Array.isArray(mangaList) ? mangaList : []).map(inspectSeriesStatusForTest);
+  const flagged = checked.filter(item => item.reasons.length > 0);
+  assert.strictEqual(JSON.stringify(mangaList), before, 'Serienstatus-Preview darf Manga-Daten nicht mutieren');
+  assert.deepStrictEqual(hooks.events || [], [], 'Serienstatus-Preview darf kein persist/localStorage ausloesen');
+  return {
+    checkedSeries: checked.length,
+    okSeries: checked.length - flagged.length,
+    flaggedSeries: flagged.length,
+    checked,
+    flagged,
   };
 }
 // ─── Test-Runner ──────────────────────────────────────────────────────────
@@ -734,6 +809,63 @@ test('Dashboard-Release-Uebernahme: fehlgeschlagenes Backup verhindert Mutation'
   assert.strictEqual(list[0].nextDate, null);
 });
 // ─── Ergebnis ─────────────────────────────────────────────────────────────
+
+
+// Phase 18e Tests ----------------------------------------------------------
+
+console.log('\nPhase 18e - Dashboard Serien-Status-Pruefung Preview Tests\n');
+
+test('Dashboard-Serienstatus-Check: Button und Preview-Container sind in app.js vorhanden', () => {
+  const appJs = require('fs').readFileSync('src/app.js', 'utf8');
+  assert.ok(appJs.includes('Alle Serien-Status'), 'Button fehlt');
+  assert.ok(appJs.includes('dashboard-series-status-check-result'), 'Preview-Container fehlt');
+  assert.ok(appJs.includes('runDashboardSeriesStatusCheck'), 'Run-Funktion fehlt');
+});
+
+test('Dashboard-Serienstatus-Check: robuster Preview bei leerer Datenbank', () => {
+  const result = buildDashboardSeriesStatusPreviewForTest([]);
+  assert.strictEqual(result.checkedSeries, 0);
+  assert.strictEqual(result.okSeries, 0);
+  assert.strictEqual(result.flaggedSeries, 0);
+  assert.deepStrictEqual(result.flagged, []);
+});
+
+test('Dashboard-Serienstatus-Check: erkennt auffaellige Status-Kombinationen', () => {
+  const list = [
+    { title: 'Abgeschlossen mit Luecke', ongoing: 'false', bands: { '1': 'owned' }, total: 3, nextDate: null },
+    { title: 'Abgeschlossen mit Datum', ongoing: 'false', bands: { '1': 'completed' }, total: 1, nextDate: '2026-10-01' },
+    { title: 'Laufend fertig gelesen', ongoing: 'true', bands: { '1': 'completed', '2': 'completed' }, total: 2, nextDate: null },
+  ];
+  const result = buildDashboardSeriesStatusPreviewForTest(list);
+  const codes = result.flagged.flatMap(item => item.reasons.map(r => r.code));
+  assert.strictEqual(result.checkedSeries, 3);
+  assert.strictEqual(result.flaggedSeries, 3);
+  assert.ok(codes.includes('finished_missing_volumes'));
+  assert.ok(codes.includes('finished_has_next_date'));
+  assert.ok(codes.includes('ongoing_complete_read_no_next_date'));
+});
+
+test('Dashboard-Serienstatus-Check: unauffaellige Serien werden nicht falsch markiert', () => {
+  const list = [
+    { title: 'Laufend mit fehlendem Band und Datum', ongoing: 'true', bands: { '1': 'owned' }, total: 2, nextDate: '2026-10-01' },
+    { title: 'Abgeschlossen komplett', ongoing: 'false', bands: { '1': 'completed', '2': 'completed' }, total: 2, nextDate: null },
+    { title: 'Unbekannt kleine DB', ongoing: 'unknown', bands: {}, total: null, nextDate: null },
+  ];
+  const result = buildDashboardSeriesStatusPreviewForTest(list);
+  assert.strictEqual(result.checkedSeries, 3);
+  assert.strictEqual(result.okSeries, 3);
+  assert.strictEqual(result.flaggedSeries, 0);
+});
+
+test('Dashboard-Serienstatus-Check: Preview mutiert keine Daten und schreibt nicht', () => {
+  const events = [];
+  const list = [{ title: 'Manga I', ongoing: 'false', bands: { '1': 'owned' }, total: 2, nextDate: null }];
+  const before = JSON.stringify(list);
+  const result = buildDashboardSeriesStatusPreviewForTest(list, { events });
+  assert.strictEqual(result.flaggedSeries, 1);
+  assert.strictEqual(JSON.stringify(list), before);
+  assert.deepStrictEqual(events, [], 'kein persist/localStorage-Write durch reine Pruefung');
+});
 
 console.log(`\n${passed + failed} Tests — ${passed} bestanden, ${failed} fehlgeschlagen\n`);
 if (failed > 0) process.exit(1);

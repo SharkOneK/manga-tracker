@@ -240,6 +240,14 @@ function mFirstMissingBand(m) {
   // Alle Bände bis total vorhanden → kein fehlender Band
   return null;
 }
+function mCollectionStatus(m) {
+  if (m.status === 'wishlist') return 'wishlist';
+  const total = Number(m.total);
+  const totalKnown = !isNaN(total) && total > 0;
+  if (totalKnown && mFirstMissingBand(m) !== null) return 'missing';
+  if (totalKnown && mFirstMissingBand(m) === null) return 'complete';
+  return mOwned(m) > 0 ? 'owned' : 'empty';
+}
 
 // ─── Modal Band-Manager state ──────────────────────────────────────────────
 let modalBands = {};
@@ -453,6 +461,7 @@ let releaseCache        = null;         // Geladene release-cache.json oder null
 let releaseCacheStatus  = 'not-loaded'; // 'not-loaded' | 'loaded' | 'missing' | 'invalid'
 let _currentReleaseMatches = [];        // Zwischenspeicher für aktuelle Vorschau (Phase 15c)
 let _dashboardReleasePreview = null;     // Phase 18c: Dashboard-Preview für Release-Daten-Prüfung
+let _dashboardSeriesStatusPreview = null; // Phase 18e: Dashboard-Preview für Serienstatus-Prüfung
 
 function setView(mode) {
   viewMode = mode;
@@ -753,6 +762,144 @@ function escapeHtml(value) {
     .replace(/'/g, '&#39;');
 }
 
+function seriesStatusLabel(value) {
+  if (value === 'true') return 'Laufend';
+  if (value === 'false') return 'Abgeschlossen';
+  return 'Unbekannt';
+}
+
+function collectionStatusLabel(value) {
+  return {
+    wishlist: 'Wunschliste',
+    missing: 'Unvollständig',
+    complete: 'Vollständig gesammelt',
+    owned: 'Ohne bekannte Gesamtzahl',
+    empty: 'Ohne Bände',
+  }[value] || value;
+}
+
+function inspectSeriesStatus(m) {
+  const total = Number(m.total);
+  const totalKnown = !isNaN(total) && total > 0;
+  const owned = mOwned(m);
+  const firstMissing = mFirstMissingBand(m);
+  const missingCount = totalKnown ? Math.max(0, total - owned) : 0;
+  const collectionStatus = mCollectionStatus(m);
+  const seriesStatus = mSeriesStatus(m);
+  const bandValues = Object.values(m.bands || {});
+  const allKnownVolumesCollected = totalKnown && firstMissing === null;
+  const allKnownVolumesRead = allKnownVolumesCollected && bandValues.length >= total && bandValues.every(v => v === 'completed');
+  const reasons = [];
+
+  if (m.ongoing === 'false' && firstMissing !== null) {
+    reasons.push({
+      code: 'finished_missing_volumes',
+      text: `Als abgeschlossen markiert, aber ${missingCount} bekannte(r) Band/Bände fehlt/fehlen (nächster fehlender Band: ${firstMissing}).`,
+      suggestion: 'Publikationsstatus kann abgeschlossen bleiben; Sammlung/Fehlbände sollten aber sichtbar als unvollständig behandelt werden.',
+    });
+  }
+
+  if (m.ongoing === 'false' && m.nextDate) {
+    reasons.push({
+      code: 'finished_has_next_date',
+      text: `Als abgeschlossen markiert, hat aber ein nächstes Release-Datum (${m.nextDate}).`,
+      suggestion: 'Wahrscheinlich laufend/geplant oder nextDate ist veraltet und sollte später manuell geprüft werden.',
+    });
+  }
+
+  if (m.ongoing === 'true' && allKnownVolumesRead && !m.nextDate) {
+    reasons.push({
+      code: 'ongoing_complete_read_no_next_date',
+      text: 'Als laufend markiert, aber alle bekannten Bände sind gesammelt und gelesen; kein nächstes Release-Datum ist gesetzt.',
+      suggestion: 'Möglicherweise abgeschlossen oder aktuell ohne angekündigten Folgeband.',
+    });
+  } else if (m.ongoing === 'true' && allKnownVolumesCollected && !m.nextDate) {
+    reasons.push({
+      code: 'ongoing_complete_no_next_date',
+      text: 'Als laufend markiert, aber alle bekannten Bände sind gesammelt; kein nächstes Release-Datum ist gesetzt.',
+      suggestion: 'Möglicherweise abgeschlossen oder es fehlt ein kommendes Release-Datum.',
+    });
+  }
+
+  if (seriesStatus === 'completed' && firstMissing !== null) {
+    reasons.push({
+      code: 'completed_display_missing_volumes',
+      text: `Sammlungs-/Lesestatus wirkt abgeschlossen (${seriesStatus}), aber bekannte Bände fehlen.`,
+      suggestion: 'Nicht als vollständig interpretieren; zuerst fehlende Bandnummern prüfen.',
+    });
+  }
+
+  return {
+    seriesId: m.id || '',
+    title: m.title || '',
+    publisher: m.pub || '',
+    status: m.ongoing === 'true' || m.ongoing === 'false' ? m.ongoing : 'unknown',
+    statusLabel: seriesStatusLabel(m.ongoing),
+    collectionStatus,
+    collectionStatusLabel: collectionStatusLabel(collectionStatus),
+    seriesStatus,
+    owned,
+    total: totalKnown ? total : null,
+    firstMissing,
+    nextDate: m.nextDate || '',
+    reasons,
+  };
+}
+
+function buildDashboardSeriesStatusPreview() {
+  const list = Array.isArray(db.m) ? db.m : [];
+  const checked = list.map(inspectSeriesStatus);
+  const flagged = checked.filter(item => item.reasons.length > 0);
+  return {
+    checkedSeries: checked.length,
+    okSeries: checked.length - flagged.length,
+    flaggedSeries: flagged.length,
+    checked,
+    flagged,
+  };
+}
+
+function renderDashboardSeriesStatusPreview(result) {
+  if (!result) {
+    return `<p class="stats-empty-note" id="dashboard-series-status-check-result">Noch keine Serienstatus-Prüfung ausgeführt. Diese Prüfung ist nur eine Preview und ändert keine Daten.</p>`;
+  }
+  const flaggedHtml = result.flaggedSeries === 0
+    ? `<p class="stats-empty-note success">✅ Keine auffälligen Serienstatus-Kombinationen gefunden.</p>`
+    : `<div class="dashboard-series-status-candidates">
+      ${result.flagged.map(item => `<div class="dashboard-series-status-candidate">
+        <div class="dashboard-release-candidate-main">
+          <strong>${escapeHtml(item.title)}</strong>
+          <span>${escapeHtml(item.publisher || 'Unbekannter Verlag')}</span>
+        </div>
+        <div class="dashboard-release-candidate-meta">
+          <span>Serienstatus: <strong>${escapeHtml(item.statusLabel)}</strong></span>
+          <span>Sammlung: ${escapeHtml(item.collectionStatusLabel)}</span>
+          <span>Bände: ${escapeHtml(item.owned)}${item.total !== null ? ` / ${escapeHtml(item.total)}` : ''}</span>
+          ${item.nextDate ? `<span>nextDate: ${escapeHtml(item.nextDate)}</span>` : ''}
+        </div>
+        <ul class="dashboard-series-status-reasons">
+          ${item.reasons.map(reason => `<li><strong>${escapeHtml(reason.text)}</strong><br><span>${escapeHtml(reason.suggestion)}</span></li>`).join('')}
+        </ul>
+      </div>`).join('')}
+    </div>`;
+  return `<div id="dashboard-series-status-check-result" class="dashboard-series-status-preview">
+    <div class="stat-big-grid cols-3 dashboard-action-stats">
+      <div class="stat-big-card"><div class="stat-big-n">${result.checkedSeries}</div><div class="stat-big-l">Serien geprüft</div></div>
+      <div class="stat-big-card"><div class="stat-big-n">${result.okSeries}</div><div class="stat-big-l">Unauffällig</div></div>
+      <div class="stat-big-card"><div class="stat-big-n">${result.flaggedSeries}</div><div class="stat-big-l">Auffällig</div></div>
+    </div>
+    <p class="stats-empty-note">Nur Vorschau — keine automatische Korrektur, kein Speichern, keine Supabase-Änderung.</p>
+    ${flaggedHtml}
+  </div>`;
+}
+
+function runDashboardSeriesStatusCheck() {
+  _dashboardSeriesStatusPreview = buildDashboardSeriesStatusPreview();
+  const el = document.getElementById('dashboard-series-status-check-result');
+  if (el) el.outerHTML = renderDashboardSeriesStatusPreview(_dashboardSeriesStatusPreview);
+  toast(`🔎 Serienstatus geprüft: ${_dashboardSeriesStatusPreview.flaggedSeries} auffällig, ${_dashboardSeriesStatusPreview.okSeries} unauffällig`);
+}
+
 function buildDashboardReleaseCheckPreview() {
   const cacheLoaded = releaseCacheStatus === 'loaded' && releaseCache && Array.isArray(releaseCache.items);
   const checkedSeries = Array.isArray(db.m) ? db.m.length : 0;
@@ -1020,9 +1167,11 @@ function renderDashboard() {
       <h3>Prüfen &amp; Korrigieren</h3>
       <div class="dashboard-actions">
         <button type="button" class="add-btn dashboard-action-btn" onclick="runDashboardReleaseDateCheck()">Alle Release-Daten prüfen</button>
-        <p class="stats-empty-note">Prüft vorhandene Serien gegen den lokalen Release-Cache und zeigt nur eine Vorschau an.</p>
+        <button type="button" class="add-btn dashboard-action-btn" onclick="runDashboardSeriesStatusCheck()">Alle Serien-Status prüfen</button>
+        <p class="stats-empty-note">Prüft vorhandene Serien gegen den lokalen Release-Cache und Serienstatus-Plausibilität. Ergebnisse sind nur Vorschau.</p>
       </div>
       ${renderDashboardReleaseCheckPreview(_dashboardReleasePreview)}
+      ${renderDashboardSeriesStatusPreview(_dashboardSeriesStatusPreview)}
     </div>
 
     <div class="stats-section">
