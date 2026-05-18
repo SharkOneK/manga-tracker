@@ -168,6 +168,68 @@ if (!fs.existsSync(cachePath)) {
   }
 }
 
+// ── Phase 18f: Dashboard-Kaufvorschau und Kaufen-Sortierung ───────────────────
+const appJsPath = path.join(repoRoot, 'src', 'app.js');
+console.log('\nPrüfe: Phase 18f — Dashboard-Kaufvorschau und Sortierung\n');
+
+if (fs.existsSync(appJsPath)) {
+  const appJs = fs.readFileSync(appJsPath, 'utf-8');
+
+  // Keine Merge-Konflikt-Marker
+  let appConflicts = 0;
+  CONFLICT_MARKERS.forEach(marker => {
+    if (appJs.includes(marker)) {
+      fail('Merge-Konflikt-Marker in src/app.js: "' + marker + '"');
+      appConflicts++;
+    }
+  });
+  if (appConflicts === 0) pass('src/app.js: keine Merge-Konflikt-Marker');
+
+  // BUY_PREVIEW_MAX vorhanden
+  if (!appJs.includes('BUY_PREVIEW_MAX')) {
+    fail('src/app.js: BUY_PREVIEW_MAX fehlt');
+  } else {
+    pass('src/app.js: BUY_PREVIEW_MAX vorhanden');
+  }
+
+  // compareBuyEntries-Funktion vorhanden
+  if (!appJs.includes('compareBuyEntries')) {
+    fail('src/app.js: compareBuyEntries-Funktion fehlt');
+  } else {
+    pass('src/app.js: compareBuyEntries-Funktion vorhanden');
+  }
+
+  // Alle Käufe anzeigen-Button vorhanden
+  if (!appJs.includes('Alle Käufe anzeigen')) {
+    fail('src/app.js: „Alle Käufe anzeigen"-Button fehlt');
+  } else {
+    pass('src/app.js: „Alle Käufe anzeigen"-Button vorhanden');
+  }
+
+  // Zusammenfassung-Marker vorhanden
+  if (!appJs.includes('stats-buy-summary')) {
+    fail('src/app.js: stats-buy-summary-Element fehlt');
+  } else {
+    pass('src/app.js: stats-buy-summary-Element vorhanden');
+  }
+
+  // Strukturierte Vorschau-Sektionen vorhanden
+  if (!appJs.includes('stats-buy-section-head')) {
+    fail('src/app.js: stats-buy-section-head fehlt');
+  } else {
+    pass('src/app.js: stats-buy-section-head vorhanden');
+  }
+
+  // Keine neuen externen Script-Tags durch Phase 18f
+  const scriptTagRe = /<script[^>]+src=["'][^"']*["']/g;
+  const matches = appJs.match(scriptTagRe) || [];
+  if (matches.length === 0) {
+    pass('src/app.js: keine externen Script-Tags eingefügt');
+  }
+} else {
+  fail('src/app.js nicht gefunden');
+}
+
 // ── Ergebnis ───────────────────────────────────────────────────────────────
 console.log('');
 if (totalErrors > 0) {

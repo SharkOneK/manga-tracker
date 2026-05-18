@@ -489,6 +489,36 @@ function applySearch(list) {
 }
 
 // ─── Computed ─────────────────────────────────────────────────────────────
+
+// Phase 18f: Stabile Sortierfunktion für Kaufeinträge (keine Datenmutation)
+// Reihenfolge: verfügbar zuerst → zukünftige aufsteigend nach Datum → kein Datum
+//              → sekundär alphabetisch nach Titel → tertiär nach Bandnummer
+function compareBuyEntries(a, b, today) {
+  if (!today) { today = new Date(); today.setHours(0,0,0,0); }
+  const da = a.nextDate ? new Date(a.nextDate + 'T00:00:00') : null;
+  const db2 = b.nextDate ? new Date(b.nextDate + 'T00:00:00') : null;
+  const aAvail = !da || da <= today;
+  const bAvail = !db2 || db2 <= today;
+  // 1) Verfügbare zuerst
+  if (aAvail && !bAvail) return -1;
+  if (!aAvail && bAvail) return 1;
+  // 2) Beide zukünftig: aufsteigend nach Datum
+  if (!aAvail && !bAvail) {
+    if (da && db2) {
+      const diff = da - db2;
+      if (diff !== 0) return diff;
+    }
+  }
+  // 3) Beide verfügbar oder gleiche Daten: kein Datum nach Datum-Einträgen
+  if (da && !db2) return -1;
+  if (!da && db2) return 1;
+  // 4) Alphabetisch nach Titel
+  const titleCmp = (a.title || '').localeCompare(b.title || '', 'de');
+  if (titleCmp !== 0) return titleCmp;
+  // 5) Nach Bandnummer
+  return (a.next || 0) - (b.next || 0);
+}
+
 function toBuyList() {
   const today = new Date(); today.setHours(0,0,0,0);
   return db.m
@@ -499,19 +529,7 @@ function toBuyList() {
       return mFirstMissingBand(m) !== null;
     })
     .map(m => ({ ...m, next: mFirstMissingBand(m) }))
-    .sort((a, b) => {
-      // available first, then by date, then alpha
-      const da = a.nextDate ? new Date(a.nextDate) : null;
-      const db2 = b.nextDate ? new Date(b.nextDate) : null;
-      const aAvail = !da || da <= today;
-      const bAvail = !db2 || db2 <= today;
-      if (aAvail && !bAvail) return -1;
-      if (!aAvail && bAvail) return 1;
-      if (da && db2) return da - db2;
-      if (da && !db2) return -1;
-      if (!da && db2) return 1;
-      return a.title.localeCompare(b.title, 'de');
-    });
+    .sort((a, b) => compareBuyEntries(a, b, today));
 }
 
 // ─── Volume list helpers ──────────────────────────────────────────────────
@@ -1136,10 +1154,11 @@ function renderDashboard() {
     statusCounts.owned,   statusCounts.wishlist, 1
   );
 
-  // Phase 17b: Kaufvorschau (max. 5, available-first via toBuyList())
-  const BUY_PREVIEW_MAX = 5;
+  // Phase 18f: Kaufvorschau (max. 8, available-first via toBuyList())
+  const BUY_PREVIEW_MAX = 8;
   const today = new Date(); today.setHours(0,0,0,0);
-  const buyPreviewItems = toBuyList().slice(0, BUY_PREVIEW_MAX);
+  const buyPreviewAll = toBuyList();
+  const buyPreviewItems = buyPreviewAll.slice(0, BUY_PREVIEW_MAX);
 
   // Phase 17c: Release-Cache-Kennzahlen (nur bei geladenem Cache rendern)
   const releaseStatsAvailable = releaseCacheStatus === 'loaded'
@@ -1236,24 +1255,42 @@ function renderDashboard() {
       <h3>Nächste Käufe &amp; Vormerkungen</h3>
       ${buyPreviewItems.length === 0
         ? `<p class="stats-empty-note">Aktuell keine offenen Käufe.</p>`
-        : `<div class="stats-buy-preview">${buyPreviewItems.map(item => {
-            const d = item.nextDate ? new Date(item.nextDate + 'T00:00:00') : null;
-            const isAvail = !d || d <= today;
-            const dateLabel = d
-              ? (isAvail
-                  ? 'Jetzt erhältlich'
-                  : d.toLocaleDateString('de-DE', {day:'2-digit',month:'2-digit',year:'numeric'}))
-              : '';
-            const pubHtml    = item.pub    ? `<span class="stats-buy-pub">${item.pub}</span>` : '';
-            const dateHtml   = dateLabel  ? `<span class="stats-buy-date">${dateLabel}</span>` : '';
-            return `<div class="stats-buy-item${isAvail ? ' avail' : ' soon'}">
-              <div class="stats-buy-main">
-                <span class="stats-buy-title">${item.title}</span>
-                <span class="stats-buy-band">Band ${item.next}</span>
-              </div>
-              <div class="stats-buy-meta">${pubHtml}${dateHtml}</div>
-            </div>`;
-          }).join('')}</div>`}
+        : (() => {
+            const previewAvail   = buyPreviewItems.filter(item => { const d = item.nextDate ? new Date(item.nextDate + 'T00:00:00') : null; return !d || d <= today; });
+            const previewSoon    = buyPreviewItems.filter(item => { const d = item.nextDate ? new Date(item.nextDate + 'T00:00:00') : null; return d && d > today; });
+            const totalAvailAll  = buyPreviewAll.filter(item => { const d = item.nextDate ? new Date(item.nextDate + 'T00:00:00') : null; return !d || d <= today; }).length;
+            const totalSoonAll   = buyPreviewAll.filter(item => { const d = item.nextDate ? new Date(item.nextDate + 'T00:00:00') : null; return d && d > today; }).length;
+            const totalAll       = buyPreviewAll.length;
+            function buyPreviewRow(item) {
+              const d = item.nextDate ? new Date(item.nextDate + 'T00:00:00') : null;
+              const isAvail = !d || d <= today;
+              const dateLabel = d
+                ? (isAvail ? 'Jetzt erhältlich' : d.toLocaleDateString('de-DE', {day:'2-digit',month:'2-digit',year:'numeric'}))
+                : 'Jetzt erhältlich';
+              const pubHtml  = item.pub   ? `<span class="stats-buy-pub">${item.pub}</span>` : '';
+              const dateHtml = `<span class="stats-buy-date">${dateLabel}</span>`;
+              return `<div class="stats-buy-item${isAvail ? ' avail' : ' soon'}">
+                <div class="stats-buy-main">
+                  <span class="stats-buy-title">${item.title}</span>
+                  <span class="stats-buy-band">Band ${item.next}</span>
+                </div>
+                <div class="stats-buy-meta">${pubHtml}${dateHtml}</div>
+              </div>`;
+            }
+            let html = '<div class="stats-buy-preview">';
+            if (previewAvail.length) {
+              html += `<div class="stats-buy-section-head avail-head">Jetzt erhältlich</div>`;
+              html += previewAvail.map(buyPreviewRow).join('');
+            }
+            if (previewSoon.length) {
+              html += `<div class="stats-buy-section-head soon-head">Vorgemerkt</div>`;
+              html += previewSoon.map(buyPreviewRow).join('');
+            }
+            html += `</div>`;
+            html += `<div class="stats-buy-summary">${totalAvailAll} verfügbar · ${totalSoonAll} vorgemerkt · ${totalAll} gesamt</div>`;
+            html += `<button type="button" class="stats-buy-all-btn" onclick="setTab('buy')">Alle Käufe anzeigen →</button>`;
+            return html;
+          })()}
     </div>
 
     ${releaseStats ? `<div class="stats-section">

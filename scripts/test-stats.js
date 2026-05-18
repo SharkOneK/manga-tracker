@@ -867,5 +867,213 @@ test('Dashboard-Serienstatus-Check: Preview mutiert keine Daten und schreibt nic
   assert.deepStrictEqual(events, [], 'kein persist/localStorage-Write durch reine Pruefung');
 });
 
+// ─── Phase 18f: Helfer ───────────────────────────────────────────────────────
+
+// Spiegelt compareBuyEntries aus app.js (Phase 18f)
+function compareBuyEntries(a, b, today) {
+  if (!today) { today = new Date(); today.setHours(0,0,0,0); }
+  const da  = a.nextDate ? new Date(a.nextDate + 'T00:00:00') : null;
+  const db2 = b.nextDate ? new Date(b.nextDate + 'T00:00:00') : null;
+  const aAvail = !da  || da  <= today;
+  const bAvail = !db2 || db2 <= today;
+  if (aAvail && !bAvail) return -1;
+  if (!aAvail && bAvail) return  1;
+  if (!aAvail && !bAvail) {
+    if (da && db2) {
+      const diff = da - db2;
+      if (diff !== 0) return diff;
+    }
+  }
+  if (da && !db2) return -1;
+  if (!da && db2) return  1;
+  const titleCmp = (a.title || '').localeCompare(b.title || '', 'de');
+  if (titleCmp !== 0) return titleCmp;
+  return (a.next || 0) - (b.next || 0);
+}
+
+// Spiegelt die Dashboard-Kaufvorschau-Logik (Phase 18f): kein Schreiben, keine Mutation
+function calcBuyPreviewStructured(mangaList, maxItems, baseDate) {
+  const BUY_PREVIEW_MAX = (typeof maxItems === 'number') ? maxItems : 8;
+  const today = baseDate ? new Date(baseDate + 'T00:00:00') : new Date();
+  today.setHours(0,0,0,0);
+  const before = JSON.stringify(mangaList);
+
+  const allBuyItems = mangaList
+    .filter(m => {
+      const total = Number(m.total);
+      const owned = mOwned(m);
+      if (isNaN(total) || total <= 0 || total <= owned) return false;
+      return mFirstMissingBand(m) !== null;
+    })
+    .map(m => ({ ...m, next: mFirstMissingBand(m) }))
+    .sort((a, b) => compareBuyEntries(a, b, today));
+
+  const previewItems = allBuyItems.slice(0, BUY_PREVIEW_MAX);
+  const availItems = previewItems.filter(item => {
+    const d = item.nextDate ? new Date(item.nextDate + 'T00:00:00') : null;
+    return !d || d <= today;
+  });
+  const soonItems = previewItems.filter(item => {
+    const d = item.nextDate ? new Date(item.nextDate + 'T00:00:00') : null;
+    return d && d > today;
+  });
+  const totalAvailAll = allBuyItems.filter(item => {
+    const d = item.nextDate ? new Date(item.nextDate + 'T00:00:00') : null;
+    return !d || d <= today;
+  }).length;
+  const totalSoonAll = allBuyItems.filter(item => {
+    const d = item.nextDate ? new Date(item.nextDate + 'T00:00:00') : null;
+    return d && d > today;
+  }).length;
+
+  // Keine Datenmutation durch Preview
+  assert.strictEqual(JSON.stringify(mangaList), before, 'calcBuyPreviewStructured darf Manga-Daten nicht mutieren');
+
+  return {
+    previewItems,
+    availItems,
+    soonItems,
+    totalAll: allBuyItems.length,
+    totalAvailAll,
+    totalSoonAll,
+  };
+}
+
+// ─── Phase 18f Tests ──────────────────────────────────────────────────────────
+
+console.log('\nPhase 18f — Dashboard-Kaufvorschau und Kaufen-Sortierung Tests\n');
+
+test('Phase 18f: toBuyList sortiert verfuegbare vor zukuenftigen Baenden', () => {
+  const TODAY = '2026-05-18';
+  const list = [
+    { id: '1', title: 'Zukuenftige Serie', bands: { '1': 'owned' }, total: 5, nextDate: '2026-06-01' },
+    { id: '2', title: 'Verfuegbare Serie', bands: { '1': 'owned' }, total: 5, nextDate: '2026-04-01' },
+  ].map(m => ({ ...m, next: mFirstMissingBand(m) }));
+  list.sort((a, b) => compareBuyEntries(a, b, new Date(TODAY + 'T00:00:00')));
+  assert.strictEqual(list[0].title, 'Verfuegbare Serie', 'Verfügbare Serie muss zuerst erscheinen');
+  assert.strictEqual(list[1].title, 'Zukuenftige Serie');
+});
+
+test('Phase 18f: zukuenftige Baende aufsteigend nach Datum sortiert', () => {
+  const TODAY = '2026-05-18';
+  const today = new Date(TODAY + 'T00:00:00');
+  const list = [
+    { id: '3', title: 'Serie C', bands: { '1': 'owned' }, total: 5, next: 2, nextDate: '2026-08-01' },
+    { id: '1', title: 'Serie A', bands: { '1': 'owned' }, total: 5, next: 2, nextDate: '2026-06-01' },
+    { id: '2', title: 'Serie B', bands: { '1': 'owned' }, total: 5, next: 2, nextDate: '2026-07-01' },
+  ];
+  list.sort((a, b) => compareBuyEntries(a, b, today));
+  assert.strictEqual(list[0].title, 'Serie A', 'Frühestes Datum zuerst');
+  assert.strictEqual(list[1].title, 'Serie B');
+  assert.strictEqual(list[2].title, 'Serie C');
+});
+
+test('Phase 18f: Eintraege ohne Datum nach Datum-Eintraegen sortiert', () => {
+  const TODAY = '2026-05-18';
+  const today = new Date(TODAY + 'T00:00:00');
+  // Both have nextDate in the past (available), so aAvail && bAvail → compare da/db2 → da exists, db2 doesn't → da first
+  // Actually: both avail, da set, db2=null → da && !db2 → return -1 (a before b) ✓
+  const list = [
+    { id: '2', title: 'Ohne Datum',    bands: { '1': 'owned' }, total: 5, next: 2, nextDate: null },
+    { id: '1', title: 'Mit Alt-Datum', bands: { '1': 'owned' }, total: 5, next: 2, nextDate: '2026-04-01' },
+  ];
+  list.sort((a, b) => compareBuyEntries(a, b, today));
+  assert.strictEqual(list[0].title, 'Mit Alt-Datum', 'Einträge mit Datum (auch verfügbar) vor Einträgen ohne Datum');
+  assert.strictEqual(list[1].title, 'Ohne Datum');
+});
+
+test('Phase 18f: gleiche Daten alphabetisch nach Titel sortiert', () => {
+  const TODAY = '2026-05-18';
+  const today = new Date(TODAY + 'T00:00:00');
+  const list = [
+    { id: '3', title: 'Zorn', bands: { '1': 'owned' }, total: 5, next: 2, nextDate: '2026-07-01' },
+    { id: '1', title: 'Alpha', bands: { '1': 'owned' }, total: 5, next: 2, nextDate: '2026-07-01' },
+    { id: '2', title: 'Mango', bands: { '1': 'owned' }, total: 5, next: 2, nextDate: '2026-07-01' },
+  ];
+  list.sort((a, b) => compareBuyEntries(a, b, today));
+  assert.strictEqual(list[0].title, 'Alpha',  'Alphabetisch: Alpha zuerst');
+  assert.strictEqual(list[1].title, 'Mango');
+  assert.strictEqual(list[2].title, 'Zorn');
+});
+
+test('Phase 18f: gleicher Titel nach Bandnummer sortiert', () => {
+  const TODAY = '2026-05-18';
+  const today = new Date(TODAY + 'T00:00:00');
+  const list = [
+    { id: '3', title: 'Gleiche Serie', bands: { '1': 'owned', '2': 'owned', '3': 'owned' }, total: 10, next: 4, nextDate: '2026-06-01' },
+    { id: '1', title: 'Gleiche Serie', bands: { '1': 'owned' }, total: 10, next: 2, nextDate: '2026-06-01' },
+    { id: '2', title: 'Gleiche Serie', bands: { '1': 'owned', '2': 'owned' }, total: 10, next: 3, nextDate: '2026-06-01' },
+  ];
+  list.sort((a, b) => compareBuyEntries(a, b, today));
+  assert.strictEqual(list[0].next, 2, 'Niedrigste Bandnummer zuerst');
+  assert.strictEqual(list[1].next, 3);
+  assert.strictEqual(list[2].next, 4);
+});
+
+test('Phase 18f: Dashboard-Kaufvorschau mutiert keine Manga-Daten', () => {
+  const list = [
+    { id: '1', title: 'Serie X', bands: { '1': 'owned' }, total: 5, nextDate: '2026-09-01' },
+    { id: '2', title: 'Serie Y', bands: { '1': 'owned' }, total: 3, nextDate: null },
+  ];
+  const before = JSON.stringify(list);
+  const result = calcBuyPreviewStructured(list, 8, '2026-05-18');
+  assert.strictEqual(JSON.stringify(list), before, 'Manga-Daten dürfen durch Kaufvorschau nicht verändert werden');
+  assert.ok(result.previewItems.length >= 0);
+});
+
+test('Phase 18f: Dashboard-Kaufvorschau begrenzt auf BUY_PREVIEW_MAX', () => {
+  const list = Array.from({ length: 12 }, (_, i) => ({
+    id: String(i), title: `Serie ${i}`, bands: { '1': 'owned' }, total: 5, nextDate: null,
+  }));
+  const result = calcBuyPreviewStructured(list, 8, '2026-05-18');
+  assert.strictEqual(result.previewItems.length, 8, 'Vorschau darf maximal 8 Einträge enthalten');
+  assert.strictEqual(result.totalAll, 12, 'totalAll muss alle Einträge zählen');
+});
+
+test('Phase 18f: Dashboard-Kaufvorschau zaehlt avail/soon korrekt', () => {
+  const list = [
+    { id: '1', title: 'Verfuegbar A', bands: { '1': 'owned' }, total: 3, nextDate: '2026-04-01' },
+    { id: '2', title: 'Verfuegbar B', bands: { '1': 'owned' }, total: 3, nextDate: null },
+    { id: '3', title: 'Vorgemerkt A', bands: { '1': 'owned' }, total: 3, nextDate: '2026-07-01' },
+    { id: '4', title: 'Vorgemerkt B', bands: { '1': 'owned' }, total: 3, nextDate: '2026-08-01' },
+  ];
+  const result = calcBuyPreviewStructured(list, 8, '2026-05-18');
+  assert.strictEqual(result.availItems.length, 2,   'Verfügbare Einträge: 2');
+  assert.strictEqual(result.soonItems.length,  2,   'Vorgemerkte Einträge: 2');
+  assert.strictEqual(result.totalAvailAll, 2, 'totalAvailAll korrekt');
+  assert.strictEqual(result.totalSoonAll,  2, 'totalSoonAll korrekt');
+  assert.strictEqual(result.totalAll,      4, 'totalAll korrekt');
+});
+
+test('Phase 18f: vollstaendige Serien erscheinen nicht in Kaufvorschau', () => {
+  const list = [
+    { id: '1', title: 'Vollstaendig', bands: { '1': 'owned', '2': 'owned', '3': 'owned' }, total: 3, nextDate: null },
+    { id: '2', title: 'Unvollstaendig', bands: { '1': 'owned' }, total: 3, nextDate: null },
+  ];
+  const result = calcBuyPreviewStructured(list, 8, '2026-05-18');
+  assert.strictEqual(result.totalAll, 1, 'Vollständige Serien dürfen nicht erscheinen');
+  assert.ok(result.previewItems.every(item => item.title !== 'Vollstaendig'), 'Vollständige Serie nicht in Preview');
+});
+
+test('Phase 18f: Serien ohne total erscheinen nicht in Kaufvorschau', () => {
+  const list = [
+    { id: '1', title: 'Kein Total',        bands: { '1': 'owned' }, total: null,      nextDate: null },
+    { id: '2', title: 'Total Null',         bands: { '1': 'owned' }, total: 0,         nextDate: null },
+    { id: '3', title: 'Total String leer', bands: { '1': 'owned' }, total: '',        nextDate: null },
+    { id: '4', title: 'Mit Total',          bands: { '1': 'owned' }, total: 3,         nextDate: null },
+  ];
+  const result = calcBuyPreviewStructured(list, 8, '2026-05-18');
+  assert.strictEqual(result.totalAll, 1, 'Nur die Serie mit gültigem total darf erscheinen');
+  assert.strictEqual(result.previewItems[0].title, 'Mit Total');
+});
+
+test('Phase 18f: app.js enthaelt BUY_PREVIEW_MAX-Konstante und Alle-Kaeufe-Button', () => {
+  const appJs = require('fs').readFileSync('src/app.js', 'utf8');
+  assert.ok(appJs.includes('BUY_PREVIEW_MAX'), 'BUY_PREVIEW_MAX-Konstante fehlt');
+  assert.ok(appJs.includes('Alle Käufe anzeigen'), '„Alle Käufe anzeigen"-Button fehlt');
+  assert.ok(appJs.includes('compareBuyEntries'), 'compareBuyEntries-Funktion fehlt');
+  assert.ok(appJs.includes('stats-buy-summary'), 'Zusammenfassungs-Element fehlt');
+});
+
 console.log(`\n${passed + failed} Tests — ${passed} bestanden, ${failed} fehlgeschlagen\n`);
 if (failed > 0) process.exit(1);
