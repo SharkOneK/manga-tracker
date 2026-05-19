@@ -24,6 +24,7 @@ const auditScript = path.join(repoRoot, 'scripts', 'audit-release-cache-coverage
 const reportWriterScript = path.join(repoRoot, 'scripts', 'write-release-cache-coverage-report.js');
 const summaryWriterScript = path.join(repoRoot, 'scripts', 'write-release-cache-coverage-summary.js');
 const gapsDocPath = path.join(repoRoot, 'docs', 'release-cache-coverage-gaps.md');
+const sourceGapAnalysisDocPath = path.join(repoRoot, 'docs', 'release-cache-source-gap-analysis.md');
 
 const EXPECTED = {
   missingCacheCoverage: 34,
@@ -31,6 +32,27 @@ const EXPECTED = {
   missingPublishers: 8,
   classification: 'source-data-gap',
 };
+
+const VALID_SUSPECTED_CAUSES = new Set([
+  'title-normalization',
+  'publisher-normalization',
+  'edition-mismatch',
+  'volume-numbering-mismatch',
+  'source-missing',
+  'parser-miss',
+  'manual-source-required',
+  'not-yet-released',
+  'unknown',
+]);
+
+const VALID_RECOMMENDED_FIXES = new Set([
+  'add-alias',
+  'add-publisher-normalization',
+  'add-edition-fingerprint',
+  'add-source-url',
+  'manual-source-review',
+  'no-action-yet',
+]);
 
 let totalErrors = 0;
 function pass(msg) { console.log('  ✓ ' + msg); }
@@ -313,6 +335,105 @@ function validateDocs(report) {
   if (totalErrors === 0) pass('Coverage-Gap-Dokumentation ist synchron zum JSON-Audit');
 }
 
+function gapKey(item) {
+  return [
+    String(item.seriesTitle || '').trim(),
+    String(item.publisher || '').trim(),
+    Number(item.volumeNumber),
+  ].join('|');
+}
+
+function extractSourceGapAnalysisJson(doc) {
+  const re = /<!-- source-gap-analysis-json:start -->\s*```json\s*([\s\S]*?)\s*```\s*<!-- source-gap-analysis-json:end -->/;
+  const match = doc.match(re);
+  if (!match) throw new Error('maschinenlesbarer source-gap-analysis-json Block fehlt');
+  return JSON.parse(match[1]);
+}
+
+function validateSourceGapAnalysisDoc(report) {
+  if (!fs.existsSync(sourceGapAnalysisDocPath)) {
+    fail('docs/release-cache-source-gap-analysis.md fehlt');
+    return;
+  }
+
+  const doc = fs.readFileSync(sourceGapAnalysisDocPath, 'utf8');
+  let parsed;
+  try {
+    parsed = extractSourceGapAnalysisJson(doc);
+  } catch (e) {
+    fail(`Source-Gap-Analyse ist nicht parsebar: ${e.message}`);
+    return;
+  }
+
+  if (!parsed || parsed.schemaVersion !== 1) fail('Source-Gap-Analyse schemaVersion muss 1 sein');
+  if (!Array.isArray(parsed.gapAnalysis)) {
+    fail('Source-Gap-Analyse muss gapAnalysis als Array enthalten');
+    return;
+  }
+
+  const expectedMissing = report.missing || [];
+  if (parsed.gapAnalysis.length !== expectedMissing.length) {
+    fail(`Source-Gap-Analyse muss ${expectedMissing.length} Einzelgaps enthalten, gefunden ${parsed.gapAnalysis.length}`);
+  }
+
+  const expectedKeys = new Set(expectedMissing.map(gapKey));
+  const seenKeys = new Set();
+  let safePatchCount = 0;
+  let manualReviewCount = 0;
+
+  parsed.gapAnalysis.forEach((item, idx) => {
+    const label = `gapAnalysis[${idx}]`;
+    const key = gapKey(item);
+    if (!expectedKeys.has(key)) fail(`${label} passt nicht zu aktuellem Audit-Missing: ${key}`);
+    if (seenKeys.has(key)) fail(`${label} ist doppelt dokumentiert: ${key}`);
+    seenKeys.add(key);
+
+    if (item.classification !== EXPECTED.classification) {
+      fail(`${label}.classification muss ${EXPECTED.classification} sein`);
+    }
+    if (!VALID_SUSPECTED_CAUSES.has(item.suspectedCause)) {
+      fail(`${label}.suspectedCause ist nicht erlaubt: ${item.suspectedCause}`);
+    }
+    if (!VALID_RECOMMENDED_FIXES.has(item.recommendedFix)) {
+      fail(`${label}.recommendedFix ist nicht erlaubt: ${item.recommendedFix}`);
+    }
+    if (!Array.isArray(item.checkedSources)) fail(`${label}.checkedSources muss ein Array sein`);
+    if (typeof item.safeToPatch !== 'boolean') fail(`${label}.safeToPatch muss boolean sein`);
+    if (item.safeToPatch === true) safePatchCount++;
+    if (item.manualSourceReviewNeeded === true) manualReviewCount++;
+    if ('releaseDate' in item) fail(`${label} darf kein Release-Datum enthalten`);
+  });
+
+  expectedKeys.forEach(key => {
+    if (!seenKeys.has(key)) fail(`Source-Gap-Analyse fehlt Audit-Gap: ${key}`);
+  });
+
+  if (safePatchCount !== 0) fail('Phase 23a darf keine sicheren Cache-Patches ohne belegte Quelle markieren');
+  if (manualReviewCount !== expectedMissing.length) {
+    fail('Alle Phase-23a-Gaps muessen manuelle Quellenpruefung verlangen');
+  }
+
+  const requiredSnippets = [
+    'Keine Fake-Daten',
+    'Keine geratenen Release-Daten',
+    'Keine privaten Sammlungsdaten',
+    'data/release-cache.json',
+    'MangaMoon',
+    'MANGAMOON',
+    'Tokyo Revengers',
+  ];
+  requiredSnippets.forEach(snippet => {
+    if (!doc.includes(snippet)) fail(`Source-Gap-Analyse fehlt Marker: ${snippet}`);
+  });
+
+  const forbidden = ['Sammlungsstand', 'owned', 'readAt', 'boughtAt'];
+  forbidden.forEach(token => {
+    if (doc.includes(token)) fail(`Source-Gap-Analyse darf keinen privaten Marker enthalten: ${token}`);
+  });
+
+  if (totalErrors === 0) pass('Phase-23a-Source-Gap-Analyse deckt alle Audit-Gaps ohne Fake-Daten ab');
+}
+
 console.log('\nPruefe: Release-Cache-Coverage-Gaps JSON/Docs (Phase 22d)\n');
 
 let report;
@@ -328,6 +449,7 @@ if (report) {
   validateReport(report);
   validateStrictJsonMode();
   validateDocs(report);
+  validateSourceGapAnalysisDoc(report);
   validateCiReportArtifact(report);
   validateGitHubSummaryOutput(report);
 }

@@ -154,6 +154,23 @@ node scripts/write-release-cache-coverage-report.js
 node scripts/write-release-cache-coverage-summary.js
 ```
 
+## Phase 23a: Source-Gap-Ursachenanalyse
+
+Phase 23a reduziert nicht kuenstlich die Gap-Zahl, sondern dokumentiert die Ursache jeder einzelnen Luecke in `docs/release-cache-source-gap-analysis.md`.
+
+Die Analyse ist maschinenlesbar validiert und haelt fest:
+
+- alle 34 bekannten `source-data-gap`-Einzelluecken sind abgedeckt
+- kein Eintrag enthaelt ein geratenes Release-Datum
+- kein Eintrag ist ohne weitere Quellenpruefung als sicher patchbar markiert
+- MangaMoon/MANGAMOON und Editions-/Bandnummern-Faelle sind als naechste manuelle Pruefschritte sichtbar
+
+Der bestehende Coverage-Gap-Validator prueft die Analyse mit:
+
+```bash
+node scripts/validate-release-cache-coverage-gaps.js
+```
+
 ## Private Sammlungsdaten
 
 Die lokale Sammlung des Nutzers (welche Bände besessen werden) ist **nicht** in diesem Repository gespeichert. Der Coverage-Report liest die lokale Sammlung nur zur Laufzeit im Browser. Nur aggregierte Watchlist-Einträge (Serientitel, Verlag, Bandnummern) landen in `release-watchlist.json` – ohne persönliche Daten wie Besitzstatus, Kaufdatum oder Lesestatus.

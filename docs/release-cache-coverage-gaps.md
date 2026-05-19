@@ -90,6 +90,20 @@ Das Artefakt enthaelt:
 
 Der normale Workflow scheitert weiterhin nicht an bekannten `source-data-gap`-Luecken. Drift gegen diese Dokumentation wird aber im Validator sichtbar, damit die Dokumentation bewusst aktualisiert werden kann.
 
+## Phase 23a: Ursachenanalyse
+
+Die 34 `source-data-gap`-Einzelluecken sind in `docs/release-cache-source-gap-analysis.md` strukturiert analysiert.
+
+Die Analyse dokumentiert pro Gap:
+
+- vermutete Ursache
+- gepruefte Quelle
+- empfohlene Massnahme
+- ob ein sicherer Cache-Patch moeglich ist
+- ob eine manuelle Quellenpruefung noetig ist
+
+Aktueller Befund: kein Gap ist ohne weitere Quellenpruefung sicher patchbar. Es wurden keine Fake-Daten, keine geratenen Release-Daten und keine privaten Sammlungsdaten ergaenzt.
+
 ### Phase 22f: GitHub-Actions-Summary
 
 Der CI-Lauf rendert den Artefakt-Report zusaetzlich direkt in die GitHub-Actions-Summary:
