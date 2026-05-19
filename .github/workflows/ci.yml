@@ -45,6 +45,12 @@ jobs:
       - name: Syntax — scripts/test-stats.js
         run: node --check scripts/test-stats.js
 
+      - name: Check release-utils syntax
+        run: node --check src/release-utils.js
+
+      - name: Check test-data-integrity syntax
+        run: node --check scripts/test-data-integrity.js
+
       # ── Validierung ────────────────────────────────────────────────────────
       - name: Validate release cache
         run: node scripts/validate-release-cache.js
@@ -57,3 +63,6 @@ jobs:
 
       - name: Stats tests — Phase 17a + 17b
         run: node scripts/test-stats.js
+
+      - name: Data integrity tests
+        run: node scripts/test-data-integrity.js

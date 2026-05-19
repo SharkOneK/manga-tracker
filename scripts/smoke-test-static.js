@@ -292,6 +292,58 @@ if (fs.existsSync(appJsPath)) {
   fail('src/app.js nicht gefunden (bereits oben gemeldet)');
 }
 
+// ── Phase 20: App-Modus, Datenintegrität und Release-Utils ─────────────────
+console.log('\nPrüfe: Phase 20 — App-Modus und Datenintegrität\n');
+
+// src/release-utils.js existiert
+const releaseUtilsPath = path.join(repoRoot, 'src', 'release-utils.js');
+if (!fs.existsSync(releaseUtilsPath)) {
+  fail('src/release-utils.js nicht gefunden');
+} else {
+  pass('src/release-utils.js vorhanden');
+}
+
+// index.html enthält release-utils.js
+if (!html.includes('release-utils.js')) {
+  fail('index.html enthält keinen Script-Tag für release-utils.js');
+} else {
+  pass('index.html: release-utils.js Script-Tag vorhanden');
+}
+
+// app.js enthält die neuen App-Modus-Funktionen und Guards
+if (fs.existsSync(appJsPath)) {
+  const appJsPhase20 = fs.readFileSync(appJsPath, 'utf-8');
+
+  const checks = [
+    ['getAppMode',           'getAppMode'],
+    ['canEditLocal',         'canEditLocal'],
+    ['canWriteCloud',        'canWriteCloud'],
+    ['mergePreservedFields', 'mergePreservedFields'],
+    ['safeHttpsUrl',         'safeHttpsUrl'],
+    ['isUuid',               'isUuid'],
+  ];
+
+  checks.forEach(function(pair) {
+    const label = pair[0];
+    const token = pair[1];
+    if (!appJsPhase20.includes(token)) {
+      fail('src/app.js: ' + label + ' fehlt');
+    } else {
+      pass('src/app.js: ' + label + ' vorhanden');
+    }
+  });
+} else {
+  fail('src/app.js nicht gefunden (bereits oben gemeldet)');
+}
+
+// scripts/test-data-integrity.js existiert
+const integrityTestPath = path.join(repoRoot, 'scripts', 'test-data-integrity.js');
+if (!fs.existsSync(integrityTestPath)) {
+  fail('scripts/test-data-integrity.js nicht gefunden');
+} else {
+  pass('scripts/test-data-integrity.js vorhanden');
+}
+
 // ── Ergebnis ───────────────────────────────────────────────────────────────
 console.log('');
 if (totalErrors > 0) {
