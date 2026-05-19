@@ -52,6 +52,9 @@
   }
 
   async function fetchCollection(collId, ownerToken) {
+    // TODO Phase 21b: Nach Anwendung der Supabase-Migration hier auf public_data umstellen.
+    // Aktuell wird noch 'data' gelesen (Legacy). Sobald anon nur noch Zugriff auf public_data
+    // hat, muss dieser Fetch entsprechend angepasst werden.
     var r = await fetch(SUPA_REST + '?id=eq.' + collId + '&select=data', {
       headers: headers(ownerToken, false),
     });

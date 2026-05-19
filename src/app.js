@@ -98,6 +98,8 @@ async function pushCloud() {
   if (!_collId || !_ownerToken) return;
   if (!validateDatabase()) { setSyncStatus('⚠️', 'Daten ungültig – Sync übersprungen'); return; }
   setSyncStatus('🔄', 'Synchronisiert…');
+  // TODO Phase 21b: public_data = buildPublicCollectionData(db) beim Cloud-Push mitschreiben
+  // (erst nach Anwendung der Supabase-Migration phase21b_public_projection_rls.sql)
   try {
     await SupabaseAdapter.patchCollection(_collId, _ownerToken, db);
     setSyncStatus('☁️', 'Cloud-Sync aktiv');
@@ -777,6 +779,9 @@ function startOwnCollection() {
 }
 
 async function loadViewCollection() {
+  // TODO Phase 21b: Nach Anwendung der Supabase-Migration hier auf public_data umstellen.
+  // Aktuell wird noch 'data' gelesen (Legacy). Sobald anon nur noch Zugriff auf public_data
+  // hat, muss dieser Fetch entsprechend angepasst werden.
   if (!_viewColl) return;
   if (!isUuid(_viewColl)) {
     toast('⚠️ Ungültiger Sammlungslink.');
@@ -2111,6 +2116,39 @@ function safeHttpsUrl(v) {
     const u = new URL(v);
     return u.protocol === 'https:' ? v : '';
   } catch { return ''; }
+}
+
+// ─── Phase 21b: Public Projection ────────────────────────────────────────
+
+/**
+ * Erstellt eine sichere öffentliche Projektion der Sammlung.
+ * Enthält keine privaten Felder (notes, startedAt, finishedAt, isbn13, mpEditionId, etc.)
+ * Wird für public_data verwendet, sobald die Supabase-Migration angewendet ist.
+ */
+function buildPublicCollectionData(db) {
+  if (!db || !Array.isArray(db.m)) return { m: [] };
+  return {
+    schemaVersion: db.schemaVersion || 2,
+    m: db.m.map(function(m) {
+      return {
+        id: m.id,
+        title: m.title,
+        pub: m.pub || '',
+        bands: m.bands || {},
+        total: m.total || null,
+        ongoing: m.ongoing || null,
+        nextDate: m.nextDate || null,
+        cover: safeHttpsUrl(m.cover),
+        bandCovers: Object.fromEntries(
+          Object.entries(m.bandCovers || {}).map(function([k, v]) {
+            return [k, safeHttpsUrl(v)];
+          }).filter(function([, v]) { return !!v; })
+        ),
+        genres: Array.isArray(m.genres) ? m.genres : [],
+        status: m.status === 'wishlist' ? 'wishlist' : (m.status || ''),
+      };
+    }),
+  };
 }
 
 // Erhält beim Speichern Felder, die nicht im Formular bearbeitbar sind
