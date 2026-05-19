@@ -24,6 +24,16 @@ let   totalErrors = 0;
 function pass(msg) { console.log('  ✓ ' + msg); }
 function fail(msg) { console.error('  ✗ ' + msg); totalErrors++; }
 
+function hasInlineHandler(content, handlerName) {
+  const re = new RegExp('<[^>]*\\s' + handlerName + '\\s*=', 'i');
+  return re.test(content);
+}
+
+function getCspContent(content) {
+  const cspMatch = content.match(/Content-Security-Policy[^>]*content="([^"]+)"/i);
+  return cspMatch ? cspMatch[1] : '';
+}
+
 // ── index.html ─────────────────────────────────────────────────────────────
 const htmlPath = path.join(repoRoot, 'index.html');
 console.log('\nPrüfe: index.html\n');
@@ -377,6 +387,60 @@ if (!html.includes('Content-Security-Policy')) {
 } else {
   pass('index.html: Content-Security-Policy vorhanden');
 }
+
+// ── Phase 21c: Event-Delegation und CSP ohne script unsafe-inline ──────────
+console.log('\nPrüfe: Phase 21c — Event-Delegation und CSP\n');
+
+['onclick', 'oninput', 'onchange'].forEach(function(handlerName) {
+  if (hasInlineHandler(html, handlerName)) {
+    fail('index.html enthält noch Inline-Handler: ' + handlerName + '=');
+  } else {
+    pass('index.html enthält kein ' + handlerName + '=');
+  }
+});
+
+const cspContent = getCspContent(html);
+if (!cspContent.includes("script-src 'self'")) {
+  fail("CSP enthält nicht script-src 'self'");
+} else {
+  pass("CSP enthält script-src 'self'");
+}
+
+if (cspContent.includes("script-src 'self' 'unsafe-inline'")) {
+  fail("CSP enthält weiterhin script-src 'self' 'unsafe-inline'");
+} else {
+  pass("CSP enthält kein script-src 'self' 'unsafe-inline'");
+}
+
+const requiredTabs = ['reading', 'completed', 'owned', 'wishlist', 'buy', 'kalender', 'dashboard'];
+let tabErrors = 0;
+requiredTabs.forEach(function(tabName) {
+  if (!html.includes('data-tab="' + tabName + '"')) {
+    fail('Tab data-tab fehlt: ' + tabName);
+    tabErrors++;
+  }
+});
+if (tabErrors === 0) pass('Alle Tabs haben weiterhin data-tab');
+
+const importantActionMarkers = [
+  'id="btn-add"',
+  'data-action="open-add"',
+  'id="btn-share-profile"',
+  'data-action="share-profile"',
+  'data-action="clear-search"',
+  'data-view="series"',
+  'data-view="volumes"',
+  'data-action="close-modal"',
+  'data-action="do-save"',
+];
+let actionMarkerErrors = 0;
+importantActionMarkers.forEach(function(marker) {
+  if (!html.includes(marker)) {
+    fail('Wichtiger Button-/Event-Marker fehlt: ' + marker);
+    actionMarkerErrors++;
+  }
+});
+if (actionMarkerErrors === 0) pass('Wichtige Buttons besitzen id, data-action oder data-view');
 
 // ── Ergebnis ───────────────────────────────────────────────────────────────
 console.log('');

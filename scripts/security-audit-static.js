@@ -1,7 +1,7 @@
 'use strict';
 
 /**
- * security-audit-static.js — Phase 21b
+ * security-audit-static.js — Phase 21c
  *
  * Statische Sicherheitsprüfungen für den Manga Tracker.
  * Prüft CSP, Supply-Chain, CI-Konfiguration und Code-Struktur.
@@ -41,7 +41,31 @@ const appJs     = readFile('src/app.js');
 const supabaseJs = readFile('src/supabase.js');
 const checkSecretsJs = readFile('scripts/check-secrets.js');
 
-console.log('\nSicherheits-Audit (statisch) — Phase 21b\n');
+console.log('\nSicherheits-Audit (statisch) — Phase 21c\n');
+
+function getCspContent() {
+  if (!html) return '';
+  const cspMatch = html.match(/Content-Security-Policy[^>]*content="([^"]+)"/i);
+  return cspMatch ? cspMatch[1] : '';
+}
+
+function getCspDirective(name) {
+  const cspContent = getCspContent();
+  const re = new RegExp('(?:^|;)\\s*' + name.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&') + '\\s+([^;]+)', 'i');
+  const match = cspContent.match(re);
+  return match ? match[1].trim() : '';
+}
+
+function findInlineHandlers(content) {
+  if (!content) return [];
+  const matches = [];
+  const handlerRe = /<[^>]*\s(on[a-z]+)\s*=/gi;
+  let match;
+  while ((match = handlerRe.exec(content)) !== null) {
+    matches.push(match[1].toLowerCase());
+  }
+  return matches;
+}
 
 // ── Check 1: index.html enthält CSP ───────────────────────────────────────
 if (!html) {
@@ -222,11 +246,7 @@ if (!checkSecretsJs) {
 if (!html) {
   fail('Check 16: index.html nicht gefunden (connect-src Wildcard-Prüfung nicht möglich)');
 } else {
-  // Extrahiere connect-src-Wert aus der CSP
-  const cspMatch = html.match(/Content-Security-Policy[^>]*content="([^"]+)"/i);
-  const cspContent = cspMatch ? cspMatch[1] : '';
-  const connectSrcMatch = cspContent.match(/connect-src\s+([^;]+)/);
-  const connectSrcValue = connectSrcMatch ? connectSrcMatch[1] : '';
+  const connectSrcValue = getCspDirective('connect-src');
   if (connectSrcValue.includes('*')) {
     fail('Check 16: connect-src enthält Wildcard (*) — zu weit gefasst');
   } else {
@@ -259,14 +279,58 @@ if (!appJs) {
   pass('Check 19: src/app.js enthält buildPublicCollectionData');
 }
 
-// ── Check 20: unsafe-inline CSP-Restschuld dokumentieren ─────────────────
-// WARN (kein FAIL): unsafe-inline noch vorhanden — Restschuld für Phase 22
+// ── Check 20: script-src darf kein unsafe-inline mehr enthalten ───────────
 if (!html) {
-  fail('Check 20: index.html nicht gefunden (unsafe-inline-Prüfung nicht möglich)');
-} else if (html.includes("'unsafe-inline'")) {
-  warn("Check 20: CSP enthält noch 'unsafe-inline' (Restschuld Phase 22 — vollständige Entfernung erfordert Event-Delegation-Refactoring aller Inline-Handler)");
+  fail("Check 20: index.html nicht gefunden (script-src 'unsafe-inline' nicht prüfbar)");
 } else {
-  pass("Check 20: CSP enthält kein 'unsafe-inline' — vollständig gehärtet");
+  const scriptSrcValue = getCspDirective('script-src');
+  if (!scriptSrcValue) {
+    fail('Check 20: CSP enthält keine script-src Direktive');
+  } else if (scriptSrcValue.includes("'unsafe-inline'")) {
+    fail("Check 20: script-src enthält noch 'unsafe-inline' — Inline-Script-Handler sind für Phase 21c verboten");
+  } else if (scriptSrcValue !== "'self'") {
+    fail("Check 20: script-src ist nicht auf exakt 'self' gehärtet (gefunden: " + scriptSrcValue + ')');
+  } else {
+    pass("Check 20: script-src ist auf 'self' gehärtet und enthält kein 'unsafe-inline'");
+  }
+}
+
+// ── Check 21: style-src unsafe-inline ist nur dokumentierte Restschuld ─────
+if (!html) {
+  fail("Check 21: index.html nicht gefunden (style-src 'unsafe-inline' nicht prüfbar)");
+} else {
+  const styleSrcValue = getCspDirective('style-src');
+  if (!styleSrcValue) {
+    fail('Check 21: CSP enthält keine style-src Direktive');
+  } else if (styleSrcValue.includes("'unsafe-inline'")) {
+    warn("Check 21: style-src enthält noch 'unsafe-inline' (dokumentierte Restschuld: Inline-Styles in HTML/Templates)");
+  } else {
+    pass("Check 21: style-src enthält kein 'unsafe-inline'");
+  }
+}
+
+// ── Check 22: index.html enthält keine Inline-Script-Handler ───────────────
+if (!html) {
+  fail('Check 22: index.html nicht gefunden (Inline-Handler nicht prüfbar)');
+} else {
+  const handlers = findInlineHandlers(html);
+  if (handlers.length) {
+    fail('Check 22: index.html enthält Inline-Script-Handler: ' + [...new Set(handlers)].join(', '));
+  } else {
+    pass('Check 22: index.html enthält keine Inline-Script-Handler');
+  }
+}
+
+// ── Check 23: src/app.js generiert keine Inline-Script-Handler ─────────────
+if (!appJs) {
+  fail('Check 23: src/app.js nicht gefunden (generierte Inline-Handler nicht prüfbar)');
+} else {
+  const handlers = findInlineHandlers(appJs);
+  if (handlers.length) {
+    fail('Check 23: src/app.js enthält generierte Inline-Script-Handler: ' + [...new Set(handlers)].join(', '));
+  } else {
+    pass('Check 23: src/app.js generiert keine Inline-Script-Handler');
+  }
 }
 
 // ── Ergebnis ───────────────────────────────────────────────────────────────

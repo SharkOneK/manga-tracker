@@ -275,9 +275,9 @@ function renderBandMgr() {
     const tip = hasCov ? ('Cover ändern – aktuell: ' + cov) : ('Cover-URL für Band ' + nr + ' setzen');
     return `<div class="band-row">
       <span class="band-nr">Band ${nr}</span>
-      <button type="button" class="band-status-btn st-${st}" onclick="cycleBand('${nr}')">${ST_LABEL[st]}</button>
-      <button type="button" class="band-cover-btn${hasCov ? ' has-cover' : ''}" onclick="editBandCover('${nr}')" title="${tip.replace(/"/g,'&quot;')}">🖼️</button>
-      <button type="button" class="band-remove-btn" onclick="removeBand('${nr}')" title="Entfernen">✕</button>
+      <button type="button" class="band-status-btn st-${st}" data-action="cycle-band" data-band-nr="${escapeHtml(nr)}">${ST_LABEL[st]}</button>
+      <button type="button" class="band-cover-btn${hasCov ? ' has-cover' : ''}" data-action="edit-band-cover" data-band-nr="${escapeHtml(nr)}" title="${tip.replace(/"/g,'&quot;')}">🖼️</button>
+      <button type="button" class="band-remove-btn" data-action="remove-band" data-band-nr="${escapeHtml(nr)}" title="Entfernen">✕</button>
     </div>`;
   }).join('');
 }
@@ -555,9 +555,9 @@ function bandStatus(m, bandNr) {
 function volumeRow(v) {
   const c = colorFor(v.title);
   const bandCover = safeHttpsUrl((v.bandCovers || {})[String(v._band)] || v.cover);
-  return `<div class="vol-row" onclick="openEdit('${v.id}')">
+  return `<div class="vol-row" data-action="open-edit" data-manga-id="${escapeHtml(v.id)}">
     <div class="vol-cover" style="background:${c}">
-      ${bandCover ? `<img src="${bandCover}" alt="" loading="lazy" onerror="this.remove()">` : ''}
+      ${bandCover ? `<img src="${bandCover}" alt="" loading="lazy" data-remove-on-error="true">` : ''}
       <div class="vol-cover-gradient"></div>
       <div class="vol-band-badge">Band ${v._band}</div>
     </div>
@@ -578,12 +578,12 @@ function coverEl(m, size = 'full', bandNr = null) {
   const img = safeHttpsUrl(rawImg);
   if (size === 'full') {
     return `<div class="cover" style="background:${c}">
-      ${img ? `<img src="${img}" alt="" loading="lazy" onerror="this.remove()">` : ''}
+      ${img ? `<img src="${img}" alt="" loading="lazy" data-remove-on-error="true">` : ''}
       <div class="cover-gradient"></div>
     </div>`;
   }
   return `<div class="mini-cover" style="background:${c}">
-    ${img ? `<img src="${img}" alt="" loading="lazy" onerror="this.remove()">` : ''}
+    ${img ? `<img src="${img}" alt="" loading="lazy" data-remove-on-error="true">` : ''}
   </div>`;
 }
 
@@ -602,7 +602,7 @@ function mangaCard(m) {
   const readingBadge = cur ? `<div class="reading-badge">Band ${cur}</div>` : '';
   const wishBadge = mSeriesStatus(m) === 'wishlist' ? `<div class="wishlist-badge">💜 Wunsch</div>` : '';
 
-  return `<div class="manga-card"${isPublicReadOnly() ? '' : ` onclick="openEdit('${m.id}')"`}>
+  return `<div class="manga-card"${isPublicReadOnly() ? '' : ` data-action="open-edit" data-manga-id="${escapeHtml(m.id)}"`}>
     <div style="position:relative">
       ${coverEl(m)}
       ${readingBadge}
@@ -615,7 +615,7 @@ function mangaCard(m) {
       ${hasProg ? `<div class="progress"><div class="progress-fill" style="width:${prog}%"></div></div>` : ''}
       ${(m.genres||[]).length ? `<div class="card-genres">${(m.genres).map(g=>`<span class="card-genre">${g}</span>`).join('')}</div>` : ''}
       ${(m.startedAt||m.finishedAt) ? `<div class="card-dates">${m.startedAt?'📖 '+new Date(m.startedAt+'T00:00:00').toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit',year:'numeric'}):''}${m.startedAt&&m.finishedAt?' – ':''}${m.finishedAt?'✅ '+new Date(m.finishedAt+'T00:00:00').toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit',year:'numeric'}):''}</div>`:''}
-      <button class="share-btn" onclick="shareManga('${m.id}',event)" title="Empfehlung teilen">📤</button>
+      <button class="share-btn" data-action="share-manga" data-manga-id="${escapeHtml(m.id)}" title="Empfehlung teilen">📤</button>
     </div>
   </div>`;
 }
@@ -646,8 +646,8 @@ function buyCard(m, isAvail) {
       ${shopLinks}
     </div>
     <div class="buy-btns">
-      <button class="btn-xs btn-buy" onclick="markBought('${m.id}',event)">Gekauft ✓</button>
-      <button class="btn-xs btn-edit" onclick="openEdit('${m.id}',event)">Bearbeiten</button>
+      <button class="btn-xs btn-buy" data-action="mark-bought" data-manga-id="${escapeHtml(m.id)}">Gekauft ✓</button>
+      <button class="btn-xs btn-edit" data-action="open-edit" data-manga-id="${escapeHtml(m.id)}">Bearbeiten</button>
     </div>
   </div>`;
 }
@@ -703,7 +703,7 @@ function renderDbResults() {
     const title = m.title.english || m.title.romaji || m.title.native || '';
     const vols = m.volumes ? `${m.volumes} Bde.` : (m.status === 'RELEASING' ? 'laufend' : '');
     const genres = (m.genres||[]).slice(0,2).join(', ');
-    return `<div class="db-result-item" onclick="applyDbResult(${i})">
+    return `<div class="db-result-item" data-action="apply-db-result" data-result-index="${i}">
       ${m.coverImage?.medium ? `<img class="db-result-cover" src="${m.coverImage.medium}" loading="lazy">` : '<div class="db-result-cover"></div>'}
       <div class="db-result-info">
         <div class="db-result-title">${title}</div>
@@ -1036,7 +1036,7 @@ function renderDashboardReleaseCheckPreview(result) {
           </div>
         </label>`;
       }).join('')}
-      <button type="button" class="add-btn dashboard-action-btn dashboard-release-apply-btn" onclick="applySelectedDashboardReleaseDates()">Ausgewählte Release-Daten übernehmen</button>
+      <button type="button" class="add-btn dashboard-action-btn dashboard-release-apply-btn" data-action="apply-dashboard-release-dates">Ausgewählte Release-Daten übernehmen</button>
       <p class="stats-empty-note">Standardmäßig ist nichts ausgewählt. Übernommen wird nur das Release-Datum des angezeigten Ziel-Bandes.</p>
     </div>` : ''}
   </div>`;
@@ -1232,8 +1232,8 @@ function renderDashboard() {
     <div class="stats-section">
       <h3>Prüfen &amp; Korrigieren</h3>
       <div class="dashboard-actions">
-        <button type="button" class="add-btn dashboard-action-btn" onclick="runDashboardReleaseDateCheck()">Alle Release-Daten prüfen</button>
-        <button type="button" class="add-btn dashboard-action-btn" onclick="runDashboardSeriesStatusCheck()">Alle Serien-Status prüfen</button>
+        <button type="button" class="add-btn dashboard-action-btn" data-action="run-dashboard-release-date-check">Alle Release-Daten prüfen</button>
+        <button type="button" class="add-btn dashboard-action-btn" data-action="run-dashboard-series-status-check">Alle Serien-Status prüfen</button>
         <p class="stats-empty-note">Prüft vorhandene Serien gegen den lokalen Release-Cache und Serienstatus-Plausibilität. Ergebnisse sind nur Vorschau.</p>
       </div>
       ${renderDashboardReleaseCheckPreview(_dashboardReleasePreview)}
@@ -1335,7 +1335,7 @@ function renderDashboard() {
             }
             html += `</div>`;
             html += `<div class="stats-buy-summary">${totalAvailAll} verfügbar · ${totalSoonAll} vorgemerkt · ${totalAll} gesamt</div>`;
-            html += `<button type="button" class="stats-buy-all-btn" onclick="setTab('buy')">Alle Käufe anzeigen →</button>`;
+            html += `<button type="button" class="stats-buy-all-btn" data-action="set-tab" data-tab="buy">Alle Käufe anzeigen →</button>`;
             return html;
           })()}
     </div>
@@ -1403,7 +1403,7 @@ let filterGenre = '';
 function renderGenrePicker() {
   const el = document.getElementById('genre-picker');
   el.innerHTML = ALL_GENRES.map(g =>
-    `<span class="genre-chip${modalGenres.includes(g)?' on':''}" onclick="toggleGenre('${g}')">${g}</span>`
+    `<span class="genre-chip${modalGenres.includes(g)?' on':''}" data-action="toggle-genre" data-genre="${escapeHtml(g)}">${g}</span>`
   ).join('');
 }
 
@@ -1421,7 +1421,7 @@ function updateGenreFilter() {
   }
   wrap.style.display = 'flex';
   wrap.innerHTML = ['', ...usedGenres].map(g =>
-    `<span class="genre-filter-chip${filterGenre===g?' on':''}" onclick="setGenreFilter('${g}')">${g||'Alle'}</span>`
+    `<span class="genre-filter-chip${filterGenre===g?' on':''}" data-action="set-genre-filter" data-genre="${escapeHtml(g)}">${g||'Alle'}</span>`
   ).join('');
 }
 
@@ -1467,9 +1467,9 @@ function renderImportExport() {
   return `<div class="stats-section">
     <h3>Import / Export</h3>
     <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px">
-      <button class="add-btn" onclick="exportJSON()" style="background:#1e40af;padding:9px 14px;font-size:0.82rem">💾 JSON-Backup</button>
-      <button class="add-btn" onclick="triggerImport()" style="background:#065f46;padding:9px 14px;font-size:0.82rem">📂 Importieren</button>
-      <button class="add-btn" onclick="exportObsidian()" style="background:#5b21b6;padding:9px 14px;font-size:0.82rem">📦 Obsidian-Export (ZIP)</button>
+      <button class="add-btn" data-action="export-json" style="background:#1e40af;padding:9px 14px;font-size:0.82rem">💾 JSON-Backup</button>
+      <button class="add-btn" data-action="trigger-import" style="background:#065f46;padding:9px 14px;font-size:0.82rem">📂 Importieren</button>
+      <button class="add-btn" data-action="export-obsidian" style="background:#5b21b6;padding:9px 14px;font-size:0.82rem">📦 Obsidian-Export (ZIP)</button>
     </div>
     <p style="color:var(--text-muted);font-size:0.75rem;margin:0">Vor dem Import wird automatisch ein lokales Backup heruntergeladen. Supabase bleibt die einzige Cloud-Sync-Lösung.</p>
   </div>`;
@@ -1895,7 +1895,7 @@ function render() {
         const day = String(d.getDate()).padStart(2,'0');
         const mon = monate[d.getMonth()].slice(0,3);
         const next = mFirstMissingBand(m) ?? mNextBand(m);
-        html += `<div class="kal-row${isAvail?' kal-avail':''}" onclick="openEdit('${m.id}')">
+        html += `<div class="kal-row${isAvail?' kal-avail':''}" data-action="open-edit" data-manga-id="${escapeHtml(m.id)}">
           <div class="kal-date-box">
             <div class="kal-day">${isAvail ? '✓' : day}</div>
             <div class="kal-mon">${isAvail ? 'Jetzt' : mon}</div>
@@ -1953,7 +1953,7 @@ function render() {
         <div class="empty-icon">💜</div>
         <h3>Wunschliste ist leer</h3>
         <p>Füge Serien hinzu, die du noch kaufen oder starten möchtest.<br>Beim Bearbeiten einfach „Auf Wunschliste setzen" anhaken.</p>
-        <button class="add-btn" onclick="openAdd()" style="margin:0 auto;display:flex">＋ Manga hinzufügen</button>
+        <button class="add-btn" data-action="open-add" style="margin:0 auto;display:flex">＋ Manga hinzufügen</button>
       </div>`;
       return;
     }
@@ -2018,7 +2018,7 @@ function render() {
       <div class="empty-icon">${ic}</div>
       <h3>${tt}</h3>
       <p>${sub}</p>
-      <button class="add-btn" onclick="openAdd()" style="margin:0 auto;display:flex">＋ Manga hinzufügen</button>
+      <button class="add-btn" data-action="open-add" style="margin:0 auto;display:flex">＋ Manga hinzufügen</button>
     </div>`;
     return;
   }
@@ -2581,8 +2581,8 @@ function buildReleasePreview(m) {
       <p style="margin:0 0 6px;font-weight:700">Cache-Miss-Report</p>
       <pre style="font-size:0.72rem;overflow:auto;background:var(--bg2,#f5f5f5);padding:8px;border-radius:4px;margin:0 0 8px">${reportJson.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</pre>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <button type="button" style="font-size:0.78rem;padding:4px 10px;cursor:pointer" onclick="(function(){try{navigator.clipboard.writeText(${JSON.stringify(reportJson)});}catch(e){}})()">Missing-Report kopieren</button>
-        <button type="button" style="font-size:0.78rem;padding:4px 10px;cursor:pointer" onclick="(function(){try{navigator.clipboard.writeText(${JSON.stringify(watchlistJson)});}catch(e){}})()">Watchlist-Eintrag kopieren</button>
+        <button type="button" style="font-size:0.78rem;padding:4px 10px;cursor:pointer" data-action="copy-text" data-clipboard="${escapeHtml(reportJson)}">Missing-Report kopieren</button>
+        <button type="button" style="font-size:0.78rem;padding:4px 10px;cursor:pointer" data-action="copy-text" data-clipboard="${escapeHtml(watchlistJson)}">Watchlist-Eintrag kopieren</button>
       </div>
     </div>`;
   }
@@ -3504,7 +3504,170 @@ upsertManga('isekai soapland', {
 _seeding = false;
 if (seedDirty || bootDataBefore !== JSON.stringify(db)) saveLoc();
 
+// ─── Event-Bindings (Phase 21c: keine Inline-Script-Handler) ──────────────
+function bindStaticEvents() {
+  // Header buttons werden per data-action in bindDelegatedEvents behandelt.
+
+  // Tabs
+  document.getElementById('tabs')?.addEventListener('click', function(event) {
+    const tabEl = event.target.closest?.('[data-tab]');
+    if (!tabEl) return;
+    setTab(tabEl.dataset.tab);
+  });
+
+  // Search
+  document.getElementById('search-input')?.addEventListener('input', function(event) {
+    onSearch(event.target.value);
+  });
+  document.getElementById('db-search')?.addEventListener('input', function(event) {
+    onDbSearch(event.target.value);
+  });
+
+  // Filters
+  document.getElementById('pub-filter')?.addEventListener('change', function(event) {
+    setPubFilter(event.target.value);
+  });
+  document.getElementById('sort-select')?.addEventListener('change', function(event) {
+    setSort(event.target.value);
+  });
+
+  // View toggle
+  document.getElementById('view-toggle')?.addEventListener('click', function(event) {
+    const btn = event.target.closest?.('[data-view]');
+    if (!btn) return;
+    setView(btn.dataset.view);
+  });
+
+  // Modal buttons / overlays
+  document.getElementById('overlay')?.addEventListener('click', overlayClick);
+  document.getElementById('release-preview-overlay')?.addEventListener('click', overlayClickReleasePreview);
+  document.getElementById('import-file-input')?.addEventListener('change', function(event) {
+    handleImportFile(event.target);
+  });
+
+  // Bild-Fallback ohne Inline-onerror. Error-Events bubblen nicht, daher Capture.
+  document.addEventListener('error', function(event) {
+    const img = event.target?.closest?.('img[data-remove-on-error]');
+    if (img) img.remove();
+  }, true);
+}
+
+function bindDelegatedEvents() {
+  document.addEventListener('click', function(event) {
+    const target = event.target.closest?.('[data-action]');
+    if (!target) return;
+
+    const action = target.dataset.action;
+    switch (action) {
+      case 'manual-sync':
+        manualSync();
+        break;
+      case 'share-profile':
+        shareProfile();
+        break;
+      case 'open-add':
+        openAdd();
+        break;
+      case 'start-own-collection':
+        startOwnCollection();
+        break;
+      case 'clear-search':
+        clearSearch();
+        break;
+      case 'mp-sync-all':
+        mpSyncAll();
+        break;
+      case 'close-modal':
+        closeModal();
+        break;
+      case 'add-next-band':
+        addNextBand();
+        break;
+      case 'bulk-complete':
+        bulkComplete();
+        break;
+      case 'open-release-preview':
+        openReleasePreviewForCurrentSeries();
+        break;
+      case 'mp-sync-one':
+        mpSyncOne();
+        break;
+      case 'do-delete':
+        doDelete();
+        break;
+      case 'do-save':
+        doSave();
+        break;
+      case 'close-release-preview':
+        closeReleasePreview();
+        break;
+      case 'apply-release-updates':
+        applySelectedReleaseUpdates();
+        break;
+      case 'apply-dashboard-release-dates':
+        applySelectedDashboardReleaseDates();
+        break;
+      case 'run-dashboard-release-date-check':
+        runDashboardReleaseDateCheck();
+        break;
+      case 'run-dashboard-series-status-check':
+        runDashboardSeriesStatusCheck();
+        break;
+      case 'set-tab':
+        setTab(target.dataset.tab);
+        break;
+      case 'open-edit':
+        openEdit(target.dataset.mangaId, event);
+        break;
+      case 'share-manga':
+        shareManga(target.dataset.mangaId, event);
+        break;
+      case 'mark-bought':
+        markBought(target.dataset.mangaId, event);
+        break;
+      case 'apply-db-result':
+        applyDbResult(Number(target.dataset.resultIndex));
+        break;
+      case 'toggle-genre':
+        toggleGenre(target.dataset.genre);
+        break;
+      case 'set-genre-filter':
+        setGenreFilter(target.dataset.genre || '');
+        break;
+      case 'export-json':
+        exportJSON();
+        break;
+      case 'trigger-import':
+        triggerImport();
+        break;
+      case 'export-obsidian':
+        exportObsidian();
+        break;
+      case 'cycle-band':
+        cycleBand(target.dataset.bandNr);
+        break;
+      case 'edit-band-cover':
+        editBandCover(target.dataset.bandNr);
+        break;
+      case 'remove-band':
+        removeBand(target.dataset.bandNr);
+        break;
+      case 'copy-text':
+        if (navigator.clipboard?.writeText) {
+          navigator.clipboard.writeText(target.dataset.clipboard || '')
+            .then(() => toast('📋 Kopiert'))
+            .catch(() => toast('⚠️ Kopieren nicht möglich'));
+        }
+        break;
+      default:
+        console.warn('Unbekannte Aktion:', action);
+    }
+  });
+}
+
 // ─── Init ─────────────────────────────────────────────────────────────────
+bindStaticEvents();
+bindDelegatedEvents();
 render();
 applyReadOnly();
 // Phase 15b: Release-Cache laden (non-blocking; Fehler dürfen App-Start nicht blockieren)
