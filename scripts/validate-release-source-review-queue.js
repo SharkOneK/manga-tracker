@@ -33,6 +33,12 @@ const ALLOWED_REVIEW_STATUS = new Set([
   'needs-second-source',
   'ready-to-patch',
   'rejected',
+  'auto-blocked',
+  'auto-source-missing',
+  'auto-not-yet-released',
+  'auto-medium-confidence',
+  'auto-low-confidence',
+  'auto-ready-to-patch',
   'patched',
 ]);
 
@@ -170,11 +176,16 @@ function validateQueueDocument(doc) {
     fail('Review-Queue muss queue als Array enthalten');
     return [];
   }
-  if (doc.queue.length !== EXPECTED_GAPS) {
-    fail(`Review-Queue muss ${EXPECTED_GAPS} bekannte Gaps enthalten, gefunden ${doc.queue.length}`);
+  if (doc.queue.length < EXPECTED_GAPS) {
+    fail(`Review-Queue muss mindestens ${EXPECTED_GAPS} bekannte Gaps enthalten, gefunden ${doc.queue.length}`);
   }
   if (!doc.summary || typeof doc.summary !== 'object') fail('Review-Queue summary fehlt');
-  else if (doc.summary.totalGaps !== doc.queue.length) fail('summary.totalGaps passt nicht zu queue.length');
+  else {
+    if (doc.summary.totalGaps !== doc.queue.length) fail('summary.totalGaps passt nicht zu queue.length');
+    if (doc.summary.knownSourceGaps !== undefined && doc.summary.knownSourceGaps !== EXPECTED_GAPS) {
+      fail(`summary.knownSourceGaps muss ${EXPECTED_GAPS} sein`);
+    }
+  }
   return doc.queue;
 }
 
@@ -192,7 +203,9 @@ function validateEntry(entry, idx, expectedKeys, seenKeys) {
   const key = queueKey(entry);
   if (seenKeys.has(key)) fail(`${label} ist doppelt vorhanden: ${key}`);
   seenKeys.add(key);
-  if (!expectedKeys.has(key)) fail(`${label} gehoert nicht zu den bekannten Source-Gaps: ${key}`);
+  if (!expectedKeys.has(key) && entry.classification !== 'automated-source-check') {
+    fail(`${label} gehoert nicht zu den bekannten Source-Gaps oder automatischen Checks: ${key}`);
+  }
 
   if (!hasText(entry.seriesTitle)) fail(`${label}.seriesTitle muss ein nicht-leerer String sein`);
   if (!hasText(entry.publisher)) fail(`${label}.publisher muss ein nicht-leerer String sein`);
@@ -217,8 +230,8 @@ function validateEntry(entry, idx, expectedKeys, seenKeys) {
     if (!hasText(entry.releaseDate)) fail(`${label}.safeToPatch=true verlangt releaseDate`);
     if (!hasText(entry.checkedAt)) fail(`${label}.safeToPatch=true verlangt checkedAt`);
     if (!hasText(entry.evidence)) fail(`${label}.safeToPatch=true verlangt evidence`);
-    if (entry.reviewStatus !== 'ready-to-patch' && entry.reviewStatus !== 'patched') {
-      fail(`${label}.safeToPatch=true verlangt reviewStatus ready-to-patch oder patched`);
+    if (entry.reviewStatus !== 'ready-to-patch' && entry.reviewStatus !== 'auto-ready-to-patch' && entry.reviewStatus !== 'patched') {
+      fail(`${label}.safeToPatch=true verlangt reviewStatus ready-to-patch, auto-ready-to-patch oder patched`);
     }
   }
 }

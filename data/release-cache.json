@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-05-19T10:35:20.068Z",
-  "source": "update-release-cache.js",
-  "itemCount": 170,
+  "generatedAt": "2026-05-19T15:26:34.180Z",
+  "source": "run-release-cache-pipeline.js",
+  "itemCount": 171,
   "items": [
     {
       "seriesTitle": "Adou",
@@ -13,11 +13,11 @@
       "releaseDate": "2021-11-12",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2021/0505/1652/07312616e05dd3d320.jpg",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/518",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 518, Band 3, Score 105). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 518, Band 3). Ursprung: watchlist.",
+      "checkedAt": "2026-05-19T15:26:34.180Z"
     },
     {
       "seriesTitle": "Adou",
@@ -28,11 +28,11 @@
       "releaseDate": "2022-06-20",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2022/0525/2150/de0fcfebd1fa662bf7092d01570d4734.jpg",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/518",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 518, Band 4, Score 105). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 518, Band 4). Ursprung: watchlist.",
+      "checkedAt": "2026-05-19T15:26:34.180Z"
     },
     {
       "seriesTitle": "Adou",
@@ -43,11 +43,11 @@
       "releaseDate": "2023-01-23",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2022/1230/2240/9ddc5bd63ca900d242368447ae512bd0.jpg",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/518",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 518, Band 5, Score 105). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 518, Band 5). Ursprung: watchlist.",
+      "checkedAt": "2026-05-19T15:26:34.180Z"
     },
     {
       "seriesTitle": "Adou",
@@ -58,11 +58,11 @@
       "releaseDate": "2023-06-12",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2023/0520/0015/c4d661ebcfc8d274625f5cc2b9a8785a.jpg",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/518",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 518, Band 6, Score 105). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 518, Band 6). Ursprung: watchlist.",
+      "checkedAt": "2026-05-19T15:26:34.180Z"
     },
     {
       "seriesTitle": "Adou",
@@ -73,11 +73,11 @@
       "releaseDate": "2024-02-12",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2024/0129/1702/9f3592c6e7b080091c44b2127727957c.jpg",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/518",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 518, Band 7, Score 105). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 518, Band 7). Ursprung: watchlist.",
+      "checkedAt": "2026-05-19T15:26:34.180Z"
     },
     {
       "seriesTitle": "Adou",
@@ -88,11 +88,11 @@
       "releaseDate": "2024-08-26",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2024/0822/1424/e34c787f1c6b08a2a80d693e65975c27.jpg",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/518",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 518, Band 8, Score 105). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 518, Band 8). Ursprung: watchlist.",
+      "checkedAt": "2026-05-19T15:26:34.180Z"
     },
     {
       "seriesTitle": "Adou",
@@ -103,11 +103,11 @@
       "releaseDate": "2024-12-16",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2024/1208/1046/1d5b31abbbf01bdab058898c89b4e4d7.jpg",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/518",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 518, Band 9, Score 105). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 518, Band 9). Ursprung: watchlist.",
+      "checkedAt": "2026-05-19T15:26:34.180Z"
     },
     {
       "seriesTitle": "Adou",
@@ -118,11 +118,11 @@
       "releaseDate": "2025-07-14",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2025/0619/1303/815664d6940c23255716d207a24c5797.jpg",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/518",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 518, Band 10, Score 105). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 518, Band 10). Ursprung: watchlist.",
+      "checkedAt": "2026-05-19T15:26:34.180Z"
     },
     {
       "seriesTitle": "Adou",
@@ -133,11 +133,26 @@
       "releaseDate": "2026-03-23",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2026/0227/1144/98d8b502b4c8cca609f3368384ebe82f.jpg",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/518",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 518, Band 11, Score 105). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 518, Band 11). Ursprung: watchlist.",
+      "checkedAt": "2026-05-19T15:26:34.180Z"
+    },
+    {
+      "seriesTitle": "Arifureta: Der Kampf zurück in meine Welt – Zero",
+      "normalizedSeriesTitle": "arifureta der kampf zurueck in meine welt zero",
+      "publisher": "altraverse",
+      "normalizedPublisher": "altraverse",
+      "volumeNumber": 1,
+      "releaseDate": "2025-12-15",
+      "isbn13": null,
+      "coverUrl": "https://media.manga-passion.de/volume/cover/2025/1202/1722/d9a035c9b31b906d21abc5e1fd28ac96.jpg",
+      "sourceUrl": "https://www.manga-passion.de/editions/5807",
+      "sourceName": "Manga Passion",
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 5807, Band 1). Ursprung: app-seed.",
+      "checkedAt": "2026-05-19T15:26:34.180Z"
     },
     {
       "seriesTitle": "Arifureta: Der Kampf zurück in meine Welt – Zero",
@@ -163,11 +178,11 @@
       "releaseDate": "2025-04-30",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2025/0319/1708/21083d4c9835a4650638aab8de840db4.jpg",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/2015",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 2015, Band 5, Score 105). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 2015, Band 5). Ursprung: watchlist.",
+      "checkedAt": "2026-05-19T15:26:34.180Z"
     },
     {
       "seriesTitle": "August 9th, I will be eaten by you",
@@ -193,11 +208,11 @@
       "releaseDate": "2026-03-17",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2026/0227/1131/af94033dfee148c6c0de0143e69d52b7.jpg",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/5211",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 5211, Band 5, Score 105). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 5211, Band 5). Ursprung: watchlist.",
+      "checkedAt": "2026-05-19T15:26:34.180Z"
     },
     {
       "seriesTitle": "Berserk Master Edition",
@@ -223,11 +238,11 @@
       "releaseDate": "2025-09-30",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2025/0818/0837/970e3112ea4b4b63f0fc8d99550a413f.jpg",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/5098",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 5098, Band 4, Score 105). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 5098, Band 4). Ursprung: watchlist.",
+      "checkedAt": "2026-05-19T15:26:34.180Z"
     },
     {
       "seriesTitle": "Blood Blade",
@@ -253,11 +268,11 @@
       "releaseDate": "2015-12-08",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2024/1101/2039/a9ae9b92af6a24254e70f47fd746277d.jpg",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/3260",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 3260, Band 12, Score 105). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 3260, Band 12). Ursprung: watchlist.",
+      "checkedAt": "2026-05-19T15:26:34.180Z"
     },
     {
       "seriesTitle": "Brynhildr in the Darkness",
@@ -268,11 +283,11 @@
       "releaseDate": "2016-02-10",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2024/1101/2042/442f0831f61fa6b740f8ffafdff7bb51.jpg",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/3260",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 3260, Band 13, Score 105). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 3260, Band 13). Ursprung: watchlist.",
+      "checkedAt": "2026-05-19T15:26:34.180Z"
     },
     {
       "seriesTitle": "Brynhildr in the Darkness",
@@ -283,11 +298,11 @@
       "releaseDate": "2016-04-05",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2024/1101/2044/d5214f8ea89ff351f0f91bedf96937ac.jpg",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/3260",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 3260, Band 14, Score 105). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 3260, Band 14). Ursprung: watchlist.",
+      "checkedAt": "2026-05-19T15:26:34.180Z"
     },
     {
       "seriesTitle": "Brynhildr in the Darkness",
@@ -298,11 +313,11 @@
       "releaseDate": "2016-06-07",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2024/1101/2047/e03eb384b6b46f8255ee32d4fd28f697.jpg",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/3260",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 3260, Band 15, Score 105). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 3260, Band 15). Ursprung: watchlist.",
+      "checkedAt": "2026-05-19T15:26:34.180Z"
     },
     {
       "seriesTitle": "Brynhildr in the Darkness",
@@ -313,11 +328,11 @@
       "releaseDate": "2016-08-05",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2024/1101/2049/407d76f2eb16349f8b597e598ec59fc8.jpg",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/3260",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 3260, Band 16, Score 105). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 3260, Band 16). Ursprung: watchlist.",
+      "checkedAt": "2026-05-19T15:26:34.180Z"
     },
     {
       "seriesTitle": "Brynhildr in the Darkness",
@@ -328,11 +343,11 @@
       "releaseDate": "2016-11-09",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2024/1101/2052/3f99885ee65dac25a5be8e1b0dedc6e9.jpg",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/3260",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 3260, Band 17, Score 105). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 3260, Band 17). Ursprung: watchlist.",
+      "checkedAt": "2026-05-19T15:26:34.180Z"
     },
     {
       "seriesTitle": "Brynhildr in the Darkness",
@@ -343,11 +358,11 @@
       "releaseDate": "2017-02-09",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2024/1101/2055/0cb9b20af3c08c2070401b8e4e966261.jpg",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/3260",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 3260, Band 18, Score 105). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 3260, Band 18). Ursprung: watchlist.",
+      "checkedAt": "2026-05-19T15:26:34.180Z"
     },
     {
       "seriesTitle": "Chainsaw Man",
@@ -358,11 +373,11 @@
       "releaseDate": "2026-04-07",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2026/0331/1133/c2af513c0bedb272ac5c687118e0ddb5.jpg",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/269",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 269, Band 21, Score 105). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 269, Band 21). Ursprung: watchlist.",
+      "checkedAt": "2026-05-19T15:26:34.180Z"
     },
     {
       "seriesTitle": "Chainsaw Man",
@@ -463,11 +478,11 @@
       "releaseDate": "2026-02-05",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2026/0206/1433/20f185230856e34972741bc6d2e09f94.jpg",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/2177",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 2177, Band 8, Score 105). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 2177, Band 8). Ursprung: watchlist.",
+      "checkedAt": "2026-05-19T15:26:34.180Z"
     },
     {
       "seriesTitle": "Dai Dark",
@@ -478,11 +493,11 @@
       "releaseDate": "2026-06-20",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2026/0514/1440/7a43b3979d55a8ad0d1e96650507dc2c.jpg",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/2177",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 2177, Band 9, Score 100). Ursprung: app-seed.",
-      "checkedAt": "2026-05-17T10:56:39.041Z"
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 2177, Band 9). Ursprung: app-seed.",
+      "checkedAt": "2026-05-19T15:26:34.180Z"
     },
     {
       "seriesTitle": "Dandadan",
@@ -508,11 +523,11 @@
       "releaseDate": "2026-05-11",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2026/0511/0332/48b5df5541b9cef282cfff0ca8fde91a.jpg",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/2485",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 2485, Band 4, Score 105). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 2485, Band 4). Ursprung: watchlist.",
+      "checkedAt": "2026-05-19T15:26:34.180Z"
     },
     {
       "seriesTitle": "Die letzte Elfe",
@@ -523,11 +538,11 @@
       "releaseDate": "2026-03-27",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2026/0328/1742/774a2e462d06a2d04c9301109ef32ce6.jpg",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/5652",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 5652, Band 2, Score 105). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 5652, Band 2). Ursprung: watchlist.",
+      "checkedAt": "2026-05-19T15:26:34.180Z"
     },
     {
       "seriesTitle": "Die letzte Elfe",
@@ -1273,11 +1288,11 @@
       "releaseDate": "2023-12-07",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2023/0915/0139/1ffa6dc03202ad947956a98085e0c0e5.jpg",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/2391",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 2391, Band 2, Score 105). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 2391, Band 2). Ursprung: watchlist.",
+      "checkedAt": "2026-05-19T15:26:34.180Z"
     },
     {
       "seriesTitle": "From the Red Fog",
@@ -1288,11 +1303,11 @@
       "releaseDate": "2024-02-08",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2024/0116/1821/2fae6c2116fb8b7f153921dcc15f4b89.jpg",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/2391",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 2391, Band 3, Score 105). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 2391, Band 3). Ursprung: watchlist.",
+      "checkedAt": "2026-05-19T15:26:34.180Z"
     },
     {
       "seriesTitle": "From the Red Fog",
@@ -1303,11 +1318,11 @@
       "releaseDate": "2024-04-04",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2024/0312/0942/4475c5b777399e6e6c78636d4376b147.jpg",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/2391",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 2391, Band 4, Score 105). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 2391, Band 4). Ursprung: watchlist.",
+      "checkedAt": "2026-05-19T15:26:34.180Z"
     },
     {
       "seriesTitle": "From the Red Fog",
@@ -1318,11 +1333,11 @@
       "releaseDate": "2024-06-06",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2024/0415/1723/6ef943e83979bc56cf6936d28ec81efe.jpg",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/2391",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 2391, Band 5, Score 105). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 2391, Band 5). Ursprung: watchlist.",
+      "checkedAt": "2026-05-19T15:26:34.180Z"
     },
     {
       "seriesTitle": "Gushing over Magical Girls",
@@ -1333,11 +1348,11 @@
       "releaseDate": "2026-05-29",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2026/0409/1326/9bc20ac91eabeb058b9e30b12b5e82e6.png",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/5407",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 5407, Band 3, Score 100). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 5407, Band 3). Ursprung: watchlist.",
+      "checkedAt": "2026-05-19T15:26:34.180Z"
     },
     {
       "seriesTitle": "Isekai Soapland",
@@ -1363,11 +1378,11 @@
       "releaseDate": "2020-03-05",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2021/0125/0024/035045fa6d2bfd27e1.jpg",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/47",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 47, Band 3, Score 105). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 47, Band 3). Ursprung: watchlist.",
+      "checkedAt": "2026-05-19T15:26:34.180Z"
     },
     {
       "seriesTitle": "Jujutsu Kaisen",
@@ -1378,11 +1393,11 @@
       "releaseDate": "2020-05-07",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2021/0226/0125/035055fa6d2f66de1b.jpg",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/47",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 47, Band 4, Score 105). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 47, Band 4). Ursprung: watchlist.",
+      "checkedAt": "2026-05-19T15:26:34.180Z"
     },
     {
       "seriesTitle": "Jujutsu Kaisen",
@@ -1393,11 +1408,11 @@
       "releaseDate": "2020-07-02",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2021/0423/0351/000515ef5097e83a67.png",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/47",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 47, Band 5, Score 105). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 47, Band 5). Ursprung: watchlist.",
+      "checkedAt": "2026-05-19T15:26:34.180Z"
     },
     {
       "seriesTitle": "Jujutsu Kaisen",
@@ -1408,11 +1423,11 @@
       "releaseDate": "2020-09-03",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2021/0303/1450/003505f1412e16a1fa.png",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/47",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 47, Band 6, Score 105). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 47, Band 6). Ursprung: watchlist.",
+      "checkedAt": "2026-05-19T15:26:34.180Z"
     },
     {
       "seriesTitle": "Jujutsu Kaisen",
@@ -1423,11 +1438,11 @@
       "releaseDate": "2020-11-05",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2021/0106/0048/013685f5f2427066f0.png",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/47",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 47, Band 7, Score 105). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 47, Band 7). Ursprung: watchlist.",
+      "checkedAt": "2026-05-19T15:26:34.180Z"
     },
     {
       "seriesTitle": "Jujutsu Kaisen",
@@ -1438,11 +1453,11 @@
       "releaseDate": "2021-01-14",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2021/0823/1907/030675fe386b2564bb.jpg",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/47",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 47, Band 8, Score 105). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 47, Band 8). Ursprung: watchlist.",
+      "checkedAt": "2026-05-19T15:26:34.180Z"
     },
     {
       "seriesTitle": "Jujutsu Kaisen",
@@ -1453,11 +1468,11 @@
       "releaseDate": "2021-03-04",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2021/0626/1729/05129600f3362dd2d2.jpg",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/47",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 47, Band 9, Score 105). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 47, Band 9). Ursprung: watchlist.",
+      "checkedAt": "2026-05-19T15:26:34.180Z"
     },
     {
       "seriesTitle": "Jujutsu Kaisen",
@@ -1468,11 +1483,11 @@
       "releaseDate": "2021-05-06",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2021/0727/1830/05130604c142fd6238.jpg",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/47",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 47, Band 10, Score 105). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 47, Band 10). Ursprung: watchlist.",
+      "checkedAt": "2026-05-19T15:26:34.180Z"
     },
     {
       "seriesTitle": "Jujutsu Kaisen",
@@ -1483,11 +1498,11 @@
       "releaseDate": "2021-07-01",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2021/0828/1931/0513160ad701231592.jpg",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/47",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 47, Band 11, Score 105). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 47, Band 11). Ursprung: watchlist.",
+      "checkedAt": "2026-05-19T15:26:34.180Z"
     },
     {
       "seriesTitle": "Jujutsu Kaisen",
@@ -1498,11 +1513,11 @@
       "releaseDate": "2021-09-02",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2021/0929/2032/0513260e60773779c2.png",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/47",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 47, Band 12, Score 105). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 47, Band 12). Ursprung: watchlist.",
+      "checkedAt": "2026-05-19T15:26:34.180Z"
     },
     {
       "seriesTitle": "Jujutsu Kaisen",
@@ -1513,11 +1528,11 @@
       "releaseDate": "2021-11-04",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2021/1001/2133/0513361c1221a7c741.jpg",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/47",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 47, Band 13, Score 105). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 47, Band 13). Ursprung: watchlist.",
+      "checkedAt": "2026-05-19T15:26:34.180Z"
     },
     {
       "seriesTitle": "Jujutsu Kaisen",
@@ -1528,11 +1543,11 @@
       "releaseDate": "2022-01-13",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2021/0801/0707/0588761bd68498bd2f.jpg",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/47",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 47, Band 14, Score 105). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 47, Band 14). Ursprung: watchlist.",
+      "checkedAt": "2026-05-19T15:26:34.180Z"
     },
     {
       "seriesTitle": "Jujutsu Kaisen",
@@ -1543,11 +1558,11 @@
       "releaseDate": "2022-03-03",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2021/0717/1830/0657061aff7887504e.png",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/47",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 47, Band 15, Score 105). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 47, Band 15). Ursprung: watchlist.",
+      "checkedAt": "2026-05-19T15:26:34.180Z"
     },
     {
       "seriesTitle": "Jujutsu Kaisen",
@@ -1558,11 +1573,11 @@
       "releaseDate": "2022-05-05",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2022/0403/1513/878fee6ddffec91090716c563f6a9789.jpg",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/47",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 47, Band 16, Score 105). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 47, Band 16). Ursprung: watchlist.",
+      "checkedAt": "2026-05-19T15:26:34.180Z"
     },
     {
       "seriesTitle": "Jujutsu Kaisen",
@@ -1573,11 +1588,11 @@
       "releaseDate": "2022-07-07",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2022/0428/2140/95fa12a37186a7c5b42a5f49a35bb13f.jpg",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/47",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 47, Band 17, Score 105). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 47, Band 17). Ursprung: watchlist.",
+      "checkedAt": "2026-05-19T15:26:34.180Z"
     },
     {
       "seriesTitle": "Jujutsu Kaisen",
@@ -1588,11 +1603,11 @@
       "releaseDate": "2022-09-01",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2022/0704/2029/f72c03a9d30394428f69c24467b00312.jpg",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/47",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 47, Band 18, Score 105). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 47, Band 18). Ursprung: watchlist.",
+      "checkedAt": "2026-05-19T15:26:34.180Z"
     },
     {
       "seriesTitle": "Jujutsu Kaisen",
@@ -1603,11 +1618,11 @@
       "releaseDate": "2023-01-12",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2022/1122/0214/c64606b9d27acc1605149f669526ae61.jpg",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/47",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 47, Band 19, Score 105). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 47, Band 19). Ursprung: watchlist.",
+      "checkedAt": "2026-05-19T15:26:34.180Z"
     },
     {
       "seriesTitle": "Jujutsu Kaisen",
@@ -1618,11 +1633,11 @@
       "releaseDate": "2023-05-04",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2023/0324/0056/af0f600f22012ee330fec5808a86b429.jpg",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/47",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 47, Band 20, Score 105). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 47, Band 20). Ursprung: watchlist.",
+      "checkedAt": "2026-05-19T15:26:34.180Z"
     },
     {
       "seriesTitle": "Jujutsu Kaisen",
@@ -1633,11 +1648,11 @@
       "releaseDate": "2023-09-07",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2023/0824/1352/89f204d480426bba193d349850428718.jpg",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/47",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 47, Band 21, Score 105). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 47, Band 21). Ursprung: watchlist.",
+      "checkedAt": "2026-05-19T15:26:34.180Z"
     },
     {
       "seriesTitle": "Jujutsu Kaisen",
@@ -1648,11 +1663,11 @@
       "releaseDate": "2024-01-12",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2023/1223/0208/e7d6217158d39a057e9a2b261181f6a9.jpg",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/47",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 47, Band 22, Score 105). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 47, Band 22). Ursprung: watchlist.",
+      "checkedAt": "2026-05-19T15:26:34.180Z"
     },
     {
       "seriesTitle": "Jujutsu Kaisen",
@@ -1663,11 +1678,11 @@
       "releaseDate": "2024-05-03",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2024/0420/1356/04d9543c137556cdbc0f37b563cf5ac5.jpg",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/47",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 47, Band 23, Score 105). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 47, Band 23). Ursprung: watchlist.",
+      "checkedAt": "2026-05-19T15:26:34.180Z"
     },
     {
       "seriesTitle": "Jujutsu Kaisen",
@@ -1678,11 +1693,11 @@
       "releaseDate": "2024-09-06",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2024/0902/2218/eac7d34e851d3beba6e73dd35eb93f5a.jpg",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/47",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 47, Band 24, Score 105). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 47, Band 24). Ursprung: watchlist.",
+      "checkedAt": "2026-05-19T15:26:34.180Z"
     },
     {
       "seriesTitle": "Jujutsu Kaisen",
@@ -1693,11 +1708,11 @@
       "releaseDate": "2025-01-10",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2025/0104/1552/ff944053f1b00804acae13199bfe9eb1.jpg",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/47",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 47, Band 25, Score 105). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 47, Band 25). Ursprung: watchlist.",
+      "checkedAt": "2026-05-19T15:26:34.180Z"
     },
     {
       "seriesTitle": "Jujutsu Kaisen",
@@ -1708,11 +1723,11 @@
       "releaseDate": "2025-05-02",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2025/0426/1438/873caa57b06e136335c5e44ba6c86ba6.jpg",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/47",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 47, Band 26, Score 105). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 47, Band 26). Ursprung: watchlist.",
+      "checkedAt": "2026-05-19T15:26:34.180Z"
     },
     {
       "seriesTitle": "Jujutsu Kaisen",
@@ -1723,11 +1738,11 @@
       "releaseDate": "2025-09-05",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2025/0918/0903/e7ae4bde0d86892bad43c1199e74e485.jpg",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/47",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 47, Band 27, Score 105). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 47, Band 27). Ursprung: watchlist.",
+      "checkedAt": "2026-05-19T15:26:34.180Z"
     },
     {
       "seriesTitle": "Jujutsu Kaisen",
@@ -1738,11 +1753,11 @@
       "releaseDate": "2025-11-07",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2025/1021/1305/74070a3037381c273f12e68b437679e7.jpg",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/47",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 47, Band 28, Score 105). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 47, Band 28). Ursprung: watchlist.",
+      "checkedAt": "2026-05-19T15:26:34.180Z"
     },
     {
       "seriesTitle": "Jujutsu Kaisen",
@@ -1753,11 +1768,11 @@
       "releaseDate": "2026-01-16",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2025/1209/1411/09bbc8313c44b9297af1c97b0bca6c5a.jpg",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/47",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 47, Band 29, Score 105). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 47, Band 29). Ursprung: watchlist.",
+      "checkedAt": "2026-05-19T15:26:34.180Z"
     },
     {
       "seriesTitle": "Jujutsu Kaisen",
@@ -1768,11 +1783,11 @@
       "releaseDate": "2026-03-06",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2026/0225/1636/461a1b013c5a069d800b1bc6d02a6b49.jpg",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/47",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 47, Band 30, Score 105). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 47, Band 30). Ursprung: watchlist.",
+      "checkedAt": "2026-05-19T15:26:34.180Z"
     },
     {
       "seriesTitle": "Kagurabachi",
@@ -1813,11 +1828,11 @@
       "releaseDate": "2023-05-30",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2023/0522/2330/cc79c7780cb9c3842ea559d248975f3a.jpg",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/2088",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 2088, Band 2, Score 105). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 2088, Band 2). Ursprung: watchlist.",
+      "checkedAt": "2026-05-19T15:26:34.180Z"
     },
     {
       "seriesTitle": "Kijin Gentosho: Dämonenjäger",
@@ -1828,11 +1843,11 @@
       "releaseDate": "2023-09-26",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2023/0822/2335/019be384e1c2e9d86bc7606a43fff246.jpg",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/2088",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 2088, Band 3, Score 105). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 2088, Band 3). Ursprung: watchlist.",
+      "checkedAt": "2026-05-19T15:26:34.180Z"
     },
     {
       "seriesTitle": "Kijin Gentosho: Dämonenjäger",
@@ -1843,11 +1858,11 @@
       "releaseDate": "2024-01-30",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2024/0111/0005/d034770ae3c38672c41d71b756bef1b6.jpg",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/2088",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 2088, Band 4, Score 105). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 2088, Band 4). Ursprung: watchlist.",
+      "checkedAt": "2026-05-19T15:26:34.180Z"
     },
     {
       "seriesTitle": "Kijin Gentosho: Dämonenjäger",
@@ -1858,11 +1873,11 @@
       "releaseDate": "2024-08-20",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2024/0729/1956/d2a12fda695f8506b410906890efeabb.jpg",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/2088",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 2088, Band 5, Score 105). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 2088, Band 5). Ursprung: watchlist.",
+      "checkedAt": "2026-05-19T15:26:34.180Z"
     },
     {
       "seriesTitle": "Kijin Gentosho: Dämonenjäger",
@@ -1873,11 +1888,11 @@
       "releaseDate": "2025-01-28",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2025/0124/1434/435883ff71b6d41ba1d944f73db9f78a.jpg",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/2088",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 2088, Band 6, Score 105). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 2088, Band 6). Ursprung: watchlist.",
+      "checkedAt": "2026-05-19T15:26:34.180Z"
     },
     {
       "seriesTitle": "Kijin Gentosho: Dämonenjäger",
@@ -1888,11 +1903,11 @@
       "releaseDate": "2025-07-29",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2025/0715/1850/30039c40b24d2c0e1c6b37a7dfcf2cc1.jpg",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/2088",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 2088, Band 7, Score 105). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 2088, Band 7). Ursprung: watchlist.",
+      "checkedAt": "2026-05-19T15:26:34.180Z"
     },
     {
       "seriesTitle": "Kijin Gentosho: Dämonenjäger",
@@ -1903,11 +1918,11 @@
       "releaseDate": "2026-01-20",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2026/0111/1627/f9fc53f5973324cdd4cc80bff4850740.jpg",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/2088",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 2088, Band 8, Score 105). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 2088, Band 8). Ursprung: watchlist.",
+      "checkedAt": "2026-05-19T15:26:34.180Z"
     },
     {
       "seriesTitle": "Lili-Men",
@@ -1918,11 +1933,11 @@
       "releaseDate": "2026-02-11",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2026/0113/1216/dd2c938c537183220ef52c7af0a5104e.jpg",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/5077",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 5077, Band 6, Score 105). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 5077, Band 6). Ursprung: watchlist.",
+      "checkedAt": "2026-05-19T15:26:34.180Z"
     },
     {
       "seriesTitle": "Lili-Men",
@@ -1933,11 +1948,11 @@
       "releaseDate": "2026-04-07",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2026/0331/1130/b3a0172cb800d5749834c9aa5face755.jpg",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/5077",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 5077, Band 7, Score 105). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 5077, Band 7). Ursprung: watchlist.",
+      "checkedAt": "2026-05-19T15:26:34.180Z"
     },
     {
       "seriesTitle": "Lili-Men",
@@ -1963,11 +1978,11 @@
       "releaseDate": "2026-06-09",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2025/1106/1731/1bc04efb94e8593c0894647c90b582bc.jpg",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/4618",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 4618, Band 6, Score 100). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 4618, Band 6). Ursprung: watchlist.",
+      "checkedAt": "2026-05-19T15:26:34.180Z"
     },
     {
       "seriesTitle": "Mirai Nikki – New Edition",
@@ -1978,11 +1993,11 @@
       "releaseDate": "2026-04-07",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2026/0331/1128/babb1f6a7e9edbd5e510c2a7dad86e8a.jpg",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/5504",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 5504, Band 3, Score 105). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 5504, Band 3). Ursprung: watchlist.",
+      "checkedAt": "2026-05-19T15:26:34.180Z"
     },
     {
       "seriesTitle": "Mirai Nikki – New Edition",
@@ -2008,11 +2023,11 @@
       "releaseDate": "2026-08-04",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2025/1106/1557/cecb9214ef6c8a497363134e151d72e4.jpg",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/5504",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 5504, Band 5, Score 100). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 5504, Band 5). Ursprung: watchlist.",
+      "checkedAt": "2026-05-19T15:26:34.180Z"
     },
     {
       "seriesTitle": "Mujina into the Deep",
@@ -2023,11 +2038,11 @@
       "releaseDate": "2026-04-10",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2026/0331/1025/9b5b41acbd2e9781966da15e13749d3f.jpg",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/5184",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 5184, Band 4, Score 105). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 5184, Band 4). Ursprung: watchlist.",
+      "checkedAt": "2026-05-19T15:26:34.180Z"
     },
     {
       "seriesTitle": "Neck mich nicht, Nagatoro-san",
@@ -2038,11 +2053,11 @@
       "releaseDate": "2026-12-31",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2022/0626/1600/2c075fc373a715c3284efb14374c14ec.jpg",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/1750",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 1750, Band 5, Score 100). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 1750, Band 5). Ursprung: watchlist.",
+      "checkedAt": "2026-05-19T15:26:34.180Z"
     },
     {
       "seriesTitle": "Real Account",
@@ -2053,11 +2068,11 @@
       "releaseDate": "2019-04-10",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2023/0702/1337/987cad172e3aa17fc2a117a9d9900b45.jpg",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/819",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 819, Band 6, Score 105). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 819, Band 6). Ursprung: watchlist.",
+      "checkedAt": "2026-05-19T15:26:34.180Z"
     },
     {
       "seriesTitle": "Reincarnated as a Sword: Another Wish",
@@ -2068,11 +2083,11 @@
       "releaseDate": "2026-04-30",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2025/0307/0000/23932f8ca230b68c857cfb6f6737f007.jpg",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/5351",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 5351, Band 2, Score 105). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 5351, Band 2). Ursprung: watchlist.",
+      "checkedAt": "2026-05-19T15:26:34.180Z"
     },
     {
       "seriesTitle": "Reincarnated as a Sword: Another Wish",
@@ -2083,11 +2098,11 @@
       "releaseDate": "2026-08-31",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2026/0227/1334/f47cb88d8c468a3c61789988f814d4fe.jpg",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/5351",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 5351, Band 3, Score 100). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 5351, Band 3). Ursprung: watchlist.",
+      "checkedAt": "2026-05-19T15:26:34.180Z"
     },
     {
       "seriesTitle": "Reincarnated as a Sword: Another Wish",
@@ -2098,11 +2113,11 @@
       "releaseDate": "2026-12-31",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2026/0227/1336/dd25ab3cf4edade7369bbf5011e04d3f.jpg",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/5351",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 5351, Band 4, Score 100). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 5351, Band 4). Ursprung: watchlist.",
+      "checkedAt": "2026-05-19T15:26:34.180Z"
     },
     {
       "seriesTitle": "Spy x Family",
@@ -2293,11 +2308,11 @@
       "releaseDate": "2026-06-10",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2023/0806/1322/7ad43051aef6b81718f896909f65d5bf.jpg",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/2790",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 2790, Band 9, Score 100). Ursprung: app-seed.",
-      "checkedAt": "2026-05-17T10:56:39.041Z"
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 2790, Band 9). Ursprung: app-seed.",
+      "checkedAt": "2026-05-19T15:26:34.180Z"
     },
     {
       "seriesTitle": "Tokyo Revengers – Doppelband-Edition",
@@ -2308,11 +2323,11 @@
       "releaseDate": "2023-08-01",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2023/0612/1549/782e58aaff17ca831411de01bc022d8a.jpg",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/1599",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 1599, Band 9, Score 105). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 1599, Band 9). Ursprung: watchlist.",
+      "checkedAt": "2026-05-19T15:26:34.180Z"
     },
     {
       "seriesTitle": "Tokyo Revengers – Doppelband-Edition",
@@ -2323,11 +2338,11 @@
       "releaseDate": "2023-09-26",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2023/0816/2345/76890d40a59614194a3733584e58a44f.jpg",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/1599",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 1599, Band 10, Score 105). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 1599, Band 10). Ursprung: watchlist.",
+      "checkedAt": "2026-05-19T15:26:34.180Z"
     },
     {
       "seriesTitle": "Tokyo Revengers – Doppelband-Edition",
@@ -2338,11 +2353,11 @@
       "releaseDate": "2023-11-28",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2023/1005/0129/d86b0ec6399d555571fa80e35c4a59a5.jpg",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/1599",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 1599, Band 11, Score 105). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 1599, Band 11). Ursprung: watchlist.",
+      "checkedAt": "2026-05-19T15:26:34.180Z"
     },
     {
       "seriesTitle": "Tokyo Revengers – Doppelband-Edition",
@@ -2353,11 +2368,11 @@
       "releaseDate": "2024-01-31",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2023/1211/2228/c02f9d0a763e6ba5b91234c64fd17fbb.jpg",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/1599",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 1599, Band 12, Score 105). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 1599, Band 12). Ursprung: watchlist.",
+      "checkedAt": "2026-05-19T15:26:34.180Z"
     },
     {
       "seriesTitle": "Tokyo Revengers – Doppelband-Edition",
@@ -2368,11 +2383,11 @@
       "releaseDate": "2024-03-26",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2024/0212/2346/0625ebbacabd2c53c0ff7e8646747762.jpg",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/1599",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 1599, Band 13, Score 105). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 1599, Band 13). Ursprung: watchlist.",
+      "checkedAt": "2026-05-19T15:26:34.180Z"
     },
     {
       "seriesTitle": "Tokyo Revengers – Doppelband-Edition",
@@ -2383,11 +2398,11 @@
       "releaseDate": "2024-05-29",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2024/0420/1414/f00a85a562247a8ef79c2d60998e8ec8.jpg",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/1599",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 1599, Band 14, Score 105). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 1599, Band 14). Ursprung: watchlist.",
+      "checkedAt": "2026-05-19T15:26:34.180Z"
     },
     {
       "seriesTitle": "Tokyo Revengers – Doppelband-Edition",
@@ -2398,11 +2413,11 @@
       "releaseDate": "2024-07-30",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2024/0620/1527/e0842bb2b0656d78f75cc487c2c672de.jpg",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/1599",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 1599, Band 15, Score 105). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 1599, Band 15). Ursprung: watchlist.",
+      "checkedAt": "2026-05-19T15:26:34.180Z"
     },
     {
       "seriesTitle": "Vagabond – Master Edition",
@@ -2413,11 +2428,11 @@
       "releaseDate": "2025-12-09",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2025/1209/1424/1623091758101e93009b454fdfe9bb5c.jpg",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/4636",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 4636, Band 8, Score 105). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 4636, Band 8). Ursprung: watchlist.",
+      "checkedAt": "2026-05-19T15:26:34.180Z"
     },
     {
       "seriesTitle": "Vagabond – Master Edition",
@@ -2428,11 +2443,11 @@
       "releaseDate": "2026-02-11",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2026/0113/1211/fdb23675150ff89ed1046ac0a669d84a.jpg",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/4636",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 4636, Band 9, Score 105). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 4636, Band 9). Ursprung: watchlist.",
+      "checkedAt": "2026-05-19T15:26:34.180Z"
     },
     {
       "seriesTitle": "Vagabond – Master Edition",
@@ -2443,11 +2458,11 @@
       "releaseDate": "2026-04-07",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2026/0416/1232/d83e6ba3b6b6028674751bc5fa563a87.jpg",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/4636",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 4636, Band 10, Score 105). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 4636, Band 10). Ursprung: watchlist.",
+      "checkedAt": "2026-05-19T15:26:34.180Z"
     },
     {
       "seriesTitle": "Vagabond – Master Edition",
@@ -2458,11 +2473,11 @@
       "releaseDate": "2026-06-09",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2025/1106/1630/f1d417454dbb7c02750a2e3fa05db0c4.jpg",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/4636",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 4636, Band 11, Score 100). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 4636, Band 11). Ursprung: watchlist.",
+      "checkedAt": "2026-05-19T15:26:34.180Z"
     },
     {
       "seriesTitle": "Vagabond – Master Edition",
@@ -2473,11 +2488,11 @@
       "releaseDate": "2026-08-04",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2025/1106/1631/1a0654f61764098d8aac55107adaadcf.jpg",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/4636",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 4636, Band 12, Score 100). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 4636, Band 12). Ursprung: watchlist.",
+      "checkedAt": "2026-05-19T15:26:34.180Z"
     },
     {
       "seriesTitle": "Witch and Hound",
@@ -2488,11 +2503,11 @@
       "releaseDate": "2026-05-11",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2026/0509/1335/f5fb2bdf450b1c4182192496f81b4b89.jpg",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/5483",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 5483, Band 3, Score 105). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 5483, Band 3). Ursprung: watchlist.",
+      "checkedAt": "2026-05-19T15:26:34.180Z"
     },
     {
       "seriesTitle": "Witch and Hound",
@@ -2503,11 +2518,11 @@
       "releaseDate": "2026-08-04",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2025/1013/1542/690c5333edefb7bfa1592d9628a64c54.jpg",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/5483",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 5483, Band 4, Score 100). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 5483, Band 4). Ursprung: watchlist.",
+      "checkedAt": "2026-05-19T15:26:34.180Z"
     },
     {
       "seriesTitle": "Yakuza Reincarnation",
@@ -2518,11 +2533,11 @@
       "releaseDate": "2026-05-16",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2026/0511/0326/921525ac129ba93b1f4944f37d025eef.jpg",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/1945",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 1945, Band 15, Score 105). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 1945, Band 15). Ursprung: watchlist.",
+      "checkedAt": "2026-05-19T15:26:34.180Z"
     },
     {
       "seriesTitle": "Yakuza Reincarnation",
@@ -2533,11 +2548,11 @@
       "releaseDate": "2026-08-12",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2024/1212/1327/8a33b15d466e75e6635f5fa9dfd91d8d.jpg",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/1945",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 1945, Band 16, Score 100). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 1945, Band 16). Ursprung: watchlist.",
+      "checkedAt": "2026-05-19T15:26:34.180Z"
     },
     {
       "seriesTitle": "Yandere Dark Elf",
@@ -2548,11 +2563,11 @@
       "releaseDate": "2026-05-29",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2026/0409/1321/636937aefa742f8dd4ac9d0aa7dac6e7.png",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/5408",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 5408, Band 3, Score 100). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 5408, Band 3). Ursprung: watchlist.",
+      "checkedAt": "2026-05-19T15:26:34.180Z"
     }
   ]
 }
