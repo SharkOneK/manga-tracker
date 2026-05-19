@@ -87,7 +87,7 @@ function sortQueueEntries(a, b) {
 }
 
 function loadExistingQueue() {
-  if (!fs.existsSync(queuePath)) return new Map();
+  if (!fs.existsSync(queuePath)) return { byKey: new Map(), entries: [] };
 
   const parsed = JSON.parse(fs.readFileSync(queuePath, 'utf8'));
   const queue = Array.isArray(parsed) ? parsed : parsed.queue;
@@ -99,7 +99,7 @@ function loadExistingQueue() {
   queue.forEach(entry => {
     byKey.set(queueKey(entry), entry);
   });
-  return byKey;
+  return { byKey, entries: queue };
 }
 
 function buildEntryFromAnalysis(item, existingByKey) {
@@ -138,13 +138,18 @@ function buildQueue() {
     throw new Error(`Expected ${EXPECTED_GAPS} source gaps, found ${analysis.gapAnalysis.length}`);
   }
 
-  const existingByKey = loadExistingQueue();
-  const queue = analysis.gapAnalysis
-    .map(item => buildEntryFromAnalysis(item, existingByKey))
-    .sort(sortQueueEntries);
+  const existing = loadExistingQueue();
+  const analysisKeys = new Set(analysis.gapAnalysis.map(queueKey));
+  const analysisEntries = analysis.gapAnalysis
+    .map(item => buildEntryFromAnalysis(item, existing.byKey));
+  const automatedEntries = existing.entries
+    .filter(entry => entry && !analysisKeys.has(queueKey(entry)));
+  const queue = [...analysisEntries, ...automatedEntries].sort(sortQueueEntries);
 
   const safeToPatchCount = queue.filter(item => item.safeToPatch === true).length;
   const pendingManualReviewCount = queue.filter(item => item.manualSourceReviewNeeded === true && item.safeToPatch !== true).length;
+  const autoReviewedCount = queue.filter(item => typeof item.reviewStatus === 'string' && item.reviewStatus.startsWith('auto-')).length;
+  const patchedCount = queue.filter(item => item.reviewStatus === 'patched').length;
 
   return {
     schemaVersion: 1,
@@ -152,9 +157,12 @@ function buildQueue() {
     generatedFrom: 'docs/release-cache-source-gap-analysis.md',
     reviewPolicy: 'docs/release-cache-manual-source-review.md',
     summary: {
+      knownSourceGaps: analysis.gapAnalysis.length,
       totalGaps: queue.length,
       safeToPatch: safeToPatchCount,
       pendingManualReview: pendingManualReviewCount,
+      autoReviewed: autoReviewedCount,
+      patched: patchedCount,
     },
     sortOrder: 'priority(sehr hoch, hoch, mittel, niedrig), seriesTitle, publisher, volumeNumber',
     queue,

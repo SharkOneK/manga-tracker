@@ -122,10 +122,13 @@ Der Update-Script expandiert diesen Eintrag zu 12 einzelnen Kandidaten, die dann
 | Skript | Funktion |
 |--------|----------|
 | `scripts/validate-release-watchlist.js` | Validiert Schema inkl. `volumeNumbers` |
-| `scripts/update-release-cache.js` | Expandiert `volumeNumbers` zu Einzelkandidaten |
+| `scripts/update-release-cache.js` | Legacy-Updatepfad: expandiert `volumeNumbers` zu Einzelkandidaten |
 | `scripts/audit-release-cache-coverage.js` | Prüft Coverage pro Band (auch `volumeNumbers`) |
 | `scripts/write-release-source-review-queue.js` | Erzeugt die manuelle Source-Review-Queue aus der Phase-23-Analyse |
 | `scripts/validate-release-source-review-queue.js` | Validiert die Source-Review-Queue und `safeToPatch`-Regeln |
+| `scripts/release-confidence.js` | Zentrale Confidence-Regeln für automatische Quellenprüfung |
+| `scripts/run-release-cache-pipeline.js` | Vollautomatische Phase-25-Pipeline für Cache, Queue und Report |
+| `scripts/validate-release-cache-pipeline-report.js` | Validiert den Pipeline-Report und Cache-Patch-Sicherheitsregeln |
 
 ## Audit-Modi
 
@@ -188,6 +191,32 @@ node scripts/write-release-source-review-queue.js
 node scripts/validate-release-source-review-queue.js
 ```
 
+## Phase 25: Vollautomatische Release-Cache-Pipeline
+
+Phase 24 hat die kontrollierte Source-Review-Queue eingeführt. Phase 25 automatisiert darauf aufbauend den Normalfall: Watchlist, bestehende Gaps und Review-Queue werden automatisch geprüft, sichere Treffer werden in den öffentlichen Cache übernommen, unsichere Treffer bleiben automatisch in der Queue.
+
+Neue Artefakte und Regeln sind in `docs/release-cache-automation.md` dokumentiert.
+
+Kernpunkte:
+
+- `scripts/run-release-cache-pipeline.js` liest Watchlist, Review-Queue und bestehenden Cache.
+- `scripts/release-confidence.js` entscheidet konservativ zwischen `high`, `medium`, `low` und `blocked`.
+- Nur `high`-Confidence-Kandidaten dürfen als Cache-Patches in `data/release-cache.json` landen.
+- `medium`, `low` und `blocked` werden mit automatischen Statuswerten in `data/release-source-review-queue.json` geschrieben.
+- `data/release-cache-pipeline-report.json` dokumentiert jeden Pipeline-Lauf maschinenlesbar.
+- `.github/workflows/update-release-cache.yml` erstellt bei Änderungen einen PR und pusht nicht direkt auf `main`.
+- Auto-Merge ist optional und nur für reine High-Confidence-Cache-Patches ohne Queue-/Blocked-Fälle vorgesehen.
+
+Validierung:
+
+```bash
+node scripts/run-release-cache-pipeline.js
+node scripts/validate-release-cache-pipeline-report.js
+node scripts/validate-release-cache.js
+node scripts/validate-release-source-review-queue.js
+```
+
+Die Automatisierung ersetzt keine Quellen-Sorgfalt: Platzhalterdaten wie `2999-12-31`, Publisher-Konflikte, Editions-Konflikte und Bandnummern-Konflikte werden blockiert und nicht in den Cache geschrieben.
 ## Private Sammlungsdaten
 
 Die lokale Sammlung des Nutzers (welche Bände besessen werden) ist **nicht** in diesem Repository gespeichert. Der Coverage-Report liest die lokale Sammlung nur zur Laufzeit im Browser. Nur aggregierte Watchlist-Einträge (Serientitel, Verlag, Bandnummern) landen in `release-watchlist.json` – ohne persönliche Daten wie Besitzstatus, Kaufdatum oder Lesestatus.

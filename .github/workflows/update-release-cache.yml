@@ -1,4 +1,4 @@
-﻿name: Update Release Cache
+name: Update Release Cache
 
 on:
   workflow_dispatch:
@@ -7,6 +7,7 @@ on:
 
 permissions:
   contents: write
+  pull-requests: write
 
 concurrency:
   group: update-release-cache
@@ -25,49 +26,110 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Check update script syntax
-        run: node --check scripts/update-release-cache.js
+      - name: Check release pipeline syntax
+        run: |
+          node --check scripts/release-confidence.js
+          node --check scripts/run-release-cache-pipeline.js
+          node --check scripts/validate-release-cache-pipeline-report.js
+          node --check scripts/update-release-cache.js
+          node --check scripts/validate-release-cache.js
+          node --check scripts/validate-release-watchlist.js
+          node --check scripts/write-release-source-review-queue.js
+          node --check scripts/validate-release-source-review-queue.js
+          node --check scripts/audit-release-cache-coverage.js
 
-      - name: Check validator syntax
-        run: node --check scripts/validate-release-cache.js
+      - name: Run automated release-cache pipeline
+        run: node scripts/run-release-cache-pipeline.js
 
-      - name: Check validate-release-watchlist syntax
-        run: node --check scripts/validate-release-watchlist.js
+      - name: Validate release-cache artifacts
+        run: |
+          node scripts/validate-release-cache-pipeline-report.js
+          node scripts/validate-release-cache.js
+          node scripts/validate-release-watchlist.js
+          node scripts/write-release-source-review-queue.js
+          node scripts/validate-release-source-review-queue.js
+          node scripts/audit-release-cache-coverage.js --json
+          node scripts/write-release-cache-coverage-report.js
+          node scripts/write-release-cache-coverage-summary.js
+          node scripts/validate-release-cache-coverage-gaps.js
+          node scripts/test-stats.js
+          node scripts/smoke-test-static.js
+          node scripts/check-secrets.js
+          node scripts/test-data-integrity.js
+          node scripts/security-audit-static.js
+          git diff --check
 
-      - name: Check audit-release-cache-coverage syntax
-        run: node --check scripts/audit-release-cache-coverage.js
+      - name: Prepare release-cache PR body
+        shell: bash
+        run: |
+          node <<'NODE' > "$RUNNER_TEMP/release-cache-pr-body.md"
+          const fs = require('fs');
+          const report = JSON.parse(fs.readFileSync('data/release-cache-pipeline-report.json', 'utf8'));
+          const s = report.summary;
+          console.log('## Release-Cache Pipeline Summary');
+          console.log('');
+          console.log(`- Generated at: ${report.generatedAt}`);
+          console.log(`- Candidates checked: ${s.candidatesChecked}/${s.candidatesDiscovered}`);
+          console.log(`- High confidence: ${s.highConfidence}`);
+          console.log(`- Medium confidence: ${s.mediumConfidence}`);
+          console.log(`- Low confidence: ${s.lowConfidence}`);
+          console.log(`- Blocked: ${s.blocked}`);
+          console.log(`- Cache patches: ${s.cachePatches}`);
+          console.log(`- Review-queue writes: ${s.reviewQueueWrites}`);
+          console.log(`- Auto-merge eligible: ${report.autoMergeEligible ? 'yes' : 'no'}`);
+          console.log('');
+          console.log('Unsafe or ambiguous candidates are kept in `data/release-source-review-queue.json`; only `confidence: "high"` cache patches are written to `data/release-cache.json`.');
+          NODE
 
-      - name: Update release cache
-        run: node scripts/update-release-cache.js
-
-      - name: Validate release cache
-        run: node scripts/validate-release-cache.js
-
-      - name: Validate release watchlist
-        run: node scripts/validate-release-watchlist.js
-
-      - name: Audit release cache coverage
-        run: node scripts/audit-release-cache-coverage.js
-
-      - name: Detect release cache changes
+      - name: Detect release-cache pipeline changes
         id: changes
         shell: bash
         run: |
-          if git diff --quiet -- data/release-cache.json; then
+          if git diff --quiet -- \
+            data/release-cache.json \
+            data/release-source-review-queue.json \
+            data/release-cache-pipeline-report.json \
+            docs/release-cache-coverage-gaps.md; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
-            echo "No release-cache changes detected."
+            echo "No release-cache pipeline changes detected."
           else
             echo "changed=true" >> "$GITHUB_OUTPUT"
-            echo "release-cache.json changed."
-            git diff --stat -- data/release-cache.json
+            git diff --stat -- \
+              data/release-cache.json \
+              data/release-source-review-queue.json \
+              data/release-cache-pipeline-report.json \
+              docs/release-cache-coverage-gaps.md
           fi
 
-      - name: Commit and push release cache
+      - name: Create release-cache update PR
         if: steps.changes.outputs.changed == 'true'
+        id: cpr
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: chore: update release cache pipeline artifacts
+          branch: automated/release-cache-pipeline
+          delete-branch: true
+          title: chore: update release cache pipeline artifacts
+          body-path: ${{ runner.temp }}/release-cache-pr-body.md
+          labels: release-cache, automated
+          add-paths: |
+            data/release-cache.json
+            data/release-source-review-queue.json
+            data/release-cache-pipeline-report.json
+            docs/release-cache-coverage-gaps.md
+
+      - name: Read auto-merge eligibility
+        if: steps.cpr.outputs.pull-request-number != ''
+        id: automerge
         shell: bash
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/release-cache.json
-          git commit -m "chore: update release cache"
-          git push origin HEAD:main
+          eligible=$(node -e "const r=require('./data/release-cache-pipeline-report.json'); console.log(r.autoMergeEligible ? 'true' : 'false')")
+          echo "eligible=$eligible" >> "$GITHUB_OUTPUT"
+          echo "autoMergeEligible=$eligible"
+
+      - name: Enable auto-merge for safe high-confidence-only PRs
+        if: steps.automerge.outputs.eligible == 'true' && vars.ENABLE_RELEASE_CACHE_AUTOMERGE == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh pr merge ${{ steps.cpr.outputs.pull-request-number }} --auto --squash
