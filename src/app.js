@@ -2428,10 +2428,37 @@ function buildReleasePreview(m) {
       </div>`;
     }
     const nextVol = mFirstMissingBand(m) ?? mNextBand(m);
+    const cacheMissReport = {
+      reason: 'no-cache-entry',
+      seriesTitle: m.title,
+      normalizedSeriesTitle: normalizeReleaseTitle(m.title),
+      publisher: m.pub || '',
+      volumeNumber: nextVol,
+      checkedAt: new Date().toISOString(),
+      source: 'app-preview',
+    };
+    const watchlistEntry = {
+      seriesTitle: m.title,
+      publisher: m.pub || '',
+      volumeNumber: nextVol,
+      sourceUrl: null,
+      notes: 'Aus App-Cache-Miss ergänzt.',
+      enabled: true,
+    };
+    const reportJson = JSON.stringify(cacheMissReport, null, 2);
+    const watchlistJson = JSON.stringify(watchlistEntry, null, 2);
     return `<div style="color:var(--text-muted);padding:16px 0;text-align:center;font-size:0.88rem">
       Keine passenden Einträge in release-cache.json für<br>
       <strong>${m.title}</strong> Band ${nextVol} gefunden.<br>
       <span style="font-size:0.78rem">Normalisierter Titel: "${normalizeReleaseTitle(m.title)}"</span>
+    </div>
+    <div class="cache-miss-report" style="margin-top:12px;padding:12px;border:1px solid var(--border);border-radius:6px;text-align:left;font-size:0.8rem">
+      <p style="margin:0 0 6px;font-weight:700">Cache-Miss-Report</p>
+      <pre style="font-size:0.72rem;overflow:auto;background:var(--bg2,#f5f5f5);padding:8px;border-radius:4px;margin:0 0 8px">${reportJson.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</pre>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button type="button" style="font-size:0.78rem;padding:4px 10px;cursor:pointer" onclick="(function(){try{navigator.clipboard.writeText(${JSON.stringify(reportJson)});}catch(e){}})()">Missing-Report kopieren</button>
+        <button type="button" style="font-size:0.78rem;padding:4px 10px;cursor:pointer" onclick="(function(){try{navigator.clipboard.writeText(${JSON.stringify(watchlistJson)});}catch(e){}})()">Watchlist-Eintrag kopieren</button>
+      </div>
     </div>`;
   }
   const confLabel = { high: '✓ Verifiziert', medium: '~ Wahrscheinlich', low: '? Unsicher' };

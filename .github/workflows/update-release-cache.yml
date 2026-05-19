@@ -27,11 +27,23 @@ jobs:
       - name: Check validator syntax
         run: node --check scripts/validate-release-cache.js
 
+      - name: Check validate-release-watchlist syntax
+        run: node --check scripts/validate-release-watchlist.js
+
+      - name: Check audit-release-cache-coverage syntax
+        run: node --check scripts/audit-release-cache-coverage.js
+
       - name: Update release cache
         run: node scripts/update-release-cache.js
 
       - name: Validate release cache
         run: node scripts/validate-release-cache.js
+
+      - name: Validate release watchlist
+        run: node scripts/validate-release-watchlist.js
+
+      - name: Audit release cache coverage
+        run: node scripts/audit-release-cache-coverage.js
 
       - name: Detect release cache changes
         id: changes
