@@ -12,35 +12,33 @@ Einzelne Bände einer Sammlung können im Release-Cache fehlen, wenn sie nicht d
 
 ### Lösung
 
-Phase 22 führt einen sammlungsweiten Coverage-Report ein:
+Phase 22 führte einen sammlungsweiten Coverage-Report ein. Seit Phase 25/26 ist er im Browser vor allem Diagnose:
 
 1. Die App analysiert die lokale Sammlung und vergleicht jeden fehlenden Band gegen den Release-Cache.
 2. Bände ohne Cache-Eintrag werden als Kandidaten gelistet.
-3. Der Nutzer kann einen kopierbaren Watchlist-Batch generieren.
-4. Der Batch wird manuell in `data/release-watchlist.json` eingefügt.
-5. Der CI-Workflow verarbeitet die Watchlist und aktualisiert den Cache.
+3. Das Dashboard zeigt die Lücken lokal an.
+4. Bekannte Watchlist- und Review-Queue-Fälle werden durch die automatische GitHub-Action/Pipeline verarbeitet.
+5. Manuelles Kopieren ist nur noch Diagnose-/Legacy-Fallback, nicht der normale Hauptprozess.
 
 ### Sicherheitsprinzipien
 
 - **Keine automatischen Schreibvorgänge**: Die Browser-App schreibt niemals in `release-watchlist.json` oder `release-cache.json`.
 - **Kein Supabase-Write**: Der Coverage-Report führt keinen Cloud-Write durch.
 - **Keine neuen externen Dependencies**: Rein client-seitige Logik.
-- **Explizite Nutzeraktion erforderlich**: Der Nutzer muss den Batch kopieren und manuell in die Watchlist einfügen.
+- **Diagnose statt Normalprozess**: Die lokale UI zeigt Coverage-Lücken, empfiehlt aber kein manuelles Watchlist-Einfügen mehr als Hauptworkflow.
 
 ### Flow
 
 ```
 App-Dashboard
-  → "Coverage prüfen" → Vorschau der fehlenden Bände
-  → "Watchlist-Batch kopieren" → JSON in Clipboard
-      ↓ (manuell)
-  data/release-watchlist.json ergänzen
-      ↓ (CI-Workflow)
-  node scripts/validate-release-watchlist.js
-  node scripts/update-release-cache.js
-  node scripts/audit-release-cache-coverage.js
+  → "Cache-Coverage prüfen" → lokale Diagnose der fehlenden Bände
       ↓
-  data/release-cache.json aktualisiert
+  bekannte Watchlist-/Review-Queue-Fälle werden durch GitHub Action verarbeitet
+      ↓
+  node scripts/run-release-cache-pipeline.js
+  node scripts/validate-release-cache-pipeline-report.js
+      ↓
+  PR mit sicheren Cache-Patches und Review-Queue-Diagnose
 ```
 
 ## Phase 22a: Sanitierter Coverage-Batch
@@ -102,7 +100,7 @@ Nicht eingeschlossen (bereits vollständig durch Cache abgedeckt): Colorless, Ka
 ## Vagabond-Beispiel
 
 Fehlende Bände: 8–19 (12 Bände).
-Watchlist-Batch vom Coverage-Report:
+Historisches Watchlist-Beispiel aus dem Coverage-Report:
 
 ```json
 {
@@ -222,3 +220,18 @@ Die Automatisierung ersetzt keine Quellen-Sorgfalt: Platzhalterdaten wie `2999-1
 Die lokale Sammlung des Nutzers (welche Bände besessen werden) ist **nicht** in diesem Repository gespeichert. Der Coverage-Report liest die lokale Sammlung nur zur Laufzeit im Browser. Nur aggregierte Watchlist-Einträge (Serientitel, Verlag, Bandnummern) landen in `release-watchlist.json` – ohne persönliche Daten wie Besitzstatus, Kaufdatum oder Lesestatus.
 
 Ab Phase 22a gilt: Das `notes`-Feld enthält ausschließlich `"Aus App-Coverage-Report ergänzt."` – kein `Sammlungsstand`, kein Ownership-Zähler, keine Leseinformation.
+
+## Phase 26: Provider-System und Dashboard-Aktionszentrale
+
+Phase 26 kapselt Quellenzugriffe in `scripts/release-providers/` und verlegt globale Wartungsaktionen in die Dashboard-Aktionszentrale.
+
+Neue Doku: `docs/release-provider-system.md`.
+
+Kernpunkte:
+
+- Manga Passion ist der erste aktive Release-Provider.
+- `scripts/run-release-cache-pipeline.js` ruft Provider über `scripts/release-providers/index.js` auf.
+- Die Confidence-Regeln aus `scripts/release-confidence.js` bleiben konservativ.
+- Provider-Konflikte werden als `provider-conflict` blockiert.
+- Der globale Cover-Sync liegt nicht mehr in der Suchleiste, sondern im Dashboard.
+- Coverage- und Cache-Miss-Anzeigen sind lokale Diagnose/Fallback-Hilfe und kein manueller Normalprozess zum Einfügen in `release-watchlist.json`.

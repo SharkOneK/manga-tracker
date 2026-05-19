@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="de">
 <head>
 <meta charset="UTF-8">
@@ -64,7 +64,6 @@
     <button class="view-btn active" id="vbtn-series" data-view="series" title="Serienansicht">⊞</button>
     <button class="view-btn" id="vbtn-volumes" data-view="volumes" title="Bändenliste">☰</button>
   </div>
-  <button class="view-btn" id="btn-mp-sync" data-action="mp-sync-all" title="Alle Band-Cover via Manga Passion synchronisieren" style="font-size:0.85rem;padding:5px 9px">🖼️</button>
 </div>
 
 <div class="main">
@@ -139,12 +138,12 @@
       <div class="form-group">
         <label>Nächster Band erscheint (DE) <span style="font-weight:400;color:var(--text-muted)">– Erscheinungsdatum</span></label>
         <input id="f-nextdate" type="date">
-        <button type="button" id="btn-release-check" data-action="open-release-preview" title="Release-Cache noch nicht geladen" style="margin-top:6px;width:100%;border:1.5px solid var(--border);border-radius:8px;padding:8px 11px;background:var(--bg);color:var(--text-muted);font-size:0.78rem;font-weight:700;cursor:pointer;transition:background 0.12s;display:none;opacity:0.4">📅 Release-Daten prüfen</button>
+        <button type="button" id="btn-release-check" data-action="open-release-preview" title="Release-Cache-Vorschau anzeigen" style="margin-top:6px;width:100%;border:1.5px solid var(--border);border-radius:8px;padding:8px 11px;background:var(--bg);color:var(--text-muted);font-size:0.78rem;font-weight:700;cursor:pointer;transition:background 0.12s;display:none;opacity:0.4">📅 Release-Cache-Vorschau anzeigen</button>
       </div>
       <div class="form-group">
         <label>Cover-Bild URL <span style="font-weight:400;color:var(--text-muted)">optional · Serien-Fallback wenn kein Band-1-Cover vorhanden ist</span></label>
         <input id="f-cover" type="url" placeholder="https://...">
-        <button type="button" data-action="mp-sync-one" title="Band-Cover von Manga Passion laden" style="margin-top:6px;width:100%;border:1.5px solid var(--border);border-radius:8px;padding:8px 11px;background:var(--bg);color:var(--text-muted);font-size:0.78rem;font-weight:700;cursor:pointer;transition:background 0.12s">📥 Cover laden</button>
+        <button type="button" data-action="mp-sync-one" title="Band-Cover für diese Serie von Manga Passion laden" style="margin-top:6px;width:100%;border:1.5px solid var(--border);border-radius:8px;padding:8px 11px;background:var(--bg);color:var(--text-muted);font-size:0.78rem;font-weight:700;cursor:pointer;transition:background 0.12s">📥 Cover für diese Serie laden</button>
       </div>
       <div class="form-group">
         <label>Genre / Tags</label>
@@ -186,7 +185,7 @@
 <div class="overlay" id="release-preview-overlay" style="display:none;z-index:110">
   <div class="modal" id="release-preview-modal">
     <div class="modal-header">
-      <h2 id="release-preview-title">Release-Daten prüfen</h2>
+      <h2 id="release-preview-title">Release-Cache-Vorschau</h2>
       <button class="close-btn" data-action="close-release-preview">✕</button>
     </div>
     <div class="modal-body" id="release-preview-body" style="max-height:55vh;overflow-y:auto;min-height:80px">

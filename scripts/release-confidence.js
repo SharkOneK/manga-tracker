@@ -96,7 +96,7 @@ function isValidHttpUrl(value) {
   if (typeof value !== 'string' || !value.trim()) return false;
   try {
     const url = new URL(value);
-    return url.protocol === 'https:' || url.protocol === 'http:';
+    return url.protocol === 'https:';
   } catch (_) {
     return false;
   }
@@ -177,6 +177,7 @@ function evaluateReleaseCandidate(candidate, context = {}) {
   if (volumeConflict) reasonCodes.push('volume-number-conflict');
   if (candidate.ambiguousEdition === true) reasonCodes.push('ambiguous-edition');
   if (candidate.sourceFetchFailed === true) reasonCodes.push('source-fetch-failed');
+  if (candidate.providerConflict === true) reasonCodes.push('provider-conflict');
 
   const blockedReasons = new Set([
     'placeholder-release-date',
@@ -186,6 +187,7 @@ function evaluateReleaseCandidate(candidate, context = {}) {
     'edition-title-conflict',
     'volume-number-conflict',
     'ambiguous-edition',
+    'provider-conflict',
   ]);
   const blocked = reasonCodes.some(code => blockedReasons.has(code));
 

@@ -30,6 +30,9 @@ jobs:
         run: |
           node --check scripts/release-confidence.js
           node --check scripts/run-release-cache-pipeline.js
+          node --check scripts/release-providers/index.js
+          node --check scripts/release-providers/provider-utils.js
+          node --check scripts/release-providers/manga-passion-provider.js
           node --check scripts/validate-release-cache-pipeline-report.js
           node --check scripts/update-release-cache.js
           node --check scripts/validate-release-cache.js

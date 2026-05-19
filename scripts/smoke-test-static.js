@@ -293,10 +293,10 @@ if (fs.existsSync(appJsPath)) {
   } else {
     pass('src/app.js: Cache-Miss-Report-Marker vorhanden');
   }
-  if (!appJsPhase19.includes('watchlist')) {
-    fail('src/app.js: Watchlist-Marker fehlt');
+  if (!/Watchlist|Review-Queue|Pipeline/.test(appJsPhase19)) {
+    fail('src/app.js: Diagnose-/Pipeline-Marker fehlt');
   } else {
-    pass('src/app.js: Watchlist-Marker vorhanden');
+    pass('src/app.js: Diagnose-/Pipeline-Marker vorhanden');
   }
 } else {
   fail('src/app.js nicht gefunden (bereits oben gemeldet)');
@@ -466,10 +466,10 @@ if (fs.existsSync(appJsPath)) {
     pass('src/app.js: data-action="check-release-coverage" vorhanden');
   }
 
-  if (!appJs22.includes('data-action="copy-coverage-batch"')) {
-    fail('src/app.js: data-action="copy-coverage-batch" fehlt');
+  if (appJs22.includes('data-action="copy-coverage-batch"')) {
+    fail('src/app.js: data-action="copy-coverage-batch" darf nach Phase 26 nicht mehr als normale UI-Aktion erscheinen');
   } else {
-    pass('src/app.js: data-action="copy-coverage-batch" vorhanden');
+    pass('src/app.js: copy-coverage-batch aus normaler UI entfernt');
   }
 
   if (!appJs22.includes('release-coverage-preview')) {
@@ -574,6 +574,33 @@ if (!fs.existsSync(coverageGapsMdPath)) {
 }
 
 // ── Ergebnis ───────────────────────────────────────────────────────────────
+// ── Phase 26: Release-Provider und Dashboard-Aktionszentrale ───────────────
+console.log('\nPruefe: Phase 26 - Release-Provider und Dashboard-Aktionszentrale\n');
+
+[
+  'scripts/release-providers/index.js',
+  'scripts/release-providers/provider-utils.js',
+  'scripts/release-providers/manga-passion-provider.js',
+  'docs/release-provider-system.md',
+].forEach(rel => {
+  const target = path.join(repoRoot, rel);
+  if (!fs.existsSync(target)) fail(rel + ' nicht gefunden');
+  else pass(rel + ' vorhanden');
+});
+
+const appJs26 = fs.readFileSync(appJsPath, 'utf-8');
+if (html.includes('id="btn-mp-sync"')) {
+  fail('index.html: btn-mp-sync muss aus der Suchleiste entfernt sein');
+} else {
+  pass('index.html: btn-mp-sync aus Suchleiste entfernt');
+}
+
+if (!appJs26.includes('Aktionszentrale:') || !appJs26.includes('Alle Band-Cover laden')) {
+  fail('src/app.js: Dashboard-Aktionszentrale oder Cover-Sync-Button fehlt');
+} else {
+  pass('src/app.js: Dashboard-Aktionszentrale mit Cover-Sync vorhanden');
+}
+
 console.log('');
 if (totalErrors > 0) {
   console.error('❌ Smoke-Test fehlgeschlagen — ' + totalErrors + ' Fehler\n');
