@@ -43,6 +43,27 @@ App-Dashboard
   data/release-cache.json aktualisiert
 ```
 
+## Phase 22a: Sanitierter Coverage-Batch
+
+Phase 22a übernimmt den aus Phase 22 erzeugten Coverage-Batch sicher in `data/release-watchlist.json`.
+
+### Warum private Sammlungsstände nie committet werden
+
+`buildReleaseCacheCoverageReport()` hatte ursprünglich `Sammlungsstand: x/y` im `notes`-Feld (z. B. "7 von 19 Bänden besessen"). **Diese Information ist privat und darf nie öffentlich committet werden:**
+
+1. `release-watchlist.json` liegt in einem öffentlichen Repository.
+2. Besitzstatus (wie viele Bände man hat) sind persönliche Daten.
+3. Das Watchlist-Schema hat absichtlich kein Ownership-Feld.
+
+Ab Phase 22a lautet das `notes`-Feld immer nur `"Aus App-Coverage-Report ergänzt."` – ohne Sammlungsstand.
+
+### Importierter Batch (Phase 22a)
+
+29 neue Einträge wurden in `release-watchlist.json` ergänzt, darunter:
+Adou, Arifureta Zero, August 9th, Berserk ME, Blood Blade, Brynhildr, Chainsaw Man, Dai Dark, Demon King of God Killing, Die letzte Elfe, Fairy Tail, From the Red Fog, Gushing over Magical Girls, Isekai Soapland, Jujutsu Kaisen, Kaiju No.8, Kijin Gentosho, Lili-Men, Maria's Judgement, Mirai Nikki NE, Mujina into the Deep, Nagatoro-san, Real Account, Reincarnated as a Sword: AW, Spy x Family, Tokyo Revengers DBE, Witch and Hound, Yakuza Reincarnation, Yandere Dark Elf.
+
+Nicht eingeschlossen (bereits vollständig durch Cache abgedeckt): Colorless, Kagurabachi, Dandadan, The Eminence in Shadow.
+
 ## Watchlist-Schema
 
 `data/release-watchlist.json` unterstützt ab Phase 22 zwei Formate:
@@ -68,7 +89,7 @@ App-Dashboard
   "publisher": "Egmont Manga",
   "volumeNumbers": [8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19],
   "sourceUrl": null,
-  "notes": "Aus App-Coverage-Report ergänzt. Sammlungsstand: 7/19.",
+  "notes": "Aus App-Coverage-Report ergänzt.",
   "enabled": true
 }
 ```
@@ -80,7 +101,6 @@ App-Dashboard
 
 ## Vagabond-Beispiel
 
-Sammlungsstand: 7 von 19 Bänden besessen (Bände 1–7).
 Fehlende Bände: 8–19 (12 Bände).
 Watchlist-Batch vom Coverage-Report:
 
@@ -90,7 +110,7 @@ Watchlist-Batch vom Coverage-Report:
   "publisher": "Egmont Manga",
   "volumeNumbers": [8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19],
   "sourceUrl": null,
-  "notes": "Aus App-Coverage-Report ergänzt. Sammlungsstand: 7/19.",
+  "notes": "Aus App-Coverage-Report ergänzt.",
   "enabled": true
 }
 ```
@@ -118,3 +138,5 @@ node scripts/audit-release-cache-coverage.js --strict
 ## Private Sammlungsdaten
 
 Die lokale Sammlung des Nutzers (welche Bände besessen werden) ist **nicht** in diesem Repository gespeichert. Der Coverage-Report liest die lokale Sammlung nur zur Laufzeit im Browser. Nur aggregierte Watchlist-Einträge (Serientitel, Verlag, Bandnummern) landen in `release-watchlist.json` – ohne persönliche Daten wie Besitzstatus, Kaufdatum oder Lesestatus.
+
+Ab Phase 22a gilt: Das `notes`-Feld enthält ausschließlich `"Aus App-Coverage-Report ergänzt."` – kein `Sammlungsstand`, kein Ownership-Zähler, keine Leseinformation.
