@@ -133,6 +133,25 @@ node scripts/audit-release-cache-coverage.js
 
 # Strict-Modus (Exit 1 wenn Einträge fehlen)
 node scripts/audit-release-cache-coverage.js --strict
+
+# Maschinenlesbarer JSON-Report fuer Klassifizierung/CI-Auswertung
+node scripts/audit-release-cache-coverage.js --json
+```
+
+## Phase 22c: Verbleibende Coverage-Luecken
+
+Die nach dem Bot-Update verbleibenden 34 Luecken sind in `docs/release-cache-coverage-gaps.md` als `source-data-gap` klassifiziert. Sie sind keine App-Fehler mehr, sondern Quellen-/Datenqualitaetsfaelle. Es werden dafuer keine Fake-Daten und keine geratenen Release-Daten ergaenzt.
+
+Phase 22d stabilisiert diesen Stand fuer CI und Dokumentation. Phase 22e schreibt zusaetzlich pro CI-Lauf ein JSON-Artefakt, das aktuelle, neue und verschwundene Gaps gegen den dokumentierten Stand vergleichbar macht. Phase 22f rendert diesen Stand direkt in die GitHub-Actions-Summary, damit der Status ohne Artefakt-Download sichtbar ist:
+
+```bash
+node scripts/validate-release-cache-coverage-gaps.js
+
+# CI-/Artefakt-Report mit Verlauf gegen docs/release-cache-coverage-gaps.md
+node scripts/write-release-cache-coverage-report.js
+
+# GitHub-Actions-Summary aus dem Artefakt-Report rendern
+node scripts/write-release-cache-coverage-summary.js
 ```
 
 ## Private Sammlungsdaten

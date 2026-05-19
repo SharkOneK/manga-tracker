@@ -1,12 +1,13 @@
+#!/usr/bin/env node
 'use strict';
 
 /**
- * audit-release-cache-coverage.js — Phase 22
+ * audit-release-cache-coverage.js — Phase 22 / 22c
  *
- * Prüft ob aktivierte Watchlist-Einträge im Release-Cache vorhanden sind.
+ * Prüft, ob aktivierte Watchlist-Einträge im Release-Cache vorhanden sind.
  *
  * Aufruf:
- *   node scripts/audit-release-cache-coverage.js [--strict]
+ *   node scripts/audit-release-cache-coverage.js [--strict] [--json]
  *
  * Standardpfade (relativ zum Repo-Root):
  *   data/release-watchlist.json
@@ -23,8 +24,8 @@ const repoRoot      = path.resolve(__dirname, '..');
 const watchlistFile = path.join(repoRoot, 'data', 'release-watchlist.json');
 const cacheFile     = path.join(repoRoot, 'data', 'release-cache.json');
 const strict        = process.argv.includes('--strict');
+const jsonMode      = process.argv.includes('--json');
 
-// ─── Hilfsfunktionen ──────────────────────────────────────────────────────
 function readJson(filePath) {
   if (!fs.existsSync(filePath)) {
     throw new Error(`Datei nicht gefunden: ${filePath}`);
@@ -55,83 +56,190 @@ function titleMatches(watchlistNorm, cacheNorm) {
   return false;
 }
 
-// ─── Dateien laden ────────────────────────────────────────────────────────
-console.log('\nAudit: Release-Cache-Abdeckung (Watchlist vs. Cache)\n');
+function expandWatchlistEntry(entry, entryIndex) {
+  const hasVolumeNumber  = Object.prototype.hasOwnProperty.call(entry, 'volumeNumber');
+  const hasVolumeNumbers = Object.prototype.hasOwnProperty.call(entry, 'volumeNumbers');
 
-let watchlist, cache;
-try {
-  watchlist = readJson(watchlistFile);
-} catch (e) {
-  console.error(`  ✗ ${e.message}`);
-  console.error('\n❌ Audit fehlgeschlagen (Watchlist nicht lesbar)\n');
-  process.exit(1);
+  if (hasVolumeNumber && !hasVolumeNumbers) {
+    return [{ entryIndex, entry, volumeNumber: entry.volumeNumber }];
+  }
+
+  if (hasVolumeNumbers && !hasVolumeNumber && Array.isArray(entry.volumeNumbers)) {
+    return entry.volumeNumbers.map(volumeNumber => ({ entryIndex, entry, volumeNumber }));
+  }
+
+  return [];
 }
 
-try {
-  cache = readJson(cacheFile);
-} catch (e) {
-  console.error(`  ✗ ${e.message}`);
-  console.error('\n❌ Audit fehlgeschlagen (Cache nicht lesbar)\n');
-  process.exit(1);
-}
-
-const enabledItems = (Array.isArray(watchlist.items) ? watchlist.items : [])
-  .filter(item => item && item.enabled === true);
-
-const cacheItems = Array.isArray(cache.items) ? cache.items : [];
-
-console.log(`Watchlist: ${enabledItems.length} aktivierte Einträge`);
-console.log(`Cache: ${cacheItems.length} Einträge\n`);
-
-// ─── Abgleich ─────────────────────────────────────────────────────────────
-let missingCount = 0;
-let foundCount   = 0;
-
-function checkVolume(entry, vol) {
-  const normTitle = normalizeTitle(entry.seriesTitle);
-  const found = cacheItems.some(item => {
+function cacheContainsVolume(cacheItems, seriesTitle, volumeNumber) {
+  const normTitle = normalizeTitle(seriesTitle);
+  return cacheItems.some(item => {
     if (!item || typeof item !== 'object') return false;
     const cacheNorm = item.normalizedSeriesTitle || normalizeTitle(item.seriesTitle || '');
     if (!titleMatches(normTitle, cacheNorm)) return false;
-    return item.volumeNumber === vol;
+    return item.volumeNumber === volumeNumber;
+  });
+}
+
+function groupMissingBySeries(missing) {
+  const groups = new Map();
+  missing.forEach(item => {
+    const key = `${item.normalizedSeriesTitle}|${item.publisher || ''}`;
+    if (!groups.has(key)) {
+      groups.set(key, {
+        seriesTitle: item.seriesTitle,
+        normalizedSeriesTitle: item.normalizedSeriesTitle,
+        publisher: item.publisher || null,
+        missingVolumes: [],
+        missingCount: 0,
+        classification: 'source-data-gap',
+        recommendedAction: 'Manuell in verlässlicher Quelle prüfen; keine Fake-Release-Daten ergänzen.',
+      });
+    }
+    const group = groups.get(key);
+    group.missingVolumes.push(item.volumeNumber);
+    group.missingCount++;
+  });
+  return Array.from(groups.values()).map(group => ({
+    ...group,
+    missingVolumes: group.missingVolumes.sort((a, b) => a - b),
+  }));
+}
+
+function groupMissingByPublisher(missing) {
+  const groups = new Map();
+  missing.forEach(item => {
+    const publisher = item.publisher || 'Unbekannter Verlag';
+    if (!groups.has(publisher)) groups.set(publisher, { publisher, missingCount: 0, seriesCount: 0, series: new Set() });
+    const group = groups.get(publisher);
+    group.missingCount++;
+    group.series.add(item.seriesTitle);
+  });
+  return Array.from(groups.values())
+    .map(group => ({
+      publisher: group.publisher,
+      missingCount: group.missingCount,
+      seriesCount: group.series.size,
+      series: Array.from(group.series).sort((a, b) => a.localeCompare(b, 'de')),
+    }))
+    .sort((a, b) => b.missingCount - a.missingCount || a.publisher.localeCompare(b.publisher, 'de'));
+}
+
+function buildAuditReport(watchlist, cache) {
+  const enabledItems = (Array.isArray(watchlist.items) ? watchlist.items : [])
+    .filter(item => item && item.enabled === true);
+  const cacheItems = Array.isArray(cache.items) ? cache.items : [];
+
+  const expanded = enabledItems.flatMap((entry, entryIndex) => expandWatchlistEntry(entry, entryIndex));
+  const checked = [];
+  const found = [];
+  const missing = [];
+
+  expanded.forEach(({ entryIndex, entry, volumeNumber }) => {
+    const present = cacheContainsVolume(cacheItems, entry.seriesTitle, volumeNumber);
+    const row = {
+      status: present ? 'found' : 'missing',
+      seriesTitle: entry.seriesTitle,
+      normalizedSeriesTitle: normalizeTitle(entry.seriesTitle),
+      publisher: entry.publisher || null,
+      volumeNumber,
+      watchlistEntryIndex: entryIndex,
+      classification: present ? 'cache-covered' : 'source-data-gap',
+      evidence: present
+        ? 'Passender Eintrag in data/release-cache.json gefunden.'
+        : 'Kein passender Eintrag in data/release-cache.json nach normalisiertem Titel und Bandnummer gefunden.',
+    };
+    checked.push(row);
+    if (present) found.push(row);
+    else missing.push(row);
   });
 
-  if (found) {
-    console.log(`  ✓ ${entry.seriesTitle} Band ${vol} gefunden`);
-    foundCount++;
-  } else {
-    console.log(`  ✗ ${entry.seriesTitle} Band ${vol} fehlt`);
-    missingCount++;
-  }
+  const missingBySeries = groupMissingBySeries(missing);
+  const missingByPublisher = groupMissingByPublisher(missing);
+
+  return {
+    schemaVersion: 1,
+    generatedAt: new Date().toISOString(),
+    mode: strict ? 'strict' : 'warn',
+    files: {
+      watchlist: path.relative(repoRoot, watchlistFile).replace(/\\/g, '/'),
+      cache: path.relative(repoRoot, cacheFile).replace(/\\/g, '/'),
+    },
+    summary: {
+      enabledWatchlistEntries: enabledItems.length,
+      expandedWatchlistVolumeCandidates: expanded.length,
+      cacheEntries: cacheItems.length,
+      foundCacheEntries: found.length,
+      missingCacheCoverage: missing.length,
+      missingSeries: missingBySeries.length,
+      missingPublishers: missingByPublisher.length,
+      auditClass: missing.length === 0 ? 'covered' : 'warning-source-data-gaps',
+      exitCode: strict && missing.length > 0 ? 1 : 0,
+    },
+    classificationLegend: {
+      'cache-covered': 'Watchlist-Band ist im Release-Cache abgedeckt.',
+      'source-data-gap': 'Watchlist-Band ist nach dem Cache-Update weiterhin nicht im Release-Cache; als Quellen-/Datenqualitätsfall behandeln, nicht als App-Fehler.',
+    },
+    missingBySeries,
+    missingByPublisher,
+    checked,
+    found,
+    missing,
+  };
 }
 
-enabledItems.forEach(entry => {
-  const hasVolumeNumber  = 'volumeNumber' in entry;
-  const hasVolumeNumbers = 'volumeNumbers' in entry;
+function printTextReport(report) {
+  console.log('\nAudit: Release-Cache-Abdeckung (Watchlist vs. Cache)\n');
+  console.log(`Watchlist: ${report.summary.enabledWatchlistEntries} aktivierte Einträge`);
+  console.log(`Expandierte Watchlist-Bandkandidaten: ${report.summary.expandedWatchlistVolumeCandidates}`);
+  console.log(`Cache: ${report.summary.cacheEntries} Einträge\n`);
 
-  if (hasVolumeNumber && !hasVolumeNumbers) {
-    checkVolume(entry, entry.volumeNumber);
-  } else if (hasVolumeNumbers && !hasVolumeNumber) {
-    if (Array.isArray(entry.volumeNumbers)) {
-      entry.volumeNumbers.forEach(vol => checkVolume(entry, vol));
+  report.checked.forEach(item => {
+    const marker = item.status === 'found' ? '✓' : '✗';
+    const text = item.status === 'found' ? 'gefunden' : 'fehlt';
+    console.log(`  ${marker} ${item.seriesTitle} Band ${item.volumeNumber} ${text}`);
+  });
+
+  console.log('');
+  console.log(`Gefundene Cache-Einträge: ${report.summary.foundCacheEntries}`);
+  console.log(`Fehlende Cache-Abdeckung: ${report.summary.missingCacheCoverage}`);
+
+  if (report.summary.missingCacheCoverage === 0) {
+    console.log('\n✅ Alle aktivierten Watchlist-Einträge sind im Cache abgedeckt\n');
+  } else {
+    console.log(`\n⚠ ${report.summary.missingCacheCoverage} Watchlist-Eintrag/Einträge noch nicht im Cache`);
+    console.log(`Klassifizierung: ${report.summary.missingSeries} Serien / ${report.summary.missingPublishers} Verlage mit Quellen-/Datenqualitätslücken`);
+    if (strict) {
+      console.error('❌ Strict-Modus: Exit 1 wegen fehlender Cache-Abdeckung\n');
+    } else {
+      console.log('ℹ Warnmodus (kein --strict): Exit 0\n');
     }
   }
-  // If both or neither are set, skip (invalid schema)
-});
-
-// ─── Zusammenfassung ──────────────────────────────────────────────────────
-console.log('');
-console.log(`Gefundene Cache-Einträge: ${foundCount}`);
-console.log(`Fehlende Cache-Abdeckung: ${missingCount}`);
-
-if (missingCount === 0) {
-  console.log('\n✅ Alle aktivierten Watchlist-Einträge sind im Cache abgedeckt\n');
-} else {
-  console.log(`\n⚠ ${missingCount} Watchlist-Eintrag/Einträge noch nicht im Cache`);
-  if (strict) {
-    console.error('❌ Strict-Modus: Exit 1 wegen fehlender Cache-Abdeckung\n');
-    process.exit(1);
-  } else {
-    console.log('ℹ Warnmodus (kein --strict): Exit 0\n');
-  }
 }
+
+let watchlist, cache, report;
+try {
+  watchlist = readJson(watchlistFile);
+  cache = readJson(cacheFile);
+  report = buildAuditReport(watchlist, cache);
+} catch (e) {
+  if (jsonMode) {
+    console.log(JSON.stringify({
+      schemaVersion: 1,
+      error: e.message,
+      summary: { exitCode: 1 },
+    }, null, 2));
+  } else {
+    console.error(`  ✗ ${e.message}`);
+    console.error('\n❌ Audit fehlgeschlagen\n');
+  }
+  process.exit(1);
+}
+
+if (jsonMode) {
+  console.log(JSON.stringify(report, null, 2));
+} else {
+  printTextReport(report);
+}
+
+process.exit(report.summary.exitCode);

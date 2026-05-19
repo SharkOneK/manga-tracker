@@ -57,9 +57,35 @@ jobs:
       - name: Check security-audit-static syntax
         run: node --check scripts/security-audit-static.js
 
+      - name: Check release-cache coverage report writer syntax
+        run: node --check scripts/write-release-cache-coverage-report.js
+
+      - name: Check release-cache coverage summary writer syntax
+        run: node --check scripts/write-release-cache-coverage-summary.js
+
+      - name: Check release-cache coverage gaps validator syntax
+        run: node --check scripts/validate-release-cache-coverage-gaps.js
+
       # ── Validierung ────────────────────────────────────────────────────────
       - name: Validate release cache
         run: node scripts/validate-release-cache.js
+
+      - name: Write release cache coverage gap report
+        run: node scripts/write-release-cache-coverage-report.js
+
+      - name: Write release cache coverage GitHub summary
+        run: node scripts/write-release-cache-coverage-summary.js
+
+      - name: Upload release cache coverage gap report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: release-cache-coverage-report
+          path: artifacts/release-cache-coverage-report.json
+          if-no-files-found: error
+
+      - name: Validate release cache coverage gaps docs
+        run: node scripts/validate-release-cache-coverage-gaps.js
 
       - name: Smoke test — statische Struktur
         run: node scripts/smoke-test-static.js

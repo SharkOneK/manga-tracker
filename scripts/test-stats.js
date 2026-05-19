@@ -1314,6 +1314,85 @@ test('Phase 22: Audit zählt fehlende Bände aus volumeNumbers korrekt', () => {
   assert.strictEqual(missing, 2, 'Bände 8 und 10 müssen als fehlend gezählt werden');
 });
 
+
+test('Phase 22c: Audit bietet maschinenlesbaren JSON-Report-Modus', () => {
+  const auditScript = _fs22.readFileSync(_path22.join(_root22, 'scripts', 'audit-release-cache-coverage.js'), 'utf8');
+  assert.ok(auditScript.includes('--json'), 'audit-release-cache-coverage.js muss --json unterst?tzen');
+  assert.ok(auditScript.includes('missingBySeries'), 'JSON-Report muss Serien-Gruppierung enthalten');
+  assert.ok(auditScript.includes('missingByPublisher'), 'JSON-Report muss Verlags-Gruppierung enthalten');
+  assert.ok(auditScript.includes('source-data-gap'), 'JSON-Report muss Quellen-/Datenqualit?tsklassifikation enthalten');
+});
+
+test('Phase 22d: Coverage-Gap-Validator und Docs sind vorhanden', () => {
+  const validatorPath = _path22.join(_root22, 'scripts', 'validate-release-cache-coverage-gaps.js');
+  const docsPath = _path22.join(_root22, 'docs', 'release-cache-coverage-gaps.md');
+  assert.ok(_fs22.existsSync(validatorPath), 'validate-release-cache-coverage-gaps.js muss existieren');
+  assert.ok(_fs22.existsSync(docsPath), 'release-cache-coverage-gaps.md muss existieren');
+  const validator = _fs22.readFileSync(validatorPath, 'utf8');
+  const docs = _fs22.readFileSync(docsPath, 'utf8');
+  assert.ok(validator.includes('source-data-gap'), 'Validator muss source-data-gap pruefen');
+  assert.ok(validator.includes('missingCacheCoverage'), 'Validator muss Summary-Zaehler pruefen');
+  assert.ok(docs.includes('34') && docs.includes('12') && docs.includes('8'), 'Docs muessen dokumentierten Stand 34/12/8 enthalten');
+  assert.ok(docs.includes('source-data-gap'), 'Docs muessen source-data-gap dokumentieren');
+});
+
+test('Phase 22e: Coverage-Gap-Report-Writer ist vorhanden und CI-tauglich', () => {
+  const writerPath = _path22.join(_root22, 'scripts', 'write-release-cache-coverage-report.js');
+  assert.ok(_fs22.existsSync(writerPath), 'write-release-cache-coverage-report.js muss existieren');
+  const writer = _fs22.readFileSync(writerPath, 'utf8');
+  assert.ok(writer.includes('release-cache-coverage-ci-report'), 'Report muss stabilen reportType enthalten');
+  assert.ok(writer.includes('newGaps'), 'Report muss neue Gaps ausweisen');
+  assert.ok(writer.includes('resolvedGaps'), 'Report muss verschwundene Gaps ausweisen');
+  assert.ok(writer.includes('containsPrivateCollectionData: false'), 'Report muss private Sammlungsdaten ausschliessen');
+});
+
+test('Phase 22e: CI erzeugt und laedt Coverage-Gap-Artefakt hoch', () => {
+  const ciPath = _path22.join(_root22, '.github', 'workflows', 'ci.yml');
+  const ci = _fs22.readFileSync(ciPath, 'utf8');
+  assert.ok(ci.includes('node --check scripts/write-release-cache-coverage-report.js'), 'CI muss Report-Writer syntaktisch pruefen');
+  assert.ok(ci.includes('node scripts/write-release-cache-coverage-report.js'), 'CI muss Coverage-Gap-Report schreiben');
+  assert.ok(ci.includes('actions/upload-artifact@v4'), 'CI muss Coverage-Gap-Report als Artefakt hochladen');
+  assert.ok(ci.includes('artifacts/release-cache-coverage-report.json'), 'CI muss den erwarteten Report-Pfad verwenden');
+});
+
+test('Phase 22e: Validator prueft neue und verschwundene Gaps im CI-Report', () => {
+  const validator = _fs22.readFileSync(_path22.join(_root22, 'scripts', 'validate-release-cache-coverage-gaps.js'), 'utf8');
+  assert.ok(validator.includes('write-release-cache-coverage-report.js'), 'Validator muss den CI-Report-Writer pruefen');
+  assert.ok(validator.includes('counts.newGaps'), 'Validator muss neue Gaps pruefen');
+  assert.ok(validator.includes('counts.resolvedGaps'), 'Validator muss verschwundene Gaps pruefen');
+  assert.ok(validator.includes('matchesDocumentedStand'), 'Validator muss Dokumentations-Synchronitaet pruefen');
+});
+
+
+test('Phase 22f: Coverage-Gap-Summary-Writer ist vorhanden und GitHub-tauglich', () => {
+  const summaryPath = _path22.join(_root22, 'scripts', 'write-release-cache-coverage-summary.js');
+  assert.ok(_fs22.existsSync(summaryPath), 'write-release-cache-coverage-summary.js muss existieren');
+  const summaryScript = _fs22.readFileSync(summaryPath, 'utf8');
+  assert.ok(summaryScript.includes('GITHUB_STEP_SUMMARY'), 'Summary-Writer muss GITHUB_STEP_SUMMARY nutzen');
+  assert.ok(summaryScript.includes('Aktuelle Coverage-Luecken'), 'Summary muss aktuelle Coverage-Luecken anzeigen');
+  assert.ok(summaryScript.includes('Betroffene Serien'), 'Summary muss betroffene Serien anzeigen');
+  assert.ok(summaryScript.includes('Betroffene Verlage'), 'Summary muss betroffene Verlage anzeigen');
+  assert.ok(summaryScript.includes('Neue Gaps'), 'Summary muss neue Gaps anzeigen');
+  assert.ok(summaryScript.includes('Verschwundene Gaps'), 'Summary muss verschwundene Gaps anzeigen');
+  assert.ok(summaryScript.includes('source-data-gap'), 'Summary muss source-data-gap anzeigen');
+  assert.ok(summaryScript.includes('Keine Fake-Daten'), 'Summary muss No-Fake-Daten-Hinweis enthalten');
+});
+
+test('Phase 22f: CI schreibt Coverage-Gap-Summary nach Report-Erzeugung', () => {
+  const ciPath = _path22.join(_root22, '.github', 'workflows', 'ci.yml');
+  const ci = _fs22.readFileSync(ciPath, 'utf8');
+  assert.ok(ci.includes('node --check scripts/write-release-cache-coverage-summary.js'), 'CI muss Summary-Writer syntaktisch pruefen');
+  assert.ok(ci.includes('node scripts/write-release-cache-coverage-summary.js'), 'CI muss GitHub-Actions-Summary schreiben');
+  assert.ok(ci.indexOf('node scripts/write-release-cache-coverage-report.js') < ci.indexOf('node scripts/write-release-cache-coverage-summary.js'), 'Summary muss nach Report-Erzeugung laufen');
+});
+
+test('Phase 22f: Validator prueft die GitHub-Actions-Summary', () => {
+  const validator = _fs22.readFileSync(_path22.join(_root22, 'scripts', 'validate-release-cache-coverage-gaps.js'), 'utf8');
+  assert.ok(validator.includes('write-release-cache-coverage-summary.js'), 'Validator muss Summary-Writer ausfuehren');
+  assert.ok(validator.includes('GitHub-Actions-Summary'), 'Validator muss Summary-Sichtbarkeit pruefen');
+  assert.ok(validator.includes('Keine Fake-Daten'), 'Validator muss No-Fake-Daten-Hinweis in Summary pruefen');
+});
+
 test('Phase 22: buildReleaseCacheCoverageReport-Marker in app.js vorhanden', () => {
   const appJs = _fs22.readFileSync(_path22.join(_root22, 'src', 'app.js'), 'utf8');
   assert.ok(appJs.includes('buildReleaseCacheCoverageReport'), 'buildReleaseCacheCoverageReport muss in app.js vorhanden sein');

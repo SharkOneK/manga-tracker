@@ -530,8 +530,26 @@ if (fs.existsSync(auditPath22)) {
   } else {
     pass('scripts/audit-release-cache-coverage.js: volumeNumbers-Expansion vorhanden');
   }
+  if (!auditContent.includes('--json') || !auditContent.includes('missingBySeries') || !auditContent.includes('source-data-gap')) {
+    fail('scripts/audit-release-cache-coverage.js: Phase-22c-JSON-Klassifizierung fehlt');
+  } else {
+    pass('scripts/audit-release-cache-coverage.js: Phase-22c-JSON-Klassifizierung vorhanden');
+  }
 } else {
   fail('scripts/audit-release-cache-coverage.js nicht gefunden (Phase 22)');
+}
+
+// Phase 22d: Coverage-Gap-Validator existiert
+const gapsValidatorPath = path.join(repoRoot, 'scripts', 'validate-release-cache-coverage-gaps.js');
+if (!fs.existsSync(gapsValidatorPath)) {
+  fail('scripts/validate-release-cache-coverage-gaps.js nicht gefunden');
+} else {
+  const validatorContent = fs.readFileSync(gapsValidatorPath, 'utf-8');
+  if (!validatorContent.includes('source-data-gap') || !validatorContent.includes('audit-release-cache-coverage.js')) {
+    fail('scripts/validate-release-cache-coverage-gaps.js: Phase-22d-Pruefung unvollstaendig');
+  } else {
+    pass('scripts/validate-release-cache-coverage-gaps.js vorhanden');
+  }
 }
 
 // docs/release-cache.md existiert
@@ -540,6 +558,19 @@ if (!fs.existsSync(releaseCacheMdPath)) {
   fail('docs/release-cache.md nicht gefunden');
 } else {
   pass('docs/release-cache.md vorhanden');
+}
+
+// docs/release-cache-coverage-gaps.md existiert und dokumentiert source-data-gap
+const coverageGapsMdPath = path.join(repoRoot, 'docs', 'release-cache-coverage-gaps.md');
+if (!fs.existsSync(coverageGapsMdPath)) {
+  fail('docs/release-cache-coverage-gaps.md nicht gefunden');
+} else {
+  const coverageGapsMd = fs.readFileSync(coverageGapsMdPath, 'utf-8');
+  if (!coverageGapsMd.includes('source-data-gap') || !coverageGapsMd.includes('Verbleibende Luecken')) {
+    fail('docs/release-cache-coverage-gaps.md dokumentiert Phase-22d-Gaps nicht ausreichend');
+  } else {
+    pass('docs/release-cache-coverage-gaps.md vorhanden');
+  }
 }
 
 // ── Ergebnis ───────────────────────────────────────────────────────────────
