@@ -110,10 +110,10 @@ jobs:
         uses: peter-evans/create-pull-request@v6
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          commit-message: chore: update release cache pipeline artifacts
+          commit-message: "chore: update release cache pipeline artifacts"
           branch: automated/release-cache-pipeline
           delete-branch: true
-          title: chore: update release cache pipeline artifacts
+          title: "chore: update release cache pipeline artifacts"
           body-path: ${{ runner.temp }}/release-cache-pr-body.md
           labels: release-cache, automated
           add-paths: |
