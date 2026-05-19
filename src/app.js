@@ -1,4 +1,4 @@
-﻿// ─── Palette & Utilities (defined in src/utils.js) ────────────────────────
+// ─── Palette & Utilities (defined in src/utils.js) ────────────────────────
 const PALETTE = window.MangaTrackerUtils.PALETTE;
 function colorFor(str) { return window.MangaTrackerUtils.colorFor(str); }
 
@@ -444,8 +444,9 @@ async function mpSyncAll() {
   }
   if (_mpBusy) return;
   _mpBusy = true;
-  const btn = document.getElementById('btn-mp-sync');
-  if (btn) { btn.disabled = true; btn.textContent = '⏳'; }
+  const btn = document.querySelector('[data-action="mp-sync-all"]');
+  const previousLabel = btn ? btn.textContent : '';
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ Cover werden geladen…'; }
   const list = db.m.filter(m => mOwned(m) > 1 && m.mpEditionId !== 'none');
   let ok = 0, miss = 0, cancelled = false;
   for (const m of list) {
@@ -459,7 +460,7 @@ async function mpSyncAll() {
   }
   if (ok > 0) { pushCloud(); render(); }
   toast(`${cancelled?'⏹':'✅'} ${ok} aktualisiert · ${miss} ohne Treffer${cancelled?' (Abbruch)':''}`);
-  if (btn) { btn.disabled = false; btn.textContent = '🖼️'; }
+  if (btn) { btn.disabled = !canEditLocal(); btn.textContent = previousLabel || 'Alle Band-Cover laden'; }
   _mpBusy = false;
 }
 
@@ -1227,26 +1228,24 @@ function renderDashboard() {
       generatedAt: releaseCache.generatedAt || null,
     };
   })() : null;
+  const coverSyncDisabledAttr = canEditLocal() ? '' : ' disabled title="Öffentliche Ansicht – lokale Cover-Aktion deaktiviert"';
+  const coverSyncNote = canEditLocal()
+    ? 'Lädt fehlende Band-Cover für deine lokale Sammlung. Es wird nichts ins öffentliche Repository geschrieben.'
+    : 'Öffentliche Ansicht: lokale Cover-Massenaktionen sind deaktiviert.';
   el.innerHTML = `<div class="stats-page">
     ${renderImportExport()}
     <div class="stats-section">
-      <h3>Prüfen &amp; Korrigieren</h3>
+      <h3>Aktionszentrale: Prüfen &amp; Automatisieren</h3>
       <div class="dashboard-actions">
         <button type="button" class="add-btn dashboard-action-btn" data-action="run-dashboard-release-date-check">Alle Release-Daten prüfen</button>
         <button type="button" class="add-btn dashboard-action-btn" data-action="run-dashboard-series-status-check">Alle Serien-Status prüfen</button>
-        <p class="stats-empty-note">Prüft vorhandene Serien gegen den lokalen Release-Cache und Serienstatus-Plausibilität. Ergebnisse sind nur Vorschau.</p>
+        <button type="button" class="add-btn dashboard-action-btn" data-action="check-release-coverage">Cache-Coverage prüfen</button>
+        <button type="button" class="add-btn dashboard-action-btn" data-action="mp-sync-all"${coverSyncDisabledAttr}>Alle Band-Cover laden</button>
+        <p class="stats-empty-note">Release-Cache und Review-Queue werden per GitHub-Action/Pipeline gepflegt. Dashboard-Prüfungen sind lokale Vorschau oder Diagnose und schreiben keine privaten Sammlungsdaten ins Repository.</p>
+        <p class="stats-empty-note">${coverSyncNote}</p>
       </div>
       ${renderDashboardReleaseCheckPreview(_dashboardReleasePreview)}
       ${renderDashboardSeriesStatusPreview(_dashboardSeriesStatusPreview)}
-    </div>
-
-    <div class="stats-section">
-      <h3>Cache-Coverage-Report</h3>
-      <div class="dashboard-actions">
-        <button type="button" class="add-btn dashboard-action-btn" data-action="check-release-coverage">Coverage prüfen</button>
-        <button type="button" class="add-btn dashboard-action-btn" data-action="copy-coverage-batch">Watchlist-Batch kopieren</button>
-        <p class="stats-empty-note">Zeigt Bände der Sammlung ohne Cache-Eintrag. Batch kopieren und manuell in release-watchlist.json einfügen – keine automatischen Schreibvorgänge.</p>
-      </div>
       <div id="release-coverage-preview"></div>
     </div>
 
@@ -2504,10 +2503,10 @@ function updateReleaseCacheButton() {
     'loaded':     'geladen',
   };
   if (releaseCacheStatus === 'loaded') {
-    btn.title   = `Release-Cache geladen (${releaseCache ? releaseCache.items.length : 0} Einträge) — Klicken zum Prüfen`;
+    btn.title   = `Release-Cache geladen (${releaseCache ? releaseCache.items.length : 0} Einträge) — lokale Vorschau anzeigen`;
     btn.style.opacity = '1';
   } else {
-    btn.title   = `Release-Cache ${statusLabel[releaseCacheStatus] || releaseCacheStatus} — kein Prüfen möglich`;
+    btn.title   = `Release-Cache ${statusLabel[releaseCacheStatus] || releaseCacheStatus} — keine Vorschau möglich`;
     btn.style.opacity = '0.4';
   }
 }
@@ -2572,29 +2571,18 @@ function buildReleasePreview(m) {
       checkedAt: new Date().toISOString(),
       source: 'app-preview',
     };
-    const watchlistEntry = {
-      seriesTitle: m.title,
-      publisher: m.pub || '',
-      volumeNumber: nextVol,
-      sourceUrl: null,
-      notes: 'Aus App-Cache-Miss ergänzt.',
-      enabled: true,
-    };
     const reportJson = JSON.stringify(cacheMissReport, null, 2);
-    const watchlistJson = JSON.stringify(watchlistEntry, null, 2);
     return `<div style="color:var(--text-muted);padding:16px 0;text-align:center;font-size:0.88rem">
       Keine passenden Einträge in release-cache.json für<br>
       <strong>${m.title}</strong> Band ${nextVol} gefunden.<br>
-      <span style="font-size:0.78rem">Normalisierter Titel: "${normalizeReleaseTitle(m.title)}"</span>
+      <span style="font-size:0.78rem">Normalisierter Titel: "${normalizeReleaseTitle(m.title)}"</span><br>
+      <span style="font-size:0.78rem">Bekannte Watchlist- und Review-Queue-Fälle werden durch die automatische Pipeline verarbeitet. Diese Modal-Ansicht ist nur Diagnose.</span>
     </div>
-    <div class="cache-miss-report" style="margin-top:12px;padding:12px;border:1px solid var(--border);border-radius:6px;text-align:left;font-size:0.8rem">
-      <p style="margin:0 0 6px;font-weight:700">Cache-Miss-Report</p>
-      <pre style="font-size:0.72rem;overflow:auto;background:var(--bg2,#f5f5f5);padding:8px;border-radius:4px;margin:0 0 8px">${reportJson.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</pre>
-      <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <button type="button" style="font-size:0.78rem;padding:4px 10px;cursor:pointer" data-action="copy-text" data-clipboard="${escapeHtml(reportJson)}">Missing-Report kopieren</button>
-        <button type="button" style="font-size:0.78rem;padding:4px 10px;cursor:pointer" data-action="copy-text" data-clipboard="${escapeHtml(watchlistJson)}">Watchlist-Eintrag kopieren</button>
-      </div>
-    </div>`;
+    <details class="cache-miss-report" style="margin-top:12px;padding:12px;border:1px solid var(--border);border-radius:6px;text-align:left;font-size:0.8rem">
+      <summary style="cursor:pointer;font-weight:700">Diagnose-JSON anzeigen</summary>
+      <pre style="font-size:0.72rem;overflow:auto;background:var(--bg2,#f5f5f5);padding:8px;border-radius:4px;margin:8px 0">${reportJson.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</pre>
+      <button type="button" style="font-size:0.78rem;padding:4px 10px;cursor:pointer" data-action="copy-text" data-clipboard="${escapeHtml(reportJson)}">Diagnose-JSON kopieren</button>
+    </details>`;
   }
   const confLabel = { high: '✓ Verifiziert', medium: '~ Wahrscheinlich', low: '? Unsicher' };
   return matches.map((item, idx) => {
@@ -2662,7 +2650,7 @@ function openReleasePreviewForCurrentSeries() {
   if (!m) return;
   _currentReleaseMatches = findReleaseMatchesForSeries(m);
   const titleEl = document.getElementById('release-preview-title');
-  if (titleEl) titleEl.textContent = `Release-Daten: ${m.title}`;
+  if (titleEl) titleEl.textContent = `Release-Cache-Vorschau: ${m.title}`;
   renderReleasePreview(m);
   document.getElementById('release-preview-overlay').style.display = 'flex';
 }
@@ -3588,7 +3576,7 @@ function renderReleaseCacheCoveragePreview() {
     </div>`;
   }).join('');
   el.innerHTML = `<div class="dashboard-release-candidates">${rows}
-    <p class="stats-empty-note">${candidates.length} Serie(n) mit fehlender Cache-Abdeckung. Batch kopieren und in release-watchlist.json einfügen.</p>
+    <p class="stats-empty-note">${candidates.length} Serie(n) mit fehlender Cache-Abdeckung. Lokale Diagnose: Die automatische Pipeline verarbeitet bekannte Watchlist- und Review-Queue-Fälle im Repository; diese Ansicht schreibt keine privaten Daten.</p>
   </div>`;
   toast(`🔍 Coverage-Report: ${candidates.length} Serie(n) mit Cache-Lücken`);
 }
@@ -3602,12 +3590,12 @@ function copyReleaseCacheCoverageBatch() {
   const json = JSON.stringify(candidates, null, 2);
   if (navigator.clipboard && navigator.clipboard.writeText) {
     navigator.clipboard.writeText(json).then(() => {
-      toast(`📋 Watchlist-Batch (${candidates.length} Serien) in Zwischenablage kopiert.`);
+      toast(`📋 Coverage-Diagnose (${candidates.length} Serien) in Zwischenablage kopiert.`);
     }).catch(() => {
-      toast('⚠️ Kopieren fehlgeschlagen – Browser ohne Clipboard-Zugriff.');
+      toast('⚠️ Diagnose-Kopieren fehlgeschlagen – Browser ohne Clipboard-Zugriff.');
     });
   } else {
-    toast('⚠️ Kopieren fehlgeschlagen – Browser ohne Clipboard-Zugriff.');
+    toast('⚠️ Diagnose-Kopieren fehlgeschlagen – Browser ohne Clipboard-Zugriff.');
   }
 }
 
@@ -3722,9 +3710,6 @@ function bindDelegatedEvents() {
         break;
       case 'check-release-coverage':
         renderReleaseCacheCoveragePreview();
-        break;
-      case 'copy-coverage-batch':
-        copyReleaseCacheCoverageBatch();
         break;
       case 'set-tab':
         setTab(target.dataset.tab);

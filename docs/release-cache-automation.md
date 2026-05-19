@@ -18,7 +18,7 @@ Die Pipeline liest:
 - `data/release-sources.json`
 - bestehende App-Seeds aus `src/app.js`, wenn dort explizite `nextDate`-Werte stehen
 
-Danach prüft sie Kandidaten gegen erlaubte Projektquellen. Aktuell wird die bereits etablierte Manga-Passion-Prüfung verwendet. Es wird nicht gecrawlt und es werden keine geratenen Daten erzeugt.
+Danach prüft sie Kandidaten gegen aktivierte Release-Provider. Aktuell ist Manga Passion als erster Provider implementiert (`scripts/release-providers/manga-passion-provider.js`). Es wird nicht gecrawlt und es werden keine geratenen Daten erzeugt.
 
 ## Outputs
 
@@ -110,3 +110,9 @@ Damit werden PRs mit unsicheren oder gemischten Änderungen nicht automatisch ge
 - Jeder Konflikt landet in der Review-Queue statt im Cache.
 
 Die Pipeline automatisiert also die Prüfung und Sortierung, nicht das Raten von Release-Daten.
+
+## Provider-Architektur ab Phase 26
+
+Die Quellenlogik liegt nicht mehr inline im Pipeline-Runner. `scripts/release-providers/index.js` wählt implementierte Provider anhand von `data/release-sources.json` aus. Aktuell ist nur `manga-passion` aktiv implementiert; weitere Provider können später ergänzt werden.
+
+Provider liefern ein einheitliches Ergebnis mit `providerId`, `sourceName`, `sourceUrl`, Belegen und optional ISBN/Cover. Widersprüchliche High-Confidence-Provider-Ergebnisse werden blockiert und in der Review-Queue dokumentiert.

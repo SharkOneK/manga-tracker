@@ -6,7 +6,7 @@
  *
  * Fully automated, conservative release-cache pipeline:
  * - reads watchlist, source-review queue, app seeds, and current public cache
- * - checks allowed sources (currently the existing Manga-Passion project rule)
+ * - checks enabled release providers (currently Manga Passion)
  * - writes only high-confidence candidates to data/release-cache.json
  * - routes medium/low/blocked candidates to data/release-source-review-queue.json
  * - writes data/release-cache-pipeline-report.json
@@ -22,10 +22,13 @@ const {
   evaluateReleaseCandidate,
   isRealReleaseDate,
   isValidDate,
-  isValidHttpUrl,
   normalizePublisher,
   normalizeTitle,
 } = require('./release-confidence');
+const {
+  checkCandidateSource,
+  getEnabledReleaseProviders,
+} = require('./release-providers');
 
 const repoRoot = path.resolve(__dirname, '..');
 const dataDir = path.join(repoRoot, 'data');
@@ -36,8 +39,6 @@ const watchlistFile = path.join(dataDir, 'release-watchlist.json');
 const queueFile = path.join(dataDir, 'release-source-review-queue.json');
 const reportFile = path.join(dataDir, 'release-cache-pipeline-report.json');
 
-const MP_API = 'https://api.manga-passion.de';
-const MP_SOURCE_URL = 'https://www.manga-passion.de';
 const ISO_RE = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/;
 const PRIORITY_ORDER = new Map([
   ['sehr hoch', 0],
@@ -55,9 +56,6 @@ function writeJsonStable(filePath, value) {
   fs.writeFileSync(filePath, JSON.stringify(value, null, 2) + '\n', 'utf8');
 }
 
-function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
 
 function isValidIso(value) {
   return typeof value === 'string' && ISO_RE.test(value) && !Number.isNaN(Date.parse(value));
@@ -250,165 +248,6 @@ function dedupeCandidates(candidates, aliasMap) {
   return [...byKey.values()];
 }
 
-function publisherNames(edition) {
-  return Array.isArray(edition && edition.publishers)
-    ? edition.publishers.map(p => p && p.name).filter(Boolean)
-    : [];
-}
-
-function scoreEdition(seed, edition, aliasMap) {
-  const seedTitle = normalizeTitle(seed.seriesTitle);
-  const editionTitle = normalizeTitle(edition && edition.title);
-  const seedPublisher = normalizePublisher(seed.publisher, aliasMap);
-  const editionPublishers = publisherNames(edition).map(name => normalizePublisher(name, aliasMap));
-  let score = 0;
-  if (editionTitle === seedTitle) score += 60;
-  else if (editionTitle.includes(seedTitle) || seedTitle.includes(editionTitle)) score += 35;
-  else {
-    const seedTokens = new Set(seedTitle.split(' ').filter(token => token.length > 2));
-    const hitTokens = editionTitle.split(' ').filter(token => seedTokens.has(token)).length;
-    score += Math.min(25, hitTokens * 8);
-  }
-  if (editionPublishers.includes(seedPublisher)) score += 30;
-  if (edition && edition.print === true) score += 10;
-  if (edition && edition.digital === true) score -= 15;
-  if (/ebook|e book|light novel|novel|roman|artbook|kochbuch|wimmelbuch/i.test(String(edition && edition.title || ''))) score -= 30;
-  if (Number(edition && edition.numVolumes) >= Number(seed.volumeNumber)) score += 5;
-  return score;
-}
-
-function dateFromMpVolumeRaw(volume) {
-  if (!volume) return null;
-  if (Number.isInteger(volume.year) && Number.isInteger(volume.month) && Number.isInteger(volume.day)) {
-    return `${String(volume.year).padStart(4, '0')}-${String(volume.month).padStart(2, '0')}-${String(volume.day).padStart(2, '0')}`;
-  }
-  if (typeof volume.date === 'string' && volume.date.length >= 10) return volume.date.slice(0, 10);
-  return null;
-}
-
-async function fetchJson(url, policy) {
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), policy.timeoutMs);
-  try {
-    const res = await fetch(url, {
-      headers: {
-        'Accept': 'application/json',
-        'User-Agent': policy.userAgent,
-      },
-      signal: controller.signal,
-    });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return await res.json();
-  } finally {
-    clearTimeout(timer);
-  }
-}
-
-async function tryMangaPassion(candidate, aliasMap, policy) {
-  const base = {
-    ...candidate,
-    sourceName: 'Manga Passion',
-    sourceUrl: MP_SOURCE_URL,
-  };
-
-  try {
-    const searchUrl = `${MP_API}/editions?search=${encodeURIComponent(candidate.seriesTitle)}&itemsPerPage=8`;
-    const hits = await fetchJson(searchUrl, policy);
-    await sleep(policy.minDelayMs);
-    if (!Array.isArray(hits) || hits.length === 0) {
-      return { ...base, sourceResult: 'no-edition-found', sourceFetchFailed: false };
-    }
-
-    const scored = hits
-      .map(edition => ({ edition, score: scoreEdition(candidate, edition, aliasMap) }))
-      .sort((a, b) => b.score - a.score);
-    const best = scored[0];
-    if (!best || best.score < 60) {
-      return { ...base, sourceResult: `edition-match-too-weak:${best ? best.score : 0}` };
-    }
-
-    const expectedTitle = normalizeTitle(candidate.seriesTitle);
-    const expectedPublisher = normalizePublisher(candidate.publisher, aliasMap);
-    const exactEditionMatches = scored.filter(({ edition }) => {
-      const titleMatches = normalizeTitle(edition && edition.title) === expectedTitle;
-      const publishers = publisherNames(edition).map(name => normalizePublisher(name, aliasMap));
-      return titleMatches && publishers.includes(expectedPublisher) && edition.print === true;
-    });
-
-    const volumesUrl = `${MP_API}/editions/${best.edition.id}/volumes?itemsPerPage=300`;
-    const volumes = await fetchJson(volumesUrl, policy);
-    await sleep(policy.minDelayMs);
-    if (!Array.isArray(volumes) || volumes.length === 0) {
-      return {
-        ...base,
-        sourceEditionId: best.edition.id,
-        sourceEditionTitle: best.edition.title || null,
-        sourcePublisher: publisherNames(best.edition)[0] || null,
-        sourceUrl: `${MP_SOURCE_URL}/editions/${best.edition.id}`,
-        sourceResult: 'no-volumes-found',
-      };
-    }
-
-    const volume = volumes.find(item => Number(item.number) === Number(candidate.volumeNumber));
-    if (!volume) {
-      return {
-        ...base,
-        sourceEditionId: best.edition.id,
-        sourceEditionTitle: best.edition.title || null,
-        sourcePublisher: publisherNames(best.edition)[0] || null,
-        sourceUrl: `${MP_SOURCE_URL}/editions/${best.edition.id}`,
-        sourceResult: 'volume-not-found',
-        sourceVolumeNumber: null,
-      };
-    }
-
-    const releaseDate = dateFromMpVolumeRaw(volume);
-    return {
-      ...base,
-      releaseDate,
-      isbn13: normalizeIsbn13(volume.isbn13 || volume.isbn || null),
-      coverUrl: isValidHttpUrl(volume.cover) ? volume.cover : (isValidHttpUrl(best.edition.cover) ? best.edition.cover : null),
-      sourceUrl: `${MP_SOURCE_URL}/editions/${best.edition.id}`,
-      sourceEditionId: best.edition.id,
-      sourceEditionTitle: best.edition.title || null,
-      sourcePublisher: publisherNames(best.edition)[0] || null,
-      sourceVolumeNumber: Number(volume.number),
-      sourceVolumeSpecialType: volume.specialType || null,
-      sourceScore: best.score,
-      ambiguousEdition: exactEditionMatches.length > 1,
-      sourceResult: 'volume-found',
-    };
-  } catch (error) {
-    return {
-      ...base,
-      sourceFetchFailed: true,
-      sourceResult: `fetch-error:${error.message}`,
-      sourceError: error.message,
-    };
-  }
-}
-
-function sourceConfigEnabled(sources, sourceId) {
-  return Array.isArray(sources && sources.sources) && sources.sources.some(source => source.id === sourceId && source.enabled !== false);
-}
-
-async function checkCandidateSource(candidate, context) {
-  const { sources, aliasMap, policy } = context;
-
-  if (candidate.releaseDate && candidate.sourceUrl && candidate.sourceName) {
-    return { ...candidate };
-  }
-
-  if (sourceConfigEnabled(sources, 'manga-passion')) {
-    return tryMangaPassion(candidate, aliasMap, policy);
-  }
-
-  return {
-    ...candidate,
-    sourceFetchFailed: true,
-    sourceResult: 'no-enabled-source',
-  };
-}
 
 function candidateToCacheItem(candidate, aliasMap, checkedAt) {
   return {
@@ -422,6 +261,8 @@ function candidateToCacheItem(candidate, aliasMap, checkedAt) {
     coverUrl: candidate.coverUrl || null,
     sourceUrl: candidate.sourceUrl,
     sourceName: candidate.sourceName,
+    providerId: candidate.providerId || null,
+    evidence: candidate.evidence || null,
     confidence: 'high',
     notes: `Automatisch per Release-Cache-Pipeline bestätigt (${candidate.sourceName}${candidate.sourceEditionId ? ` Edition ${candidate.sourceEditionId}` : ''}, Band ${candidate.volumeNumber}). Ursprung: ${candidate.origin}.`,
     checkedAt,
@@ -484,6 +325,7 @@ function makeQueueEntry(candidate, evaluation, checkedAt, existing) {
       : 'Automatisch geprüft; nicht sicher genug für den öffentlichen Cache.',
     sourceConfidence: evaluation.confidence,
     sourceName: candidate.sourceName || null,
+    providerId: candidate.providerId || null,
     sourceEditionId: candidate.sourceEditionId || null,
     sourceEditionTitle: candidate.sourceEditionTitle || null,
     sourcePublisher: candidate.sourcePublisher || null,
@@ -608,7 +450,7 @@ async function main() {
   console.log(`Release-Cache-Pipeline: pruefe ${boundedCandidates.length} Kandidat(en), Limit ${policy.maxItemsPerSource}`);
 
   for (const seed of boundedCandidates) {
-    const checked = await checkCandidateSource(seed, { sources, aliasMap, policy });
+    const checked = await checkCandidateSource(seed, { sources, aliasMap, policy, checkedAt: startedAt });
     const evaluation = evaluateReleaseCandidate(checked, { sources, aliasMap });
     const key = cacheKey(checked, aliasMap);
     const queueEntryKey = queueKey(checked);
@@ -620,6 +462,7 @@ async function main() {
       publisher: checked.publisher,
       volumeNumber: checked.volumeNumber,
       sourceName: checked.sourceName || null,
+      providerId: checked.providerId || null,
       sourceUrl: checked.sourceUrl || null,
       releaseDate: isRealReleaseDate(checked.releaseDate) ? checked.releaseDate : null,
       confidence: evaluation.confidence,
@@ -648,6 +491,7 @@ async function main() {
             volumeNumber: cacheItem.volumeNumber,
             releaseDate: cacheItem.releaseDate,
             sourceName: cacheItem.sourceName,
+            providerId: cacheItem.providerId || null,
             sourceUrl: cacheItem.sourceUrl,
             confidence: 'high',
           });
@@ -693,6 +537,7 @@ async function main() {
       reviewStatus: item.reviewStatus,
       reasonCodes: item.reasonCodes,
       sourceName: item.sourceName,
+        providerId: item.providerId || null,
       sourceUrl: item.sourceUrl,
       releaseDate: item.releaseDate,
       sourceResult: item.sourceResult,
@@ -713,6 +558,7 @@ async function main() {
       minDelayMs: policy.minDelayMs,
       timeoutMs: policy.timeoutMs,
       allowedSourceIds: (sources.sources || []).filter(source => source.enabled !== false).map(source => source.id),
+      activeProviderIds: getEnabledReleaseProviders(sources).map(provider => provider.id),
     },
     summary: {
       candidatesDiscovered: rawCandidates.length,

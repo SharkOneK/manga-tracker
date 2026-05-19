@@ -689,7 +689,7 @@ console.log('\nPhase 18c — Dashboard Release-Daten-Prüfung Tests\n');
 
 test('Dashboard-Action: Button und Preview-Container sind in app.js vorhanden', () => {
   const appJs = require('fs').readFileSync('src/app.js', 'utf8');
-  assert.ok(appJs.includes('Prüfen &amp; Korrigieren'), 'Dashboard-Bereich fehlt');
+  assert.ok(appJs.includes('Aktionszentrale: Prüfen &amp; Automatisieren'), 'Dashboard-Aktionszentrale fehlt');
   assert.ok(appJs.includes('Alle Release-Daten prüfen'), 'Button fehlt');
   assert.ok(appJs.includes('dashboard-release-check-result'), 'Preview-Container fehlt');
 });
@@ -1167,7 +1167,7 @@ test('Phase 19: App enthält Cache-Miss-Report-Logik', () => {
     appJs.includes('cache-miss-report') || appJs.includes('cacheMissReport'),
     'src/app.js muss Cache-Miss-Report-Marker enthalten'
   );
-  assert.ok(appJs.includes('watchlist'), 'src/app.js muss Watchlist-Referenz enthalten');
+  assert.ok(/Watchlist|Review-Queue|Pipeline/.test(appJs), 'src/app.js muss Diagnose-/Pipeline-Referenz enthalten');
 });
 
 test('Phase 19: Watchlist-Eintrag hat keine privaten Felder', () => {
@@ -1410,6 +1410,30 @@ test('Phase 22: Vagabond-Master-Edition volumeNumbers-Eintrag in release-watchli
   assert.ok(vagabond, 'Vagabond – Master Edition muss in der Watchlist sein');
   assert.ok(Array.isArray(vagabond.volumeNumbers), 'Vagabond-Eintrag muss volumeNumbers-Array haben');
   assert.ok(vagabond.volumeNumbers.length > 0, 'volumeNumbers-Array darf nicht leer sein');
+});
+
+console.log('\nPhase 26 — Release-Provider und Dashboard-Aktionszentrale Tests\n');
+
+test('Phase 26: Release-Provider-Dateien sind vorhanden', () => {
+  const fs = require('fs');
+  const path = require('path');
+  const root = path.resolve(__dirname, '..');
+  [
+    'scripts/release-providers/index.js',
+    'scripts/release-providers/provider-utils.js',
+    'scripts/release-providers/manga-passion-provider.js',
+    'docs/release-provider-system.md',
+  ].forEach(rel => assert.ok(fs.existsSync(path.join(root, rel)), rel + ' muss existieren'));
+});
+
+test('Phase 26: Dashboard hat Cover-Sync und keine normale Watchlist-Batch-Aktion', () => {
+  const fs = require('fs');
+  const appJs = fs.readFileSync('src/app.js', 'utf8');
+  const indexHtml = fs.readFileSync('index.html', 'utf8');
+  assert.ok(appJs.includes('Alle Band-Cover laden'), 'Dashboard-Cover-Sync fehlt');
+  assert.ok(appJs.includes('Aktionszentrale:'), 'Aktionszentrale fehlt');
+  assert.ok(!indexHtml.includes('id="btn-mp-sync"'), 'Suchleisten-Cover-Button muss entfernt sein');
+  assert.ok(!appJs.includes('data-action="copy-coverage-batch"'), 'Watchlist-Batch darf nicht als normale Dashboard-Aktion erscheinen');
 });
 
 console.log(`\n${passed + failed} Tests — ${passed} bestanden, ${failed} fehlgeschlagen\n`);
