@@ -1241,6 +1241,16 @@ function renderDashboard() {
     </div>
 
     <div class="stats-section">
+      <h3>Cache-Coverage-Report</h3>
+      <div class="dashboard-actions">
+        <button type="button" class="add-btn dashboard-action-btn" data-action="check-release-coverage">Coverage prüfen</button>
+        <button type="button" class="add-btn dashboard-action-btn" data-action="copy-coverage-batch">Watchlist-Batch kopieren</button>
+        <p class="stats-empty-note">Zeigt Bände der Sammlung ohne Cache-Eintrag. Batch kopieren und manuell in release-watchlist.json einfügen – keine automatischen Schreibvorgänge.</p>
+      </div>
+      <div id="release-coverage-preview"></div>
+    </div>
+
+    <div class="stats-section">
       <h3>Sammlung gesamt</h3>
       <div class="stat-big-grid">
         <div class="stat-big-card"><div class="stat-big-n">${totalSeries}</div><div class="stat-big-l">Serien</div></div>
@@ -3504,6 +3514,103 @@ upsertManga('isekai soapland', {
 _seeding = false;
 if (seedDirty || bootDataBefore !== JSON.stringify(db)) saveLoc();
 
+// ─── Phase 22: sammlungsweiter Release-Cache-Coverage-Report ─────────────
+function buildReleaseCacheCoverageReport() {
+  const mangas = db.m || [];
+  const cache = (releaseCache && Array.isArray(releaseCache.items)) ? releaseCache.items : [];
+  const candidates = [];
+
+  for (const m of mangas) {
+    const total = m.total || 0;
+    if (total <= 0) continue;
+
+    const owned = Object.keys(m.bands || {}).map(Number).filter(n => n > 0);
+    const missing = [];
+    for (let v = 1; v <= total; v++) {
+      if (!owned.includes(v)) missing.push(v);
+    }
+    if (missing.length === 0) continue;
+
+    const title = m.title || '';
+    const pub = m.pub || '';
+    const normalTitle = title.toLowerCase()
+      .replace(/ä/g, 'ae').replace(/ö/g, 'oe').replace(/ü/g, 'ue').replace(/ß/g, 'ss')
+      .replace(/&/g, ' und ')
+      .replace(/[^a-z0-9\s]/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+
+    // Filter volumes already in cache
+    const uncovered = missing.filter(v => {
+      return !cache.some(entry => {
+        const entryTitle = (entry.normalizedSeriesTitle || '').toLowerCase();
+        const titleMatch = entryTitle === normalTitle ||
+          (normalTitle.length >= 3 && entryTitle.includes(normalTitle)) ||
+          (entryTitle.length >= 3 && normalTitle.includes(entryTitle));
+        return titleMatch && entry.volumeNumber === v;
+      });
+    });
+
+    if (uncovered.length === 0) continue;
+
+    candidates.push({
+      seriesTitle: title,
+      publisher: pub,
+      volumeNumbers: uncovered,
+      sourceUrl: null,
+      notes: `Aus App-Coverage-Report ergänzt. Sammlungsstand: ${owned.length}/${total}.`,
+      enabled: true
+    });
+  }
+
+  return candidates;
+}
+
+function renderReleaseCacheCoveragePreview() {
+  const candidates = buildReleaseCacheCoverageReport();
+  const el = document.getElementById('release-coverage-preview');
+  if (!el) return;
+  if (candidates.length === 0) {
+    el.innerHTML = '<p class="stats-empty-note">Keine Cache-Lücken gefunden – Sammlung vollständig abgedeckt.</p>';
+    return;
+  }
+  const rows = candidates.map(c => {
+    const vols = c.volumeNumbers.join(', ');
+    return `<div class="dashboard-release-candidate">
+      <div class="dashboard-release-candidate-main">
+        <strong>${escapeHtml(c.seriesTitle)}</strong>
+        <span>Bände: ${escapeHtml(vols)}</span>
+      </div>
+      <div class="dashboard-release-candidate-meta">
+        ${c.publisher ? `<span>${escapeHtml(c.publisher)}</span>` : ''}
+        <span>${escapeHtml(c.notes)}</span>
+      </div>
+    </div>`;
+  }).join('');
+  el.innerHTML = `<div class="dashboard-release-candidates">${rows}
+    <p class="stats-empty-note">${candidates.length} Serie(n) mit fehlender Cache-Abdeckung. Batch kopieren und in release-watchlist.json einfügen.</p>
+  </div>`;
+  toast(`🔍 Coverage-Report: ${candidates.length} Serie(n) mit Cache-Lücken`);
+}
+
+function copyReleaseCacheCoverageBatch() {
+  const candidates = buildReleaseCacheCoverageReport();
+  if (candidates.length === 0) {
+    toast('✅ Keine Cache-Lücken gefunden – Sammlung vollständig abgedeckt.');
+    return;
+  }
+  const json = JSON.stringify(candidates, null, 2);
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(json).then(() => {
+      toast(`📋 Watchlist-Batch (${candidates.length} Serien) in Zwischenablage kopiert.`);
+    }).catch(() => {
+      toast('⚠️ Kopieren fehlgeschlagen – Browser ohne Clipboard-Zugriff.');
+    });
+  } else {
+    toast('⚠️ Kopieren fehlgeschlagen – Browser ohne Clipboard-Zugriff.');
+  }
+}
+
 // ─── Event-Bindings (Phase 21c: keine Inline-Script-Handler) ──────────────
 function bindStaticEvents() {
   // Header buttons werden per data-action in bindDelegatedEvents behandelt.
@@ -3612,6 +3719,12 @@ function bindDelegatedEvents() {
         break;
       case 'run-dashboard-series-status-check':
         runDashboardSeriesStatusCheck();
+        break;
+      case 'check-release-coverage':
+        renderReleaseCacheCoveragePreview();
+        break;
+      case 'copy-coverage-batch':
+        copyReleaseCacheCoverageBatch();
         break;
       case 'set-tab':
         setTab(target.dataset.tab);

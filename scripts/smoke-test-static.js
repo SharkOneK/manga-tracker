@@ -442,6 +442,106 @@ importantActionMarkers.forEach(function(marker) {
 });
 if (actionMarkerErrors === 0) pass('Wichtige Buttons besitzen id, data-action oder data-view');
 
+// ── Phase 22: Sammlungsweite Release-Cache-Coverage ────────────────────────
+console.log('\nPrüfe: Phase 22 — Sammlungsweite Release-Cache-Coverage\n');
+
+if (fs.existsSync(appJsPath)) {
+  const appJs22 = fs.readFileSync(appJsPath, 'utf-8');
+
+  if (!appJs22.includes('buildReleaseCacheCoverageReport')) {
+    fail('src/app.js: buildReleaseCacheCoverageReport fehlt');
+  } else {
+    pass('src/app.js: buildReleaseCacheCoverageReport vorhanden');
+  }
+
+  if (!appJs22.includes('copyReleaseCacheCoverageBatch')) {
+    fail('src/app.js: copyReleaseCacheCoverageBatch fehlt');
+  } else {
+    pass('src/app.js: copyReleaseCacheCoverageBatch vorhanden');
+  }
+
+  if (!appJs22.includes('data-action="check-release-coverage"')) {
+    fail('src/app.js: data-action="check-release-coverage" fehlt');
+  } else {
+    pass('src/app.js: data-action="check-release-coverage" vorhanden');
+  }
+
+  if (!appJs22.includes('data-action="copy-coverage-batch"')) {
+    fail('src/app.js: data-action="copy-coverage-batch" fehlt');
+  } else {
+    pass('src/app.js: data-action="copy-coverage-batch" vorhanden');
+  }
+
+  if (!appJs22.includes('release-coverage-preview')) {
+    fail('src/app.js: release-coverage-preview id fehlt');
+  } else {
+    pass('src/app.js: release-coverage-preview id vorhanden');
+  }
+
+  // CSP Phase 21c bleibt erhalten (bereits oben geprüft, nochmals bestätigen)
+  const html22 = fs.readFileSync(htmlPath, 'utf-8');
+  const csp22 = getCspContent(html22);
+  if (!csp22.includes("script-src 'self'")) {
+    fail("Phase 22 CSP-Prüfung: script-src 'self' fehlt");
+  } else {
+    pass("Phase 22 CSP-Prüfung: script-src 'self' weiterhin vorhanden");
+  }
+  if (csp22.includes("script-src 'self' 'unsafe-inline'") || csp22.match(/script-src[^;]*'unsafe-inline'/)) {
+    fail("Phase 22 CSP-Prüfung: script-src enthält unsafe-inline");
+  } else {
+    pass("Phase 22 CSP-Prüfung: script-src enthält kein unsafe-inline");
+  }
+} else {
+  fail('src/app.js nicht gefunden (Phase 22)');
+}
+
+// validate-release-watchlist.js enthält volumeNumbers-Support
+const validatePath22 = path.join(repoRoot, 'scripts', 'validate-release-watchlist.js');
+if (fs.existsSync(validatePath22)) {
+  const validateContent = fs.readFileSync(validatePath22, 'utf-8');
+  if (!validateContent.includes('volumeNumbers')) {
+    fail('scripts/validate-release-watchlist.js: volumeNumbers-Unterstützung fehlt');
+  } else {
+    pass('scripts/validate-release-watchlist.js: volumeNumbers-Unterstützung vorhanden');
+  }
+} else {
+  fail('scripts/validate-release-watchlist.js nicht gefunden (Phase 22)');
+}
+
+// update-release-cache.js enthält volumeNumbers-Expansion
+const updateCachePath22 = path.join(repoRoot, 'scripts', 'update-release-cache.js');
+if (fs.existsSync(updateCachePath22)) {
+  const updateContent = fs.readFileSync(updateCachePath22, 'utf-8');
+  if (!updateContent.includes('volumeNumbers')) {
+    fail('scripts/update-release-cache.js: volumeNumbers-Expansion fehlt');
+  } else {
+    pass('scripts/update-release-cache.js: volumeNumbers-Expansion vorhanden');
+  }
+} else {
+  fail('scripts/update-release-cache.js nicht gefunden (Phase 22)');
+}
+
+// audit-release-cache-coverage.js enthält volumeNumbers-Expansion
+const auditPath22 = path.join(repoRoot, 'scripts', 'audit-release-cache-coverage.js');
+if (fs.existsSync(auditPath22)) {
+  const auditContent = fs.readFileSync(auditPath22, 'utf-8');
+  if (!auditContent.includes('volumeNumbers')) {
+    fail('scripts/audit-release-cache-coverage.js: volumeNumbers-Expansion fehlt');
+  } else {
+    pass('scripts/audit-release-cache-coverage.js: volumeNumbers-Expansion vorhanden');
+  }
+} else {
+  fail('scripts/audit-release-cache-coverage.js nicht gefunden (Phase 22)');
+}
+
+// docs/release-cache.md existiert
+const releaseCacheMdPath = path.join(repoRoot, 'docs', 'release-cache.md');
+if (!fs.existsSync(releaseCacheMdPath)) {
+  fail('docs/release-cache.md nicht gefunden');
+} else {
+  pass('docs/release-cache.md vorhanden');
+}
+
 // ── Ergebnis ───────────────────────────────────────────────────────────────
 console.log('');
 if (totalErrors > 0) {

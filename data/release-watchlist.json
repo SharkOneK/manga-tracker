@@ -16,6 +16,14 @@
       "sourceUrl": null,
       "notes": "Aus App-Cache-Miss ergänzt.",
       "enabled": true
+    },
+    {
+      "seriesTitle": "Vagabond – Master Edition",
+      "publisher": "Egmont Manga",
+      "volumeNumbers": [8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19],
+      "sourceUrl": null,
+      "notes": "Aus App-Coverage-Report ergänzt. Sammlungsstand: 7/19.",
+      "enabled": true
     }
   ]
 }

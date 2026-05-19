@@ -1,9 +1,10 @@
 'use strict';
 
 /**
- * validate-release-watchlist.js — Phase 19
+ * validate-release-watchlist.js — Phase 22
  *
  * Prüft data/release-watchlist.json auf Schema-Korrektheit.
+ * Unterstützt volumeNumber (Einzelband) und volumeNumbers (Mehrband-Array).
  *
  * Aufruf:
  *   node scripts/validate-release-watchlist.js [watchlist-datei]
@@ -114,9 +115,43 @@ watchlist.items.forEach((item, idx) => {
     itemErrorCount++;
   }
 
-  // volumeNumber: integer >= 1
-  if (!Number.isInteger(item.volumeNumber) || item.volumeNumber < 1) {
-    fail(`${label}: "volumeNumber" muss ein Integer >= 1 sein (erhalten: ${JSON.stringify(item.volumeNumber)})`);
+  // volumeNumber / volumeNumbers: genau eines muss vorhanden sein, nicht beide
+  const hasVolumeNumber  = 'volumeNumber' in item;
+  const hasVolumeNumbers = 'volumeNumbers' in item;
+
+  if (hasVolumeNumber && hasVolumeNumbers) {
+    fail(`${label}: "volumeNumber" und "volumeNumbers" dürfen nicht gleichzeitig gesetzt sein`);
+    itemErrorCount++;
+  } else if (hasVolumeNumber) {
+    // volumeNumber: integer >= 1
+    if (!Number.isInteger(item.volumeNumber) || item.volumeNumber < 1) {
+      fail(`${label}: "volumeNumber" muss ein Integer >= 1 sein (erhalten: ${JSON.stringify(item.volumeNumber)})`);
+      itemErrorCount++;
+    }
+  } else if (hasVolumeNumbers) {
+    // volumeNumbers: Array, nicht leer, alle integer >= 1, keine Duplikate
+    if (!Array.isArray(item.volumeNumbers) || item.volumeNumbers.length === 0) {
+      fail(`${label}: "volumeNumbers" muss ein nicht-leeres Array sein (erhalten: ${JSON.stringify(item.volumeNumbers)})`);
+      itemErrorCount++;
+    } else {
+      let arrayError = false;
+      item.volumeNumbers.forEach((v, i) => {
+        if (!Number.isInteger(v) || v < 1) {
+          fail(`${label}: "volumeNumbers[${i}]" muss ein Integer >= 1 sein (erhalten: ${JSON.stringify(v)})`);
+          itemErrorCount++;
+          arrayError = true;
+        }
+      });
+      if (!arrayError) {
+        const volSet = new Set(item.volumeNumbers);
+        if (volSet.size !== item.volumeNumbers.length) {
+          fail(`${label}: "volumeNumbers" enthält Duplikate`);
+          itemErrorCount++;
+        }
+      }
+    }
+  } else {
+    fail(`${label}: entweder "volumeNumber" oder "volumeNumbers" muss vorhanden sein`);
     itemErrorCount++;
   }
 
@@ -137,16 +172,27 @@ if (itemErrorCount === 0) {
   pass(`Alle ${watchlist.items.length} Item(s) haben gültige Pflichtfelder`);
 }
 
-// Duplikat-Check: normalizedTitle|normalizedPublisher|volumeNumber
+// Duplikat-Check: erkennt Überschneidungen zwischen volumeNumber und volumeNumbers
+// Normalisierter Schlüssel: title|publisher|volumeNummer
 const seen = new Map();
-watchlist.items.forEach((item, idx) => {
-  if (!item || typeof item !== 'object') return;
-  const normalizedKey = normalizeForDuplicateCheck(item.seriesTitle, item.publisher) +
-    '|' + item.volumeNumber;
+
+function checkVolumeDuplicate(item, idx, vol) {
+  const normalizedKey = normalizeForDuplicateCheck(item.seriesTitle, item.publisher) + '|' + vol;
   if (seen.has(normalizedKey)) {
     fail(`Duplikat gefunden: Item ${idx + 1} und Item ${seen.get(normalizedKey) + 1} haben gleiche Kombination aus seriesTitle + publisher + volumeNumber ("${normalizedKey}")`);
   } else {
     seen.set(normalizedKey, idx);
+  }
+}
+
+watchlist.items.forEach((item, idx) => {
+  if (!item || typeof item !== 'object') return;
+  if ('volumeNumber' in item && Number.isInteger(item.volumeNumber)) {
+    checkVolumeDuplicate(item, idx, item.volumeNumber);
+  } else if ('volumeNumbers' in item && Array.isArray(item.volumeNumbers)) {
+    item.volumeNumbers.forEach(v => {
+      if (Number.isInteger(v)) checkVolumeDuplicate(item, idx, v);
+    });
   }
 });
 if (totalErrors === 0) pass('Keine Duplikate gefunden');

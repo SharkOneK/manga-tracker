@@ -1119,7 +1119,17 @@ test('Phase 19: Watchlist-Einträge haben required fields', () => {
   data.items.forEach((item, idx) => {
     assert.ok(typeof item.seriesTitle === 'string' && item.seriesTitle.trim(), `Item ${idx + 1}: seriesTitle fehlt`);
     assert.ok(typeof item.publisher === 'string' && item.publisher.trim(), `Item ${idx + 1}: publisher fehlt`);
-    assert.ok(Number.isInteger(item.volumeNumber) && item.volumeNumber >= 1, `Item ${idx + 1}: volumeNumber ungültig`);
+    // Phase 22: volumeNumber (Einzelband) oder volumeNumbers (Mehrband-Array) – eines muss gesetzt sein
+    const hasVolumeNumber  = 'volumeNumber'  in item;
+    const hasVolumeNumbers = 'volumeNumbers' in item;
+    assert.ok(hasVolumeNumber || hasVolumeNumbers, `Item ${idx + 1}: weder volumeNumber noch volumeNumbers gesetzt`);
+    assert.ok(!(hasVolumeNumber && hasVolumeNumbers), `Item ${idx + 1}: volumeNumber und volumeNumbers dürfen nicht gleichzeitig gesetzt sein`);
+    if (hasVolumeNumber) {
+      assert.ok(Number.isInteger(item.volumeNumber) && item.volumeNumber >= 1, `Item ${idx + 1}: volumeNumber ungültig`);
+    }
+    if (hasVolumeNumbers) {
+      assert.ok(Array.isArray(item.volumeNumbers) && item.volumeNumbers.length > 0, `Item ${idx + 1}: volumeNumbers muss nicht-leeres Array sein`);
+    }
     assert.ok(typeof item.enabled === 'boolean', `Item ${idx + 1}: enabled muss boolean sein`);
     // sourceUrl: null oder https://
     if (item.sourceUrl !== null) {
@@ -1191,6 +1201,136 @@ test('Hotfix: completed_display_missing_volumes enthält neuen präzisen Text', 
 test('Hotfix: completed_display_missing_volumes-Code ist noch vorhanden (keine Logikänderung)', () => {
   const appJs = require('fs').readFileSync(require('path').join(__dirname, '..', 'src', 'app.js'), 'utf8');
   assert.ok(appJs.includes('completed_display_missing_volumes'), 'Code "completed_display_missing_volumes" muss weiterhin vorhanden sein');
+});
+
+// ─── Phase 22 Tests ───────────────────────────────────────────────────────
+
+const _fs22   = require('fs');
+const _path22 = require('path');
+const _root22 = _path22.resolve(__dirname, '..');
+
+console.log('\nPhase 22 — Sammlungsweite Release-Cache-Coverage Tests\n');
+
+// ── Hilfsfunktionen (aus validate-release-watchlist.js inline) ─────────────
+function _p22_validateItem(item) {
+  if (!item || typeof item !== 'object' || Array.isArray(item)) return 'kein Objekt';
+  if (typeof item.seriesTitle !== 'string' || !item.seriesTitle.trim()) return 'seriesTitle fehlt';
+  if (typeof item.publisher !== 'string' || !item.publisher.trim()) return 'publisher fehlt';
+  const hasN  = 'volumeNumber'  in item;
+  const hasNs = 'volumeNumbers' in item;
+  if (hasN && hasNs) return 'volumeNumber und volumeNumbers gleichzeitig gesetzt';
+  if (!hasN && !hasNs) return 'weder volumeNumber noch volumeNumbers';
+  if (hasN && (!Number.isInteger(item.volumeNumber) || item.volumeNumber < 1))
+    return 'volumeNumber ungültig';
+  if (hasNs) {
+    if (!Array.isArray(item.volumeNumbers) || item.volumeNumbers.length === 0)
+      return 'volumeNumbers leer oder kein Array';
+    for (const v of item.volumeNumbers) {
+      if (!Number.isInteger(v) || v < 1) return `volumeNumbers enthält ungültigen Wert: ${v}`;
+    }
+    if (new Set(item.volumeNumbers).size !== item.volumeNumbers.length)
+      return 'volumeNumbers enthält Duplikate';
+  }
+  if (typeof item.enabled !== 'boolean') return 'enabled kein Boolean';
+  return null; // kein Fehler
+}
+
+test('Phase 22: volumeNumber-Eintrag ist valide', () => {
+  const item = { seriesTitle: 'Test', publisher: 'Verlag', volumeNumber: 5, enabled: true, sourceUrl: null };
+  assert.strictEqual(_p22_validateItem(item), null, 'volumeNumber-Eintrag muss valide sein');
+});
+
+test('Phase 22: volumeNumbers-Eintrag ist valide', () => {
+  const item = { seriesTitle: 'Test', publisher: 'Verlag', volumeNumbers: [1, 2, 3], enabled: true, sourceUrl: null };
+  assert.strictEqual(_p22_validateItem(item), null, 'volumeNumbers-Eintrag muss valide sein');
+});
+
+test('Phase 22: volumeNumber + volumeNumbers gleichzeitig → Fehler', () => {
+  const item = { seriesTitle: 'Test', publisher: 'Verlag', volumeNumber: 1, volumeNumbers: [1, 2], enabled: true, sourceUrl: null };
+  const err = _p22_validateItem(item);
+  assert.ok(err !== null && err.includes('gleichzeitig'), `Erwartet Fehler für gleichzeitige Felder, erhalten: ${err}`);
+});
+
+test('Phase 22: leeres volumeNumbers-Array → Fehler', () => {
+  const item = { seriesTitle: 'Test', publisher: 'Verlag', volumeNumbers: [], enabled: true, sourceUrl: null };
+  const err = _p22_validateItem(item);
+  assert.ok(err !== null, `Erwartet Fehler für leeres volumeNumbers, erhalten: ${err}`);
+});
+
+test('Phase 22: volumeNumbers mit Duplikaten → Fehler', () => {
+  const item = { seriesTitle: 'Test', publisher: 'Verlag', volumeNumbers: [1, 2, 2, 3], enabled: true, sourceUrl: null };
+  const err = _p22_validateItem(item);
+  assert.ok(err !== null && err.includes('Duplikate'), `Erwartet Duplikat-Fehler, erhalten: ${err}`);
+});
+
+test('Phase 22: cross-format Duplikat (volumeNumber:10 vs. volumeNumbers:[8,9,10]) → Duplikat erkennbar', () => {
+  // Simuliert die Duplikat-Prüfung aus validate-release-watchlist.js
+  const items = [
+    { seriesTitle: 'Vagabond', publisher: 'Egmont', volumeNumber: 10, enabled: true, sourceUrl: null },
+    { seriesTitle: 'Vagabond', publisher: 'Egmont', volumeNumbers: [8, 9, 10], enabled: true, sourceUrl: null },
+  ];
+  const seen = new Map();
+  let duplicateFound = false;
+  items.forEach((item, idx) => {
+    const base = item.seriesTitle.toLowerCase() + '|' + item.publisher.toLowerCase();
+    const vols = 'volumeNumber' in item
+      ? [item.volumeNumber]
+      : (item.volumeNumbers || []);
+    for (const v of vols) {
+      const key = base + '|' + v;
+      if (seen.has(key)) { duplicateFound = true; }
+      else { seen.set(key, idx); }
+    }
+  });
+  assert.ok(duplicateFound, 'Cross-Format-Duplikat (volumeNumber:10 + volumeNumbers:[8,9,10]) muss erkannt werden');
+});
+
+test('Phase 22: volumeNumbers-Expansion erzeugt N Kandidaten', () => {
+  // Simuliert extractWatchlistItems-Logik für volumeNumbers
+  const entry = { seriesTitle: 'Vagabond', publisher: 'Egmont', volumeNumbers: [8, 9, 10], enabled: true, sourceUrl: null };
+  const candidates = [];
+  if (Array.isArray(entry.volumeNumbers)) {
+    for (const vol of entry.volumeNumbers) {
+      candidates.push({ seriesTitle: entry.seriesTitle, volumeNumber: vol });
+    }
+  }
+  assert.strictEqual(candidates.length, 3, 'volumeNumbers [8,9,10] muss 3 Kandidaten erzeugen');
+  assert.strictEqual(candidates[0].volumeNumber, 8, 'Erster Kandidat hat Band 8');
+  assert.strictEqual(candidates[2].volumeNumber, 10, 'Dritter Kandidat hat Band 10');
+});
+
+test('Phase 22: Audit zählt fehlende Bände aus volumeNumbers korrekt', () => {
+  // Simuliert audit-release-cache-coverage-Logik
+  const entry = { seriesTitle: 'Vagabond', publisher: 'Egmont', volumeNumbers: [8, 9, 10], enabled: true };
+  const cacheItems = [
+    { normalizedSeriesTitle: 'vagabond', normalizedPublisher: 'egmont', volumeNumber: 9 },
+  ];
+  let found = 0, missing = 0;
+  for (const vol of entry.volumeNumbers) {
+    const inCache = cacheItems.some(c => c.normalizedSeriesTitle === 'vagabond' && c.volumeNumber === vol);
+    if (inCache) found++; else missing++;
+  }
+  assert.strictEqual(found, 1, 'Band 9 muss im Cache gefunden werden');
+  assert.strictEqual(missing, 2, 'Bände 8 und 10 müssen als fehlend gezählt werden');
+});
+
+test('Phase 22: buildReleaseCacheCoverageReport-Marker in app.js vorhanden', () => {
+  const appJs = _fs22.readFileSync(_path22.join(_root22, 'src', 'app.js'), 'utf8');
+  assert.ok(appJs.includes('buildReleaseCacheCoverageReport'), 'buildReleaseCacheCoverageReport muss in app.js vorhanden sein');
+});
+
+test('Phase 22: copyReleaseCacheCoverageBatch-Marker in app.js vorhanden', () => {
+  const appJs = _fs22.readFileSync(_path22.join(_root22, 'src', 'app.js'), 'utf8');
+  assert.ok(appJs.includes('copyReleaseCacheCoverageBatch'), 'copyReleaseCacheCoverageBatch muss in app.js vorhanden sein');
+});
+
+test('Phase 22: Vagabond-Master-Edition volumeNumbers-Eintrag in release-watchlist.json', () => {
+  const p = _path22.join(_root22, 'data', 'release-watchlist.json');
+  const data = JSON.parse(_fs22.readFileSync(p, 'utf8'));
+  const vagabond = data.items.find(i => i.seriesTitle === 'Vagabond – Master Edition');
+  assert.ok(vagabond, 'Vagabond – Master Edition muss in der Watchlist sein');
+  assert.ok(Array.isArray(vagabond.volumeNumbers), 'Vagabond-Eintrag muss volumeNumbers-Array haben');
+  assert.ok(vagabond.volumeNumbers.length > 0, 'volumeNumbers-Array darf nicht leer sein');
 });
 
 console.log(`\n${passed + failed} Tests — ${passed} bestanden, ${failed} fehlgeschlagen\n`);

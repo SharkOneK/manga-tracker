@@ -1,7 +1,7 @@
 'use strict';
 
 /**
- * audit-release-cache-coverage.js — Phase 19
+ * audit-release-cache-coverage.js — Phase 22
  *
  * Prüft ob aktivierte Watchlist-Einträge im Release-Cache vorhanden sind.
  *
@@ -87,10 +87,8 @@ console.log(`Cache: ${cacheItems.length} Einträge\n`);
 let missingCount = 0;
 let foundCount   = 0;
 
-enabledItems.forEach(entry => {
+function checkVolume(entry, vol) {
   const normTitle = normalizeTitle(entry.seriesTitle);
-  const vol       = entry.volumeNumber;
-
   const found = cacheItems.some(item => {
     if (!item || typeof item !== 'object') return false;
     const cacheNorm = item.normalizedSeriesTitle || normalizeTitle(item.seriesTitle || '');
@@ -105,6 +103,20 @@ enabledItems.forEach(entry => {
     console.log(`  ✗ ${entry.seriesTitle} Band ${vol} fehlt`);
     missingCount++;
   }
+}
+
+enabledItems.forEach(entry => {
+  const hasVolumeNumber  = 'volumeNumber' in entry;
+  const hasVolumeNumbers = 'volumeNumbers' in entry;
+
+  if (hasVolumeNumber && !hasVolumeNumbers) {
+    checkVolume(entry, entry.volumeNumber);
+  } else if (hasVolumeNumbers && !hasVolumeNumber) {
+    if (Array.isArray(entry.volumeNumbers)) {
+      entry.volumeNumbers.forEach(vol => checkVolume(entry, vol));
+    }
+  }
+  // If both or neither are set, skip (invalid schema)
 });
 
 // ─── Zusammenfassung ──────────────────────────────────────────────────────
