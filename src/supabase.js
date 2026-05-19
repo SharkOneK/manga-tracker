@@ -7,10 +7,24 @@
 
   function adoptOwnerIfPresent() {
     try {
+      // Prefer fragment-based adopt (hash): token never sent to server
+      var fp = new URLSearchParams(window.location.hash.slice(1));
+      var fa = fp.get('adopt');
+      var ft = fp.get('token');
+      if (fa && ft && UUID_RE.test(fa) && UUID_RE.test(ft)) {
+        localStorage.setItem('mtCollId', fa);
+        localStorage.setItem('mtOwnerToken', ft);
+        // Clear fragment
+        history.replaceState(null, '', window.location.pathname + window.location.search);
+        return;
+      }
+
+      // Legacy: query-parameter adopt (deprecated, kept for backwards compatibility)
       var p = new URLSearchParams(window.location.search);
       var a = p.get('adopt');
       var t = p.get('token');
       if (a && t && UUID_RE.test(a) && UUID_RE.test(t)) {
+        console.warn('[security] adopt via query params is deprecated, use fragment links');
         localStorage.setItem('mtCollId', a);
         localStorage.setItem('mtOwnerToken', t);
         p.delete('adopt');

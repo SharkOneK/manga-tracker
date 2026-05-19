@@ -5,6 +5,9 @@ on:
     branches: [main]
   pull_request:
 
+permissions:
+  contents: read
+
 jobs:
   lint-and-validate:
     runs-on: ubuntu-latest
@@ -51,6 +54,9 @@ jobs:
       - name: Check test-data-integrity syntax
         run: node --check scripts/test-data-integrity.js
 
+      - name: Check security-audit-static syntax
+        run: node --check scripts/security-audit-static.js
+
       # ── Validierung ────────────────────────────────────────────────────────
       - name: Validate release cache
         run: node scripts/validate-release-cache.js
@@ -66,3 +72,6 @@ jobs:
 
       - name: Data integrity tests
         run: node scripts/test-data-integrity.js
+
+      - name: Security audit
+        run: node scripts/security-audit-static.js
