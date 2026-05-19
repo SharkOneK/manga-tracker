@@ -1171,5 +1171,27 @@ test('Phase 19: Watchlist-Eintrag hat keine privaten Felder', () => {
   });
 });
 
+// ─── Hotfix: completed_display_missing_volumes Text ────────────────────────
+
+console.log('\nHotfix — completed_display_missing_volumes Textkorrektur Tests\n');
+
+test('Hotfix: completed_display_missing_volumes enthält keinen irreführenden Text', () => {
+  const appJs = require('fs').readFileSync(require('path').join(__dirname, '..', 'src', 'app.js'), 'utf8');
+  assert.ok(!appJs.includes('wirkt abgeschlossen'), 'Irreführender Text "wirkt abgeschlossen" darf nicht mehr enthalten sein');
+  assert.ok(!appJs.includes('Nicht als vollständig interpretieren'), 'Irreführende Suggestion darf nicht mehr enthalten sein');
+});
+
+test('Hotfix: completed_display_missing_volumes enthält neuen präzisen Text', () => {
+  const appJs = require('fs').readFileSync(require('path').join(__dirname, '..', 'src', 'app.js'), 'utf8');
+  assert.ok(appJs.includes('Abgeschlossene Serie'), 'Neuer Text "Abgeschlossene Serie" muss vorhanden sein');
+  assert.ok(appJs.includes('Kein Fehler'), 'Neue Suggestion "Kein Fehler" muss vorhanden sein');
+  assert.ok(appJs.includes('Kaufen-Tab'), 'Handlungsempfehlung "Kaufen-Tab" muss vorhanden sein');
+});
+
+test('Hotfix: completed_display_missing_volumes-Code ist noch vorhanden (keine Logikänderung)', () => {
+  const appJs = require('fs').readFileSync(require('path').join(__dirname, '..', 'src', 'app.js'), 'utf8');
+  assert.ok(appJs.includes('completed_display_missing_volumes'), 'Code "completed_display_missing_volumes" muss weiterhin vorhanden sein');
+});
+
 console.log(`\n${passed + failed} Tests — ${passed} bestanden, ${failed} fehlgeschlagen\n`);
 if (failed > 0) process.exit(1);

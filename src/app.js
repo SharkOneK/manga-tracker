@@ -842,8 +842,8 @@ function inspectSeriesStatus(m) {
   if (seriesStatus === 'completed' && firstMissing !== null) {
     reasons.push({
       code: 'completed_display_missing_volumes',
-      text: `Sammlungs-/Lesestatus wirkt abgeschlossen (${seriesStatus}), aber bekannte Bände fehlen.`,
-      suggestion: 'Nicht als vollständig interpretieren; zuerst fehlende Bandnummern prüfen.',
+      text: `Abgeschlossene Serie, Sammlung noch unvollständig (${owned ?? '?'}/${totalKnown ? total : '?'} Bände) — nächster fehlender Band: ${firstMissing}.`,
+      suggestion: 'Kein Fehler: die Serie ist fertig veröffentlicht. Fehlende Bände im Kaufen-Tab nachkaufen.',
     });
   }
 
