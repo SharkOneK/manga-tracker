@@ -62,7 +62,12 @@ function saveLoc() { localStorage.setItem('mtDE', JSON.stringify(db)); }
 
 function persist() {
   if (_seeding) return; // Seeds werden gebündelt am Ende geschrieben
+  if (!canEditLocal()) return; // Öffentliche Ansicht: niemals lokal schreiben
   saveLoc();
+  if (!canWriteCloud()) {
+    // Lokaler Modus ohne Cloud-Sync: nur lokal speichern
+    return;
+  }
   clearTimeout(_syncTimer);
   _syncTimer = setTimeout(pushCloud, 1500);
 }
@@ -89,7 +94,7 @@ function validateDatabase(candidate) {
 }
 
 async function pushCloud() {
-  if (readOnly) return;
+  if (!canWriteCloud()) return;
   if (!_collId || !_ownerToken) return;
   if (!validateDatabase()) { setSyncStatus('⚠️', 'Daten ungültig – Sync übersprungen'); return; }
   setSyncStatus('🔄', 'Synchronisiert…');
@@ -411,6 +416,10 @@ async function mpFetchCovers(m, opts) {
 
 let _mpBusy = false;
 async function mpSyncOne() {
+  if (!canEditLocal()) {
+    toast('🔒 Öffentliche Ansicht – Änderungen sind deaktiviert.');
+    return;
+  }
   if (_mpBusy) return;
   if (!editId) { toast('⚠️ Erst Serie speichern'); return; }
   const m = db.m.find(x => x.id === editId);
@@ -427,6 +436,10 @@ async function mpSyncOne() {
 }
 
 async function mpSyncAll() {
+  if (!canEditLocal()) {
+    toast('🔒 Öffentliche Ansicht – Änderungen sind deaktiviert.');
+    return;
+  }
   if (_mpBusy) return;
   _mpBusy = true;
   const btn = document.getElementById('btn-mp-sync');
@@ -539,7 +552,7 @@ function bandStatus(m, bandNr) {
 
 function volumeRow(v) {
   const c = colorFor(v.title);
-  const bandCover = (v.bandCovers || {})[String(v._band)] || v.cover;
+  const bandCover = safeHttpsUrl((v.bandCovers || {})[String(v._band)] || v.cover);
   return `<div class="vol-row" onclick="openEdit('${v.id}')">
     <div class="vol-cover" style="background:${c}">
       ${bandCover ? `<img src="${bandCover}" alt="" loading="lazy" onerror="this.remove()">` : ''}
@@ -558,8 +571,9 @@ function coverEl(m, size = 'full', bandNr = null) {
   const c = colorFor(m.title);
   const bc = m.bandCovers || {};
   // Serienansicht (bandNr=null): Band-1-Cover bevorzugen, sonst Serien-Fallback
-  const img = bandNr ? (bc[String(bandNr)] || m.cover)
-                     : (bc['1'] || m.cover);
+  const rawImg = bandNr ? (bc[String(bandNr)] || m.cover)
+                        : (bc['1'] || m.cover);
+  const img = safeHttpsUrl(rawImg);
   if (size === 'full') {
     return `<div class="cover" style="background:${c}">
       ${img ? `<img src="${img}" alt="" loading="lazy" onerror="this.remove()">` : ''}
@@ -586,7 +600,7 @@ function mangaCard(m) {
   const readingBadge = cur ? `<div class="reading-badge">Band ${cur}</div>` : '';
   const wishBadge = mSeriesStatus(m) === 'wishlist' ? `<div class="wishlist-badge">💜 Wunsch</div>` : '';
 
-  return `<div class="manga-card"${readOnly ? '' : ` onclick="openEdit('${m.id}')"`}>
+  return `<div class="manga-card"${isPublicReadOnly() ? '' : ` onclick="openEdit('${m.id}')"`}>
     <div style="position:relative">
       ${coverEl(m)}
       ${readingBadge}
@@ -717,12 +731,29 @@ function applyDbResult(i) {
 
 // ─── Öffentliches Profil ──────────────────────────────────────────────────
 const _viewColl = new URLSearchParams(window.location.search).get('view');
-// Read-only sobald ?view= gesetzt ist ODER kein Owner-Token im Browser liegt.
+
+// ─── App-Modus ────────────────────────────────────────────────────────────
+// Drei Modi:
+//   'public-readonly'  — ?view= gesetzt: fremde Sammlung, keine Schreibrechte
+//   'cloud-owner-edit' — eigene Sammlung mit Owner-Token: Lesen + Cloud-Schreiben
+//   'local-edit'       — kein Cloud-Sync konfiguriert: nur lokales Schreiben
 // Der Frontend-Check ist nur UX; der harte Schutz ist die RLS-Policy collections_update_owner.
-const readOnly = !!_viewColl || !_ownerToken;
+function getAppMode() {
+  if (_viewColl) return 'public-readonly';
+  if (_collId && _ownerToken) return 'cloud-owner-edit';
+  return 'local-edit';
+}
+function isPublicReadOnly() { return getAppMode() === 'public-readonly'; }
+function canEditLocal()     { return !isPublicReadOnly(); }
+function canWriteCloud()    { return getAppMode() === 'cloud-owner-edit'; }
+
+// UUID-Validator für View-IDs
+function isUuid(v) {
+  return typeof v === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(v);
+}
 
 function applyReadOnly() {
-  if (!readOnly) return;
+  if (!isPublicReadOnly()) return;
   document.getElementById('readonly-banner').style.display = 'flex';
   document.getElementById('btn-add').style.display = 'none';
   document.getElementById('btn-share-profile').style.display = 'none';
@@ -747,6 +778,11 @@ function startOwnCollection() {
 
 async function loadViewCollection() {
   if (!_viewColl) return;
+  if (!isUuid(_viewColl)) {
+    toast('⚠️ Ungültiger Sammlungslink.');
+    console.error('loadViewCollection: _viewColl ist keine gültige UUID:', _viewColl);
+    return;
+  }
   try {
     const record = await SupabaseAdapter.fetchCollection(_viewColl, _ownerToken);
     if (record && Array.isArray(record.m)) {
@@ -925,7 +961,8 @@ function buildDashboardReleaseCheckPreview() {
 
   if (cacheLoaded) {
     db.m.forEach(m => {
-      const targetVolume = mFirstMissingBand(m) ?? mNextBand(m);
+      const targetVolume = getReleaseTargetVolume(m);
+      if (targetVolume === null) return; // abgeschlossene vollständige Serie
       const matches = findReleaseMatchesForSeries(m)
         .filter(item => item && item.releaseDate && item.releaseDate !== m.nextDate);
       if (!matches.length) return;
@@ -1015,6 +1052,10 @@ function getSelectedDashboardReleaseCandidates() {
 }
 
 function applySelectedDashboardReleaseDates() {
+  if (!canEditLocal()) {
+    toast('🔒 Öffentliche Ansicht – Änderungen sind deaktiviert.');
+    return;
+  }
   const selected = getSelectedDashboardReleaseCandidates();
   if (!selected.length) {
     toast('ℹ️ Keine Release-Daten ausgewählt');
@@ -1024,7 +1065,8 @@ function applySelectedDashboardReleaseDates() {
   const valid = selected.filter(item => {
     const m = db.m.find(x => x.id === item.seriesId);
     if (!m) return false;
-    const currentTargetVolume = mFirstMissingBand(m) ?? mNextBand(m);
+    const currentTargetVolume = getReleaseTargetVolume(m);
+    if (currentTargetVolume === null) return false;
     return currentTargetVolume === item.targetVolume
       && item.volumeNumber === item.targetVolume
       && item.releaseDate
@@ -1056,8 +1098,8 @@ function applySelectedDashboardReleaseDates() {
   valid.forEach(item => {
     const m = db.m.find(x => x.id === item.seriesId);
     if (!m) return;
-    const currentTargetVolume = mFirstMissingBand(m) ?? mNextBand(m);
-    if (currentTargetVolume !== item.targetVolume || item.volumeNumber !== item.targetVolume) return;
+    const currentTargetVolume = getReleaseTargetVolume(m);
+    if (currentTargetVolume === null || currentTargetVolume !== item.targetVolume || item.volumeNumber !== item.targetVolume) return;
     if (!item.releaseDate || item.releaseDate === m.nextDate) return;
     m.nextDate = item.releaseDate;
     changed++;
@@ -1521,6 +1563,10 @@ function triggerImport() {
 }
 
 async function handleImportFile(input) {
+  if (!canEditLocal()) {
+    toast('🔒 Öffentliche Ansicht – Änderungen sind deaktiviert.');
+    return;
+  }
   const file = input.files[0];
   if (!file) return;
   input.value = '';
@@ -2056,6 +2102,36 @@ function overlayClick(e) {
   if (e.target === document.getElementById('overlay')) closeModal();
 }
 
+// ─── Phase 20: Hilfsfunktionen ────────────────────────────────────────────
+
+// Validiert und bereinigt eine Cover-URL — nur HTTPS erlaubt
+function safeHttpsUrl(v) {
+  if (!v || typeof v !== 'string') return '';
+  try {
+    const u = new URL(v);
+    return u.protocol === 'https:' ? v : '';
+  } catch { return ''; }
+}
+
+// Erhält beim Speichern Felder, die nicht im Formular bearbeitbar sind
+function mergePreservedFields(existing, entry) {
+  if (!existing) return entry;
+  const keys = [
+    'isbn13', 'editionFingerprint', 'coverManuallySet', 'mpEditionId', 'mpVerifiedAt',
+    'releaseSource', 'releaseCheckedAt', 'releaseConfidence', 'externalIds', 'volumeMeta',
+  ];
+  keys.forEach(function(k) {
+    if (existing[k] !== undefined && entry[k] === undefined) entry[k] = existing[k];
+  });
+  return entry;
+}
+
+// Bestimmt den Zielband für Release-Abgleich — kapselt inline-Ausdruck
+function getReleaseTargetVolume(m) {
+  if (m.ongoing === 'false' && mFirstMissingBand(m) === null) return null;
+  return mFirstMissingBand(m) !== null ? mFirstMissingBand(m) : mNextBand(m);
+}
+
 // ─── Duplikaterkennung ────────────────────────────────────────────────────
 function normTitle(t) {
   return t.toLowerCase()
@@ -2084,6 +2160,10 @@ function findDuplicates(title) {
 }
 
 function doSave() {
+  if (!canEditLocal()) {
+    toast('🔒 Öffentliche Ansicht – Änderungen sind deaktiviert.');
+    return;
+  }
   const title = document.getElementById('f-title').value.trim();
   if (!title) { alert('Bitte einen Titel eingeben.'); return; }
   if (!editId) {
@@ -2142,10 +2222,9 @@ function doSave() {
     startedAt,
     finishedAt,
     at: existing?.at || Date.now(),
-    // Manga-Passion-Mapping erhalten
-    mpEditionId: existing?.mpEditionId,
-    mpVerifiedAt: existing?.mpVerifiedAt,
   };
+  // Phase 20: Felder erhalten, die nicht im Formular sichtbar sind (Save-Roundtrip)
+  mergePreservedFields(existing, entry);
   if (editId) {
     const i = db.m.findIndex(x => x.id === editId);
     if (i !== -1) db.m[i] = entry;
@@ -2159,6 +2238,10 @@ function doSave() {
 }
 
 function doDelete() {
+  if (!canEditLocal()) {
+    toast('🔒 Öffentliche Ansicht – Änderungen sind deaktiviert.');
+    return;
+  }
   if (!editId || !confirm('Manga wirklich löschen?')) return;
   const title = db.m.find(x=>x.id===editId)?.title||'Manga';
   db.m = db.m.filter(x => x.id !== editId);
@@ -2170,6 +2253,10 @@ function doDelete() {
 
 function markBought(id, e) {
   if (e) e.stopPropagation();
+  if (!canEditLocal()) {
+    toast('🔒 Öffentliche Ansicht – Änderungen sind deaktiviert.');
+    return;
+  }
   const m = db.m.find(x => x.id === id);
   if (!m) return;
   if (!m.bands) m.bands = {};
@@ -2567,6 +2654,11 @@ function createReleaseUpdateBackup(reason) {
 
 // Übernimmt die vom Nutzer ausgewählten Felder — persist() erst nach Bestätigung
 function applySelectedReleaseUpdates() {
+  if (!canEditLocal()) {
+    toast('🔒 Öffentliche Ansicht – Änderungen sind deaktiviert.');
+    closeReleasePreview();
+    return;
+  }
   if (!editId) { closeReleasePreview(); return; }
   const m = db.m.find(x => x.id === editId);
   if (!m) { closeReleasePreview(); return; }
