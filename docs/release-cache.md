@@ -124,6 +124,8 @@ Der Update-Script expandiert diesen Eintrag zu 12 einzelnen Kandidaten, die dann
 | `scripts/validate-release-watchlist.js` | Validiert Schema inkl. `volumeNumbers` |
 | `scripts/update-release-cache.js` | Expandiert `volumeNumbers` zu Einzelkandidaten |
 | `scripts/audit-release-cache-coverage.js` | Prüft Coverage pro Band (auch `volumeNumbers`) |
+| `scripts/write-release-source-review-queue.js` | Erzeugt die manuelle Source-Review-Queue aus der Phase-23-Analyse |
+| `scripts/validate-release-source-review-queue.js` | Validiert die Source-Review-Queue und `safeToPatch`-Regeln |
 
 ## Audit-Modi
 
@@ -169,6 +171,21 @@ Der bestehende Coverage-Gap-Validator prueft die Analyse mit:
 
 ```bash
 node scripts/validate-release-cache-coverage-gaps.js
+```
+
+## Phase 24: Manual Source Review Queue
+
+Phase 24 schreibt die verbleibenden 34 `source-data-gap`-Faelle in `data/release-source-review-queue.json`. Die Queue ist eine kontrollierte Arbeitsliste fuer manuelle Quellenpruefung und kein Cache-Patch.
+
+Die Regeln stehen in `docs/release-cache-manual-source-review.md`:
+
+- `data/release-cache.json` bleibt in dieser Phase unveraendert.
+- `safeToPatch: true` ist nur mit `sourceUrl`, echtem `releaseDate`, `checkedAt` und `evidence` erlaubt.
+- Platzhalterdaten wie `2999-12-31` sind ungueltig.
+
+```bash
+node scripts/write-release-source-review-queue.js
+node scripts/validate-release-source-review-queue.js
 ```
 
 ## Private Sammlungsdaten

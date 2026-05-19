@@ -1,0 +1,898 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-05-19",
+  "generatedFrom": "docs/release-cache-source-gap-analysis.md",
+  "reviewPolicy": "docs/release-cache-manual-source-review.md",
+  "summary": {
+    "totalGaps": 34,
+    "safeToPatch": 0,
+    "pendingManualReview": 34
+  },
+  "sortOrder": "priority(sehr hoch, hoch, mittel, niedrig), seriesTitle, publisher, volumeNumber",
+  "queue": [
+    {
+      "queueKey": "Berserk Master Edition|Panini Manga|7",
+      "seriesTitle": "Berserk Master Edition",
+      "publisher": "Panini Manga",
+      "volumeNumber": 7,
+      "classification": "source-data-gap",
+      "suspectedCause": "not-yet-released",
+      "priority": "sehr hoch",
+      "recommendedFix": "manual-source-review",
+      "manualSourceReviewNeeded": true,
+      "checkedSources": [
+        {
+          "name": "Manga Passion API",
+          "url": "https://www.manga-passion.de",
+          "result": "Edition 5211 vorhanden; betroffene Baende ohne valides Release-Datum."
+        }
+      ],
+      "sourceAnalysisEvidence": "Manga-Passion-Edition 5211 fuehrt die Baende 7-14 nur mit Platzhalterdatum 2999-12-31; kein valides Release-Datum im Cache erlaubt.",
+      "safeToPatch": false,
+      "reviewStatus": "pending",
+      "sourceUrl": null,
+      "releaseDate": null,
+      "checkedAt": null,
+      "evidence": "",
+      "notes": ""
+    },
+    {
+      "queueKey": "Berserk Master Edition|Panini Manga|8",
+      "seriesTitle": "Berserk Master Edition",
+      "publisher": "Panini Manga",
+      "volumeNumber": 8,
+      "classification": "source-data-gap",
+      "suspectedCause": "not-yet-released",
+      "priority": "sehr hoch",
+      "recommendedFix": "manual-source-review",
+      "manualSourceReviewNeeded": true,
+      "checkedSources": [
+        {
+          "name": "Manga Passion API",
+          "url": "https://www.manga-passion.de",
+          "result": "Edition 5211 vorhanden; betroffene Baende ohne valides Release-Datum."
+        }
+      ],
+      "sourceAnalysisEvidence": "Manga-Passion-Edition 5211 fuehrt die Baende 7-14 nur mit Platzhalterdatum 2999-12-31; kein valides Release-Datum im Cache erlaubt.",
+      "safeToPatch": false,
+      "reviewStatus": "pending",
+      "sourceUrl": null,
+      "releaseDate": null,
+      "checkedAt": null,
+      "evidence": "",
+      "notes": ""
+    },
+    {
+      "queueKey": "Berserk Master Edition|Panini Manga|9",
+      "seriesTitle": "Berserk Master Edition",
+      "publisher": "Panini Manga",
+      "volumeNumber": 9,
+      "classification": "source-data-gap",
+      "suspectedCause": "not-yet-released",
+      "priority": "sehr hoch",
+      "recommendedFix": "manual-source-review",
+      "manualSourceReviewNeeded": true,
+      "checkedSources": [
+        {
+          "name": "Manga Passion API",
+          "url": "https://www.manga-passion.de",
+          "result": "Edition 5211 vorhanden; betroffene Baende ohne valides Release-Datum."
+        }
+      ],
+      "sourceAnalysisEvidence": "Manga-Passion-Edition 5211 fuehrt die Baende 7-14 nur mit Platzhalterdatum 2999-12-31; kein valides Release-Datum im Cache erlaubt.",
+      "safeToPatch": false,
+      "reviewStatus": "pending",
+      "sourceUrl": null,
+      "releaseDate": null,
+      "checkedAt": null,
+      "evidence": "",
+      "notes": ""
+    },
+    {
+      "queueKey": "Berserk Master Edition|Panini Manga|10",
+      "seriesTitle": "Berserk Master Edition",
+      "publisher": "Panini Manga",
+      "volumeNumber": 10,
+      "classification": "source-data-gap",
+      "suspectedCause": "not-yet-released",
+      "priority": "sehr hoch",
+      "recommendedFix": "manual-source-review",
+      "manualSourceReviewNeeded": true,
+      "checkedSources": [
+        {
+          "name": "Manga Passion API",
+          "url": "https://www.manga-passion.de",
+          "result": "Edition 5211 vorhanden; betroffene Baende ohne valides Release-Datum."
+        }
+      ],
+      "sourceAnalysisEvidence": "Manga-Passion-Edition 5211 fuehrt die Baende 7-14 nur mit Platzhalterdatum 2999-12-31; kein valides Release-Datum im Cache erlaubt.",
+      "safeToPatch": false,
+      "reviewStatus": "pending",
+      "sourceUrl": null,
+      "releaseDate": null,
+      "checkedAt": null,
+      "evidence": "",
+      "notes": ""
+    },
+    {
+      "queueKey": "Berserk Master Edition|Panini Manga|11",
+      "seriesTitle": "Berserk Master Edition",
+      "publisher": "Panini Manga",
+      "volumeNumber": 11,
+      "classification": "source-data-gap",
+      "suspectedCause": "not-yet-released",
+      "priority": "sehr hoch",
+      "recommendedFix": "manual-source-review",
+      "manualSourceReviewNeeded": true,
+      "checkedSources": [
+        {
+          "name": "Manga Passion API",
+          "url": "https://www.manga-passion.de",
+          "result": "Edition 5211 vorhanden; betroffene Baende ohne valides Release-Datum."
+        }
+      ],
+      "sourceAnalysisEvidence": "Manga-Passion-Edition 5211 fuehrt die Baende 7-14 nur mit Platzhalterdatum 2999-12-31; kein valides Release-Datum im Cache erlaubt.",
+      "safeToPatch": false,
+      "reviewStatus": "pending",
+      "sourceUrl": null,
+      "releaseDate": null,
+      "checkedAt": null,
+      "evidence": "",
+      "notes": ""
+    },
+    {
+      "queueKey": "Berserk Master Edition|Panini Manga|12",
+      "seriesTitle": "Berserk Master Edition",
+      "publisher": "Panini Manga",
+      "volumeNumber": 12,
+      "classification": "source-data-gap",
+      "suspectedCause": "not-yet-released",
+      "priority": "sehr hoch",
+      "recommendedFix": "manual-source-review",
+      "manualSourceReviewNeeded": true,
+      "checkedSources": [
+        {
+          "name": "Manga Passion API",
+          "url": "https://www.manga-passion.de",
+          "result": "Edition 5211 vorhanden; betroffene Baende ohne valides Release-Datum."
+        }
+      ],
+      "sourceAnalysisEvidence": "Manga-Passion-Edition 5211 fuehrt die Baende 7-14 nur mit Platzhalterdatum 2999-12-31; kein valides Release-Datum im Cache erlaubt.",
+      "safeToPatch": false,
+      "reviewStatus": "pending",
+      "sourceUrl": null,
+      "releaseDate": null,
+      "checkedAt": null,
+      "evidence": "",
+      "notes": ""
+    },
+    {
+      "queueKey": "Berserk Master Edition|Panini Manga|13",
+      "seriesTitle": "Berserk Master Edition",
+      "publisher": "Panini Manga",
+      "volumeNumber": 13,
+      "classification": "source-data-gap",
+      "suspectedCause": "not-yet-released",
+      "priority": "sehr hoch",
+      "recommendedFix": "manual-source-review",
+      "manualSourceReviewNeeded": true,
+      "checkedSources": [
+        {
+          "name": "Manga Passion API",
+          "url": "https://www.manga-passion.de",
+          "result": "Edition 5211 vorhanden; betroffene Baende ohne valides Release-Datum."
+        }
+      ],
+      "sourceAnalysisEvidence": "Manga-Passion-Edition 5211 fuehrt die Baende 7-14 nur mit Platzhalterdatum 2999-12-31; kein valides Release-Datum im Cache erlaubt.",
+      "safeToPatch": false,
+      "reviewStatus": "pending",
+      "sourceUrl": null,
+      "releaseDate": null,
+      "checkedAt": null,
+      "evidence": "",
+      "notes": ""
+    },
+    {
+      "queueKey": "Berserk Master Edition|Panini Manga|14",
+      "seriesTitle": "Berserk Master Edition",
+      "publisher": "Panini Manga",
+      "volumeNumber": 14,
+      "classification": "source-data-gap",
+      "suspectedCause": "not-yet-released",
+      "priority": "sehr hoch",
+      "recommendedFix": "manual-source-review",
+      "manualSourceReviewNeeded": true,
+      "checkedSources": [
+        {
+          "name": "Manga Passion API",
+          "url": "https://www.manga-passion.de",
+          "result": "Edition 5211 vorhanden; betroffene Baende ohne valides Release-Datum."
+        }
+      ],
+      "sourceAnalysisEvidence": "Manga-Passion-Edition 5211 fuehrt die Baende 7-14 nur mit Platzhalterdatum 2999-12-31; kein valides Release-Datum im Cache erlaubt.",
+      "safeToPatch": false,
+      "reviewStatus": "pending",
+      "sourceUrl": null,
+      "releaseDate": null,
+      "checkedAt": null,
+      "evidence": "",
+      "notes": ""
+    },
+    {
+      "queueKey": "Vagabond – Master Edition|Egmont Manga|13",
+      "seriesTitle": "Vagabond – Master Edition",
+      "publisher": "Egmont Manga",
+      "volumeNumber": 13,
+      "classification": "source-data-gap",
+      "suspectedCause": "not-yet-released",
+      "priority": "sehr hoch",
+      "recommendedFix": "manual-source-review",
+      "manualSourceReviewNeeded": true,
+      "checkedSources": [
+        {
+          "name": "Manga Passion API",
+          "url": "https://www.manga-passion.de",
+          "result": "Edition 4636 vorhanden; Band 13-19 ohne valides Release-Datum."
+        }
+      ],
+      "sourceAnalysisEvidence": "Manga-Passion-Edition 4636 fuehrt Band 13-19 nur mit Platzhalterdatum 2999-12-31; Band 8-12 sind bereits bestaetigt.",
+      "safeToPatch": false,
+      "reviewStatus": "pending",
+      "sourceUrl": null,
+      "releaseDate": null,
+      "checkedAt": null,
+      "evidence": "",
+      "notes": ""
+    },
+    {
+      "queueKey": "Vagabond – Master Edition|Egmont Manga|14",
+      "seriesTitle": "Vagabond – Master Edition",
+      "publisher": "Egmont Manga",
+      "volumeNumber": 14,
+      "classification": "source-data-gap",
+      "suspectedCause": "not-yet-released",
+      "priority": "sehr hoch",
+      "recommendedFix": "manual-source-review",
+      "manualSourceReviewNeeded": true,
+      "checkedSources": [
+        {
+          "name": "Manga Passion API",
+          "url": "https://www.manga-passion.de",
+          "result": "Edition 4636 vorhanden; Band 13-19 ohne valides Release-Datum."
+        }
+      ],
+      "sourceAnalysisEvidence": "Manga-Passion-Edition 4636 fuehrt Band 13-19 nur mit Platzhalterdatum 2999-12-31; Band 8-12 sind bereits bestaetigt.",
+      "safeToPatch": false,
+      "reviewStatus": "pending",
+      "sourceUrl": null,
+      "releaseDate": null,
+      "checkedAt": null,
+      "evidence": "",
+      "notes": ""
+    },
+    {
+      "queueKey": "Vagabond – Master Edition|Egmont Manga|15",
+      "seriesTitle": "Vagabond – Master Edition",
+      "publisher": "Egmont Manga",
+      "volumeNumber": 15,
+      "classification": "source-data-gap",
+      "suspectedCause": "not-yet-released",
+      "priority": "sehr hoch",
+      "recommendedFix": "manual-source-review",
+      "manualSourceReviewNeeded": true,
+      "checkedSources": [
+        {
+          "name": "Manga Passion API",
+          "url": "https://www.manga-passion.de",
+          "result": "Edition 4636 vorhanden; Band 13-19 ohne valides Release-Datum."
+        }
+      ],
+      "sourceAnalysisEvidence": "Manga-Passion-Edition 4636 fuehrt Band 13-19 nur mit Platzhalterdatum 2999-12-31; Band 8-12 sind bereits bestaetigt.",
+      "safeToPatch": false,
+      "reviewStatus": "pending",
+      "sourceUrl": null,
+      "releaseDate": null,
+      "checkedAt": null,
+      "evidence": "",
+      "notes": ""
+    },
+    {
+      "queueKey": "Vagabond – Master Edition|Egmont Manga|16",
+      "seriesTitle": "Vagabond – Master Edition",
+      "publisher": "Egmont Manga",
+      "volumeNumber": 16,
+      "classification": "source-data-gap",
+      "suspectedCause": "not-yet-released",
+      "priority": "sehr hoch",
+      "recommendedFix": "manual-source-review",
+      "manualSourceReviewNeeded": true,
+      "checkedSources": [
+        {
+          "name": "Manga Passion API",
+          "url": "https://www.manga-passion.de",
+          "result": "Edition 4636 vorhanden; Band 13-19 ohne valides Release-Datum."
+        }
+      ],
+      "sourceAnalysisEvidence": "Manga-Passion-Edition 4636 fuehrt Band 13-19 nur mit Platzhalterdatum 2999-12-31; Band 8-12 sind bereits bestaetigt.",
+      "safeToPatch": false,
+      "reviewStatus": "pending",
+      "sourceUrl": null,
+      "releaseDate": null,
+      "checkedAt": null,
+      "evidence": "",
+      "notes": ""
+    },
+    {
+      "queueKey": "Vagabond – Master Edition|Egmont Manga|17",
+      "seriesTitle": "Vagabond – Master Edition",
+      "publisher": "Egmont Manga",
+      "volumeNumber": 17,
+      "classification": "source-data-gap",
+      "suspectedCause": "not-yet-released",
+      "priority": "sehr hoch",
+      "recommendedFix": "manual-source-review",
+      "manualSourceReviewNeeded": true,
+      "checkedSources": [
+        {
+          "name": "Manga Passion API",
+          "url": "https://www.manga-passion.de",
+          "result": "Edition 4636 vorhanden; Band 13-19 ohne valides Release-Datum."
+        }
+      ],
+      "sourceAnalysisEvidence": "Manga-Passion-Edition 4636 fuehrt Band 13-19 nur mit Platzhalterdatum 2999-12-31; Band 8-12 sind bereits bestaetigt.",
+      "safeToPatch": false,
+      "reviewStatus": "pending",
+      "sourceUrl": null,
+      "releaseDate": null,
+      "checkedAt": null,
+      "evidence": "",
+      "notes": ""
+    },
+    {
+      "queueKey": "Vagabond – Master Edition|Egmont Manga|18",
+      "seriesTitle": "Vagabond – Master Edition",
+      "publisher": "Egmont Manga",
+      "volumeNumber": 18,
+      "classification": "source-data-gap",
+      "suspectedCause": "not-yet-released",
+      "priority": "sehr hoch",
+      "recommendedFix": "manual-source-review",
+      "manualSourceReviewNeeded": true,
+      "checkedSources": [
+        {
+          "name": "Manga Passion API",
+          "url": "https://www.manga-passion.de",
+          "result": "Edition 4636 vorhanden; Band 13-19 ohne valides Release-Datum."
+        }
+      ],
+      "sourceAnalysisEvidence": "Manga-Passion-Edition 4636 fuehrt Band 13-19 nur mit Platzhalterdatum 2999-12-31; Band 8-12 sind bereits bestaetigt.",
+      "safeToPatch": false,
+      "reviewStatus": "pending",
+      "sourceUrl": null,
+      "releaseDate": null,
+      "checkedAt": null,
+      "evidence": "",
+      "notes": ""
+    },
+    {
+      "queueKey": "Vagabond – Master Edition|Egmont Manga|19",
+      "seriesTitle": "Vagabond – Master Edition",
+      "publisher": "Egmont Manga",
+      "volumeNumber": 19,
+      "classification": "source-data-gap",
+      "suspectedCause": "not-yet-released",
+      "priority": "sehr hoch",
+      "recommendedFix": "manual-source-review",
+      "manualSourceReviewNeeded": true,
+      "checkedSources": [
+        {
+          "name": "Manga Passion API",
+          "url": "https://www.manga-passion.de",
+          "result": "Edition 4636 vorhanden; Band 13-19 ohne valides Release-Datum."
+        }
+      ],
+      "sourceAnalysisEvidence": "Manga-Passion-Edition 4636 fuehrt Band 13-19 nur mit Platzhalterdatum 2999-12-31; Band 8-12 sind bereits bestaetigt.",
+      "safeToPatch": false,
+      "reviewStatus": "pending",
+      "sourceUrl": null,
+      "releaseDate": null,
+      "checkedAt": null,
+      "evidence": "",
+      "notes": ""
+    },
+    {
+      "queueKey": "Arifureta: Der Kampf zurück in meine Welt – Zero|Altraverse|4",
+      "seriesTitle": "Arifureta: Der Kampf zurück in meine Welt – Zero",
+      "publisher": "Altraverse",
+      "volumeNumber": 4,
+      "classification": "source-data-gap",
+      "suspectedCause": "not-yet-released",
+      "priority": "hoch",
+      "recommendedFix": "manual-source-review",
+      "manualSourceReviewNeeded": true,
+      "checkedSources": [
+        {
+          "name": "Manga Passion API",
+          "url": "https://www.manga-passion.de",
+          "result": "Edition 5807 vorhanden; Band 4-8 ohne valides Release-Datum."
+        }
+      ],
+      "sourceAnalysisEvidence": "Manga-Passion-Edition 5807 fuehrt die Zielbaende nur mit Platzhalterdatum 2999-12-31; vorhandener App-Seed fuer Band 3 ist nicht extern bestaetigt.",
+      "safeToPatch": false,
+      "reviewStatus": "pending",
+      "sourceUrl": null,
+      "releaseDate": null,
+      "checkedAt": null,
+      "evidence": "",
+      "notes": ""
+    },
+    {
+      "queueKey": "Arifureta: Der Kampf zurück in meine Welt – Zero|Altraverse|5",
+      "seriesTitle": "Arifureta: Der Kampf zurück in meine Welt – Zero",
+      "publisher": "Altraverse",
+      "volumeNumber": 5,
+      "classification": "source-data-gap",
+      "suspectedCause": "not-yet-released",
+      "priority": "hoch",
+      "recommendedFix": "manual-source-review",
+      "manualSourceReviewNeeded": true,
+      "checkedSources": [
+        {
+          "name": "Manga Passion API",
+          "url": "https://www.manga-passion.de",
+          "result": "Edition 5807 vorhanden; Band 4-8 ohne valides Release-Datum."
+        }
+      ],
+      "sourceAnalysisEvidence": "Manga-Passion-Edition 5807 fuehrt die Zielbaende nur mit Platzhalterdatum 2999-12-31; vorhandener App-Seed fuer Band 3 ist nicht extern bestaetigt.",
+      "safeToPatch": false,
+      "reviewStatus": "pending",
+      "sourceUrl": null,
+      "releaseDate": null,
+      "checkedAt": null,
+      "evidence": "",
+      "notes": ""
+    },
+    {
+      "queueKey": "Arifureta: Der Kampf zurück in meine Welt – Zero|Altraverse|6",
+      "seriesTitle": "Arifureta: Der Kampf zurück in meine Welt – Zero",
+      "publisher": "Altraverse",
+      "volumeNumber": 6,
+      "classification": "source-data-gap",
+      "suspectedCause": "not-yet-released",
+      "priority": "hoch",
+      "recommendedFix": "manual-source-review",
+      "manualSourceReviewNeeded": true,
+      "checkedSources": [
+        {
+          "name": "Manga Passion API",
+          "url": "https://www.manga-passion.de",
+          "result": "Edition 5807 vorhanden; Band 4-8 ohne valides Release-Datum."
+        }
+      ],
+      "sourceAnalysisEvidence": "Manga-Passion-Edition 5807 fuehrt die Zielbaende nur mit Platzhalterdatum 2999-12-31; vorhandener App-Seed fuer Band 3 ist nicht extern bestaetigt.",
+      "safeToPatch": false,
+      "reviewStatus": "pending",
+      "sourceUrl": null,
+      "releaseDate": null,
+      "checkedAt": null,
+      "evidence": "",
+      "notes": ""
+    },
+    {
+      "queueKey": "Arifureta: Der Kampf zurück in meine Welt – Zero|Altraverse|7",
+      "seriesTitle": "Arifureta: Der Kampf zurück in meine Welt – Zero",
+      "publisher": "Altraverse",
+      "volumeNumber": 7,
+      "classification": "source-data-gap",
+      "suspectedCause": "not-yet-released",
+      "priority": "hoch",
+      "recommendedFix": "manual-source-review",
+      "manualSourceReviewNeeded": true,
+      "checkedSources": [
+        {
+          "name": "Manga Passion API",
+          "url": "https://www.manga-passion.de",
+          "result": "Edition 5807 vorhanden; Band 4-8 ohne valides Release-Datum."
+        }
+      ],
+      "sourceAnalysisEvidence": "Manga-Passion-Edition 5807 fuehrt die Zielbaende nur mit Platzhalterdatum 2999-12-31; vorhandener App-Seed fuer Band 3 ist nicht extern bestaetigt.",
+      "safeToPatch": false,
+      "reviewStatus": "pending",
+      "sourceUrl": null,
+      "releaseDate": null,
+      "checkedAt": null,
+      "evidence": "",
+      "notes": ""
+    },
+    {
+      "queueKey": "Arifureta: Der Kampf zurück in meine Welt – Zero|Altraverse|8",
+      "seriesTitle": "Arifureta: Der Kampf zurück in meine Welt – Zero",
+      "publisher": "Altraverse",
+      "volumeNumber": 8,
+      "classification": "source-data-gap",
+      "suspectedCause": "not-yet-released",
+      "priority": "hoch",
+      "recommendedFix": "manual-source-review",
+      "manualSourceReviewNeeded": true,
+      "checkedSources": [
+        {
+          "name": "Manga Passion API",
+          "url": "https://www.manga-passion.de",
+          "result": "Edition 5807 vorhanden; Band 4-8 ohne valides Release-Datum."
+        }
+      ],
+      "sourceAnalysisEvidence": "Manga-Passion-Edition 5807 fuehrt die Zielbaende nur mit Platzhalterdatum 2999-12-31; vorhandener App-Seed fuer Band 3 ist nicht extern bestaetigt.",
+      "safeToPatch": false,
+      "reviewStatus": "pending",
+      "sourceUrl": null,
+      "releaseDate": null,
+      "checkedAt": null,
+      "evidence": "",
+      "notes": ""
+    },
+    {
+      "queueKey": "Isekai Soapland|MANGAMOON|3",
+      "seriesTitle": "Isekai Soapland",
+      "publisher": "MANGAMOON",
+      "volumeNumber": 3,
+      "classification": "source-data-gap",
+      "suspectedCause": "not-yet-released",
+      "priority": "hoch",
+      "recommendedFix": "manual-source-review",
+      "manualSourceReviewNeeded": true,
+      "checkedSources": [
+        {
+          "name": "Manga Passion API",
+          "url": "https://www.manga-passion.de",
+          "result": "Edition 6069 vorhanden; Band 3-8 ohne valides Release-Datum."
+        }
+      ],
+      "sourceAnalysisEvidence": "Manga-Passion-Edition 6069 fuehrt Band 3-8 nur mit Platzhalterdatum 2999-12-31; MangaMoon/MANGAMOON ist ein Normalisierungsfall, aber nicht die unmittelbare Cache-Luecke.",
+      "safeToPatch": false,
+      "reviewStatus": "pending",
+      "sourceUrl": null,
+      "releaseDate": null,
+      "checkedAt": null,
+      "evidence": "",
+      "notes": ""
+    },
+    {
+      "queueKey": "Isekai Soapland|MANGAMOON|4",
+      "seriesTitle": "Isekai Soapland",
+      "publisher": "MANGAMOON",
+      "volumeNumber": 4,
+      "classification": "source-data-gap",
+      "suspectedCause": "not-yet-released",
+      "priority": "hoch",
+      "recommendedFix": "manual-source-review",
+      "manualSourceReviewNeeded": true,
+      "checkedSources": [
+        {
+          "name": "Manga Passion API",
+          "url": "https://www.manga-passion.de",
+          "result": "Edition 6069 vorhanden; Band 3-8 ohne valides Release-Datum."
+        }
+      ],
+      "sourceAnalysisEvidence": "Manga-Passion-Edition 6069 fuehrt Band 3-8 nur mit Platzhalterdatum 2999-12-31; MangaMoon/MANGAMOON ist ein Normalisierungsfall, aber nicht die unmittelbare Cache-Luecke.",
+      "safeToPatch": false,
+      "reviewStatus": "pending",
+      "sourceUrl": null,
+      "releaseDate": null,
+      "checkedAt": null,
+      "evidence": "",
+      "notes": ""
+    },
+    {
+      "queueKey": "Isekai Soapland|MANGAMOON|5",
+      "seriesTitle": "Isekai Soapland",
+      "publisher": "MANGAMOON",
+      "volumeNumber": 5,
+      "classification": "source-data-gap",
+      "suspectedCause": "not-yet-released",
+      "priority": "hoch",
+      "recommendedFix": "manual-source-review",
+      "manualSourceReviewNeeded": true,
+      "checkedSources": [
+        {
+          "name": "Manga Passion API",
+          "url": "https://www.manga-passion.de",
+          "result": "Edition 6069 vorhanden; Band 3-8 ohne valides Release-Datum."
+        }
+      ],
+      "sourceAnalysisEvidence": "Manga-Passion-Edition 6069 fuehrt Band 3-8 nur mit Platzhalterdatum 2999-12-31; MangaMoon/MANGAMOON ist ein Normalisierungsfall, aber nicht die unmittelbare Cache-Luecke.",
+      "safeToPatch": false,
+      "reviewStatus": "pending",
+      "sourceUrl": null,
+      "releaseDate": null,
+      "checkedAt": null,
+      "evidence": "",
+      "notes": ""
+    },
+    {
+      "queueKey": "Isekai Soapland|MANGAMOON|6",
+      "seriesTitle": "Isekai Soapland",
+      "publisher": "MANGAMOON",
+      "volumeNumber": 6,
+      "classification": "source-data-gap",
+      "suspectedCause": "not-yet-released",
+      "priority": "hoch",
+      "recommendedFix": "manual-source-review",
+      "manualSourceReviewNeeded": true,
+      "checkedSources": [
+        {
+          "name": "Manga Passion API",
+          "url": "https://www.manga-passion.de",
+          "result": "Edition 6069 vorhanden; Band 3-8 ohne valides Release-Datum."
+        }
+      ],
+      "sourceAnalysisEvidence": "Manga-Passion-Edition 6069 fuehrt Band 3-8 nur mit Platzhalterdatum 2999-12-31; MangaMoon/MANGAMOON ist ein Normalisierungsfall, aber nicht die unmittelbare Cache-Luecke.",
+      "safeToPatch": false,
+      "reviewStatus": "pending",
+      "sourceUrl": null,
+      "releaseDate": null,
+      "checkedAt": null,
+      "evidence": "",
+      "notes": ""
+    },
+    {
+      "queueKey": "Isekai Soapland|MANGAMOON|7",
+      "seriesTitle": "Isekai Soapland",
+      "publisher": "MANGAMOON",
+      "volumeNumber": 7,
+      "classification": "source-data-gap",
+      "suspectedCause": "not-yet-released",
+      "priority": "hoch",
+      "recommendedFix": "manual-source-review",
+      "manualSourceReviewNeeded": true,
+      "checkedSources": [
+        {
+          "name": "Manga Passion API",
+          "url": "https://www.manga-passion.de",
+          "result": "Edition 6069 vorhanden; Band 3-8 ohne valides Release-Datum."
+        }
+      ],
+      "sourceAnalysisEvidence": "Manga-Passion-Edition 6069 fuehrt Band 3-8 nur mit Platzhalterdatum 2999-12-31; MangaMoon/MANGAMOON ist ein Normalisierungsfall, aber nicht die unmittelbare Cache-Luecke.",
+      "safeToPatch": false,
+      "reviewStatus": "pending",
+      "sourceUrl": null,
+      "releaseDate": null,
+      "checkedAt": null,
+      "evidence": "",
+      "notes": ""
+    },
+    {
+      "queueKey": "Isekai Soapland|MANGAMOON|8",
+      "seriesTitle": "Isekai Soapland",
+      "publisher": "MANGAMOON",
+      "volumeNumber": 8,
+      "classification": "source-data-gap",
+      "suspectedCause": "not-yet-released",
+      "priority": "hoch",
+      "recommendedFix": "manual-source-review",
+      "manualSourceReviewNeeded": true,
+      "checkedSources": [
+        {
+          "name": "Manga Passion API",
+          "url": "https://www.manga-passion.de",
+          "result": "Edition 6069 vorhanden; Band 3-8 ohne valides Release-Datum."
+        }
+      ],
+      "sourceAnalysisEvidence": "Manga-Passion-Edition 6069 fuehrt Band 3-8 nur mit Platzhalterdatum 2999-12-31; MangaMoon/MANGAMOON ist ein Normalisierungsfall, aber nicht die unmittelbare Cache-Luecke.",
+      "safeToPatch": false,
+      "reviewStatus": "pending",
+      "sourceUrl": null,
+      "releaseDate": null,
+      "checkedAt": null,
+      "evidence": "",
+      "notes": ""
+    },
+    {
+      "queueKey": "Adou|Altraverse|12",
+      "seriesTitle": "Adou",
+      "publisher": "Altraverse",
+      "volumeNumber": 12,
+      "classification": "source-data-gap",
+      "suspectedCause": "source-missing",
+      "priority": "mittel",
+      "recommendedFix": "manual-source-review",
+      "manualSourceReviewNeeded": true,
+      "checkedSources": [
+        {
+          "name": "Manga Passion API",
+          "url": "https://www.manga-passion.de",
+          "result": "Edition 518 vorhanden; kein Band 12 in der geprueften Volumenliste."
+        }
+      ],
+      "sourceAnalysisEvidence": "Manga-Passion-Edition 518 enthaelt aktuell nur bis Band 11 mit validen Daten; Band 12 wurde in der geprueften Quelle nicht gefunden.",
+      "safeToPatch": false,
+      "reviewStatus": "pending",
+      "sourceUrl": null,
+      "releaseDate": null,
+      "checkedAt": null,
+      "evidence": "",
+      "notes": ""
+    },
+    {
+      "queueKey": "Chainsaw Man|Egmont Manga|23",
+      "seriesTitle": "Chainsaw Man",
+      "publisher": "Egmont Manga",
+      "volumeNumber": 23,
+      "classification": "source-data-gap",
+      "suspectedCause": "not-yet-released",
+      "priority": "mittel",
+      "recommendedFix": "manual-source-review",
+      "manualSourceReviewNeeded": true,
+      "checkedSources": [
+        {
+          "name": "Manga Passion API",
+          "url": "https://www.manga-passion.de",
+          "result": "Edition 269 vorhanden; Band 23 ohne valides Release-Datum."
+        }
+      ],
+      "sourceAnalysisEvidence": "Manga-Passion-Edition 269 fuehrt Band 23 nur mit Platzhalterdatum 2999-12-31; Band 21-22 sind bereits bestaetigt.",
+      "safeToPatch": false,
+      "reviewStatus": "pending",
+      "sourceUrl": null,
+      "releaseDate": null,
+      "checkedAt": null,
+      "evidence": "",
+      "notes": ""
+    },
+    {
+      "queueKey": "Gushing over Magical Girls|MangaMoon|4",
+      "seriesTitle": "Gushing over Magical Girls",
+      "publisher": "MangaMoon",
+      "volumeNumber": 4,
+      "classification": "source-data-gap",
+      "suspectedCause": "not-yet-released",
+      "priority": "mittel",
+      "recommendedFix": "manual-source-review",
+      "manualSourceReviewNeeded": true,
+      "checkedSources": [
+        {
+          "name": "Manga Passion API",
+          "url": "https://www.manga-passion.de",
+          "result": "Edition 5407 vorhanden; Band 4 ohne valides Release-Datum."
+        }
+      ],
+      "sourceAnalysisEvidence": "Manga-Passion-Edition 5407 fuehrt Band 4 nur mit Platzhalterdatum 2999-12-31; MangaMoon/MANGAMOON ist ein Normalisierungsfall.",
+      "safeToPatch": false,
+      "reviewStatus": "pending",
+      "sourceUrl": null,
+      "releaseDate": null,
+      "checkedAt": null,
+      "evidence": "",
+      "notes": ""
+    },
+    {
+      "queueKey": "Meine Chefin kommt immer zuerst!!|MangaMoon|2",
+      "seriesTitle": "Meine Chefin kommt immer zuerst!!",
+      "publisher": "MangaMoon",
+      "volumeNumber": 2,
+      "classification": "source-data-gap",
+      "suspectedCause": "not-yet-released",
+      "priority": "mittel",
+      "recommendedFix": "manual-source-review",
+      "manualSourceReviewNeeded": true,
+      "checkedSources": [
+        {
+          "name": "Manga Passion API",
+          "url": "https://www.manga-passion.de",
+          "result": "Edition 6135 vorhanden; Band 2 ohne valides Release-Datum."
+        }
+      ],
+      "sourceAnalysisEvidence": "Manga-Passion-Edition 6135 fuehrt Band 2 nur mit Platzhalterdatum 2999-12-31; Schreibweise MangaMoon/MANGAMOON sollte konsolidiert bleiben.",
+      "safeToPatch": false,
+      "reviewStatus": "pending",
+      "sourceUrl": null,
+      "releaseDate": null,
+      "checkedAt": null,
+      "evidence": "",
+      "notes": ""
+    },
+    {
+      "queueKey": "Mirai Nikki – New Edition|Egmont Manga|6",
+      "seriesTitle": "Mirai Nikki – New Edition",
+      "publisher": "Egmont Manga",
+      "volumeNumber": 6,
+      "classification": "source-data-gap",
+      "suspectedCause": "not-yet-released",
+      "priority": "mittel",
+      "recommendedFix": "manual-source-review",
+      "manualSourceReviewNeeded": true,
+      "checkedSources": [
+        {
+          "name": "Manga Passion API",
+          "url": "https://www.manga-passion.de",
+          "result": "Edition 5504 vorhanden; Band 6 ohne valides Release-Datum."
+        }
+      ],
+      "sourceAnalysisEvidence": "Manga-Passion-Edition 5504 fuehrt Band 6 nur mit Platzhalterdatum 2999-12-31; New-Edition-Fingerprint passt fuer Band 3-5 bereits.",
+      "safeToPatch": false,
+      "reviewStatus": "pending",
+      "sourceUrl": null,
+      "releaseDate": null,
+      "checkedAt": null,
+      "evidence": "",
+      "notes": ""
+    },
+    {
+      "queueKey": "Neck mich nicht, Nagatoro-san|dani books|6",
+      "seriesTitle": "Neck mich nicht, Nagatoro-san",
+      "publisher": "dani books",
+      "volumeNumber": 6,
+      "classification": "source-data-gap",
+      "suspectedCause": "not-yet-released",
+      "priority": "mittel",
+      "recommendedFix": "manual-source-review",
+      "manualSourceReviewNeeded": true,
+      "checkedSources": [
+        {
+          "name": "Manga Passion API",
+          "url": "https://www.manga-passion.de",
+          "result": "Edition 1750 vorhanden; Band 6 ohne valides Release-Datum."
+        }
+      ],
+      "sourceAnalysisEvidence": "Manga-Passion-Edition 1750 fuehrt Band 6 nur mit Platzhalterdatum 2999-12-31; keine sichere Cache-Ergaenzung ohne Verlags-/Quellenpruefung.",
+      "safeToPatch": false,
+      "reviewStatus": "pending",
+      "sourceUrl": null,
+      "releaseDate": null,
+      "checkedAt": null,
+      "evidence": "",
+      "notes": ""
+    },
+    {
+      "queueKey": "Tokyo Revengers – Doppelband-Edition|Carlsen Manga|16",
+      "seriesTitle": "Tokyo Revengers – Doppelband-Edition",
+      "publisher": "Carlsen Manga",
+      "volumeNumber": 16,
+      "classification": "source-data-gap",
+      "suspectedCause": "volume-numbering-mismatch",
+      "priority": "mittel",
+      "recommendedFix": "manual-source-review",
+      "manualSourceReviewNeeded": true,
+      "checkedSources": [
+        {
+          "name": "Manga Passion API",
+          "url": "https://www.manga-passion.de",
+          "result": "Edition 1599 vorhanden; kein Band 16 in der geprueften Volumenliste."
+        }
+      ],
+      "sourceAnalysisEvidence": "Manga-Passion-Edition 1599 enthaelt Doppelband 1-15; Watchlist-Band 16 koennte Nummerierungs-/Editionsdrift sein und muss gegen Carlsen geprueft werden.",
+      "safeToPatch": false,
+      "reviewStatus": "pending",
+      "sourceUrl": null,
+      "releaseDate": null,
+      "checkedAt": null,
+      "evidence": "",
+      "notes": ""
+    },
+    {
+      "queueKey": "Vermeil in Gold|Manga Cult|2",
+      "seriesTitle": "Vermeil in Gold",
+      "publisher": "Manga Cult",
+      "volumeNumber": 2,
+      "classification": "source-data-gap",
+      "suspectedCause": "publisher-normalization",
+      "priority": "mittel",
+      "recommendedFix": "manual-source-review",
+      "manualSourceReviewNeeded": true,
+      "checkedSources": [
+        {
+          "name": "Manga Passion API",
+          "url": "https://www.manga-passion.de",
+          "result": "Edition 6137 vorhanden; Publisher MANGAMOON; Band 2 ohne valides Release-Datum."
+        }
+      ],
+      "sourceAnalysisEvidence": "Manga Passion fuehrt die Serie unter MANGAMOON, waehrend die Watchlist Manga Cult nennt; Band 2 hat dort zusaetzlich kein valides Release-Datum.",
+      "safeToPatch": false,
+      "reviewStatus": "pending",
+      "sourceUrl": null,
+      "releaseDate": null,
+      "checkedAt": null,
+      "evidence": "",
+      "notes": ""
+    }
+  ]
+}
