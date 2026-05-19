@@ -98,10 +98,8 @@ async function pushCloud() {
   if (!_collId || !_ownerToken) return;
   if (!validateDatabase()) { setSyncStatus('⚠️', 'Daten ungültig – Sync übersprungen'); return; }
   setSyncStatus('🔄', 'Synchronisiert…');
-  // TODO Phase 21b: public_data = buildPublicCollectionData(db) beim Cloud-Push mitschreiben
-  // (erst nach Anwendung der Supabase-Migration phase21b_public_projection_rls.sql)
   try {
-    await SupabaseAdapter.patchCollection(_collId, _ownerToken, db);
+    await SupabaseAdapter.patchCollection(_collId, _ownerToken, db, buildPublicCollectionData(db));
     setSyncStatus('☁️', 'Cloud-Sync aktiv');
   } catch(e) {
     setSyncStatus('⚠️', 'Sync fehlgeschlagen');
@@ -780,9 +778,9 @@ function startOwnCollection() {
 }
 
 async function loadViewCollection() {
-  // TODO Phase 21b: Nach Anwendung der Supabase-Migration hier auf public_data umstellen.
-  // Aktuell wird noch 'data' gelesen (Legacy). Sobald anon nur noch Zugriff auf public_data
-  // hat, muss dieser Fetch entsprechend angepasst werden.
+  // Phase 27a: bevorzugt public_data lesen; Legacy-Fallback auf data bleibt aktiv,
+  // bis die Supabase-Migration angewendet, public_data befüllt und RLS in Phase 27b
+  // sicher verschärft wurde.
   if (!_viewColl) return;
   if (!isUuid(_viewColl)) {
     toast('⚠️ Ungültiger Sammlungslink.');
@@ -790,7 +788,7 @@ async function loadViewCollection() {
     return;
   }
   try {
-    const record = await SupabaseAdapter.fetchCollection(_viewColl, _ownerToken);
+    const record = await SupabaseAdapter.fetchPublicCollection(_viewColl);
     if (record && Array.isArray(record.m)) {
       // Validierung VOR Übernahme: kaputte fremde Sammlung nicht rendern
       if (!validateDatabase(record)) {

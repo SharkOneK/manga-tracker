@@ -56,6 +56,9 @@ jobs:
       - name: Check test-data-integrity syntax
         run: node --check scripts/test-data-integrity.js
 
+      - name: Check public projection tests syntax
+        run: node --check scripts/test-public-projection.js
+
       - name: Check security-audit-static syntax
         run: node --check scripts/security-audit-static.js
 
@@ -100,6 +103,9 @@ jobs:
 
       - name: Data integrity tests
         run: node scripts/test-data-integrity.js
+
+      - name: Public projection tests
+        run: node scripts/test-public-projection.js
 
       - name: Security audit
         run: node scripts/security-audit-static.js

@@ -51,34 +51,88 @@
     return h;
   }
 
-  async function fetchCollection(collId, ownerToken) {
-    // TODO Phase 21b: Nach Anwendung der Supabase-Migration hier auf public_data umstellen.
-    // Aktuell wird noch 'data' gelesen (Legacy). Sobald anon nur noch Zugriff auf public_data
-    // hat, muss dieser Fetch entsprechend angepasst werden.
-    var r = await fetch(SUPA_REST + '?id=eq.' + collId + '&select=data', {
-      headers: headers(ownerToken, false),
-    });
-    if (!r.ok) {
-      var t = await r.text();
-      throw new Error('HTTP ' + r.status + ': ' + t.slice(0, 80));
-    }
-    var j = await r.json();
-    return Array.isArray(j) && j[0] ? j[0].data : null;
+  function httpError(status, text) {
+    var e = new Error('HTTP ' + status + ': ' + String(text || '').slice(0, 160));
+    e.status = status;
+    e.responseText = text || '';
+    return e;
   }
 
-  async function patchCollection(collId, ownerToken, data) {
+  function isPublicDataUnavailableError(error) {
+    if (!error) return false;
+    var status = Number(error.status);
+    var text = String(error.responseText || error.message || '').toLowerCase();
+    if (status !== 400 && status !== 403 && status !== 404) return false;
+    return text.includes('public_data') ||
+      text.includes('column') ||
+      text.includes('schema cache') ||
+      text.includes('permission denied');
+  }
+
+  async function requestJson(url, requestHeaders) {
+    var r = await fetch(url, { headers: requestHeaders });
+    if (!r.ok) {
+      throw httpError(r.status, await r.text());
+    }
+    return r.json();
+  }
+
+  function firstCollectionField(rows, fieldName) {
+    return Array.isArray(rows) && rows[0] ? rows[0][fieldName] : null;
+  }
+
+  async function fetchCollection(collId, ownerToken) {
+    var j = await requestJson(SUPA_REST + '?id=eq.' + collId + '&select=data', headers(ownerToken, false));
+    return firstCollectionField(j, 'data');
+  }
+
+  async function fetchPublicCollection(collId) {
+    // Phase 27a: Public-Views bevorzugen die sichere Projektion.
+    // Wenn public_data remote noch fehlt/noch nicht freigegeben ist oder noch keinen
+    // Inhalt hat, bleibt der Legacy-Fallback auf data erhalten.
+    try {
+      var publicRows = await requestJson(SUPA_REST + '?id=eq.' + collId + '&select=public_data', headers(null, false));
+      var publicData = firstCollectionField(publicRows, 'public_data');
+      if (publicData && Array.isArray(publicData.m)) return publicData;
+    } catch (e) {
+      if (!isPublicDataUnavailableError(e)) throw e;
+    }
+
+    var legacyRows = await requestJson(SUPA_REST + '?id=eq.' + collId + '&select=data', headers(null, false));
+    return firstCollectionField(legacyRows, 'data');
+  }
+
+  async function patchCollectionPayload(collId, ownerToken, payload) {
     var r = await fetch(SUPA_REST + '?id=eq.' + collId, {
       method: 'PATCH',
       headers: Object.assign({}, headers(ownerToken, true), {
         'Content-Type': 'application/json',
         'Prefer': 'return=minimal',
       }),
-      body: JSON.stringify({ data: data }),
+      body: JSON.stringify(payload),
     });
     if (!r.ok) {
-      var t = await r.text();
-      throw new Error('HTTP ' + r.status + ': ' + t.slice(0, 80));
+      throw httpError(r.status, await r.text());
     }
+    return r;
+  }
+
+  async function patchCollection(collId, ownerToken, data, publicData) {
+    if (publicData !== undefined) {
+      try {
+        await patchCollectionPayload(collId, ownerToken, {
+          data: data,
+          public_data: publicData,
+        });
+        return { publicDataWritten: true };
+      } catch (e) {
+        if (!isPublicDataUnavailableError(e)) throw e;
+        console.warn('[Phase 27a] public_data not writable yet; falling back to legacy data-only sync.');
+      }
+    }
+
+    await patchCollectionPayload(collId, ownerToken, { data: data });
+    return { publicDataWritten: false };
   }
 
   window.MangaTrackerSupabase = {
@@ -86,6 +140,7 @@
     getOwnerState: getOwnerState,
     headers: headers,
     fetchCollection: fetchCollection,
+    fetchPublicCollection: fetchPublicCollection,
     patchCollection: patchCollection,
   };
 })();

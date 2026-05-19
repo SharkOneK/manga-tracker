@@ -40,6 +40,7 @@ jobs:
           node --check scripts/write-release-source-review-queue.js
           node --check scripts/validate-release-source-review-queue.js
           node --check scripts/audit-release-cache-coverage.js
+          node --check scripts/test-public-projection.js
 
       - name: Run automated release-cache pipeline
         run: node scripts/run-release-cache-pipeline.js
@@ -59,6 +60,7 @@ jobs:
           node scripts/smoke-test-static.js
           node scripts/check-secrets.js
           node scripts/test-data-integrity.js
+          node scripts/test-public-projection.js
           node scripts/security-audit-static.js
           git diff --check
 
