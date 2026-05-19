@@ -40,20 +40,39 @@ von öffentlichen CI-Workflows stehen. Er gehört nur in geheime CI-Secrets.
 3. GitHub Secret neu setzen.
 4. Betroffene Commits rebasieren und History bereinigen.
 
-## Phase 21b — Public Projection (in Vorbereitung)
+## Phase 27a — Public Projection Client-Prep
 
-Die Supabase-Migration `supabase/migrations/phase21b_public_projection_rls.sql`
-bereitet eine sichere Public Projection vor.
+Die öffentliche Share-Ansicht soll langfristig nicht mehr die komplette private
+`data`-Spalte lesen. Phase 27a bereitet diesen Wechsel rückwärtskompatibel vor:
 
-Nach Anwendung gilt:
-- Öffentliche Ansichten lesen nur `public_data`, nicht die komplette private `data`-Spalte.
-- Private Felder (Notizen, isbn13, Lesedaten, Kaufdaten) werden nicht an `anon` ausgeliefert.
-- Der Client verwendet `buildPublicCollectionData()` um `public_data` beim Cloud-Push zu befüllen.
+- Cloud-Push schreibt weiterhin `data`.
+- Cloud-Push versucht zusätzlich `public_data = buildPublicCollectionData(db)` zu schreiben.
+- Wenn `public_data` remote noch fehlt oder noch nicht freigegeben ist, fällt der Sync
+  automatisch auf den bisherigen `data`-Write zurück.
+- Public-Views lesen bevorzugt `public_data` und fallen nur solange auf `data` zurück,
+  bis die Migration/Backfills/RLS-Umstellung vollständig abgeschlossen sind.
 
-Manuell anzuwenden:
-1. `phase21_public_projection.sql` in Supabase SQL Editor ausführen.
-2. `phase21b_public_projection_rls.sql` prüfen und ausführen.
-3. Client-Code auf `public_data` umstellen (TODO-Kommentare in `src/app.js` und `src/supabase.js`).
+Die neue vorbereitende Migration ist:
+
+`supabase/migrations/20260519233037_phase27a_public_projection_columns.sql`
+
+Sie ergänzt nur sichere Spalten (`public_data`, `visibility`, `view_token_hash`,
+`owner_token_hash`) und enthält bewusst keine RLS-/Policy-/Grant-Verschärfung.
+
+## Phase 27b — Public Projection RLS (später)
+
+`supabase/migrations/phase21b_public_projection_rls.sql` ist aktuell keine echte
+ausführbare Migration, sondern eine Checkliste mit kommentierten Beispiel-SQLs.
+Sie darf nicht blind produktiv angewendet werden.
+
+Phase 27b muss separat erfolgen:
+
+1. `public_data` für bestehende Sammlungen backfillen und live testen.
+2. Sicherstellen, dass der Client für Share-Views ohne Legacy-`data`-Fallback funktioniert.
+3. Danach erst Grants/RLS verschärfen:
+   - `anon` darf nicht mehr die private `data`-Spalte lesen.
+   - Public-View darf nur noch `public_data` lesen.
+4. Vor produktiver Anwendung Backup/Export erstellen.
 
 ## CSP-Status
 
