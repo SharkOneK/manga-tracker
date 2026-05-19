@@ -22,7 +22,239 @@
       "publisher": "Egmont Manga",
       "volumeNumbers": [8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19],
       "sourceUrl": null,
-      "notes": "Aus App-Coverage-Report ergänzt. Sammlungsstand: 7/19.",
+      "notes": "Aus App-Coverage-Report ergänzt.",
+      "enabled": true
+    },
+    {
+      "seriesTitle": "Adou",
+      "publisher": "Altraverse",
+      "volumeNumbers": [3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+      "sourceUrl": null,
+      "notes": "Aus App-Coverage-Report ergänzt.",
+      "enabled": true
+    },
+    {
+      "seriesTitle": "Arifureta: Der Kampf zurück in meine Welt – Zero",
+      "publisher": "Altraverse",
+      "volumeNumbers": [4, 5, 6, 7, 8],
+      "sourceUrl": null,
+      "notes": "Aus App-Coverage-Report ergänzt.",
+      "enabled": true
+    },
+    {
+      "seriesTitle": "August 9th, I will be eaten by you",
+      "publisher": "Hayabusa",
+      "volumeNumbers": [5],
+      "sourceUrl": null,
+      "notes": "Aus App-Coverage-Report ergänzt.",
+      "enabled": true
+    },
+    {
+      "seriesTitle": "Berserk Master Edition",
+      "publisher": "Panini Manga",
+      "volumeNumbers": [5, 7, 8, 9, 10, 11, 12, 13, 14],
+      "sourceUrl": null,
+      "notes": "Aus App-Coverage-Report ergänzt.",
+      "enabled": true
+    },
+    {
+      "seriesTitle": "Blood Blade",
+      "publisher": "Hayabusa",
+      "volumeNumbers": [4],
+      "sourceUrl": null,
+      "notes": "Aus App-Coverage-Report ergänzt.",
+      "enabled": true
+    },
+    {
+      "seriesTitle": "Brynhildr in the Darkness",
+      "publisher": "Tokyopop",
+      "volumeNumbers": [12, 13, 14, 15, 16, 17, 18],
+      "sourceUrl": null,
+      "notes": "Aus App-Coverage-Report ergänzt.",
+      "enabled": true
+    },
+    {
+      "seriesTitle": "Chainsaw Man",
+      "publisher": "Egmont Manga",
+      "volumeNumbers": [21, 23],
+      "sourceUrl": null,
+      "notes": "Aus App-Coverage-Report ergänzt.",
+      "enabled": true
+    },
+    {
+      "seriesTitle": "Dai Dark",
+      "publisher": "Manga Cult",
+      "volumeNumbers": [8],
+      "sourceUrl": null,
+      "notes": "Aus App-Coverage-Report ergänzt.",
+      "enabled": true
+    },
+    {
+      "seriesTitle": "Demon King of God Killing",
+      "publisher": "Egmont Manga",
+      "volumeNumbers": [4],
+      "sourceUrl": null,
+      "notes": "Aus App-Coverage-Report ergänzt.",
+      "enabled": true
+    },
+    {
+      "seriesTitle": "Die letzte Elfe",
+      "publisher": "Yomeru",
+      "volumeNumbers": [2],
+      "sourceUrl": null,
+      "notes": "Aus App-Coverage-Report ergänzt.",
+      "enabled": true
+    },
+    {
+      "seriesTitle": "Fairy Tail",
+      "publisher": "Carlsen Manga",
+      "volumeNumbers": [16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63],
+      "sourceUrl": null,
+      "notes": "Aus App-Coverage-Report ergänzt.",
+      "enabled": true
+    },
+    {
+      "seriesTitle": "From the Red Fog",
+      "publisher": "Manga Cult",
+      "volumeNumbers": [2, 3, 4, 5],
+      "sourceUrl": null,
+      "notes": "Aus App-Coverage-Report ergänzt.",
+      "enabled": true
+    },
+    {
+      "seriesTitle": "Gushing over Magical Girls",
+      "publisher": "MangaMoon",
+      "volumeNumbers": [3, 4],
+      "sourceUrl": null,
+      "notes": "Aus App-Coverage-Report ergänzt.",
+      "enabled": true
+    },
+    {
+      "seriesTitle": "Isekai Soapland",
+      "publisher": "MANGAMOON",
+      "volumeNumbers": [3, 4, 5, 6, 7, 8],
+      "sourceUrl": null,
+      "notes": "Aus App-Coverage-Report ergänzt.",
+      "enabled": true
+    },
+    {
+      "seriesTitle": "Jujutsu Kaisen",
+      "publisher": "Kazé Manga",
+      "volumeNumbers": [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30],
+      "sourceUrl": null,
+      "notes": "Aus App-Coverage-Report ergänzt.",
+      "enabled": true
+    },
+    {
+      "seriesTitle": "Kaiju No.8",
+      "publisher": "Crunchyroll Manga",
+      "volumeNumbers": [16],
+      "sourceUrl": null,
+      "notes": "Aus App-Coverage-Report ergänzt.",
+      "enabled": true
+    },
+    {
+      "seriesTitle": "Kijin Gentosho: Dämonenjäger",
+      "publisher": "Panini Manga",
+      "volumeNumbers": [2, 3, 4, 5, 6, 7, 8],
+      "sourceUrl": null,
+      "notes": "Aus App-Coverage-Report ergänzt.",
+      "enabled": true
+    },
+    {
+      "seriesTitle": "Lili-Men",
+      "publisher": "Egmont Manga",
+      "volumeNumbers": [6, 7],
+      "sourceUrl": null,
+      "notes": "Aus App-Coverage-Report ergänzt.",
+      "enabled": true
+    },
+    {
+      "seriesTitle": "Maria's Judgement",
+      "publisher": "Egmont Manga",
+      "volumeNumbers": [6],
+      "sourceUrl": null,
+      "notes": "Aus App-Coverage-Report ergänzt.",
+      "enabled": true
+    },
+    {
+      "seriesTitle": "Mirai Nikki – New Edition",
+      "publisher": "Egmont Manga",
+      "volumeNumbers": [3, 5, 6],
+      "sourceUrl": null,
+      "notes": "Aus App-Coverage-Report ergänzt.",
+      "enabled": true
+    },
+    {
+      "seriesTitle": "Mujina into the Deep",
+      "publisher": "Tokyopop",
+      "volumeNumbers": [4],
+      "sourceUrl": null,
+      "notes": "Aus App-Coverage-Report ergänzt.",
+      "enabled": true
+    },
+    {
+      "seriesTitle": "Neck mich nicht, Nagatoro-san",
+      "publisher": "dani books",
+      "volumeNumbers": [5, 6],
+      "sourceUrl": null,
+      "notes": "Aus App-Coverage-Report ergänzt.",
+      "enabled": true
+    },
+    {
+      "seriesTitle": "Real Account",
+      "publisher": "Tokyopop",
+      "volumeNumbers": [6],
+      "sourceUrl": null,
+      "notes": "Aus App-Coverage-Report ergänzt.",
+      "enabled": true
+    },
+    {
+      "seriesTitle": "Reincarnated as a Sword: Another Wish",
+      "publisher": "Dokico",
+      "volumeNumbers": [2, 3, 4],
+      "sourceUrl": null,
+      "notes": "Aus App-Coverage-Report ergänzt.",
+      "enabled": true
+    },
+    {
+      "seriesTitle": "Spy x Family",
+      "publisher": "Crunchyroll Manga",
+      "volumeNumbers": [4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
+      "sourceUrl": null,
+      "notes": "Aus App-Coverage-Report ergänzt.",
+      "enabled": true
+    },
+    {
+      "seriesTitle": "Tokyo Revengers – Doppelband-Edition",
+      "publisher": "Carlsen Manga",
+      "volumeNumbers": [9, 10, 11, 12, 13, 14, 15, 16],
+      "sourceUrl": null,
+      "notes": "Aus App-Coverage-Report ergänzt.",
+      "enabled": true
+    },
+    {
+      "seriesTitle": "Witch and Hound",
+      "publisher": "Egmont Manga",
+      "volumeNumbers": [3, 4],
+      "sourceUrl": null,
+      "notes": "Aus App-Coverage-Report ergänzt.",
+      "enabled": true
+    },
+    {
+      "seriesTitle": "Yakuza Reincarnation",
+      "publisher": "Manga Cult",
+      "volumeNumbers": [15, 16],
+      "sourceUrl": null,
+      "notes": "Aus App-Coverage-Report ergänzt.",
+      "enabled": true
+    },
+    {
+      "seriesTitle": "Yandere Dark Elf",
+      "publisher": "MangaMoon",
+      "volumeNumbers": [3],
+      "sourceUrl": null,
+      "notes": "Aus App-Coverage-Report ergänzt.",
       "enabled": true
     }
   ]

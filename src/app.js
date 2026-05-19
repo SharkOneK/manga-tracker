@@ -3558,7 +3558,7 @@ function buildReleaseCacheCoverageReport() {
       publisher: pub,
       volumeNumbers: uncovered,
       sourceUrl: null,
-      notes: `Aus App-Coverage-Report ergänzt. Sammlungsstand: ${owned.length}/${total}.`,
+      notes: 'Aus App-Coverage-Report ergänzt.',
       enabled: true
     });
   }
