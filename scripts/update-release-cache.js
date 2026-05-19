@@ -225,16 +225,13 @@ function extractWatchlistItems(aliasMap, checkedAt) {
   }
   if (!Array.isArray(watchlist.items)) return [];
   const items = [];
-  for (const entry of watchlist.items) {
-    if (!entry || entry.enabled !== true) continue;
-    if (typeof entry.seriesTitle !== 'string' || !entry.seriesTitle.trim()) continue;
-    if (typeof entry.publisher !== 'string' || !entry.publisher.trim()) continue;
-    if (!Number.isInteger(entry.volumeNumber) || entry.volumeNumber < 1) continue;
-    console.log(`[watchlist] Prüfe: ${entry.seriesTitle} Band ${entry.volumeNumber}`);
+
+  function pushWatchlistItem(entry, volumeNumber) {
+    console.log(`[watchlist] Prüfe: ${entry.seriesTitle} Band ${volumeNumber}`);
     items.push({
       kind: 'watchlist',
       seed: {
-        key: `watchlist:${entry.seriesTitle}:${entry.volumeNumber}`,
+        key: `watchlist:${entry.seriesTitle}:${volumeNumber}`,
         title: entry.seriesTitle,
         publisher: entry.publisher,
         item: null,
@@ -244,7 +241,7 @@ function extractWatchlistItems(aliasMap, checkedAt) {
         normalizedSeriesTitle: normalizeTitle(entry.seriesTitle),
         publisher: entry.publisher,
         normalizedPublisher: normalizePublisher(entry.publisher, aliasMap),
-        volumeNumber: entry.volumeNumber,
+        volumeNumber,
         releaseDate: null,
         isbn13: null,
         coverUrl: null,
@@ -255,6 +252,27 @@ function extractWatchlistItems(aliasMap, checkedAt) {
         checkedAt,
       },
     });
+  }
+
+  for (const entry of watchlist.items) {
+    if (!entry || entry.enabled !== true) continue;
+    if (typeof entry.seriesTitle !== 'string' || !entry.seriesTitle.trim()) continue;
+    if (typeof entry.publisher !== 'string' || !entry.publisher.trim()) continue;
+
+    const hasVolumeNumber  = 'volumeNumber' in entry;
+    const hasVolumeNumbers = 'volumeNumbers' in entry;
+
+    if (hasVolumeNumber && !hasVolumeNumbers) {
+      if (!Number.isInteger(entry.volumeNumber) || entry.volumeNumber < 1) continue;
+      pushWatchlistItem(entry, entry.volumeNumber);
+    } else if (hasVolumeNumbers && !hasVolumeNumber) {
+      if (!Array.isArray(entry.volumeNumbers)) continue;
+      for (const vol of entry.volumeNumbers) {
+        if (!Number.isInteger(vol) || vol < 1) continue;
+        pushWatchlistItem(entry, vol);
+      }
+    }
+    // If both or neither are set, skip the entry (invalid schema)
   }
   return items;
 }
