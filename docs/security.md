@@ -59,9 +59,19 @@ Manuell anzuwenden:
 
 Phase 21 hat eine pragmatische CSP eingeführt.
 Phase 21b hat Inline-Handler analysiert und dokumentiert.
+Phase 21c hat die Inline-Script-Handler aus `index.html` und den dynamisch gerenderten
+Templates in `src/app.js` entfernt.
 
-Restschuld: `unsafe-inline` ist noch in der CSP enthalten (script-src und style-src).
-`index.html` enthält zahlreiche Inline-Event-Handler (onclick, oninput, onchange, onmouseover,
-onmouseout) sowie Inline-Styles. Eine vollständige Entfernung von `unsafe-inline` würde das
-komplette Umschreiben aller Inline-Handler auf Event-Delegation sowie das Auslagern aller
-Inline-Styles in CSS-Klassen erfordern. Geplant für Phase 22.
+Aktueller Stand nach Phase 21c:
+- Inline-Script-Handler (`onclick`, `oninput`, `onchange`, `onmouseover`, `onmouseout` usw.)
+  wurden durch zentrale Event-Listener und Event-Delegation ersetzt.
+- `script-src` läuft ohne `'unsafe-inline'` und ist auf `'self'` gehärtet.
+- Der statische Security-Audit schlägt fehl, falls `script-src` wieder `'unsafe-inline'`
+  enthält oder Inline-Script-Handler zurückkehren.
+
+Restschuld: `style-src 'unsafe-inline'` bleibt vorerst bewusst erlaubt, weil `index.html` und
+Templates noch Inline-Styles für Layout-/Statuswerte enthalten. Diese Restschuld ist von
+Inline-Script-Handlern getrennt und wird nur als WARN behandelt.
+
+Nächster möglicher Schritt: Inline-Styles schrittweise in CSS-Klassen bzw. Custom Properties
+überführen und danach auch `style-src 'unsafe-inline'` entfernen.
