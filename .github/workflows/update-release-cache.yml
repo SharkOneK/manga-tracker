@@ -8,6 +8,10 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: update-release-cache
+  cancel-in-progress: false
+
 jobs:
   update-release-cache:
     runs-on: ubuntu-latest

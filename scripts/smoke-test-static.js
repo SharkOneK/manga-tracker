@@ -344,6 +344,40 @@ if (!fs.existsSync(integrityTestPath)) {
   pass('scripts/test-data-integrity.js vorhanden');
 }
 
+// ── Phase 21: Sicherheits-Härtung ──────────────────────────────────────────
+console.log('\nPrüfe: Phase 21 — Sicherheits-Härtung\n');
+
+// scripts/security-audit-static.js existiert
+const securityAuditPath = path.join(repoRoot, 'scripts', 'security-audit-static.js');
+if (!fs.existsSync(securityAuditPath)) {
+  fail('scripts/security-audit-static.js nicht gefunden');
+} else {
+  pass('scripts/security-audit-static.js vorhanden');
+}
+
+// vendor/jszip.min.js existiert
+const jszipPath = path.join(repoRoot, 'vendor', 'jszip.min.js');
+if (!fs.existsSync(jszipPath)) {
+  fail('vendor/jszip.min.js nicht gefunden');
+} else {
+  pass('vendor/jszip.min.js vorhanden');
+}
+
+// docs/security.md existiert
+const securityMdPath = path.join(repoRoot, 'docs', 'security.md');
+if (!fs.existsSync(securityMdPath)) {
+  fail('docs/security.md nicht gefunden');
+} else {
+  pass('docs/security.md vorhanden');
+}
+
+// index.html enthält Content-Security-Policy
+if (!html.includes('Content-Security-Policy')) {
+  fail('index.html enthält keine Content-Security-Policy');
+} else {
+  pass('index.html: Content-Security-Policy vorhanden');
+}
+
 // ── Ergebnis ───────────────────────────────────────────────────────────────
 console.log('');
 if (totalErrors > 0) {

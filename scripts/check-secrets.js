@@ -38,10 +38,17 @@ const SCAN_TARGETS = [
   'index.html',
   'data',
   '.github',
+  'docs',
+  'scripts',
 ];
 
 // Diese Datei selbst wird ausgenommen (enthält die Muster als Quellcode)
 const SELF = path.resolve(__filename);
+
+// Ausgenommene Dateien (Dokumentation über Secrets, kein echter Secret-Inhalt)
+const EXCLUDED_FILES = new Set([
+  path.resolve(repoRoot, 'docs', 'security.md'),
+]);
 
 // Verbotene Muster: [RegExp, Beschreibung]
 // WICHTIG: Muster hier als aufgeteilte Strings angegeben,
@@ -57,14 +64,51 @@ const FORBIDDEN_PATTERNS = [
     new RegExp('eyJhbG' + 'ciOi'),
     'JWT-Token (eyJhbG...) — potentiell ein Supabase-Secret-Key',
   ],
+  [
+    // GitHub Personal Access Token (classic)
+    new RegExp('ghp' + '_[A-Za-z0-9]{36}'),
+    'ghp_... — GitHub Personal Access Token (classic)',
+  ],
+  [
+    // GitHub Personal Access Token (newer fine-grained format)
+    new RegExp('github' + '_pat_[A-Za-z0-9_]{82}'),
+    'github_pat_... — GitHub Fine-Grained Personal Access Token',
+  ],
+  [
+    // OpenAI secret key
+    new RegExp('sk-[A-Za-z0-9]{32,}'),
+    'sk-... — potentieller OpenAI API Key',
+  ],
+  [
+    // AWS Access Key ID
+    new RegExp('AKIA[0-9A-Z]{16}'),
+    'AKIA... — AWS Access Key ID',
+  ],
+  [
+    new RegExp('BEGIN PRIVATE KEY'),
+    'BEGIN PRIVATE KEY — privater Schlüssel darf nicht committed werden',
+  ],
+  [
+    new RegExp('BEGIN RSA PRIVATE KEY'),
+    'BEGIN RSA PRIVATE KEY — privater RSA-Schlüssel darf nicht committed werden',
+  ],
+  [
+    new RegExp('sb' + '_secret_'),
+    'sb_secret_... — Supabase Secret Key darf nicht committed werden',
+  ],
+  [
+    new RegExp('SUPABASE' + '_SERVICE_ROLE'),
+    'SUPABASE_SERVICE_ROLE — Service-Role-Umgebungsvariable darf nicht committed werden',
+  ],
 ];
 
-const SCAN_EXTS = new Set(['.js', '.html', '.json', '.yml', '.yaml']);
+const SCAN_EXTS = new Set(['.js', '.html', '.json', '.yml', '.yaml', '.md', '.txt']);
 
 // ── Scanner ────────────────────────────────────────────────────────────────
 
 function scanFile(filePath) {
   if (filePath === SELF) return; // sich selbst überspringen
+  if (EXCLUDED_FILES.has(path.resolve(filePath))) return; // ausgenommene Dateien überspringen
 
   const rel = path.relative(repoRoot, filePath);
   let content;
