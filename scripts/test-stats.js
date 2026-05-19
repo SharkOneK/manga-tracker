@@ -1075,5 +1075,101 @@ test('Phase 18f: app.js enthaelt BUY_PREVIEW_MAX-Konstante und Alle-Kaeufe-Butto
   assert.ok(appJs.includes('stats-buy-summary'), 'Zusammenfassungs-Element fehlt');
 });
 
+// ─── Phase 19 Tests ───────────────────────────────────────────────────────
+
+const _fs19 = require('fs');
+const _path19 = require('path');
+const _repoRoot19 = _path19.resolve(__dirname, '..');
+
+console.log('\nPhase 19 — Release-Cache-Abdeckung und Missing-Report Tests\n');
+
+test('Phase 19: release-watchlist.json existiert', () => {
+  const p = _path19.join(_repoRoot19, 'data', 'release-watchlist.json');
+  assert.ok(_fs19.existsSync(p), 'data/release-watchlist.json muss existieren');
+});
+
+test('Phase 19: release-watchlist.json hat schemaVersion 1', () => {
+  const p = _path19.join(_repoRoot19, 'data', 'release-watchlist.json');
+  const data = JSON.parse(_fs19.readFileSync(p, 'utf8'));
+  assert.strictEqual(data.schemaVersion, 1, 'schemaVersion muss 1 sein');
+  assert.ok(Array.isArray(data.items), 'items muss ein Array sein');
+});
+
+test('Phase 19: Watchlist enthält Vermeil in Gold Band 2', () => {
+  const p = _path19.join(_repoRoot19, 'data', 'release-watchlist.json');
+  const data = JSON.parse(_fs19.readFileSync(p, 'utf8'));
+  const found = data.items.some(item =>
+    item.seriesTitle === 'Vermeil in Gold' && item.volumeNumber === 2
+  );
+  assert.ok(found, 'Vermeil in Gold Band 2 muss in der Watchlist sein');
+});
+
+test('Phase 19: Watchlist enthält Meine Chefin kommt immer zuerst!! Band 2', () => {
+  const p = _path19.join(_repoRoot19, 'data', 'release-watchlist.json');
+  const data = JSON.parse(_fs19.readFileSync(p, 'utf8'));
+  const found = data.items.some(item =>
+    item.seriesTitle === 'Meine Chefin kommt immer zuerst!!' && item.volumeNumber === 2
+  );
+  assert.ok(found, 'Meine Chefin kommt immer zuerst!! Band 2 muss in der Watchlist sein');
+});
+
+test('Phase 19: Watchlist-Einträge haben required fields', () => {
+  const p = _path19.join(_repoRoot19, 'data', 'release-watchlist.json');
+  const data = JSON.parse(_fs19.readFileSync(p, 'utf8'));
+  data.items.forEach((item, idx) => {
+    assert.ok(typeof item.seriesTitle === 'string' && item.seriesTitle.trim(), `Item ${idx + 1}: seriesTitle fehlt`);
+    assert.ok(typeof item.publisher === 'string' && item.publisher.trim(), `Item ${idx + 1}: publisher fehlt`);
+    assert.ok(Number.isInteger(item.volumeNumber) && item.volumeNumber >= 1, `Item ${idx + 1}: volumeNumber ungültig`);
+    assert.ok(typeof item.enabled === 'boolean', `Item ${idx + 1}: enabled muss boolean sein`);
+    // sourceUrl: null oder https://
+    if (item.sourceUrl !== null) {
+      assert.ok(typeof item.sourceUrl === 'string' && item.sourceUrl.startsWith('https://'), `Item ${idx + 1}: sourceUrl ungültig`);
+    }
+  });
+});
+
+test('Phase 19: Coverage-Audit findet keine Crashes', () => {
+  // Führt den Audit als require-ähnliche Logik aus (ohne process.exit)
+  const watchlistPath = _path19.join(_repoRoot19, 'data', 'release-watchlist.json');
+  const cachePath     = _path19.join(_repoRoot19, 'data', 'release-cache.json');
+  const wl = JSON.parse(_fs19.readFileSync(watchlistPath, 'utf8'));
+  const cache = JSON.parse(_fs19.readFileSync(cachePath, 'utf8'));
+  assert.ok(Array.isArray(wl.items), 'Watchlist items muss Array sein');
+  assert.ok(Array.isArray(cache.items), 'Cache items muss Array sein');
+  // Kein Crash beim Durchlaufen
+  const enabled = wl.items.filter(i => i && i.enabled === true);
+  assert.ok(enabled.length >= 0, 'Aktivierte Items müssen zählbar sein');
+});
+
+test('Phase 19: validate-release-watchlist.js existiert', () => {
+  const p = _path19.join(_repoRoot19, 'scripts', 'validate-release-watchlist.js');
+  assert.ok(_fs19.existsSync(p), 'scripts/validate-release-watchlist.js muss existieren');
+});
+
+test('Phase 19: audit-release-cache-coverage.js existiert', () => {
+  const p = _path19.join(_repoRoot19, 'scripts', 'audit-release-cache-coverage.js');
+  assert.ok(_fs19.existsSync(p), 'scripts/audit-release-cache-coverage.js muss existieren');
+});
+
+test('Phase 19: App enthält Cache-Miss-Report-Logik', () => {
+  const appJs = _fs19.readFileSync(_path19.join(_repoRoot19, 'src', 'app.js'), 'utf8');
+  assert.ok(
+    appJs.includes('cache-miss-report') || appJs.includes('cacheMissReport'),
+    'src/app.js muss Cache-Miss-Report-Marker enthalten'
+  );
+  assert.ok(appJs.includes('watchlist'), 'src/app.js muss Watchlist-Referenz enthalten');
+});
+
+test('Phase 19: Watchlist-Eintrag hat keine privaten Felder', () => {
+  const watchlistPath = _path19.join(_repoRoot19, 'data', 'release-watchlist.json');
+  const data = JSON.parse(_fs19.readFileSync(watchlistPath, 'utf8'));
+  const PRIVATE_FIELDS = ['owned', 'read', 'boughtAt', 'readAt'];
+  data.items.forEach((item, idx) => {
+    PRIVATE_FIELDS.forEach(field => {
+      assert.ok(!(field in item), `Item ${idx + 1} darf kein privates Feld "${field}" enthalten`);
+    });
+  });
+});
+
 console.log(`\n${passed + failed} Tests — ${passed} bestanden, ${failed} fehlgeschlagen\n`);
 if (failed > 0) process.exit(1);

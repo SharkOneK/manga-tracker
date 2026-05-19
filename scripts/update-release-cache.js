@@ -17,6 +17,7 @@ const path = require('path');
 const repoRoot = path.resolve(__dirname, '..');
 const cacheFile = path.join(repoRoot, 'data', 'release-cache.json');
 const sourcesFile = path.join(repoRoot, 'data', 'release-sources.json');
+const watchlistFile = path.join(repoRoot, 'data', 'release-watchlist.json');
 const appFile = path.join(repoRoot, 'src', 'app.js');
 const MP_API = 'https://api.manga-passion.de';
 
@@ -211,6 +212,51 @@ function extractVolumeNumber(seed) {
 
   if (Number.isInteger(fallback) && fallback > 0) return fallback;
   return 1;
+}
+
+function extractWatchlistItems(aliasMap, checkedAt) {
+  if (!fs.existsSync(watchlistFile)) return [];
+  let watchlist;
+  try {
+    watchlist = readJson(watchlistFile);
+  } catch (e) {
+    console.warn('[watchlist] Watchlist nicht lesbar:', e.message);
+    return [];
+  }
+  if (!Array.isArray(watchlist.items)) return [];
+  const items = [];
+  for (const entry of watchlist.items) {
+    if (!entry || entry.enabled !== true) continue;
+    if (typeof entry.seriesTitle !== 'string' || !entry.seriesTitle.trim()) continue;
+    if (typeof entry.publisher !== 'string' || !entry.publisher.trim()) continue;
+    if (!Number.isInteger(entry.volumeNumber) || entry.volumeNumber < 1) continue;
+    console.log(`[watchlist] Prüfe: ${entry.seriesTitle} Band ${entry.volumeNumber}`);
+    items.push({
+      kind: 'watchlist',
+      seed: {
+        key: `watchlist:${entry.seriesTitle}:${entry.volumeNumber}`,
+        title: entry.seriesTitle,
+        publisher: entry.publisher,
+        item: null,
+      },
+      item: {
+        seriesTitle: entry.seriesTitle,
+        normalizedSeriesTitle: normalizeTitle(entry.seriesTitle),
+        publisher: entry.publisher,
+        normalizedPublisher: normalizePublisher(entry.publisher, aliasMap),
+        volumeNumber: entry.volumeNumber,
+        releaseDate: null,
+        isbn13: null,
+        coverUrl: null,
+        sourceUrl: entry.sourceUrl || null,
+        sourceName: 'watchlist',
+        confidence: 'low',
+        notes: entry.notes || 'Aus release-watchlist.json übernommen; noch nicht bestätigt.',
+        checkedAt,
+      },
+    });
+  }
+  return items;
 }
 
 function extractAppSeedItems(aliasMap, checkedAt) {
@@ -508,9 +554,19 @@ async function main() {
     if (validCacheItem(seed.item) && mergeCandidate(map, seed.item, 'app-seed')) stats.appSeedsAddedOrKept++;
   }
 
+  // Watchlist-Einträge als Kandidaten einbinden (Phase 19)
+  const watchlistItems = extractWatchlistItems(aliasMap, startedAt);
+  const watchlistSeedsForMp = [];
+  for (const wl of watchlistItems) {
+    // Watchlist-Items haben kein Datum → werden nur als MP-Kandidaten verwendet, nicht direkt übernommen
+    watchlistSeedsForMp.push(wl);
+  }
+
   const mpSource = Array.isArray(sources.sources) ? sources.sources.find(s => s.id === 'manga-passion' && s.enabled !== false) : null;
   if (mpSource) {
-    const bounded = appSeeds.slice(0, policy.maxItemsPerSource);
+    const appSeedsBounded = appSeeds.slice(0, policy.maxItemsPerSource);
+    const watchlistBounded = watchlistSeedsForMp.slice(0, Math.max(0, policy.maxItemsPerSource - appSeedsBounded.length));
+    const bounded = [...appSeedsBounded, ...watchlistBounded];
     console.log(`Manga Passion: prüfe ${bounded.length} app-seed Kandidat(en), Delay ${policy.minDelayMs}ms, Timeout ${policy.timeoutMs}ms`);
     for (const seed of bounded) {
       const mpItem = await tryMangaPassion(seed, aliasMap, policy, startedAt);

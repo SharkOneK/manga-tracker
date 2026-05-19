@@ -230,6 +230,68 @@ if (fs.existsSync(appJsPath)) {
   fail('src/app.js nicht gefunden');
 }
 
+// ── Phase 19: Release-Cache-Abdeckung und Missing-Report ──────────────────
+const workflowPath = path.join(repoRoot, '.github', 'workflows', 'update-release-cache.yml');
+console.log('\nPrüfe: Phase 19 — Release-Watchlist und Cache-Coverage\n');
+
+// data/release-watchlist.json
+const watchlistPath = path.join(repoRoot, 'data', 'release-watchlist.json');
+if (!fs.existsSync(watchlistPath)) {
+  fail('data/release-watchlist.json nicht gefunden');
+} else {
+  pass('data/release-watchlist.json vorhanden');
+}
+
+// scripts/validate-release-watchlist.js
+const validateWatchlistPath = path.join(repoRoot, 'scripts', 'validate-release-watchlist.js');
+if (!fs.existsSync(validateWatchlistPath)) {
+  fail('scripts/validate-release-watchlist.js nicht gefunden');
+} else {
+  pass('scripts/validate-release-watchlist.js vorhanden');
+}
+
+// scripts/audit-release-cache-coverage.js
+const auditCoveragePath = path.join(repoRoot, 'scripts', 'audit-release-cache-coverage.js');
+if (!fs.existsSync(auditCoveragePath)) {
+  fail('scripts/audit-release-cache-coverage.js nicht gefunden');
+} else {
+  pass('scripts/audit-release-cache-coverage.js vorhanden');
+}
+
+// Workflow-Datei enthält validate-release-watchlist
+if (!fs.existsSync(workflowPath)) {
+  fail('update-release-cache.yml nicht gefunden');
+} else {
+  const workflowContent = fs.readFileSync(workflowPath, 'utf-8');
+  if (!workflowContent.includes('validate-release-watchlist')) {
+    fail('update-release-cache.yml enthält keinen validate-release-watchlist Step');
+  } else {
+    pass('update-release-cache.yml: validate-release-watchlist Step vorhanden');
+  }
+  if (!workflowContent.includes('audit-release-cache-coverage')) {
+    fail('update-release-cache.yml enthält keinen audit-release-cache-coverage Step');
+  } else {
+    pass('update-release-cache.yml: audit-release-cache-coverage Step vorhanden');
+  }
+}
+
+// src/app.js enthält Cache-Miss-Report-Marker
+if (fs.existsSync(appJsPath)) {
+  const appJsPhase19 = fs.readFileSync(appJsPath, 'utf-8');
+  if (!appJsPhase19.includes('cache-miss-report') && !appJsPhase19.includes('cacheMissReport')) {
+    fail('src/app.js: Cache-Miss-Report-Marker fehlt (cache-miss-report oder cacheMissReport)');
+  } else {
+    pass('src/app.js: Cache-Miss-Report-Marker vorhanden');
+  }
+  if (!appJsPhase19.includes('watchlist')) {
+    fail('src/app.js: Watchlist-Marker fehlt');
+  } else {
+    pass('src/app.js: Watchlist-Marker vorhanden');
+  }
+} else {
+  fail('src/app.js nicht gefunden (bereits oben gemeldet)');
+}
+
 // ── Ergebnis ───────────────────────────────────────────────────────────────
 console.log('');
 if (totalErrors > 0) {

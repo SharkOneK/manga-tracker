@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "items": [
+    {
+      "seriesTitle": "Vermeil in Gold",
+      "publisher": "Manga Cult",
+      "volumeNumber": 2,
+      "sourceUrl": null,
+      "notes": "Aus App-Cache-Miss ergänzt.",
+      "enabled": true
+    },
+    {
+      "seriesTitle": "Meine Chefin kommt immer zuerst!!",
+      "publisher": "Manga Cult",
+      "volumeNumber": 2,
+      "sourceUrl": null,
+      "notes": "Aus App-Cache-Miss ergänzt.",
+      "enabled": true
+    }
+  ]
+}
