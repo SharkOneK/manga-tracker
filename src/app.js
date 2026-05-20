@@ -264,7 +264,7 @@ function renderBandMgr() {
   const c = document.getElementById('band-mgr');
   const sorted = Object.entries(modalBands).sort(([a],[b]) => Number(a)-Number(b));
   if (!sorted.length) {
-    c.innerHTML = `<div style="color:var(--text-muted);font-size:0.78rem;padding:6px 0">Noch keine Bände eingetragen</div>`;
+    c.innerHTML = `<div class="band-empty-note">Noch keine Bände eingetragen</div>`;
     return;
   }
   c.innerHTML = sorted.map(([nr, st]) => {
@@ -555,7 +555,7 @@ function volumeRow(v) {
   const c = colorFor(v.title);
   const bandCover = safeHttpsUrl((v.bandCovers || {})[String(v._band)] || v.cover);
   return `<div class="vol-row" data-action="open-edit" data-manga-id="${escapeHtml(v.id)}">
-    <div class="vol-cover" style="background:${c}">
+    <div class="vol-cover" data-style-background="${c}">
       ${bandCover ? `<img src="${bandCover}" alt="" loading="lazy" data-remove-on-error="true">` : ''}
       <div class="vol-cover-gradient"></div>
       <div class="vol-band-badge">Band ${v._band}</div>
@@ -576,14 +576,39 @@ function coverEl(m, size = 'full', bandNr = null) {
                         : (bc['1'] || m.cover);
   const img = safeHttpsUrl(rawImg);
   if (size === 'full') {
-    return `<div class="cover" style="background:${c}">
+    return `<div class="cover" data-style-background="${c}">
       ${img ? `<img src="${img}" alt="" loading="lazy" data-remove-on-error="true">` : ''}
       <div class="cover-gradient"></div>
     </div>`;
   }
-  return `<div class="mini-cover" style="background:${c}">
+  return `<div class="mini-cover" data-style-background="${c}">
     ${img ? `<img src="${img}" alt="" loading="lazy" data-remove-on-error="true">` : ''}
   </div>`;
+}
+
+function applyDeferredStyles(root = document) {
+  root.querySelectorAll?.('[data-style-background]').forEach(el => {
+    el.style.background = el.dataset.styleBackground;
+  });
+  root.querySelectorAll?.('[data-style-width]').forEach(el => {
+    el.style.width = el.dataset.styleWidth;
+  });
+  root.querySelectorAll?.('[data-style-height]').forEach(el => {
+    el.style.height = el.dataset.styleHeight;
+  });
+}
+
+function bindDeferredStyleObserver() {
+  applyDeferredStyles(document);
+  const observer = new MutationObserver(mutations => {
+    mutations.forEach(mutation => {
+      mutation.addedNodes.forEach(node => {
+        if (node.nodeType !== Node.ELEMENT_NODE) return;
+        applyDeferredStyles(node);
+      });
+    });
+  });
+  observer.observe(document.body, { childList: true, subtree: true });
 }
 
 function mangaCard(m) {
@@ -602,7 +627,7 @@ function mangaCard(m) {
   const wishBadge = mSeriesStatus(m) === 'wishlist' ? `<div class="wishlist-badge">💜 Wunsch</div>` : '';
 
   return `<div class="manga-card"${isPublicReadOnly() ? '' : ` data-action="open-edit" data-manga-id="${escapeHtml(m.id)}"`}>
-    <div style="position:relative">
+    <div class="cover-stack">
       ${coverEl(m)}
       ${readingBadge}
       ${wishBadge}
@@ -611,7 +636,7 @@ function mangaCard(m) {
       <div class="card-title">${m.title}</div>
       <div class="card-pub">${m.pub || 'Unbekannt'} ${statusPill}</div>
       <div class="card-vols">${volText}</div>
-      ${hasProg ? `<div class="progress"><div class="progress-fill" style="width:${prog}%"></div></div>` : ''}
+      ${hasProg ? `<div class="progress"><div class="progress-fill" data-style-width="${prog}%"></div></div>` : ''}
       ${(m.genres||[]).length ? `<div class="card-genres">${(m.genres).map(g=>`<span class="card-genre">${g}</span>`).join('')}</div>` : ''}
       ${(m.startedAt||m.finishedAt) ? `<div class="card-dates">${m.startedAt?'📖 '+new Date(m.startedAt+'T00:00:00').toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit',year:'numeric'}):''}${m.startedAt&&m.finishedAt?' – ':''}${m.finishedAt?'✅ '+new Date(m.finishedAt+'T00:00:00').toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit',year:'numeric'}):''}</div>`:''}
       <button class="share-btn" data-action="share-manga" data-manga-id="${escapeHtml(m.id)}" title="Empfehlung teilen">📤</button>
@@ -694,7 +719,7 @@ async function fetchAniList(query) {
 function renderDbResults() {
   const el = document.getElementById('db-results');
   if (!_dbResults.length) {
-    el.innerHTML = '<div style="padding:12px;color:var(--text-muted);font-size:0.8rem;text-align:center">Keine Ergebnisse</div>';
+    el.innerHTML = '<div class="db-no-results">Keine Ergebnisse</div>';
     el.style.display = 'block'; return;
   }
   el.style.display = 'block';
@@ -1264,7 +1289,7 @@ function renderDashboard() {
               <span>Kauf-Fortschritt: ${totalVols} von ${totalKnown} Bänden</span>
               <span class="stat-progress-pct">${buyProgress} %</span>
             </div>
-            <div class="progress stat-progress-bar"><div class="progress-fill" style="width:${buyProgress}%"></div></div>
+            <div class="progress stat-progress-bar"><div class="progress-fill" data-style-width="${buyProgress}%"></div></div>
           </div>`
         : `<p class="stat-progress-na">Kauf-Fortschritt nicht berechenbar</p>`}
     </div>
@@ -1283,22 +1308,22 @@ function renderDashboard() {
       <div class="bar-chart">
         <div class="bar-row">
           <div class="bar-label">Zu lesen</div>
-          <div class="bar-track"><div class="bar-fill" style="width:${Math.round(statusCounts.owned/statusMax*100)}%"></div></div>
+          <div class="bar-track"><div class="bar-fill" data-style-width="${Math.round(statusCounts.owned/statusMax*100)}%"></div></div>
           <div class="bar-val">${statusCounts.owned}</div>
         </div>
         <div class="bar-row">
           <div class="bar-label">Lese ich</div>
-          <div class="bar-track"><div class="bar-fill" style="width:${Math.round(statusCounts.reading/statusMax*100)}%;background:#10b981"></div></div>
+          <div class="bar-track"><div class="bar-fill bar-fill-success" data-style-width="${Math.round(statusCounts.reading/statusMax*100)}%"></div></div>
           <div class="bar-val">${statusCounts.reading}</div>
         </div>
         <div class="bar-row">
           <div class="bar-label">Gelesen</div>
-          <div class="bar-track"><div class="bar-fill" style="width:${Math.round(statusCounts.completed/statusMax*100)}%;background:#7c3aed"></div></div>
+          <div class="bar-track"><div class="bar-fill bar-fill-purple" data-style-width="${Math.round(statusCounts.completed/statusMax*100)}%"></div></div>
           <div class="bar-val">${statusCounts.completed}</div>
         </div>
         <div class="bar-row">
           <div class="bar-label">Wunschliste</div>
-          <div class="bar-track"><div class="bar-fill" style="width:${Math.round(statusCounts.wishlist/statusMax*100)}%;background:#ec4899"></div></div>
+          <div class="bar-track"><div class="bar-fill bar-fill-pink" data-style-width="${Math.round(statusCounts.wishlist/statusMax*100)}%"></div></div>
           <div class="bar-val">${statusCounts.wishlist}</div>
         </div>
       </div>
@@ -1367,7 +1392,7 @@ function renderDashboard() {
       <h3>Monatliche Aktivität ${year}</h3>
       <div class="month-chart">
         ${MONATE.map((m,i)=>`<div class="month-col">
-          <div class="month-bar" style="height:${Math.round(monthCount[i]/maxMonth*100)}%" title="${monthCount[i]} abgeschlossen"></div>
+          <div class="month-bar" data-style-height="${Math.round(monthCount[i]/maxMonth*100)}%" title="${monthCount[i]} abgeschlossen"></div>
           <div class="month-lbl">${m}</div>
         </div>`).join('')}
       </div>
@@ -1378,7 +1403,7 @@ function renderDashboard() {
       <div class="bar-chart">
         ${pubEntries.map(([p,n])=>`<div class="bar-row">
           <div class="bar-label">${p}</div>
-          <div class="bar-track"><div class="bar-fill" style="width:${Math.round(n/maxPub*100)}%"></div></div>
+          <div class="bar-track"><div class="bar-fill" data-style-width="${Math.round(n/maxPub*100)}%"></div></div>
           <div class="bar-val">${n}</div>
         </div>`).join('')}
       </div>
@@ -1389,7 +1414,7 @@ function renderDashboard() {
       <div class="bar-chart">
         ${genreEntries.map(([g,n])=>`<div class="bar-row">
           <div class="bar-label">${g}</div>
-          <div class="bar-track"><div class="bar-fill" style="width:${Math.round(n/maxGenre*100)}%;background:#7c3aed"></div></div>
+          <div class="bar-track"><div class="bar-fill bar-fill-purple" data-style-width="${Math.round(n/maxGenre*100)}%"></div></div>
           <div class="bar-val">${n}</div>
         </div>`).join('')}
       </div>
@@ -1472,12 +1497,12 @@ const SCHEMA_VERSION = 2;
 function renderImportExport() {
   return `<div class="stats-section">
     <h3>Import / Export</h3>
-    <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px">
-      <button class="add-btn" data-action="export-json" style="background:#1e40af;padding:9px 14px;font-size:0.82rem">💾 JSON-Backup</button>
-      <button class="add-btn" data-action="trigger-import" style="background:#065f46;padding:9px 14px;font-size:0.82rem">📂 Importieren</button>
-      <button class="add-btn" data-action="export-obsidian" style="background:#5b21b6;padding:9px 14px;font-size:0.82rem">📦 Obsidian-Export (ZIP)</button>
+    <div class="import-export-actions">
+      <button class="add-btn export-json-btn" data-action="export-json">💾 JSON-Backup</button>
+      <button class="add-btn import-json-btn" data-action="trigger-import">📂 Importieren</button>
+      <button class="add-btn export-obsidian-btn" data-action="export-obsidian">📦 Obsidian-Export (ZIP)</button>
     </div>
-    <p style="color:var(--text-muted);font-size:0.75rem;margin:0">Vor dem Import wird automatisch ein lokales Backup heruntergeladen. Supabase bleibt die einzige Cloud-Sync-Lösung.</p>
+    <p class="import-export-note">Vor dem Import wird automatisch ein lokales Backup heruntergeladen. Supabase bleibt die einzige Cloud-Sync-Lösung.</p>
   </div>`;
 }
 
@@ -1959,7 +1984,7 @@ function render() {
         <div class="empty-icon">💜</div>
         <h3>Wunschliste ist leer</h3>
         <p>Füge Serien hinzu, die du noch kaufen oder starten möchtest.<br>Beim Bearbeiten einfach „Auf Wunschliste setzen" anhaken.</p>
-        <button class="add-btn" data-action="open-add" style="margin:0 auto;display:flex">＋ Manga hinzufügen</button>
+        <button class="add-btn centered-add-btn" data-action="open-add">＋ Manga hinzufügen</button>
       </div>`;
       return;
     }
@@ -2024,7 +2049,7 @@ function render() {
       <div class="empty-icon">${ic}</div>
       <h3>${tt}</h3>
       <p>${sub}</p>
-      <button class="add-btn" data-action="open-add" style="margin:0 auto;display:flex">＋ Manga hinzufügen</button>
+      <button class="add-btn centered-add-btn" data-action="open-add">＋ Manga hinzufügen</button>
     </div>`;
     return;
   }
@@ -2553,9 +2578,9 @@ function buildReleasePreview(m) {
   if (!matches.length) {
     // Serie abgeschlossen und vollständig → eigene Meldung, kein Cache-Fehler
     if (m.ongoing === 'false' && mFirstMissingBand(m) === null) {
-      return `<div style="color:var(--text-muted);padding:16px 0;text-align:center;font-size:0.88rem">
+      return `<div class="release-preview-empty">
         Serie abgeschlossen — alle ${mOwned(m)} Bände vorhanden.<br>
-        <span style="font-size:0.78rem">Kein nächster Band erwartet.</span>
+        <span class="release-preview-small">Kein nächster Band erwartet.</span>
       </div>`;
     }
     const nextVol = mFirstMissingBand(m) ?? mNextBand(m);
@@ -2569,16 +2594,16 @@ function buildReleasePreview(m) {
       source: 'app-preview',
     };
     const reportJson = JSON.stringify(cacheMissReport, null, 2);
-    return `<div style="color:var(--text-muted);padding:16px 0;text-align:center;font-size:0.88rem">
+    return `<div class="release-preview-empty">
       Keine passenden Einträge in release-cache.json für<br>
       <strong>${m.title}</strong> Band ${nextVol} gefunden.<br>
-      <span style="font-size:0.78rem">Normalisierter Titel: "${normalizeReleaseTitle(m.title)}"</span><br>
-      <span style="font-size:0.78rem">Bekannte Watchlist- und Review-Queue-Fälle werden durch die automatische Pipeline verarbeitet. Diese Modal-Ansicht ist nur Diagnose.</span>
+      <span class="release-preview-small">Normalisierter Titel: "${normalizeReleaseTitle(m.title)}"</span><br>
+      <span class="release-preview-small">Bekannte Watchlist- und Review-Queue-Fälle werden durch die automatische Pipeline verarbeitet. Diese Modal-Ansicht ist nur Diagnose.</span>
     </div>
-    <details class="cache-miss-report" style="margin-top:12px;padding:12px;border:1px solid var(--border);border-radius:6px;text-align:left;font-size:0.8rem">
-      <summary style="cursor:pointer;font-weight:700">Diagnose-JSON anzeigen</summary>
-      <pre style="font-size:0.72rem;overflow:auto;background:var(--bg2,#f5f5f5);padding:8px;border-radius:4px;margin:8px 0">${reportJson.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</pre>
-      <button type="button" style="font-size:0.78rem;padding:4px 10px;cursor:pointer" data-action="copy-text" data-clipboard="${escapeHtml(reportJson)}">Diagnose-JSON kopieren</button>
+    <details class="cache-miss-report">
+      <summary class="cache-miss-summary">Diagnose-JSON anzeigen</summary>
+      <pre class="cache-miss-json">${reportJson.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</pre>
+      <button type="button" class="copy-diagnostics-btn" data-action="copy-text" data-clipboard="${escapeHtml(reportJson)}">Diagnose-JSON kopieren</button>
     </details>`;
   }
   const confLabel = { high: '✓ Verifiziert', medium: '~ Wahrscheinlich', low: '? Unsicher' };
@@ -2594,39 +2619,39 @@ function buildReleasePreview(m) {
     const chkIsbn  = hasNewIsbn  && !hasCurrIsbn;
     const chkCover = hasNewCover && !hasCurrCover;
     const src = [item.sourceName, confLabel[item.confidence] || item.confidence].filter(Boolean).join(' · ');
-    return `<div class="release-match-item" data-match-idx="${idx}" style="padding:4px 0">
-      <div style="font-weight:700;font-size:0.9rem;margin-bottom:4px">${m.title} — Band ${item.volumeNumber}</div>
-      <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:10px">Quelle: ${src}</div>
+    return `<div class="release-match-item" data-match-idx="${idx}">
+      <div class="release-match-title">${m.title} — Band ${item.volumeNumber}</div>
+      <div class="release-match-source">Quelle: ${src}</div>
 
-      ${hasNewDate ? `<label style="display:flex;align-items:center;gap:8px;margin-bottom:8px;cursor:pointer;font-size:0.82rem">
-        <input type="checkbox" class="release-check-date" ${chkDate ? 'checked' : ''} style="width:15px;height:15px;accent-color:#7c3aed;cursor:pointer;flex-shrink:0">
+      ${hasNewDate ? `<label class="release-check-label">
+        <input type="checkbox" class="release-check-date release-field-checkbox" ${chkDate ? 'checked' : ''}>
         <span>Erscheinungsdatum:
-          <span style="color:var(--text-muted);${hasCurrDate ? 'text-decoration:line-through' : ''}">${hasCurrDate ? m.nextDate : 'leer'}</span>
-          <span style="color:#10b981;font-weight:700"> → ${item.releaseDate}</span>
+          <span class="release-old-value${hasCurrDate ? ' old-value' : ''}">${hasCurrDate ? m.nextDate : 'leer'}</span>
+          <span class="release-new-value"> → ${item.releaseDate}</span>
         </span>
       </label>` : ''}
 
-      ${hasNewIsbn ? `<label style="display:flex;align-items:center;gap:8px;margin-bottom:8px;cursor:pointer;font-size:0.82rem">
-        <input type="checkbox" class="release-check-isbn" ${chkIsbn ? 'checked' : ''} style="width:15px;height:15px;accent-color:#7c3aed;cursor:pointer;flex-shrink:0">
+      ${hasNewIsbn ? `<label class="release-check-label">
+        <input type="checkbox" class="release-check-isbn release-field-checkbox" ${chkIsbn ? 'checked' : ''}>
         <span>ISBN-13:
-          <span style="color:var(--text-muted);${hasCurrIsbn ? 'text-decoration:line-through' : ''}">${hasCurrIsbn ? (m.isbn13 || 'vorhanden') : 'leer'}</span>
-          <span style="color:#10b981;font-weight:700"> → ${item.isbn13}</span>
+          <span class="release-old-value${hasCurrIsbn ? ' old-value' : ''}">${hasCurrIsbn ? (m.isbn13 || 'vorhanden') : 'leer'}</span>
+          <span class="release-new-value"> → ${item.isbn13}</span>
         </span>
       </label>` : ''}
 
-      ${hasNewCover ? `<label style="display:flex;align-items:center;gap:8px;margin-bottom:8px;cursor:pointer;font-size:0.82rem">
-        <input type="checkbox" class="release-check-cover" ${chkCover ? 'checked' : ''} style="width:15px;height:15px;accent-color:#7c3aed;cursor:pointer;flex-shrink:0">
+      ${hasNewCover ? `<label class="release-check-label">
+        <input type="checkbox" class="release-check-cover release-field-checkbox" ${chkCover ? 'checked' : ''}>
         <span>Band-Cover (Band ${item.volumeNumber}):
-          <span style="color:var(--text-muted)">${hasCurrCover ? 'bereits vorhanden' : 'leer'}</span>
-          <span style="color:#10b981;font-weight:700"> → neues Cover</span>
+          <span class="release-old-value">${hasCurrCover ? 'bereits vorhanden' : 'leer'}</span>
+          <span class="release-new-value"> → neues Cover</span>
         </span>
       </label>` : ''}
 
       ${!hasNewDate && !hasNewIsbn && !hasNewCover
-        ? `<div style="color:var(--text-muted);font-size:0.8rem">Keine übernehmenden Felder im Cache (Datum, ISBN und Cover sind leer).</div>`
+        ? `<div class="release-no-fields">Keine übernehmenden Felder im Cache (Datum, ISBN und Cover sind leer).</div>`
         : ''}
     </div>`;
-  }).join('<hr style="border:none;border-top:1px solid var(--border);margin:12px 0">');
+  }).join('<hr class="release-match-separator">');
 }
 
 // Rendert Vorschau-HTML in den Preview-Body
