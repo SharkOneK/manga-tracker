@@ -573,6 +573,26 @@ header h1 .jp { color: #e8405a; }
 .vol-info { padding: 7px 9px 8px; }
 .vol-title { font-weight: 700; font-size: 0.8rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .vol-pub { font-size: 0.68rem; color: var(--text-muted); margin-top: 2px; }
+.vol-status-pill {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  margin-top: 6px;
+  padding: 3px 7px;
+  border-radius: 999px;
+  font-size: 0.66rem;
+  font-weight: 800;
+}
+.vol-status-pill.st-owned { background: #f0fdf4; color: #16a34a; }
+.vol-status-pill.st-reading { background: #fef3c7; color: #d97706; }
+.vol-status-pill.st-completed { background: #eff6ff; color: #2563eb; }
+.vol-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 8px;
+}
+.vol-actions .btn-xs { font-size: 0.66rem; padding: 4px 7px; }
 
 /* ── Band Manager (Modal) ── */
 .band-mgr-list { display: flex; flex-direction: column; gap: 5px; margin-bottom: 6px; max-height: 180px; overflow-y: auto; }
@@ -657,6 +677,9 @@ body.dark .modal-footer  { border-color: #374151; }
 body.dark .band-status-btn.st-owned    { background: #052e16; border-color: #166534; color: #86efac; }
 body.dark .band-status-btn.st-reading  { background: #451a03; border-color: #92400e; color: #fcd34d; }
 body.dark .band-status-btn.st-completed{ background: #1e3a5f; border-color: #1d4ed8; color: #93c5fd; }
+body.dark .vol-status-pill.st-owned { background: #052e16; color: #86efac; }
+body.dark .vol-status-pill.st-reading { background: #451a03; color: #fcd34d; }
+body.dark .vol-status-pill.st-completed { background: #1e3a5f; color: #93c5fd; }
 
 .card-dates   { font-size: 0.68rem; color: var(--text-muted); margin-top: 3px; }
 .share-btn    { background: none; border: none; font-size: 0.8rem; cursor: pointer; padding: 2px 0; margin-top: 2px;

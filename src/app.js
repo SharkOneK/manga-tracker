@@ -481,7 +481,7 @@ function setView(mode) {
   viewMode = mode;
   document.getElementById('vbtn-series').classList.toggle('active', mode === 'series');
   document.getElementById('vbtn-volumes').classList.toggle('active', mode === 'volumes');
-  document.getElementById('view-toggle').style.display = (tab === 'buy' || tab === 'wishlist') ? 'none' : 'flex';
+  document.getElementById('view-toggle').style.display = (tab === 'buy' || tab === 'wishlist' || tab === 'owned' || tab === 'reading') ? 'none' : 'flex';
   render();
 }
 
@@ -551,22 +551,96 @@ function bandStatus(m, bandNr) {
   return (m.bands || {})[String(bandNr)] || 'owned';
 }
 
+function countBandStatuses() {
+  const cnt = { owned: 0, reading: 0, completed: 0 };
+  db.m.forEach(m => {
+    Object.values(m.bands || {}).forEach(st => {
+      if (cnt[st] !== undefined) cnt[st]++;
+    });
+  });
+  return cnt;
+}
+
+function bandEntriesForStatus(status, list = db.m) {
+  const vols = [];
+  list.forEach(m => {
+    Object.entries(m.bands || {}).forEach(([bandNr, st]) => {
+      if (st === status) vols.push({ ...m, _band: Number(bandNr), _bandStatus: st });
+    });
+  });
+  return vols;
+}
+
+function sortVolumeEntries(vols) {
+  return vols.slice().sort((a, b) => {
+    if (sortMode === 'za') { const t = b.title.localeCompare(a.title,'de'); return t !== 0 ? t : a._band - b._band; }
+    if (sortMode === 'added') { const t = (b.at||0)-(a.at||0); return t !== 0 ? t : a._band - b._band; }
+    const t = a.title.localeCompare(b.title,'de'); return t !== 0 ? t : a._band - b._band;
+  });
+}
+
+function volumeActions(v) {
+  if (!canEditLocal()) return '';
+  const id = escapeHtml(v.id);
+  const band = escapeHtml(v._band);
+  const buttons = [];
+  if (v._bandStatus !== 'reading') {
+    buttons.push(`<button class="btn-xs btn-edit" data-action="set-band-status" data-manga-id="${id}" data-band-nr="${band}" data-status="reading">Lese ich</button>`);
+  }
+  if (v._bandStatus !== 'owned') {
+    buttons.push(`<button class="btn-xs btn-edit" data-action="set-band-status" data-manga-id="${id}" data-band-nr="${band}" data-status="owned">Zu lesen</button>`);
+  }
+  if (v._bandStatus !== 'completed') {
+    buttons.push(`<button class="btn-xs btn-buy" data-action="set-band-status" data-manga-id="${id}" data-band-nr="${band}" data-status="completed">Gelesen ✓</button>`);
+  }
+  buttons.push(`<button class="btn-xs btn-edit" data-action="open-edit" data-manga-id="${id}">Bearbeiten</button>`);
+  return `<div class="vol-actions">${buttons.join('')}</div>`;
+}
+
 function volumeRow(v) {
   const c = colorFor(v.title);
   const bandCover = safeHttpsUrl((v.bandCovers || {})[String(v._band)] || v.cover);
-  return `<div class="vol-row" data-action="open-edit" data-manga-id="${escapeHtml(v.id)}">
+  const clickAttrs = isPublicReadOnly() ? '' : ` data-action="open-edit" data-manga-id="${escapeHtml(v.id)}"`;
+  const status = v._bandStatus || bandStatus(v, v._band);
+  return `<div class="vol-row"${clickAttrs}>
     <div class="vol-cover" data-style-background="${c}">
-      ${bandCover ? `<img src="${bandCover}" alt="" loading="lazy" data-remove-on-error="true">` : ''}
+      ${bandCover ? `<img src="${bandCover}" alt="" loading="lazy" data-remove-on-error="true">` : `<div class="vol-cover-letter">${escapeHtml((v.title || '?').slice(0,1).toUpperCase())}</div>`}
       <div class="vol-cover-gradient"></div>
       <div class="vol-band-badge">Band ${v._band}</div>
     </div>
     <div class="vol-info">
-      <div class="vol-title">${v.title}</div>
-      <div class="vol-pub">${v.pub || ''}</div>
+      <div class="vol-title">${escapeHtml(v.title)}</div>
+      <div class="vol-pub">${escapeHtml(v.pub || 'Unbekannt')}</div>
+      <div class="vol-status-pill st-${escapeHtml(status)}">${ST_LABEL[status] || escapeHtml(status)}</div>
+      ${volumeActions({ ...v, _bandStatus: status })}
     </div>
   </div>`;
 }
 
+function renderBandStatusList(status, el, hint) {
+  document.getElementById('view-toggle').style.display = 'none';
+  const all = bandEntriesForStatus(status, applyPubFilter(db.m));
+  const filtered = sortVolumeEntries(bandEntriesForStatus(status, applySearch(applyPubFilter(db.m))));
+  if (searchQ) hint.textContent = `${filtered.length} von ${all.length} Band${all.length!==1?'e':''}`;
+  else {
+    const serienCount = new Set(all.map(v => v.id)).size;
+    hint.textContent = all.length ? `${all.length} Band${all.length!==1?'e':''} aus ${serienCount} Serie${serienCount!==1?'n':''}` : '';
+  }
+  if (!all.length) {
+    const emptyInfo = {
+      reading: ['📖', 'Kein Band aktuell in Bearbeitung', 'Setze einen Band auf „Lese ich“, dann erscheint er hier.'],
+      owned: ['📚', 'Keine ungelesenen Bände zum Lesen', 'Gekaufte, noch ungelesene Bände erscheinen hier.'],
+    };
+    const [ic, tt, sub] = emptyInfo[status] || ['📦','Leer',''];
+    el.innerHTML = `<div class="empty"><div class="empty-icon">${ic}</div><h3>${tt}</h3><p>${sub}</p></div>`;
+    return;
+  }
+  if (!filtered.length) {
+    el.innerHTML = `<div class="empty"><div class="empty-icon">🔍</div><h3>Keine Treffer für „${searchQ}"</h3><p>Versuche einen anderen Suchbegriff.</p></div>`;
+    return;
+  }
+  el.innerHTML = `<div class="vol-list">${filtered.map(volumeRow).join('')}</div>`;
+}
 // ─── Render helpers ───────────────────────────────────────────────────────
 function coverEl(m, size = 'full', bandNr = null) {
   const c = colorFor(m.title);
@@ -1879,14 +1953,14 @@ function render() {
   // counts (derived from bands)
   const cnt = { reading:0, completed:0, owned:0, wishlist:0 };
   db.m.forEach(m => { const st = mSeriesStatus(m); if (cnt[st] !== undefined) cnt[st]++; });
-  const ownedCount = cnt.owned;
+  const bandCnt = countBandStatuses();
   const buyItems = toBuyList();
   const wishItems = db.m.filter(m => mSeriesStatus(m) === 'wishlist');
   // Kalender: alle Serien mit nextDate die noch kommen oder jetzt erschienen sind
   const kalItems = db.m.filter(m => m.nextDate).sort((a,b) => new Date(a.nextDate)-new Date(b.nextDate));
-  document.getElementById('c-reading').textContent = cnt.reading;
+  document.getElementById('c-reading').textContent = bandCnt.reading;
   document.getElementById('c-completed').textContent = cnt.completed;
-  document.getElementById('c-owned').textContent = ownedCount;
+  document.getElementById('c-owned').textContent = bandCnt.owned;
   document.getElementById('c-wishlist').textContent = wishItems.length;
   document.getElementById('c-buy').textContent = buyItems.length;
   document.getElementById('c-kalender').textContent = kalItems.length;
@@ -1996,6 +2070,11 @@ function render() {
     return;
   }
 
+  if (tab === 'owned' || tab === 'reading') {
+    renderBandStatusList(tab, el, hint);
+    return;
+  }
+
   document.getElementById('view-toggle').style.display = 'flex';
 
   // ── Bändenmodus: quer durch alle Manga, nur Bände mit passendem Bandstatus ──
@@ -2068,7 +2147,7 @@ function setTab(t) {
   document.querySelectorAll('.tab').forEach(el => {
     el.classList.toggle('active', el.dataset.tab === t);
   });
-  document.getElementById('view-toggle').style.display = (t === 'buy' || t === 'wishlist' || t === 'kalender' || t === 'dashboard') ? 'none' : 'flex';
+  document.getElementById('view-toggle').style.display = (t === 'buy' || t === 'wishlist' || t === 'owned' || t === 'reading' || t === 'kalender' || t === 'dashboard') ? 'none' : 'flex';
   render();
 }
 
@@ -2347,6 +2426,26 @@ function markBought(id, e) {
   toast(`✅ Band ${nextBand} von „${m.title}" zu „Zu lesen" hinzugefügt`);
 }
 
+function setBandStatus(id, bandNr, status, e) {
+  if (e) e.stopPropagation();
+  if (!canEditLocal()) {
+    toast('🔒 Öffentliche Ansicht – Änderungen sind deaktiviert.');
+    return;
+  }
+  if (!['owned', 'reading', 'completed'].includes(status)) return;
+  const m = db.m.find(x => x.id === id);
+  if (!m) return;
+  const numericBand = Number(bandNr);
+  const nr = String(numericBand);
+  if (!Number.isInteger(numericBand) || numericBand < 1 || !(m.bands || {})[nr]) return;
+  m.bands[nr] = status;
+  m.owned = mOwned(m);       // Rückwärtskompatibilität
+  m.current = mCurrent(m);   // Rückwärtskompatibilität
+  if (m.status !== 'wishlist') m.status = mSeriesStatus(m);
+  persist();
+  render();
+  toast(`✅ Band ${nr} von „${m.title}" ist jetzt „${ST_LABEL[status] || status}"`);
+}
 // ─── Toast ───────────────────────────────────────────────────────────────
 function toast(msg) {
   const el = document.getElementById('toast');
@@ -3744,6 +3843,9 @@ function bindDelegatedEvents() {
         break;
       case 'mark-bought':
         markBought(target.dataset.mangaId, event);
+        break;
+      case 'set-band-status':
+        setBandStatus(target.dataset.mangaId, target.dataset.bandNr, target.dataset.status, event);
         break;
       case 'apply-db-result':
         applyDbResult(Number(target.dataset.resultIndex));
