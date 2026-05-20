@@ -46,6 +46,7 @@ const PRIORITY_ORDER = new Map([
   ['mittel', 2],
   ['niedrig', 3],
 ]);
+const MANUAL_REVIEW_STATUSES = new Set(['verified', 'deferred', 'needs-source']);
 
 function readJson(filePath) {
   return JSON.parse(fs.readFileSync(filePath, 'utf8'));
@@ -276,6 +277,11 @@ function sameCacheContent(a, b) {
 function makeQueueEntry(candidate, evaluation, checkedAt, existing) {
   const safeToPatch = evaluation.confidence === 'high';
   const releaseDateForQueue = isRealReleaseDate(candidate.releaseDate) ? candidate.releaseDate : null;
+  const existingManualStatus = existing &&
+    typeof existing.reviewStatus === 'string' &&
+    MANUAL_REVIEW_STATUSES.has(existing.reviewStatus)
+    ? existing.reviewStatus
+    : null;
   const evidence = [
     `Automatische Quellenprüfung: ${candidate.sourceResult || 'Quelle geprüft'}.`,
     `Confidence: ${evaluation.confidence}.`,
@@ -315,14 +321,14 @@ function makeQueueEntry(candidate, evaluation, checkedAt, existing) {
     recommendedFix: base.recommendedFix || 'manual-source-review',
     manualSourceReviewNeeded: true,
     safeToPatch,
-    reviewStatus: safeToPatch ? 'patched' : evaluation.reviewStatus,
-    sourceUrl: candidate.sourceUrl || null,
-    releaseDate: releaseDateForQueue,
+    reviewStatus: safeToPatch ? 'patched' : (existingManualStatus || evaluation.reviewStatus),
+    sourceUrl: existingManualStatus ? (base.sourceUrl || candidate.sourceUrl || null) : (candidate.sourceUrl || null),
+    releaseDate: existingManualStatus ? (base.releaseDate || releaseDateForQueue) : releaseDateForQueue,
     checkedAt,
-    evidence,
-    notes: safeToPatch
+    evidence: existingManualStatus ? (base.evidence || evidence) : evidence,
+    notes: existingManualStatus ? (base.notes || '') : (safeToPatch
       ? 'Automatisch in data/release-cache.json übernommen.'
-      : 'Automatisch geprüft; nicht sicher genug für den öffentlichen Cache.',
+      : 'Automatisch geprüft; nicht sicher genug für den öffentlichen Cache.'),
     sourceConfidence: evaluation.confidence,
     sourceName: candidate.sourceName || null,
     providerId: candidate.providerId || null,

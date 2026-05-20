@@ -1436,5 +1436,33 @@ test('Phase 26: Dashboard hat Cover-Sync und keine normale Watchlist-Batch-Aktio
   assert.ok(!appJs.includes('data-action="copy-coverage-batch"'), 'Watchlist-Batch darf nicht als normale Dashboard-Aktion erscheinen');
 });
 
+console.log('\nPhase 33 - Release-Cache Source-Gap-Normalisierung Tests\n');
+
+test('Phase 33: MangaMoon und MANGAMOON normalisieren gleich', () => {
+  const releaseConfidence = require('./release-confidence');
+  const releaseUtils = require('../src/release-utils');
+  assert.strictEqual(
+    releaseConfidence.normalizePublisher('MangaMoon'),
+    releaseConfidence.normalizePublisher('MANGAMOON'),
+    'release-confidence muss MangaMoon/MANGAMOON gleich normalisieren',
+  );
+  assert.strictEqual(
+    releaseUtils.normalizePublisher('MangaMoon'),
+    releaseUtils.normalizePublisher('MANGAMOON'),
+    'release-utils muss MangaMoon/MANGAMOON gleich normalisieren',
+  );
+});
+
+test('Phase 33: Review-Queue erlaubt manuelle deferred/needs-source Klassifizierung', () => {
+  const fs = require('fs');
+  const queue = JSON.parse(fs.readFileSync('data/release-source-review-queue.json', 'utf8')).queue;
+  const manual = queue.filter(entry => entry.reviewStatus === 'deferred' || entry.reviewStatus === 'needs-source');
+  assert.ok(manual.length >= 1, 'Mindestens ein Phase-33-Gap muss manuell deferred/needs-source dokumentiert sein');
+  manual.forEach(entry => {
+    assert.strictEqual(entry.safeToPatch, false, 'deferred/needs-source darf nicht safeToPatch=true sein');
+    assert.ok(entry.notes && entry.notes.includes('Phase 33'), 'manuelle Phase-33-Notiz fehlt');
+  });
+});
+
 console.log(`\n${passed + failed} Tests — ${passed} bestanden, ${failed} fehlgeschlagen\n`);
 if (failed > 0) process.exit(1);

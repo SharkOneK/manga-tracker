@@ -31,7 +31,7 @@ Wichtig: `data/release-cache.json` bleibt in dieser Phase unangetastet. Es werde
    - `checkedAt`: Pruefdatum im Format `YYYY-MM-DD` oder ISO-Zeitstempel
    - `evidence`: kurze Belegnotiz, die beschreibt, was die Quelle bestaetigt
    - `notes`: optionale Zusatznotizen, z. B. Editions-/Publisher-Hinweis
-   - `reviewStatus`: `ready-to-patch`, wenn der Eintrag fuer einen spaeteren Cache-Patch bereit ist
+   - `reviewStatus`: `ready-to-patch`/`verified`, wenn der Eintrag fuer einen spaeteren Cache-Patch bereit ist; `deferred` oder `needs-source`, wenn trotz Pruefung kein belastbares Datum vorliegt
    - `safeToPatch`: erst dann `true`, wenn alle Bedingungen unten erfuellt sind
 5. Queue validieren:
 
@@ -65,7 +65,7 @@ Ein Eintrag darf nur dann auf `safeToPatch: true` gesetzt werden, wenn alle folg
 - `checkedAt` ist gesetzt.
 - `evidence` ist gesetzt und beschreibt den Beleg knapp, aber nachvollziehbar.
 - Serie, Verlag/Imprint, Edition und Bandnummer stimmen mit dem Queue-Eintrag ueberein oder Abweichungen sind in `notes` erklaert.
-- `reviewStatus` ist `ready-to-patch` (oder nach einem spaeteren Cache-Patch `patched`).
+- `reviewStatus` ist `ready-to-patch` oder `verified` (oder nach einem spaeteren Cache-Patch `patched`).
 
 Der Validator erzwingt diese Mindestbedingungen. `safeToPatch: true` ohne Quelle, Datum, Pruefzeitpunkt und Evidenz ist ungueltig.
 
@@ -85,3 +85,12 @@ Die Queue darf fuer ungepruefte Eintraege `releaseDate: null` enthalten. Das ist
 - Keine privaten Nutzerdaten.
 
 Phase 24 erstellt nur den Review-Rahmen. Die eigentlichen Cache-Patches muessen in einer spaeteren Phase separat und anhand validierter Queue-Eintraege erfolgen.
+
+
+## Phase 33 Klassifizierungen
+
+Phase 33 darf bekannte Source-Gaps auch ohne Cache-Patch sauberer klassifizieren:
+
+- `deferred`: Es wurde geprueft, aber es liegt kein belastbares tagesgenaues Release-Datum vor.
+- `needs-source`: Es gibt Hinweise auf Titel/Band/Edition, aber die Quelle ist fuer einen Patch noch nicht ausreichend.
+- Beide Status bleiben immer `safeToPatch: false` und duerfen nicht in `data/release-cache.json` uebernommen werden.
