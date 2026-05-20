@@ -1351,7 +1351,7 @@ test('Phase 22e: CI erzeugt und laedt Coverage-Gap-Artefakt hoch', () => {
   const ci = _fs22.readFileSync(ciPath, 'utf8');
   assert.ok(ci.includes('node --check scripts/write-release-cache-coverage-report.js'), 'CI muss Report-Writer syntaktisch pruefen');
   assert.ok(ci.includes('node scripts/write-release-cache-coverage-report.js'), 'CI muss Coverage-Gap-Report schreiben');
-  assert.ok(ci.includes('actions/upload-artifact@v4'), 'CI muss Coverage-Gap-Report als Artefakt hochladen');
+  assert.ok(ci.includes('actions/upload-artifact@v7'), 'CI muss Coverage-Gap-Report als Artefakt hochladen');
   assert.ok(ci.includes('artifacts/release-cache-coverage-report.json'), 'CI muss den erwarteten Report-Pfad verwenden');
 });
 
