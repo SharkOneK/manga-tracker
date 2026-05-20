@@ -59,21 +59,46 @@ Die neue vorbereitende Migration ist:
 Sie ergänzt nur sichere Spalten (`public_data`, `visibility`, `view_token_hash`,
 `owner_token_hash`) und enthält bewusst keine RLS-/Policy-/Grant-Verschärfung.
 
-## Phase 27b — Public Projection RLS (später)
+## Phase 27b — Public Projection RLS-Härtung
 
-`supabase/migrations/phase21b_public_projection_rls.sql` ist aktuell keine echte
-ausführbare Migration, sondern eine Checkliste mit kommentierten Beispiel-SQLs.
-Sie darf nicht blind produktiv angewendet werden.
+Phase 27b bereitet die produktive Supabase-Härtung als ausführbare Migration vor:
 
-Phase 27b muss separat erfolgen:
+`supabase/migrations/phase27b_public_projection_rls_hardening.sql`
 
-1. `public_data` für bestehende Sammlungen backfillen und live testen.
-2. Sicherstellen, dass der Client für Share-Views ohne Legacy-`data`-Fallback funktioniert.
-3. Danach erst Grants/RLS verschärfen:
-   - `anon` darf nicht mehr die private `data`-Spalte lesen.
-   - Public-View darf nur noch `public_data` lesen.
-4. Vor produktiver Anwendung Backup/Export erstellen.
+Zielzustand nach Anwendung in Supabase:
 
+- `public.collections.data` bleibt private Owner-Datenstruktur.
+- Public Share-Views lesen nur `public.collection_public_projection` / `public_data`.
+- `anon`/`authenticated` bekommen keinen SELECT-Grant auf `data`, `owner_token`,
+  `owner_token_hash` oder `view_token_hash`.
+- `anon`/`authenticated` bekommen keine INSERT-/DELETE-Rechte.
+- Owner-Updates bleiben per `x-owner-token`-RLS-Policy geschützt.
+- Owner-Pull läuft über `get_owner_collection(collection_id)` und gibt nur bei gültigem
+  `x-owner-token` private `data` zurück.
+- Bestehende Rows werden nur mit einer sanitisierten Projektion backfilled; `data` wird
+  niemals wholesale nach `public_data` kopiert.
+
+Wichtig: Diese Repository-Änderung bedeutet **Migration vorbereitet**. Sie bedeutet nicht
+automatisch, dass die Migration bereits im Supabase-Projekt angewendet wurde. Nach manueller
+Anwendung im SQL Editor müssen Live-Checks bestätigen, dass Public Requests keine private
+`data`-Spalte mehr erhalten und Owner-Requests weiter funktionieren.
+
+Manuelle Anwendung:
+
+1. Backup/Export der Tabelle `public.collections` erstellen.
+2. SQL aus `supabase/migrations/phase27b_public_projection_rls_hardening.sql` im Supabase
+   SQL Editor prüfen und ausführen.
+3. REST-Live-Checks ausführen:
+   - Public Projection: `collection_public_projection?id=eq.<id>&select=public_data` liefert Daten.
+   - Base Table Public: `collections?id=eq.<id>&select=data` wird verweigert.
+   - Owner RPC: `rpc/get_owner_collection` mit gültigem `x-owner-token` liefert private Daten.
+   - Owner PATCH mit gültigem `x-owner-token` schreibt `data` und `public_data`.
+4. Browser-Smoke-Test auf GitHub Pages durchführen.
+
+Bekannte Restschuld: Die Owner-RPC-Funktion ist ein bewusst eng begrenzter `security definer`,
+weil der statische GitHub-Pages-Client ohne Supabase Auth weiterhin private Owner-Daten mit
+`x-owner-token` laden können muss. Die Funktion gibt keine Token-Spalten zurück und nutzt
+`set search_path = ''`.
 ## CSP-Status
 
 Phase 21 hat eine pragmatische CSP eingeführt.
