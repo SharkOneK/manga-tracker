@@ -40,6 +40,7 @@ const ciYml     = readFile('.github/workflows/ci.yml');
 const appJs     = readFile('src/app.js');
 const supabaseJs = readFile('src/supabase.js');
 const checkSecretsJs = readFile('scripts/check-secrets.js');
+const phase27bMigration = readFile('supabase/migrations/phase27b_public_projection_rls_hardening.sql');
 
 console.log('\nSicherheits-Audit (statisch) — Phase 21c\n');
 
@@ -333,6 +334,82 @@ if (!appJs) {
   }
 }
 
+// ── Check 24: Phase-27b-Migration existiert und nutzt public_data ─────────
+if (!phase27bMigration) {
+  fail('Check 24: supabase/migrations/phase27b_public_projection_rls_hardening.sql nicht gefunden');
+} else if (!phase27bMigration.includes('public_data') || !phase27bMigration.includes('collection_public_projection')) {
+  fail('Check 24: Phase-27b-Migration enthält keine Public Projection mit public_data');
+} else {
+  pass('Check 24: Phase-27b-Migration mit public_data/Public Projection vorhanden');
+}
+
+// ── Check 25: Phase-27b-Migration granted keinen anonymen SELECT auf data ──
+if (!phase27bMigration) {
+  fail('Check 25: Phase-27b-Migration nicht prüfbar');
+} else {
+  const unsafeDataGrant = /grant\s+select\s*\([^;)]*(?:^|[,\s])data(?:[,\s]|\))/i.test(phase27bMigration)
+    || /grant\s+select\s+on\s+(?:table\s+)?public\.collections\s+to\s+(?:anon|authenticated)/i.test(phase27bMigration);
+  if (unsafeDataGrant) {
+    fail('Check 25: Phase-27b-Migration granted anonymen SELECT auf private data/collections');
+  } else {
+    pass('Check 25: Kein anonymer SELECT-Grant auf private data in Phase-27b-Migration');
+  }
+}
+
+// ── Check 26: Phase-27b-Migration exponiert keine Owner-/View-Token-Spalten ─
+if (!phase27bMigration) {
+  fail('Check 26: Phase-27b-Migration nicht prüfbar');
+} else {
+  const unsafeTokenGrant = /grant\s+select\s*\([^;)]*(owner_token|owner_token_hash|view_token_hash)/i.test(phase27bMigration);
+  const unsafeTokenProjection = /select\s+[^;]*(owner_token|owner_token_hash|view_token_hash)[^;]*from\s+public\.collections/i.test(phase27bMigration.replace(/create\s+or\s+replace\s+function[\s\S]*?\$\$/ig, ''));
+  if (unsafeTokenGrant || unsafeTokenProjection) {
+    fail('Check 26: Phase-27b-Migration exponiert Owner-/View-Token-Spalten');
+  } else {
+    pass('Check 26: Owner-/View-Token-Spalten werden nicht öffentlich exponiert');
+  }
+}
+
+// ── Check 27: Public View nutzt keinen Legacy-data-Fallback ────────────────
+if (!supabaseJs) {
+  fail('Check 27: src/supabase.js nicht gefunden (Public-View-Pfad nicht prüfbar)');
+} else {
+  const start = supabaseJs.indexOf('async function fetchPublicCollection');
+  const end = supabaseJs.indexOf('async function patchCollectionPayload', start);
+  const publicFn = start >= 0 && end > start ? supabaseJs.slice(start, end) : '';
+  if (!(publicFn.includes('collection_public_projection') || publicFn.includes('SUPA_PUBLIC_REST')) || !publicFn.includes('select=public_data')) {
+    fail('Check 27: fetchPublicCollection nutzt nicht die Public Projection/public_data');
+  } else if (/select=data/.test(publicFn)) {
+    fail('Check 27: fetchPublicCollection enthält noch Legacy-Fallback auf private data');
+  } else {
+    pass('Check 27: fetchPublicCollection nutzt nur Public Projection/public_data');
+  }
+}
+
+// ── Check 28: buildPublicCollectionData schliesst private Felder aus ───────
+if (!appJs) {
+  fail('Check 28: src/app.js nicht gefunden (Public Projection Helper nicht prüfbar)');
+} else {
+  const projectionMatch = appJs.match(/function buildPublicCollectionData[\s\S]*?\n}/);
+  const projectionFn = projectionMatch ? projectionMatch[0] : '';
+  const forbiddenPublicFields = ['notes', 'startedAt', 'finishedAt', 'boughtAt', 'readAt', 'isbn13', 'mpEditionId', 'mpVerifiedAt', 'owner_token', 'owner_token_hash', 'view_token_hash'];
+  const leakedFields = forbiddenPublicFields.filter(field => new RegExp('\\b' + field + '\\b').test(projectionFn));
+  if (!projectionFn) {
+    fail('Check 28: buildPublicCollectionData-Funktion nicht gefunden');
+  } else if (leakedFields.length) {
+    fail('Check 28: buildPublicCollectionData referenziert private Felder: ' + leakedFields.join(', '));
+  } else {
+    pass('Check 28: buildPublicCollectionData referenziert keine verbotenen privaten Felder');
+  }
+}
+
+// ── Check 29: Keine anonymen Schreibrechte in Phase-27b-Migration ─────────
+if (!phase27bMigration) {
+  fail('Check 29: Phase-27b-Migration nicht prüfbar');
+} else if (/grant\s+(insert|delete|all)\b[\s\S]*\bto\s+(anon|authenticated)\b/i.test(phase27bMigration)) {
+  fail('Check 29: Phase-27b-Migration granted anonyme INSERT/DELETE/ALL-Rechte');
+} else {
+  pass('Check 29: Keine anonymen INSERT/DELETE/ALL-Grants in Phase-27b-Migration');
+}
 // ── Ergebnis ───────────────────────────────────────────────────────────────
 const passed = totalChecks - totalFailed - totalWarns;
 console.log('');

@@ -2,6 +2,8 @@
   var SUPA_URL  = 'https://sssxiqtnkctvyghyrqff.supabase.co';
   var SUPA_KEY  = 'sb_publishable_dHER8ble5X15bPpByKRs8g_fK_01io7';
   var SUPA_REST = SUPA_URL + '/rest/v1/collections';
+  var SUPA_PUBLIC_REST = SUPA_URL + '/rest/v1/collection_public_projection';
+  var SUPA_RPC = SUPA_URL + '/rest/v1/rpc';
 
   var UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -69,8 +71,9 @@
       text.includes('permission denied');
   }
 
-  async function requestJson(url, requestHeaders) {
-    var r = await fetch(url, { headers: requestHeaders });
+  async function requestJson(url, requestHeaders, options) {
+    var requestOptions = Object.assign({ headers: requestHeaders }, options || {});
+    var r = await fetch(url, requestOptions);
     if (!r.ok) {
       throw httpError(r.status, await r.text());
     }
@@ -82,24 +85,30 @@
   }
 
   async function fetchCollection(collId, ownerToken) {
-    var j = await requestJson(SUPA_REST + '?id=eq.' + collId + '&select=data', headers(ownerToken, false));
+    if (ownerToken) {
+      try {
+        return await requestJson(SUPA_RPC + '/get_owner_collection', headers(ownerToken, true), {
+          method: 'POST',
+          headers: Object.assign({}, headers(ownerToken, true), { 'Content-Type': 'application/json' }),
+          body: JSON.stringify({ collection_id: collId }),
+        });
+      } catch (e) {
+        if (!isPublicDataUnavailableError(e)) throw e;
+        console.warn('[Phase 27b] owner RPC not available yet; falling back to legacy owner data read until migration is applied.');
+      }
+    }
+    var j = await requestJson(SUPA_REST + '?id=eq.' + collId + '&select=data', headers(ownerToken, true));
     return firstCollectionField(j, 'data');
   }
 
   async function fetchPublicCollection(collId) {
-    // Phase 27a: Public-Views bevorzugen die sichere Projektion.
-    // Wenn public_data remote noch fehlt/noch nicht freigegeben ist oder noch keinen
-    // Inhalt hat, bleibt der Legacy-Fallback auf data erhalten.
-    try {
-      var publicRows = await requestJson(SUPA_REST + '?id=eq.' + collId + '&select=public_data', headers(null, false));
-      var publicData = firstCollectionField(publicRows, 'public_data');
-      if (publicData && Array.isArray(publicData.m)) return publicData;
-    } catch (e) {
-      if (!isPublicDataUnavailableError(e)) throw e;
-    }
-
-    var legacyRows = await requestJson(SUPA_REST + '?id=eq.' + collId + '&select=data', headers(null, false));
-    return firstCollectionField(legacyRows, 'data');
+    // Phase 27b: Public-Views lesen ausschliesslich die Public Projection.
+    // Es gibt keinen Legacy-Fallback auf die private data-Spalte mehr.
+    var publicRows = await requestJson(
+      SUPA_PUBLIC_REST + '?id=eq.' + collId + '&select=public_data',
+      headers(null, false)
+    );
+    return firstCollectionField(publicRows, 'public_data');
   }
 
   async function patchCollectionPayload(collId, ownerToken, payload) {

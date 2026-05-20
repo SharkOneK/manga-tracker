@@ -778,9 +778,8 @@ function startOwnCollection() {
 }
 
 async function loadViewCollection() {
-  // Phase 27a: bevorzugt public_data lesen; Legacy-Fallback auf data bleibt aktiv,
-  // bis die Supabase-Migration angewendet, public_data befüllt und RLS in Phase 27b
-  // sicher verschärft wurde.
+  // Phase 27b: öffentliche Ansicht lädt nur die Public Projection/public_data.
+  // Kein Legacy-Fallback auf private data.
   if (!_viewColl) return;
   if (!isUuid(_viewColl)) {
     toast('⚠️ Ungültiger Sammlungslink.');
@@ -2130,7 +2129,7 @@ function safeHttpsUrl(v) {
 /**
  * Erstellt eine sichere öffentliche Projektion der Sammlung.
  * Enthält keine privaten Felder (notes, startedAt, finishedAt, isbn13, mpEditionId, etc.)
- * Wird für public_data verwendet, sobald die Supabase-Migration angewendet ist.
+ * Wird fuer public_data verwendet; private Felder bleiben in data.
  */
 function buildPublicCollectionData(db) {
   if (!db || !Array.isArray(db.m)) return { m: [] };

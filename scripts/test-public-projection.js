@@ -2,12 +2,12 @@
 'use strict';
 
 /**
- * test-public-projection.js — Phase 27a
+ * test-public-projection.js — Phase 27b
  *
- * Prüft die rückwärtskompatible public_data-Vorbereitung:
+ * Prueft die gehaertete Public-Projection-Nutzung:
  *   - public_data enthält keine privaten Felder
- *   - Cloud-Push sendet data + public_data, fällt bei fehlender Spalte aber zurück
- *   - Public-View liest bevorzugt public_data, fällt bei fehlender Spalte/leerem Wert auf data zurück
+ *   - Cloud-Push sendet data + public_data
+ *   - Public-View liest ausschliesslich die Public Projection, nie private data
  */
 
 const assert = require('assert');
@@ -93,7 +93,7 @@ function makeFetchSequence(responses, calls) {
   };
 }
 
-console.log('\nPhase 27a — Public Projection Tests\n');
+console.log('\nPhase 27b - Public Projection/RLS Tests\n');
 
 (async function main() {
   await runTest('buildPublicCollectionData entfernt private Felder und unsichere URLs', function() {
@@ -169,7 +169,22 @@ console.log('\nPhase 27a — Public Projection Tests\n');
     assert.strictEqual(result.publicDataWritten, false);
   });
 
-  await runTest('Public-View liest bevorzugt public_data', async function() {
+  await runTest('Owner-Pull nutzt owner RPC mit x-owner-token', async function() {
+    const calls = [];
+    const adapter = loadSupabaseAdapter(makeFetchSequence([
+      mockResponse(true, 200, { m: [{ id: 'private' }] }),
+    ], calls));
+
+    const result = await adapter.fetchCollection('col1', 'tok1');
+    assert.deepStrictEqual(result, { m: [{ id: 'private' }] });
+    assert.strictEqual(calls.length, 1);
+    assert.ok(calls[0].url.includes('/rpc/get_owner_collection'));
+    assert.strictEqual(calls[0].options.method, 'POST');
+    assert.strictEqual(calls[0].options.headers['x-owner-token'], 'tok1');
+    assert.deepStrictEqual(calls[0].body, { collection_id: 'col1' });
+  });
+
+  await runTest('Public-View liest ausschliesslich public projection', async function() {
     const calls = [];
     const adapter = loadSupabaseAdapter(makeFetchSequence([
       mockResponse(true, 200, [{ public_data: { m: [{ id: 'public' }] } }]),
@@ -178,39 +193,28 @@ console.log('\nPhase 27a — Public Projection Tests\n');
     const result = await adapter.fetchPublicCollection('col1');
     assert.deepStrictEqual(result, { m: [{ id: 'public' }] });
     assert.strictEqual(calls.length, 1);
+    assert.ok(calls[0].url.includes('/collection_public_projection'));
     assert.ok(calls[0].url.includes('select=public_data'));
+    assert.ok(!calls[0].url.includes('select=data'));
   });
 
-  await runTest('Public-View fällt auf data zurück, wenn public_data remote fehlt', async function() {
+  await runTest('Public-View hat keinen Legacy-Fallback auf private data', async function() {
     const calls = [];
     const adapter = loadSupabaseAdapter(makeFetchSequence([
-      mockResponse(false, 400, "Could not find the 'public_data' column in the schema cache"),
-      mockResponse(true, 200, [{ data: { m: [{ id: 'legacy' }] } }]),
+      mockResponse(false, 403, 'permission denied for view collection_public_projection'),
     ], calls));
 
-    const result = await adapter.fetchPublicCollection('col1');
-    assert.deepStrictEqual(result, { m: [{ id: 'legacy' }] });
-    assert.strictEqual(calls.length, 2);
-    assert.ok(calls[0].url.includes('select=public_data'));
-    assert.ok(calls[1].url.includes('select=data'));
+    await assert.rejects(() => adapter.fetchPublicCollection('col1'), /HTTP 403/);
+    assert.strictEqual(calls.length, 1);
+    assert.ok(!calls.some(call => call.url.includes('select=data')));
   });
-
-  await runTest('Public-View fällt auf data zurück, wenn public_data noch leer ist', async function() {
-    const calls = [];
-    const adapter = loadSupabaseAdapter(makeFetchSequence([
-      mockResponse(true, 200, [{ public_data: null }]),
-      mockResponse(true, 200, [{ data: { m: [{ id: 'legacy' }] } }]),
-    ], calls));
-
-    const result = await adapter.fetchPublicCollection('col1');
-    assert.deepStrictEqual(result, { m: [{ id: 'legacy' }] });
-    assert.strictEqual(calls.length, 2);
-  });
-
   await runTest('src/app.js verdrahtet Cloud-Push und Public-View mit public_data-Pfad', function() {
     const appJs = fs.readFileSync(appJsPath, 'utf8');
     assert.ok(appJs.includes('SupabaseAdapter.patchCollection(_collId, _ownerToken, db, buildPublicCollectionData(db))'));
     assert.ok(appJs.includes('SupabaseAdapter.fetchPublicCollection(_viewColl)'));
+    const supabaseJs = fs.readFileSync(supabaseJsPath, 'utf8');
+    assert.ok(supabaseJs.includes('collection_public_projection'));
+    assert.ok(!/fetchPublicCollection[\s\S]*select=data/.test(supabaseJs));
   });
 
   console.log('');
