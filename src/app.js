@@ -473,6 +473,10 @@ let filterPub = '';      // Verlagsfilter
 // ─── Release Cache State (Phase 15b) ─────────────────────────────────────
 let releaseCache        = null;         // Geladene release-cache.json oder null
 let releaseCacheStatus  = 'not-loaded'; // 'not-loaded' | 'loaded' | 'missing' | 'invalid'
+let releaseWatchlistData = null;        // Phase 34: read-only release-watchlist.json
+let releaseWatchlistStatus = 'not-loaded';
+let releaseReviewQueueData = null;      // Phase 34: read-only release-source-review-queue.json
+let releaseReviewQueueStatus = 'not-loaded';
 let _currentReleaseMatches = [];        // Zwischenspeicher für aktuelle Vorschau (Phase 15c)
 let _dashboardReleasePreview = null;     // Phase 18c: Dashboard-Preview für Release-Daten-Prüfung
 let _dashboardSeriesStatusPreview = null; // Phase 18e: Dashboard-Preview für Serienstatus-Prüfung
@@ -1218,6 +1222,7 @@ function applySelectedDashboardReleaseDates() {
   toast(`✅ ${changed} Release-Datum${changed === 1 ? '' : 'en'} übernommen`);
 }
 function renderDashboard() {
+  reconcileLocalReleaseCoveragePending();
   const year = new Date().getFullYear();
   const MONATE = ['Jan','Feb','Mär','Apr','Mai','Jun','Jul','Aug','Sep','Okt','Nov','Dez'];
   const el = document.getElementById('content');
@@ -1340,6 +1345,7 @@ function renderDashboard() {
         <p class="stats-empty-note">Release-Cache und Review-Queue werden per GitHub-Action/Pipeline gepflegt. Dashboard-Prüfungen sind lokale Vorschau oder Diagnose und schreiben keine privaten Sammlungsdaten ins Repository.</p>
         <p class="stats-empty-note">${coverSyncNote}</p>
       </div>
+      ${renderLocalReleaseCoveragePendingSummary()}
       ${renderDashboardReleaseCheckPreview(_dashboardReleasePreview)}
       ${renderDashboardSeriesStatusPreview(_dashboardSeriesStatusPreview)}
       <div id="release-coverage-preview"></div>
@@ -2380,6 +2386,7 @@ function doSave() {
     db.m.push(entry);
   }
   persist();
+  maybeRunLocalReleaseCoverageCheck(entry);
   closeModal();
   render();
   toast(editId ? '✅ Manga aktualisiert' : `✅ „${title}" hinzugefügt`);
@@ -2610,6 +2617,7 @@ async function loadReleaseCache() {
   releaseCacheStatus = 'loaded';
   console.info(`[Phase 15] release-cache.json geladen: ${data.items.length} Item(s), Stand: ${data.generatedAt || 'unbekannt'}`);
   updateReleaseCacheButton();
+  reconcileLocalReleaseCoveragePending();
   if (tab === 'dashboard') renderDashboard();
 }
 
@@ -2633,6 +2641,295 @@ function updateReleaseCacheButton() {
 }
 
 // ── 15c: Matching ─────────────────────────────────────────────────────────
+
+// ─── Phase 34: Lokaler Release-Coverage-Auto-Check ───────────────────────
+const LOCAL_RELEASE_COVERAGE_PENDING_KEY = 'mtReleaseCoveragePending';
+const LOCAL_RELEASE_COVERAGE_SCHEMA_VERSION = 1;
+const LOCAL_RELEASE_COVERAGE_SOURCE = 'local-save-coverage-check';
+const LOCAL_RELEASE_COVERAGE_ALLOWED_FIELDS = new Set([
+  'seriesTitle', 'normalizedSeriesTitle', 'publisher', 'normalizedPublisher',
+  'volumeNumber', 'reason', 'status', 'source', 'checkedAt', 'lastSeenAt',
+  'seenCount', 'resolvedAt',
+]);
+const LOCAL_RELEASE_COVERAGE_ALLOWED_STATUS = new Set(['pending', 'resolved', 'ignored']);
+
+function releaseCoverageKeyFromFields(seriesTitle, publisher, volumeNumber) {
+  return [
+    normalizeReleaseTitle(seriesTitle || ''),
+    normalizeReleasePublisher(publisher || ''),
+    Number(volumeNumber),
+  ].join('|');
+}
+
+function releaseCoverageKey(entry) {
+  return releaseCoverageKeyFromFields(entry.seriesTitle, entry.publisher, entry.volumeNumber);
+}
+
+function sanitizeLocalReleaseCoverageItem(item) {
+  if (!item || typeof item !== 'object') return null;
+  const volumeNumber = Number(item.volumeNumber);
+  if (!Number.isInteger(volumeNumber) || volumeNumber < 1) return null;
+  const seriesTitle = String(item.seriesTitle || '').trim();
+  if (!seriesTitle) return null;
+  const publisher = String(item.publisher || '').trim();
+  const status = LOCAL_RELEASE_COVERAGE_ALLOWED_STATUS.has(item.status) ? item.status : 'pending';
+  const checkedAt = item.checkedAt || new Date().toISOString();
+  const sanitized = {
+    seriesTitle,
+    normalizedSeriesTitle: normalizeReleaseTitle(seriesTitle),
+    publisher,
+    normalizedPublisher: normalizeReleasePublisher(publisher),
+    volumeNumber,
+    reason: 'unknown-to-release-system',
+    status,
+    source: LOCAL_RELEASE_COVERAGE_SOURCE,
+    checkedAt,
+    lastSeenAt: item.lastSeenAt || checkedAt,
+    seenCount: Number.isInteger(Number(item.seenCount)) && Number(item.seenCount) > 0 ? Number(item.seenCount) : 1,
+  };
+  if (item.resolvedAt && status === 'resolved') sanitized.resolvedAt = item.resolvedAt;
+  Object.keys(sanitized).forEach(key => { if (!LOCAL_RELEASE_COVERAGE_ALLOWED_FIELDS.has(key)) delete sanitized[key]; });
+  return sanitized;
+}
+
+function loadLocalReleaseCoveragePending() {
+  let parsed = null;
+  try {
+    parsed = JSON.parse(localStorage.getItem(LOCAL_RELEASE_COVERAGE_PENDING_KEY) || 'null');
+  } catch (e) {
+    parsed = null;
+  }
+  const items = parsed && Array.isArray(parsed.items) ? parsed.items : [];
+  return {
+    schemaVersion: LOCAL_RELEASE_COVERAGE_SCHEMA_VERSION,
+    updatedAt: parsed && parsed.updatedAt ? parsed.updatedAt : null,
+    items: items.map(sanitizeLocalReleaseCoverageItem).filter(Boolean),
+  };
+}
+
+function saveLocalReleaseCoveragePending(queue) {
+  if (isPublicReadOnly() || !canEditLocal()) return false;
+  const clean = {
+    schemaVersion: LOCAL_RELEASE_COVERAGE_SCHEMA_VERSION,
+    updatedAt: new Date().toISOString(),
+    items: (queue && Array.isArray(queue.items) ? queue.items : [])
+      .map(sanitizeLocalReleaseCoverageItem)
+      .filter(Boolean),
+  };
+  localStorage.setItem(LOCAL_RELEASE_COVERAGE_PENDING_KEY, JSON.stringify(clean));
+  return true;
+}
+
+function addReleaseCoverageKey(set, item) {
+  if (!item || typeof item !== 'object') return;
+  const volumes = Array.isArray(item.volumeNumbers) ? item.volumeNumbers : [item.volumeNumber];
+  volumes.forEach(volume => {
+    const n = Number(volume);
+    if (!Number.isInteger(n) || n < 1) return;
+    set.add(releaseCoverageKeyFromFields(item.seriesTitle || '', item.publisher || '', n));
+  });
+}
+
+function getKnownReleaseCoverageKeySet(options = {}) {
+  const set = new Set();
+  if (releaseCache && Array.isArray(releaseCache.items)) releaseCache.items.forEach(item => addReleaseCoverageKey(set, item));
+  if (releaseWatchlistData && Array.isArray(releaseWatchlistData.items)) releaseWatchlistData.items.forEach(item => addReleaseCoverageKey(set, item));
+  if (releaseReviewQueueData) {
+    const reviewItems = Array.isArray(releaseReviewQueueData.queue)
+      ? releaseReviewQueueData.queue
+      : (Array.isArray(releaseReviewQueueData.items) ? releaseReviewQueueData.items : []);
+    reviewItems.forEach(item => addReleaseCoverageKey(set, item));
+  }
+  if (options.includePending) {
+    loadLocalReleaseCoveragePending().items
+      .filter(item => item.status === 'pending')
+      .forEach(item => set.add(releaseCoverageKey(item)));
+  }
+  return set;
+}
+
+function isReleaseCoverageKnown(candidate, options = {}) {
+  return getKnownReleaseCoverageKeySet(options).has(releaseCoverageKey(candidate));
+}
+
+function buildLocalReleaseCoverageCandidate(manga) {
+  if (!manga || typeof manga !== 'object') return null;
+  if (manga.status === 'wishlist' || mSeriesStatus(manga) === 'wishlist') return null;
+  const targetVolume = getReleaseTargetVolume(manga);
+  if (targetVolume === null) return null;
+  const volumeNumber = Number(targetVolume);
+  if (!Number.isInteger(volumeNumber) || volumeNumber < 1) return null;
+  const seriesTitle = String(manga.title || '').trim();
+  if (!seriesTitle) return null;
+  const publisher = String(manga.pub || '').trim();
+  const now = new Date().toISOString();
+  return sanitizeLocalReleaseCoverageItem({
+    seriesTitle,
+    publisher,
+    volumeNumber,
+    reason: 'unknown-to-release-system',
+    status: 'pending',
+    source: LOCAL_RELEASE_COVERAGE_SOURCE,
+    checkedAt: now,
+    lastSeenAt: now,
+    seenCount: 1,
+  });
+}
+
+function upsertLocalReleaseCoveragePending(candidate) {
+  const clean = sanitizeLocalReleaseCoverageItem(candidate);
+  if (!clean) return false;
+  const queue = loadLocalReleaseCoveragePending();
+  const key = releaseCoverageKey(clean);
+  const now = new Date().toISOString();
+  const existing = queue.items.find(item => releaseCoverageKey(item) === key);
+  if (existing) {
+    existing.checkedAt = now;
+    existing.lastSeenAt = now;
+    existing.seenCount = Math.max(1, Number(existing.seenCount) || 1) + 1;
+    existing.status = 'pending';
+    delete existing.resolvedAt;
+  } else {
+    clean.checkedAt = now;
+    clean.lastSeenAt = now;
+    clean.seenCount = 1;
+    queue.items.push(clean);
+  }
+  return saveLocalReleaseCoveragePending(queue);
+}
+
+function maybeRunLocalReleaseCoverageCheck(manga) {
+  if (isPublicReadOnly() || !canEditLocal()) return false;
+  const candidate = buildLocalReleaseCoverageCandidate(manga);
+  if (!candidate) return false;
+  if (isReleaseCoverageKnown(candidate, { includePending: false })) {
+    reconcileLocalReleaseCoveragePending();
+    return false;
+  }
+  return upsertLocalReleaseCoveragePending(candidate);
+}
+
+function reconcileLocalReleaseCoveragePending() {
+  if (isPublicReadOnly() || !canEditLocal()) return false;
+  const queue = loadLocalReleaseCoveragePending();
+  if (!queue.items.length) return false;
+  const known = getKnownReleaseCoverageKeySet({ includePending: false });
+  const now = new Date().toISOString();
+  let changed = false;
+  queue.items.forEach(item => {
+    if (item.status !== 'pending') return;
+    if (known.has(releaseCoverageKey(item))) {
+      item.status = 'resolved';
+      item.resolvedAt = item.resolvedAt || now;
+      changed = true;
+    }
+  });
+  if (changed) saveLocalReleaseCoveragePending(queue);
+  return changed;
+}
+
+function getActiveLocalReleaseCoveragePendingItems() {
+  if (isPublicReadOnly() || !canEditLocal()) return [];
+  return loadLocalReleaseCoveragePending().items
+    .filter(item => item.status === 'pending')
+    .sort((a, b) => (a.seriesTitle || '').localeCompare(b.seriesTitle || '', 'de') || a.volumeNumber - b.volumeNumber);
+}
+
+function buildLocalReleaseCoverageWatchlistBatch(items = getActiveLocalReleaseCoveragePendingItems()) {
+  return items.map(item => ({
+    seriesTitle: item.seriesTitle,
+    publisher: item.publisher,
+    volumeNumber: item.volumeNumber,
+    sourceUrl: null,
+    notes: 'Aus lokaler Release-Coverage-Pending-Queue ergänzt.',
+    enabled: true,
+  }));
+}
+
+function renderLocalReleaseCoveragePendingSummary() {
+  const items = getActiveLocalReleaseCoveragePendingItems();
+  if (!items.length) return '<div id="local-release-coverage-pending" class="dashboard-release-preview"></div>';
+  const rows = items.map(item => `<div class="dashboard-release-candidate">
+    <div class="dashboard-release-candidate-main">
+      <strong>${escapeHtml(item.seriesTitle)}</strong>
+      <span>Band ${escapeHtml(item.volumeNumber)}</span>
+    </div>
+    <div class="dashboard-release-candidate-meta">
+      ${item.publisher ? `<span>${escapeHtml(item.publisher)}</span>` : ''}
+      <span>Status: ${escapeHtml(item.status)}</span>
+    </div>
+  </div>`).join('');
+  return `<div id="local-release-coverage-pending" class="dashboard-release-preview local-release-coverage-pending">
+    <h4>Neue Release-Coverage-Kandidaten</h4>
+    <p class="stats-empty-note">${items.length} Serien/Band-Kandidat(en) sind lokal vorgemerkt und noch nicht im Release-System erfasst.</p>
+    <div class="dashboard-release-candidates">${rows}</div>
+    <div class="dashboard-actions">
+      <button type="button" class="add-btn dashboard-action-btn" data-action="copy-local-release-coverage-watchlist-batch">Sanitisierten Watchlist-Batch kopieren</button>
+      <button type="button" class="add-btn dashboard-action-btn" data-action="ignore-local-release-coverage-pending">Pending-Liste ignorieren</button>
+      <button type="button" class="add-btn dashboard-action-btn" data-action="clear-local-release-coverage-resolved">Erledigte bereinigen</button>
+    </div>
+    <p class="stats-empty-note">Export/Kopieren ist eine bewusste Nutzeraktion. Gespeichert werden nur Titel, Verlag, Bandnummer und Wartungsstatus.</p>
+  </div>`;
+}
+
+function copyLocalReleaseCoverageWatchlistBatch() {
+  const batch = buildLocalReleaseCoverageWatchlistBatch();
+  if (!batch.length) { toast('ℹ️ Keine lokalen Release-Coverage-Kandidaten vorhanden.'); return; }
+  const json = JSON.stringify(batch, null, 2);
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(json).then(() => {
+      toast(`📋 Sanitisierten Watchlist-Batch (${batch.length} Einträge) kopiert.`);
+    }).catch(() => toast('⚠️ Kopieren fehlgeschlagen – Browser ohne Clipboard-Zugriff.'));
+  } else {
+    toast('⚠️ Kopieren fehlgeschlagen – Browser ohne Clipboard-Zugriff.');
+  }
+}
+
+function ignoreLocalReleaseCoveragePending() {
+  if (!canEditLocal() || isPublicReadOnly()) return;
+  const queue = loadLocalReleaseCoveragePending();
+  let changed = false;
+  queue.items.forEach(item => {
+    if (item.status === 'pending') { item.status = 'ignored'; changed = true; }
+  });
+  if (changed) saveLocalReleaseCoveragePending(queue);
+  render();
+}
+
+function clearResolvedLocalReleaseCoveragePending() {
+  if (!canEditLocal() || isPublicReadOnly()) return;
+  const queue = loadLocalReleaseCoveragePending();
+  queue.items = queue.items.filter(item => item.status !== 'resolved');
+  saveLocalReleaseCoveragePending(queue);
+  render();
+}
+
+async function loadJsonReadOnly(url) {
+  const res = await fetch(url, { cache: 'no-store' });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return res.json();
+}
+
+async function loadReleaseCoverageKnownData() {
+  try {
+    releaseWatchlistData = await loadJsonReadOnly('./data/release-watchlist.json');
+    releaseWatchlistStatus = 'loaded';
+  } catch (e) {
+    releaseWatchlistData = null;
+    releaseWatchlistStatus = 'missing';
+    console.warn('[Phase 34] release-watchlist.json nicht als Read-only-Index ladbar:', e.message);
+  }
+  try {
+    releaseReviewQueueData = await loadJsonReadOnly('./data/release-source-review-queue.json');
+    releaseReviewQueueStatus = 'loaded';
+  } catch (e) {
+    releaseReviewQueueData = null;
+    releaseReviewQueueStatus = 'missing';
+    console.warn('[Phase 34] release-source-review-queue.json nicht als Read-only-Index ladbar:', e.message);
+  }
+  reconcileLocalReleaseCoveragePending();
+  if (tab === 'dashboard') renderDashboard();
+}
 
 // Findet passende Cache-Einträge für einen Manga aus der Sammlung
 function findReleaseMatchesForSeries(m) {
@@ -3832,6 +4129,15 @@ function bindDelegatedEvents() {
       case 'check-release-coverage':
         renderReleaseCacheCoveragePreview();
         break;
+      case 'copy-local-release-coverage-watchlist-batch':
+        copyLocalReleaseCoverageWatchlistBatch();
+        break;
+      case 'ignore-local-release-coverage-pending':
+        ignoreLocalReleaseCoveragePending();
+        break;
+      case 'clear-local-release-coverage-resolved':
+        clearResolvedLocalReleaseCoveragePending();
+        break;
       case 'set-tab':
         setTab(target.dataset.tab);
         break;
@@ -3894,6 +4200,7 @@ render();
 applyReadOnly();
 // Phase 15b: Release-Cache laden (non-blocking; Fehler dürfen App-Start nicht blockieren)
 loadReleaseCache().catch(e => console.warn('[Phase 15] Unerwarteter Ladefehler:', e));
+loadReleaseCoverageKnownData().catch(e => console.warn('[Phase 34] Release-System-Index nicht vollständig ladbar:', e));
 if (_viewColl) {
   // Öffentliche Ansicht: fremde Sammlung laden (immer read-only)
   loadViewCollection();

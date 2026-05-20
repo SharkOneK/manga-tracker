@@ -601,6 +601,38 @@ if (!appJs26.includes('Aktionszentrale:') || !appJs26.includes('Alle Band-Cover 
   pass('src/app.js: Dashboard-Aktionszentrale mit Cover-Sync vorhanden');
 }
 
+console.log('\nPruefe: Phase 34 - Lokale Release-Coverage-Pending-Queue\n');
+
+if (!appJs26.includes('mtReleaseCoveragePending') || !appJs26.includes('maybeRunLocalReleaseCoverageCheck')) {
+  fail('src/app.js: Marker fuer lokale Pending-Queue-Funktion fehlen');
+} else {
+  pass('src/app.js: lokale Pending-Queue-Funktion vorhanden');
+}
+
+if (!appJs26.includes('Neue Release-Coverage-Kandidaten') || !appJs26.includes('local-release-coverage-pending')) {
+  fail('src/app.js: Dashboard-Hinweis/Section fuer lokale Pending-Queue fehlt');
+} else {
+  pass('src/app.js: Dashboard-Hinweis/Section fuer lokale Pending-Queue vorhanden');
+}
+
+if (/fetch\([^)]*release-watchlist\.json[^)]*\)\s*\.(then\([^)]*\)\s*)?[^;]*(PUT|POST|PATCH|DELETE)/i.test(appJs26)) {
+  fail('src/app.js: direkter Schreibzugriff auf data/release-watchlist.json aus Browser-App gefunden');
+} else {
+  pass('src/app.js: kein direkter Schreibzugriff auf data/release-watchlist.json');
+}
+
+if (/api\.github\.com|repos\/[^/]+\/[^/]+\/contents|createOrUpdateFileContents/i.test(appJs26)) {
+  fail('src/app.js: GitHub-API-Schreiblogik im Browser gefunden');
+} else {
+  pass('src/app.js: keine GitHub-API-Schreiblogik im Browser');
+}
+
+if (/mtReleaseCoveragePending[\s\S]{0,240}(pushCloud|persist|supabase\.(from|rpc)|PATCH|POST)/.test(appJs26)) {
+  fail('src/app.js: moegliche Supabase-/Persist-Schreiblogik fuer Pending-Coverage gefunden');
+} else {
+  pass('src/app.js: keine Supabase-/Persist-Schreiblogik fuer Pending-Coverage');
+}
+
 console.log('');
 if (totalErrors > 0) {
   console.error('❌ Smoke-Test fehlgeschlagen — ' + totalErrors + ' Fehler\n');
