@@ -36,6 +36,7 @@ jobs:
           node --check scripts/release-providers/provider-utils.js
           node --check scripts/release-providers/manga-passion-provider.js
           node --check scripts/validate-release-cache-pipeline-report.js
+          node --check scripts/validate-release-cache-automerge-gate.js
           node --check scripts/update-release-cache.js
           node --check scripts/validate-release-cache.js
           node --check scripts/validate-release-watchlist.js
@@ -43,6 +44,7 @@ jobs:
           node --check scripts/validate-release-source-review-queue.js
           node --check scripts/audit-release-cache-coverage.js
           node --check scripts/test-public-projection.js
+          node --check scripts/test-automerge-gate.js
 
       - name: Run automated release-cache pipeline
         run: node scripts/run-release-cache-pipeline.js
@@ -59,6 +61,7 @@ jobs:
           node scripts/write-release-cache-coverage-summary.js
           node scripts/validate-release-cache-coverage-gaps.js
           node scripts/test-stats.js
+          node scripts/test-automerge-gate.js
           node scripts/smoke-test-static.js
           node scripts/check-secrets.js
           node scripts/test-data-integrity.js
@@ -126,17 +129,52 @@ jobs:
             data/release-cache-pipeline-report.json
             docs/release-cache-coverage-gaps.md
 
-      - name: Read auto-merge eligibility
+      - name: Block auto-merge if PR number is missing
+        if: steps.changes.outputs.changed == 'true' && steps.cpr.outputs.pull-request-number == ''
+        run: |
+          {
+            echo "## Release-Cache Auto-Merge Gate"
+            echo ""
+            echo "- Decision: blocked"
+            echo "- Reason: PR number is missing; default deny."
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Validate report/queue-only auto-merge gate
         if: steps.cpr.outputs.pull-request-number != ''
-        id: automerge
+        id: automerge_gate
         shell: bash
         run: |
-          eligible=$(node -e "const r=require('./data/release-cache-pipeline-report.json'); console.log(r.autoMergeEligible ? 'true' : 'false')")
-          echo "eligible=$eligible" >> "$GITHUB_OUTPUT"
-          echo "autoMergeEligible=$eligible"
+          git fetch --no-tags origin \
+            main:refs/remotes/origin/main \
+            automated/release-cache-pipeline:refs/remotes/origin/automated/release-cache-pipeline
+          git checkout --detach origin/automated/release-cache-pipeline
 
-      - name: Enable auto-merge for safe high-confidence-only PRs
-        if: steps.automerge.outputs.eligible == 'true' && vars.ENABLE_RELEASE_CACHE_AUTOMERGE == 'true'
+          node scripts/validate-release-cache-automerge-gate.js --base origin/main --json > "$RUNNER_TEMP/automerge-gate.json"
+          cat "$RUNNER_TEMP/automerge-gate.json"
+
+          allowed=$(node -e "const fs=require('fs'); const r=JSON.parse(fs.readFileSync(process.argv[1], 'utf8')); console.log(r.allowed ? 'true' : 'false')" "$RUNNER_TEMP/automerge-gate.json")
+          gate_class=$(node -e "const fs=require('fs'); const r=JSON.parse(fs.readFileSync(process.argv[1], 'utf8')); console.log(r.class)" "$RUNNER_TEMP/automerge-gate.json")
+          reason=$(node -e "const fs=require('fs'); const r=JSON.parse(fs.readFileSync(process.argv[1], 'utf8')); console.log(r.reason)" "$RUNNER_TEMP/automerge-gate.json")
+
+          echo "allowed=$allowed" >> "$GITHUB_OUTPUT"
+          echo "class=$gate_class" >> "$GITHUB_OUTPUT"
+
+          {
+            echo "## Release-Cache Auto-Merge Gate"
+            echo ""
+            echo "- Decision: $([ "$allowed" = "true" ] && echo "allowed" || echo "blocked")"
+            echo "- PR class: $gate_class"
+            echo "- Reason: $reason"
+            echo ""
+            echo "### Changed files"
+            node -e "const fs=require('fs'); const r=JSON.parse(fs.readFileSync(process.argv[1], 'utf8')); for (const file of r.changedFiles || []) console.log('- ' + file)" "$RUNNER_TEMP/automerge-gate.json"
+            echo ""
+            echo "### Gate metrics"
+            node -e "const fs=require('fs'); const r=JSON.parse(fs.readFileSync(process.argv[1], 'utf8')); for (const key of ['cachePatches','safeToPatchBefore','safeToPatchAfter']) if (Object.prototype.hasOwnProperty.call(r, key)) console.log('- ' + key + ': ' + r[key])" "$RUNNER_TEMP/automerge-gate.json"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Enable auto-merge for safe report/queue-only PRs
+        if: steps.automerge_gate.outputs.allowed == 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh pr merge ${{ steps.cpr.outputs.pull-request-number }} --auto --squash
+        run: gh pr merge ${{ steps.cpr.outputs.pull-request-number }} --squash --auto
