@@ -439,6 +439,39 @@ if (!phase27bMigration) {
   pass('Check 29: Keine anonymen INSERT/DELETE/ALL-Grants in Phase-27b-Migration');
 }
 // ── Ergebnis ───────────────────────────────────────────────────────────────
+// ─── Check 30: Phase-34-Pending-Queue/Export bleiben sanitisiert ──────────
+if (!appJs) {
+  fail('Check 30: src/app.js nicht gefunden (Phase-34-Pending nicht prüfbar)');
+} else {
+  const pendingStart = appJs.indexOf('LOCAL_RELEASE_COVERAGE_PENDING_KEY');
+  const pendingEnd = appJs.indexOf('// Findet passende Cache-Einträge', pendingStart);
+  const pendingCode = pendingStart >= 0 && pendingEnd > pendingStart ? appJs.slice(pendingStart, pendingEnd) : '';
+  const privatePendingFields = ['owned', 'reading', 'completed', 'collectionStatus', 'boughtAt', 'readAt', 'startedAt', 'finishedAt', 'seriesId', 'owner_token', 'view_token', 'supabase'];
+  const leaked = privatePendingFields.filter(field => pendingCode.includes(field));
+  if (!pendingCode || !pendingCode.includes('LOCAL_RELEASE_COVERAGE_ALLOWED_FIELDS')) {
+    fail('Check 30: Phase-34-Allowlist/Pending-Code fehlt');
+  } else if (leaked.length) {
+    fail('Check 30: Phase-34-Pending-Code referenziert private Felder: ' + leaked.join(', '));
+  } else {
+    pass('Check 30: Phase-34-Pending-Queue nutzt Allowlist ohne private Felder');
+  }
+}
+
+// ─── Check 31: Pending-Coverage triggert keine Cloud-/Repo-Writes ─────────
+if (!appJs) {
+  fail('Check 31: src/app.js nicht gefunden (Phase-34-Write-Guards nicht prüfbar)');
+} else {
+  const pendingStart = appJs.indexOf('LOCAL_RELEASE_COVERAGE_PENDING_KEY');
+  const pendingEnd = appJs.indexOf('// Findet passende Cache-Einträge', pendingStart);
+  const pendingCode = pendingStart >= 0 && pendingEnd > pendingStart ? appJs.slice(pendingStart, pendingEnd) : '';
+  if (/pushCloud\s*\(|persist\s*\(|patchCollectionPayload|api\.github\.com|repos\/[^/]+\/[^/]+\/contents/i.test(pendingCode)) {
+    fail('Check 31: Phase-34-Pending-Code enthält Cloud-/Repo-Write-Pfad');
+  } else {
+    pass('Check 31: Phase-34-Pending-Code enthält keine Cloud-/Repo-Write-Pfade');
+  }
+}
+
+// ── Ergebnis ───────────────────────────────────────────────────────────────
 const passed = totalChecks - totalFailed - totalWarns;
 console.log('');
 if (totalWarns > 0) {

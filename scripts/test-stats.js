@@ -1436,6 +1436,211 @@ test('Phase 26: Dashboard hat Cover-Sync und keine normale Watchlist-Batch-Aktio
   assert.ok(!appJs.includes('data-action="copy-coverage-batch"'), 'Watchlist-Batch darf nicht als normale Dashboard-Aktion erscheinen');
 });
 
+console.log('\nPhase 34 - Lokaler Release-Coverage-Auto-Check Tests\n');
+
+const PHASE34_ALLOWED_FIELDS = new Set([
+  'seriesTitle', 'normalizedSeriesTitle', 'publisher', 'normalizedPublisher',
+  'volumeNumber', 'reason', 'status', 'source', 'checkedAt', 'lastSeenAt',
+  'seenCount', 'resolvedAt',
+]);
+const PHASE34_PRIVATE_FIELDS = [
+  'owned', 'reading', 'completed', 'collectionStatus', 'boughtAt', 'readAt',
+  'startedAt', 'finishedAt', 'notes', 'seriesId', 'id', 'owner_token', 'view_token',
+  'supabaseId', 'supabase_id', 'privateDebug', 'privateComment',
+];
+
+function p34KeyFromFields(seriesTitle, publisher, volumeNumber) {
+  return [normalizeReleaseTitle(seriesTitle || ''), normalizeReleasePublisher(publisher || ''), Number(volumeNumber)].join('|');
+}
+function p34Key(item) { return p34KeyFromFields(item.seriesTitle, item.publisher, item.volumeNumber); }
+function getReleaseTargetVolumeForTest(m) {
+  const firstMiss = mFirstMissingBand(m);
+  if (m.ongoing === 'false' && firstMiss === null) return null;
+  return firstMiss !== null && firstMiss !== undefined ? firstMiss : mNextBand(m);
+}
+function p34Sanitize(item) {
+  const volumeNumber = Number(item.volumeNumber);
+  const title = String(item.seriesTitle || '').trim();
+  if (!title || !Number.isInteger(volumeNumber) || volumeNumber < 1) return null;
+  const publisher = String(item.publisher || '').trim();
+  const out = {
+    seriesTitle: title,
+    normalizedSeriesTitle: normalizeReleaseTitle(title),
+    publisher,
+    normalizedPublisher: normalizeReleasePublisher(publisher),
+    volumeNumber,
+    reason: 'unknown-to-release-system',
+    status: ['pending', 'resolved', 'ignored'].includes(item.status) ? item.status : 'pending',
+    source: 'local-save-coverage-check',
+    checkedAt: item.checkedAt || '2026-05-20T00:00:00.000Z',
+    lastSeenAt: item.lastSeenAt || item.checkedAt || '2026-05-20T00:00:00.000Z',
+    seenCount: Number.isInteger(Number(item.seenCount)) && Number(item.seenCount) > 0 ? Number(item.seenCount) : 1,
+  };
+  if (item.resolvedAt && out.status === 'resolved') out.resolvedAt = item.resolvedAt;
+  Object.keys(out).forEach(k => { if (!PHASE34_ALLOWED_FIELDS.has(k)) delete out[k]; });
+  return out;
+}
+function p34AddKnownKey(set, item) {
+  const volumes = Array.isArray(item.volumeNumbers) ? item.volumeNumbers : [item.volumeNumber];
+  volumes.forEach(v => {
+    const n = Number(v);
+    if (Number.isInteger(n) && n > 0) set.add(p34KeyFromFields(item.seriesTitle || '', item.publisher || '', n));
+  });
+}
+function p34KnownSet(releaseSystem, queue, includePending = false) {
+  const set = new Set();
+  (releaseSystem.cacheItems || []).forEach(i => p34AddKnownKey(set, i));
+  (releaseSystem.watchlistItems || []).forEach(i => p34AddKnownKey(set, i));
+  (releaseSystem.reviewItems || []).forEach(i => p34AddKnownKey(set, i));
+  if (includePending) (queue.items || []).filter(i => i.status === 'pending').forEach(i => set.add(p34Key(i)));
+  return set;
+}
+function p34BuildCandidate(m) {
+  if (!m || m.status === 'wishlist' || mSeriesStatus(m) === 'wishlist') return null;
+  const volumeNumber = getReleaseTargetVolumeForTest(m);
+  if (volumeNumber === null) return null;
+  return p34Sanitize({ seriesTitle: m.title, publisher: m.pub || '', volumeNumber, status: 'pending' });
+}
+function p34Upsert(queue, candidate) {
+  const clean = p34Sanitize(candidate);
+  const key = p34Key(clean);
+  const found = queue.items.find(i => p34Key(i) === key);
+  if (found) {
+    found.checkedAt = '2026-05-20T01:00:00.000Z';
+    found.lastSeenAt = '2026-05-20T01:00:00.000Z';
+    found.seenCount += 1;
+    found.status = 'pending';
+    delete found.resolvedAt;
+  } else {
+    queue.items.push(clean);
+  }
+  return queue;
+}
+function p34MaybeCheck(m, releaseSystem, queue, mode = { publicReadOnly: false, canEditLocal: true }, hooks = { events: [] }) {
+  if (mode.publicReadOnly || !mode.canEditLocal) return queue;
+  const before = JSON.stringify(m);
+  const candidate = p34BuildCandidate(m);
+  if (!candidate) return queue;
+  if (!p34KnownSet(releaseSystem, queue, false).has(p34Key(candidate))) p34Upsert(queue, candidate);
+  assert.strictEqual(JSON.stringify(m), before, 'Coverage-Check darf db.m/Manga nicht mutieren');
+  assert.deepStrictEqual(hooks.events, [], 'Coverage-Check darf persist/pushCloud nicht ausloesen');
+  return queue;
+}
+function p34Reconcile(queue, releaseSystem) {
+  const known = p34KnownSet(releaseSystem, queue, false);
+  queue.items.forEach(item => {
+    if (item.status === 'pending' && known.has(p34Key(item))) {
+      item.status = 'resolved';
+      item.resolvedAt = '2026-05-20T02:00:00.000Z';
+    }
+  });
+  return queue;
+}
+function p34Export(items) {
+  return items.filter(i => i.status === 'pending').map(i => ({
+    seriesTitle: i.seriesTitle,
+    publisher: i.publisher,
+    volumeNumber: i.volumeNumber,
+    sourceUrl: null,
+    notes: 'Aus lokaler Release-Coverage-Pending-Queue ergänzt.',
+    enabled: true,
+  }));
+}
+function p34AssertNoPrivateFields(obj, label) {
+  const scan = Array.isArray(obj) ? obj : [obj];
+  scan.forEach((item, idx) => {
+    PHASE34_PRIVATE_FIELDS.forEach(field => assert.ok(!(field in item), `${label} ${idx} darf kein privates Feld ${field} enthalten`));
+  });
+}
+
+test('Phase 34: Neuer Save erzeugt Pending-Kandidat, wenn nichts bekannt ist', () => {
+  const queue = { schemaVersion: 1, items: [] };
+  p34MaybeCheck({ title: 'Unbekannte Serie', pub: 'Egmont Manga', bands: {}, ongoing: 'true' }, {}, queue);
+  assert.strictEqual(queue.items.length, 1);
+  assert.strictEqual(queue.items[0].volumeNumber, 1);
+});
+
+test('Phase 34: Kein Pending bei Cache-, Watchlist- und Review-Eintrag', () => {
+  [
+    { cacheItems: [{ seriesTitle: 'Cache Serie', publisher: 'Carlsen Manga', volumeNumber: 1 }] },
+    { watchlistItems: [{ seriesTitle: 'Watch Serie', publisher: 'Egmont', volumeNumbers: [1, 2] }] },
+    { reviewItems: [{ seriesTitle: 'Review Serie', publisher: 'Panini Manga', volumeNumber: 1 }] },
+  ].forEach((releaseSystem, idx) => {
+    const titles = ['Cache Serie', 'Watch Serie', 'Review Serie'];
+    const pubs = ['Carlsen', 'Egmont Manga', 'Panini Manga'];
+    const queue = { schemaVersion: 1, items: [] };
+    p34MaybeCheck({ title: titles[idx], pub: pubs[idx], bands: {}, ongoing: 'true' }, releaseSystem, queue);
+    assert.strictEqual(queue.items.length, 0);
+  });
+});
+
+test('Phase 34: Deduplizierung per normalizedTitle|normalizedPublisher|volumeNumber', () => {
+  const queue = { schemaVersion: 1, items: [] };
+  p34MaybeCheck({ title: 'Bitte zieh dich an, Takamine!', pub: 'Egmont', bands: {}, ongoing: 'true' }, {}, queue);
+  p34MaybeCheck({ title: 'Bitte zieh dich an Takamine', pub: 'Egmont Manga', bands: {}, ongoing: 'true' }, {}, queue);
+  assert.strictEqual(queue.items.length, 1);
+  assert.strictEqual(queue.items[0].seenCount, 2);
+});
+
+test('Phase 34: Pending-Queue und Export enthalten keine privaten Felder', () => {
+  const item = p34Sanitize({ seriesTitle: 'Privat', publisher: 'Carlsen', volumeNumber: 1, owned: 1, notes: 'secret', id: 'abc', status: 'pending' });
+  p34AssertNoPrivateFields(item, 'Pending');
+  p34Export([item]).forEach(exportItem => {
+    PHASE34_PRIVATE_FIELDS.filter(field => field !== 'notes').forEach(field => {
+      assert.ok(!(field in exportItem), `Export darf kein privates Feld ${field} enthalten`);
+    });
+  });
+  Object.keys(item).forEach(k => assert.ok(PHASE34_ALLOWED_FIELDS.has(k), `unerlaubtes Feld ${k}`));
+});
+
+test('Phase 34: Public-Read-only-Modus erzeugt keine Pending-Einträge', () => {
+  const queue = { schemaVersion: 1, items: [] };
+  p34MaybeCheck({ title: 'Public', pub: 'Egmont', bands: {}, ongoing: 'true' }, {}, queue, { publicReadOnly: true, canEditLocal: false });
+  assert.strictEqual(queue.items.length, 0);
+});
+
+test('Phase 34: Coverage-Check mutiert db.m nicht und ruft nicht persist/pushCloud auf', () => {
+  const queue = { schemaVersion: 1, items: [] };
+  const manga = { title: 'No Mutation', pub: 'Egmont', bands: { '1': 'owned', '3': 'owned' }, total: 3, ongoing: 'true', notes: 'privat' };
+  const before = JSON.stringify(manga);
+  p34MaybeCheck(manga, {}, queue, { publicReadOnly: false, canEditLocal: true }, { events: [] });
+  assert.strictEqual(JSON.stringify(manga), before);
+});
+
+test('Phase 34: Zielbandlogik, vollständige Serie und Wishlist', () => {
+  const c = p34BuildCandidate({ title: 'Gap', pub: 'Egmont', bands: { '1': 'owned', '3': 'owned' }, total: 3, ongoing: 'true' });
+  assert.strictEqual(c.volumeNumber, 2);
+  assert.strictEqual(p34BuildCandidate({ title: 'Done', pub: 'Egmont', bands: { '1': 'owned' }, total: 1, ongoing: 'false' }), null);
+  assert.strictEqual(p34BuildCandidate({ title: 'Wish', pub: 'Egmont', status: 'wishlist', bands: {}, ongoing: 'true' }), null);
+});
+
+test('Phase 34: Sonderzeichen- und Publisher-Normalisierung konsistent', () => {
+  assert.strictEqual(normalizeReleaseTitle('Bitte zieh dich an, Takamine!'), 'bitte zieh dich an takamine');
+  assert.strictEqual(normalizeReleasePublisher('Egmont'), normalizeReleasePublisher('Egmont Manga'));
+});
+
+test('Phase 34: schemaVersion nur auf Container-Level', () => {
+  const queue = { schemaVersion: 1, items: [] };
+  p34MaybeCheck({ title: 'Schema', pub: 'Egmont', bands: {}, ongoing: 'true' }, {}, queue);
+  assert.strictEqual(queue.schemaVersion, 1);
+  assert.ok(!('schemaVersion' in queue.items[0]));
+});
+
+test('Phase 34: Reconcile baut Keys aus Rohfeldern neu und erlaubt Wartungsfelder', () => {
+  const queue = { schemaVersion: 1, items: [p34Sanitize({ seriesTitle: 'Raw Title!', normalizedSeriesTitle: 'wrong', publisher: 'Egmont', normalizedPublisher: 'wrong', volumeNumber: 1, status: 'pending' })] };
+  p34Reconcile(queue, { cacheItems: [{ seriesTitle: 'Raw Title', publisher: 'Egmont Manga', volumeNumber: 1 }] });
+  assert.strictEqual(queue.items[0].status, 'resolved');
+  assert.ok(queue.items[0].resolvedAt);
+  ['status', 'seenCount', 'lastSeenAt', 'resolvedAt'].forEach(k => assert.ok(PHASE34_ALLOWED_FIELDS.has(k)));
+  p34AssertNoPrivateFields(queue.items[0], 'Reconcile');
+});
+
+test('Phase 34: Erster App-Start erzeugt keine automatische Massen-Pending-Queue', () => {
+  const queue = { schemaVersion: 1, items: [] };
+  p34Reconcile(queue, { cacheItems: [], watchlistItems: [], reviewItems: [] });
+  assert.strictEqual(queue.items.length, 0);
+});
+
 console.log('\nPhase 33 - Release-Cache Source-Gap-Normalisierung Tests\n');
 
 test('Phase 33: MangaMoon und MANGAMOON normalisieren gleich', () => {
