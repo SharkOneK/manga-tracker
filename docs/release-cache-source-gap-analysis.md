@@ -776,3 +776,36 @@ Der einzige sichere naechste Schritt ist aktuell `manual-source-review`: offizie
 - Keine geratenen Release-Daten ergaenzt.
 - Keine privaten Sammlungsdaten verwendet.
 - `data/release-cache.json` wurde fuer diese Analyse nicht veraendert.
+
+
+## Phase 33 Manual Source-Gap Audit (2026-05-20)
+
+### Queue-Audit
+
+- Queue-Eintraege gesamt: 97
+- safeToPatch=true: 0
+- safeToPatch=false: 97
+- reviewStatus vor manueller Phase-33-Klassifizierung: auto-not-yet-released 34, auto-low-confidence 2, auto-blocked 61
+- Hauptcluster: not-yet-released 31+, auto-blocked/ambiguous 61, source-missing 1, volume-numbering-mismatch 1, publisher-normalization 1
+
+### Grosse Serienbloecke
+
+- Berserk Master Edition: Band 7-14 bleiben blockiert; Manga Passion fuehrt nur Platzhalterdaten, kein Cache-Patch.
+- Vagabond - Master Edition: Band 13-19 bleiben blockiert; Platzhalterdaten, kein Cache-Patch.
+- Isekai Soapland: Band 3-8 bleiben blockiert; MangaMoon/MANGAMOON ist technisch normalisiert, aber Release-Daten fehlen.
+- Arifureta: Der Kampf zurueck in meine Welt - Zero: Band 4-8 bleiben Quellen-/Verfuegbarkeitsblock.
+
+### Priorisierte Einzelfaelle
+
+| Fall | Phase-33-Ergebnis | Quelle | Queue-Status |
+|---|---|---|---|
+| Vermeil in Gold Band 2 | Publisher-Mismatch Manga Cult vs. MangaMoon/MANGAMOON; kein valides Band-2-Datum. | https://www.manga-passion.de/articles/tags/321/mangamoon | needs-source |
+| Meine Chefin kommt immer zuerst!! Band 2 | Auftakt belegt, Band 2 nicht mit validem Datum belegt. | https://www.manga-passion.de/articles/tags/321/mangamoon | deferred |
+| Adou Band 12 | Offizielle Altraverse-Reihenseite zeigt nur Band 1-11; Band 12 nicht belegt. | https://altraverse.de/manga/adou/ | needs-source |
+| Chainsaw Man Band 23 | Manga Passion fuehrt Band 23 bei Egmont Manga als nicht angekuendigt; kein Datum. | https://www.manga-passion.de/volumes/31484/chainsaw-man-band-23 | deferred |
+| Gushing over Magical Girls Band 4 | MangaMoon/MANGAMOON normalisiert; kein reales Release-Datum. | https://www.manga-passion.de/editions/5407 | deferred |
+| Mirai Nikki - New Edition Band 6 | New-Edition-Quelle ohne reales Datum fuer Band 6. | https://www.manga-passion.de/editions/5504 | deferred |
+| Neck mich nicht, Nagatoro-san Band 6 | Offizielle dani-books-Seite nennt Band 6, aber nur saisonales Fenster statt YYYY-MM-DD. | https://www.danibooks.de/neck-mich-nicht-nagatoro-san/187-neck-mich-nicht-nagatoro-san-band-6.html | needs-source |
+| Tokyo Revengers - Doppelband-Edition Band 16 | Offizielle Carlsen-Seite sagt Abschluss in 15 Doppelbaenden; Band 16 ist Nummerierungs-/Watchlist-Fall. | https://www.carlsen.de/manga/tokyo-revengers | deferred |
+
+Phase-33-Regel: Es wurden keine Release-Daten geraten und keine Platzhalterdaten uebernommen. Alle priorisierten Einzelfaelle bleiben safeToPatch=false, bis ein tagesgenaues, belastbares HTTPS-Release-Datum vorliegt.

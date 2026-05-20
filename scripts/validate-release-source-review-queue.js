@@ -40,6 +40,9 @@ const ALLOWED_REVIEW_STATUS = new Set([
   'auto-low-confidence',
   'auto-ready-to-patch',
   'patched',
+  'verified',
+  'deferred',
+  'needs-source',
 ]);
 
 const REQUIRED_ENTRY_FIELDS = [
@@ -230,8 +233,13 @@ function validateEntry(entry, idx, expectedKeys, seenKeys) {
     if (!hasText(entry.releaseDate)) fail(`${label}.safeToPatch=true verlangt releaseDate`);
     if (!hasText(entry.checkedAt)) fail(`${label}.safeToPatch=true verlangt checkedAt`);
     if (!hasText(entry.evidence)) fail(`${label}.safeToPatch=true verlangt evidence`);
-    if (entry.reviewStatus !== 'ready-to-patch' && entry.reviewStatus !== 'auto-ready-to-patch' && entry.reviewStatus !== 'patched') {
-      fail(`${label}.safeToPatch=true verlangt reviewStatus ready-to-patch, auto-ready-to-patch oder patched`);
+    if (
+      entry.reviewStatus !== 'ready-to-patch' &&
+      entry.reviewStatus !== 'auto-ready-to-patch' &&
+      entry.reviewStatus !== 'patched' &&
+      entry.reviewStatus !== 'verified'
+    ) {
+      fail(`${label}.safeToPatch=true verlangt reviewStatus ready-to-patch, auto-ready-to-patch, verified oder patched`);
     }
   }
 }
