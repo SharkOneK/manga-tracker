@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; connect-src 'self' https://sssxiqtnkctvyghyrqff.supabase.co https://api.manga-passion.de; img-src 'self' data: https:; script-src 'self'; style-src 'self' 'unsafe-inline'; upgrade-insecure-requests;">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; connect-src 'self' https://sssxiqtnkctvyghyrqff.supabase.co https://api.manga-passion.de; img-src 'self' data: https:; script-src 'self'; style-src 'self'; upgrade-insecure-requests;">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Manga Tracker 🇩🇪</title>
@@ -18,17 +18,17 @@
 <body>
 
 <header>
-  <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+  <div class="header-title-row">
     <h1><span class="jp">マンガ</span> Tracker 🇩🇪</h1>
-    <span id="sync-dot" title="Jetzt synchronisieren" style="font-size:0.9rem;opacity:0.85;cursor:pointer" data-action="manual-sync">🔄</span>
+    <span id="sync-dot" class="sync-dot" title="Jetzt synchronisieren" data-action="manual-sync">🔄</span>
   </div>
-  <div style="display:flex;gap:6px">
-    <button class="add-btn" id="btn-share-profile" style="background:rgba(255,255,255,0.15);padding:8px 10px" data-action="share-profile" title="Sammlung öffentlich teilen">🔗</button>
+  <div class="header-actions">
+    <button class="add-btn header-share-btn" id="btn-share-profile" data-action="share-profile" title="Sammlung öffentlich teilen">🔗</button>
     <button class="add-btn" id="btn-add" data-action="open-add">＋ Hinzufügen</button>
   </div>
 </header>
 
-<div class="readonly-banner" id="readonly-banner" style="display:none">
+<div class="readonly-banner hidden" id="readonly-banner">
   <span>👁 <strong>Öffentliche Ansicht</strong> — Du siehst die Sammlung von jemandem anderen</span>
   <button class="readonly-btn" data-action="start-own-collection">✨ Eigene Sammlung starten</button>
 </div>
@@ -42,7 +42,7 @@
   <div class="tab" data-tab="kalender">📅 Kalender <span class="badge" id="c-kalender">0</span></div>
   <div class="tab" data-tab="dashboard">📊 Dashboard</div>
 </div>
-<div class="genre-filter-wrap" id="genre-filter-wrap" style="display:none"></div>
+<div class="genre-filter-wrap hidden" id="genre-filter-wrap"></div>
 
 <div class="search-bar">
   <div class="search-wrap">
@@ -71,7 +71,7 @@
 </div>
 
 <!-- Modal -->
-<div class="overlay" id="overlay" style="display:none">
+<div class="overlay hidden" id="overlay">
   <div class="modal" id="modal">
     <div class="modal-header">
       <h2 id="modal-title">Manga hinzufügen</h2>
@@ -81,7 +81,7 @@
       <div class="db-search-wrap">
         <input class="db-search-input" id="db-search" type="search" placeholder="🔍 Manga in Datenbank suchen…" autocomplete="off">
         <span class="db-search-spinner" id="db-spinner">⏳</span>
-        <div class="db-results" id="db-results" style="display:none"></div>
+        <div class="db-results hidden" id="db-results"></div>
       </div>
       <div class="form-group">
         <label>Titel *</label>
@@ -127,23 +127,23 @@
         </div>
       </div>
       <div class="form-group">
-        <label>Meine Bände <span style="font-weight:400;color:var(--text-muted);font-size:0.75rem">– Klicken zum Status wechseln</span></label>
+        <label>Meine Bände <span class="form-label-hint small">– Klicken zum Status wechseln</span></label>
         <div class="band-mgr-list" id="band-mgr"></div>
         <button type="button" class="btn-add-band" data-action="add-next-band">＋ Nächsten Band hinzufügen</button>
-        <div style="display:flex;gap:6px;margin-top:7px">
-          <input type="number" id="bulk-until" min="1" placeholder="Bis Band Nr. …" style="flex:1;border:1.5px solid var(--border);border-radius:8px;padding:7px 10px;font-size:0.82rem;font-family:inherit;outline:none;background:var(--bg);color:var(--text)">
-          <button type="button" data-action="bulk-complete" style="border:1.5px solid var(--border);border-radius:8px;padding:7px 12px;background:var(--bg);color:var(--text-muted);font-size:0.78rem;font-weight:700;cursor:pointer;white-space:nowrap;transition:background 0.12s">✓ Alle abschließen</button>
+        <div class="bulk-actions">
+          <input type="number" id="bulk-until" class="bulk-until" min="1" placeholder="Bis Band Nr. …">
+          <button type="button" class="bulk-complete-btn" data-action="bulk-complete">✓ Alle abschließen</button>
         </div>
       </div>
       <div class="form-group">
-        <label>Nächster Band erscheint (DE) <span style="font-weight:400;color:var(--text-muted)">– Erscheinungsdatum</span></label>
+        <label>Nächster Band erscheint (DE) <span class="form-label-hint">– Erscheinungsdatum</span></label>
         <input id="f-nextdate" type="date">
-        <button type="button" id="btn-release-check" data-action="open-release-preview" title="Release-Cache-Vorschau anzeigen" style="margin-top:6px;width:100%;border:1.5px solid var(--border);border-radius:8px;padding:8px 11px;background:var(--bg);color:var(--text-muted);font-size:0.78rem;font-weight:700;cursor:pointer;transition:background 0.12s;display:none;opacity:0.4">📅 Release-Cache-Vorschau anzeigen</button>
+        <button type="button" id="btn-release-check" class="form-wide-action hidden" data-action="open-release-preview" title="Release-Cache-Vorschau anzeigen">📅 Release-Cache-Vorschau anzeigen</button>
       </div>
       <div class="form-group">
-        <label>Cover-Bild URL <span style="font-weight:400;color:var(--text-muted)">optional · Serien-Fallback wenn kein Band-1-Cover vorhanden ist</span></label>
+        <label>Cover-Bild URL <span class="form-label-hint">optional · Serien-Fallback wenn kein Band-1-Cover vorhanden ist</span></label>
         <input id="f-cover" type="url" placeholder="https://...">
-        <button type="button" data-action="mp-sync-one" title="Band-Cover für diese Serie von Manga Passion laden" style="margin-top:6px;width:100%;border:1.5px solid var(--border);border-radius:8px;padding:8px 11px;background:var(--bg);color:var(--text-muted);font-size:0.78rem;font-weight:700;cursor:pointer;transition:background 0.12s">📥 Cover für diese Serie laden</button>
+        <button type="button" class="form-wide-action" data-action="mp-sync-one" title="Band-Cover für diese Serie von Manga Passion laden">📥 Cover für diese Serie laden</button>
       </div>
       <div class="form-group">
         <label>Genre / Tags</label>
@@ -151,28 +151,28 @@
       </div>
       <div class="form-group">
         <label>Notizen</label>
-        <textarea id="f-notes" rows="2" placeholder="Eigene Notizen..." style="resize:vertical"></textarea>
+        <textarea id="f-notes" class="resize-vertical" rows="2" placeholder="Eigene Notizen..."></textarea>
       </div>
       <div class="row2">
         <div class="form-group">
-          <label>Begonnen am <span style="font-weight:400;color:var(--text-muted)">optional</span></label>
+          <label>Begonnen am <span class="form-label-hint">optional</span></label>
           <input id="f-started" type="date">
         </div>
         <div class="form-group">
-          <label>Abgeschlossen am <span style="font-weight:400;color:var(--text-muted)">optional</span></label>
+          <label>Abgeschlossen am <span class="form-label-hint">optional</span></label>
           <input id="f-finished" type="date">
         </div>
       </div>
       <div class="form-group">
-        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:700;font-size:0.8rem">
-          <input type="checkbox" id="f-wishlist" style="width:16px;height:16px;accent-color:#7c3aed;cursor:pointer">
+        <label class="wishlist-label">
+          <input type="checkbox" id="f-wishlist" class="wishlist-checkbox">
           💜 Auf Wunschliste setzen
-          <span style="font-weight:400;color:var(--text-muted)">(Serien die du noch kaufen/starten möchtest)</span>
+          <span class="form-label-hint">(Serien die du noch kaufen/starten möchtest)</span>
         </label>
       </div>
     </div>
     <div class="modal-footer">
-      <button class="btn-del" id="btn-del" data-action="do-delete" style="display:none" title="Löschen">🗑</button>
+      <button class="btn-del hidden" id="btn-del" data-action="do-delete" title="Löschen">🗑</button>
       <button class="btn-full btn-cancel-full" data-action="close-modal">Abbrechen</button>
       <button class="btn-full btn-save" data-action="do-save">Speichern</button>
     </div>
@@ -182,13 +182,13 @@
 <div class="toast" id="toast"></div>
 
 <!-- Release-Preview-Overlay (Phase 15c/15d) — nutzt bestehende Modal-CSS-Klassen, keine Designänderung -->
-<div class="overlay" id="release-preview-overlay" style="display:none;z-index:110">
+<div class="overlay release-preview-overlay hidden" id="release-preview-overlay">
   <div class="modal" id="release-preview-modal">
     <div class="modal-header">
       <h2 id="release-preview-title">Release-Cache-Vorschau</h2>
       <button class="close-btn" data-action="close-release-preview">✕</button>
     </div>
-    <div class="modal-body" id="release-preview-body" style="max-height:55vh;overflow-y:auto;min-height:80px">
+    <div class="modal-body release-preview-body" id="release-preview-body">
     </div>
     <div class="modal-footer">
       <button class="btn-full btn-cancel-full" data-action="close-release-preview">Abbrechen</button>
@@ -197,7 +197,7 @@
   </div>
 </div>
 
-<input type="file" id="import-file-input" accept=".json" style="display:none">
+<input type="file" id="import-file-input" class="hidden" accept=".json">
 <script src="./vendor/jszip.min.js"></script>
 <script src="./src/utils.js"></script>
 <script src="./src/supabase.js"></script>

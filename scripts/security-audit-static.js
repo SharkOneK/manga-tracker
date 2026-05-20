@@ -68,6 +68,17 @@ function findInlineHandlers(content) {
   return matches;
 }
 
+function findInlineStyleAttributes(content) {
+  if (!content) return [];
+  const matches = [];
+  const styleRe = /<[^>]*\sstyle\s*=/gi;
+  let match;
+  while ((match = styleRe.exec(content)) !== null) {
+    matches.push(match[0].slice(0, 120).replace(/\s+/g, ' '));
+  }
+  return matches;
+}
+
 // ── Check 1: index.html enthält CSP ───────────────────────────────────────
 if (!html) {
   fail('Check 1: index.html nicht gefunden');
@@ -296,17 +307,19 @@ if (!html) {
   }
 }
 
-// ── Check 21: style-src unsafe-inline ist nur dokumentierte Restschuld ─────
+// -- Check 21: style-src must not contain unsafe-inline
 if (!html) {
   fail("Check 21: index.html nicht gefunden (style-src 'unsafe-inline' nicht prüfbar)");
 } else {
   const styleSrcValue = getCspDirective('style-src');
   if (!styleSrcValue) {
-    fail('Check 21: CSP enthält keine style-src Direktive');
+    fail('Check 21: CSP has no style-src directive');
   } else if (styleSrcValue.includes("'unsafe-inline'")) {
-    warn("Check 21: style-src enthält noch 'unsafe-inline' (dokumentierte Restschuld: Inline-Styles in HTML/Templates)");
+    fail("Check 21: style-src still contains 'unsafe-inline' - inline styles are forbidden in Phase 30");
+  } else if (styleSrcValue !== "'self'") {
+    fail("Check 21: style-src is not exactly 'self' (found: " + styleSrcValue + ')');
   } else {
-    pass("Check 21: style-src enthält kein 'unsafe-inline'");
+    pass("Check 21: style-src is hardened to 'self' and has no 'unsafe-inline'");
   }
 }
 
@@ -331,6 +344,21 @@ if (!appJs) {
     fail('Check 23: src/app.js enthält generierte Inline-Script-Handler: ' + [...new Set(handlers)].join(', '));
   } else {
     pass('Check 23: src/app.js generiert keine Inline-Script-Handler');
+  }
+}
+
+// -- Check 24a: no inline style attributes in HTML/templates
+if (!html || !appJs) {
+  fail('Check 24a: inline style attributes not checkable (index.html or src/app.js missing)');
+} else {
+  const inlineStyles = [
+    ...findInlineStyleAttributes(html).map(match => 'index.html: ' + match),
+    ...findInlineStyleAttributes(appJs).map(match => 'src/app.js: ' + match),
+  ];
+  if (inlineStyles.length) {
+    fail('Check 24a: inline style attributes found: ' + inlineStyles.slice(0, 5).join(' | '));
+  } else {
+    pass('Check 24a: index.html and src/app.js contain no inline style attributes');
   }
 }
 
