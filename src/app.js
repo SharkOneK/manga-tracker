@@ -2692,19 +2692,31 @@ function sanitizeLocalReleaseCoverageItem(item) {
   return sanitized;
 }
 
-function loadLocalReleaseCoveragePending() {
+function normalizePendingCoverageCandidate(candidate) {
+  return sanitizeLocalReleaseCoverageItem(candidate);
+}
+
+function loadReleaseCoveragePendingQueue() {
   let parsed = null;
   try {
     parsed = JSON.parse(localStorage.getItem(LOCAL_RELEASE_COVERAGE_PENDING_KEY) || 'null');
   } catch (e) {
     parsed = null;
   }
-  const items = parsed && Array.isArray(parsed.items) ? parsed.items : [];
+  const rawItems = Array.isArray(parsed)
+    ? parsed
+    : (parsed && Array.isArray(parsed.items) ? parsed.items : []);
+  const items = rawItems.map(normalizePendingCoverageCandidate).filter(Boolean);
   return {
     schemaVersion: LOCAL_RELEASE_COVERAGE_SCHEMA_VERSION,
     updatedAt: parsed && parsed.updatedAt ? parsed.updatedAt : null,
-    items: items.map(sanitizeLocalReleaseCoverageItem).filter(Boolean),
+    invalidCount: rawItems.length - items.length,
+    items,
   };
+}
+
+function loadLocalReleaseCoveragePending() {
+  return loadReleaseCoveragePendingQueue();
 }
 
 function saveLocalReleaseCoveragePending(queue) {
@@ -2835,64 +2847,239 @@ function getActiveLocalReleaseCoveragePendingItems() {
     .sort((a, b) => (a.seriesTitle || '').localeCompare(b.seriesTitle || '', 'de') || a.volumeNumber - b.volumeNumber);
 }
 
+function isPendingCoverageDummyTitle(title) {
+  const norm = normalizeReleaseTitle(title || '');
+  return /^zzz(?:\s|-|_)*test/.test(norm) || /\btest(?:\s|-|_)*serie\b/.test(norm);
+}
+
+function mergePendingCoverageCandidate(target, item) {
+  target.seenCount += Math.max(1, Number(item.seenCount) || 1);
+  const first = item.checkedAt || item.lastSeenAt || target.firstSeenAt;
+  const last = item.lastSeenAt || item.checkedAt || target.lastSeenAt;
+  if (first && (!target.firstSeenAt || first < target.firstSeenAt)) target.firstSeenAt = first;
+  if (last && (!target.lastSeenAt || last > target.lastSeenAt)) target.lastSeenAt = last;
+}
+
+function groupPendingCoverageCandidates(candidates) {
+  const cleanItems = (Array.isArray(candidates) ? candidates : [])
+    .map(normalizePendingCoverageCandidate)
+    .filter(Boolean)
+    .filter(item => item.status === 'pending');
+  const exact = new Map();
+  cleanItems.forEach(item => {
+    const key = releaseCoverageKey(item);
+    if (!exact.has(key)) {
+      exact.set(key, {
+        ...item,
+        seenCount: Math.max(1, Number(item.seenCount) || 1),
+        firstSeenAt: item.checkedAt || item.lastSeenAt || '',
+        lastSeenAt: item.lastSeenAt || item.checkedAt || '',
+      });
+    } else {
+      mergePendingCoverageCandidate(exact.get(key), item);
+    }
+  });
+
+  const deduped = Array.from(exact.values());
+  const titleVolumeWithPublisher = new Set();
+  deduped.forEach(item => {
+    if (item.publisher) titleVolumeWithPublisher.add(`${item.normalizedSeriesTitle}|${item.volumeNumber}`);
+  });
+
+  const replacementHitsByExportKey = new Map();
+  const classified = deduped.map(item => {
+    const titleVolumeKey = `${item.normalizedSeriesTitle}|${item.volumeNumber}`;
+    let intakeStatus = 'exportable';
+    let intakeReason = 'exportierbar';
+    if (isPendingCoverageDummyTitle(item.seriesTitle)) {
+      intakeStatus = 'ignored-dummy';
+      intakeReason = 'ignoriert als Test-/Dummy-Datensatz';
+    } else if (!item.publisher && titleVolumeWithPublisher.has(titleVolumeKey)) {
+      intakeStatus = 'replaced-empty-publisher';
+      intakeReason = 'ersetzt durch korrigierten Eintrag';
+      deduped
+        .filter(other => other.normalizedSeriesTitle === item.normalizedSeriesTitle && other.volumeNumber === item.volumeNumber && other.publisher)
+        .forEach(other => {
+          const exportKey = `${other.normalizedSeriesTitle}|${other.normalizedPublisher}`;
+          replacementHitsByExportKey.set(exportKey, (replacementHitsByExportKey.get(exportKey) || 0) + 1);
+        });
+    } else if (!item.publisher) {
+      intakeStatus = 'blocked-missing-publisher';
+      intakeReason = 'blockiert wegen leerem Publisher';
+    }
+    return { ...item, intakeStatus, intakeReason };
+  });
+
+  const groupsByKey = new Map();
+  classified.forEach(item => {
+    const groupKey = item.intakeStatus === 'exportable'
+      ? `${item.normalizedSeriesTitle}|${item.normalizedPublisher}`
+      : `${item.normalizedSeriesTitle}|${item.normalizedPublisher}|${item.intakeStatus}`;
+    if (!groupsByKey.has(groupKey)) {
+      groupsByKey.set(groupKey, {
+        key: groupKey,
+        seriesTitle: item.seriesTitle,
+        publisher: item.publisher,
+        normalizedSeriesTitle: item.normalizedSeriesTitle,
+        normalizedPublisher: item.normalizedPublisher,
+        intakeStatus: item.intakeStatus,
+        intakeReason: item.intakeReason,
+        volumes: [],
+        seenCount: 0,
+        firstSeenAt: item.firstSeenAt || '',
+        lastSeenAt: item.lastSeenAt || '',
+        replacedCount: 0,
+        items: [],
+      });
+    }
+    const group = groupsByKey.get(groupKey);
+    if (!group.volumes.includes(item.volumeNumber)) group.volumes.push(item.volumeNumber);
+    group.seenCount += Math.max(1, Number(item.seenCount) || 1);
+    if (item.firstSeenAt && (!group.firstSeenAt || item.firstSeenAt < group.firstSeenAt)) group.firstSeenAt = item.firstSeenAt;
+    if (item.lastSeenAt && (!group.lastSeenAt || item.lastSeenAt > group.lastSeenAt)) group.lastSeenAt = item.lastSeenAt;
+    group.items.push(item);
+  });
+
+  groupsByKey.forEach(group => {
+    group.volumes.sort((a, b) => a - b);
+    if (group.intakeStatus === 'exportable') {
+      group.replacedCount = replacementHitsByExportKey.get(`${group.normalizedSeriesTitle}|${group.normalizedPublisher}`) || 0;
+    }
+  });
+
+  const groups = Array.from(groupsByKey.values()).sort((a, b) =>
+    a.seriesTitle.localeCompare(b.seriesTitle, 'de') ||
+    a.publisher.localeCompare(b.publisher, 'de') ||
+    a.volumes[0] - b.volumes[0]
+  );
+  return { groups, items: classified, summary: summarizePendingCoverageCandidates(groups, classified) };
+}
+
+function summarizePendingCoverageCandidates(groups, items) {
+  const safeItems = Array.isArray(items) ? items : [];
+  const safeGroups = Array.isArray(groups) ? groups : [];
+  const count = status => safeItems.filter(item => item.intakeStatus === status).length;
+  const lastSeenAt = safeItems.map(item => item.lastSeenAt).filter(Boolean).sort().pop() || '';
+  return {
+    totalCandidates: safeItems.length,
+    affectedSeries: new Set(safeItems.map(item => item.normalizedSeriesTitle).filter(Boolean)).size,
+    exportableCandidates: count('exportable'),
+    blockedCandidates: count('blocked-missing-publisher'),
+    replacedCandidates: count('replaced-empty-publisher'),
+    ignoredDummyCandidates: count('ignored-dummy'),
+    exportableGroups: safeGroups.filter(group => group.intakeStatus === 'exportable').length,
+    lastSeenAt,
+  };
+}
+
+function buildSanitizedPendingWatchlistBatch(groupsOrResult = groupPendingCoverageCandidates(getActiveLocalReleaseCoveragePendingItems())) {
+  const groups = Array.isArray(groupsOrResult)
+    ? groupsOrResult
+    : (groupsOrResult && Array.isArray(groupsOrResult.groups) ? groupsOrResult.groups : []);
+  return groups
+    .filter(group => group.intakeStatus === 'exportable' && group.seriesTitle && group.publisher)
+    .map(group => {
+      const volumes = [...new Set(group.volumes.map(Number).filter(v => Number.isInteger(v) && v > 0))].sort((a, b) => a - b);
+      if (!volumes.length) return null;
+      const out = {
+        seriesTitle: group.seriesTitle,
+        publisher: group.publisher,
+        sourceUrl: null,
+        notes: group.replacedCount > 0
+          ? 'Aus lokaler Release-Coverage-Pending-Queue ergänzt; Publisher manuell ergänzt.'
+          : 'Aus lokaler Release-Coverage-Pending-Queue ergänzt.',
+        enabled: true,
+      };
+      if (volumes.length === 1) out.volumeNumber = volumes[0];
+      else out.volumeNumbers = volumes;
+      return out;
+    })
+    .filter(Boolean);
+}
+
 function buildLocalReleaseCoverageWatchlistBatch(items = getActiveLocalReleaseCoveragePendingItems()) {
-  return items.map(item => ({
-    seriesTitle: item.seriesTitle,
-    publisher: item.publisher,
-    volumeNumber: item.volumeNumber,
-    sourceUrl: null,
-    notes: 'Aus lokaler Release-Coverage-Pending-Queue ergänzt.',
-    enabled: true,
-  }));
+  return buildSanitizedPendingWatchlistBatch(groupPendingCoverageCandidates(items));
 }
 
 function renderLocalReleaseCoveragePendingSummary() {
-  const items = getActiveLocalReleaseCoveragePendingItems();
+  const intake = groupPendingCoverageCandidates(getActiveLocalReleaseCoveragePendingItems());
+  const items = intake.items;
+  const summary = intake.summary;
   if (!items.length) return '<div id="local-release-coverage-pending" class="dashboard-release-preview"></div>';
-  const rows = items.map(item => `<div class="dashboard-release-candidate">
+  const rows = intake.groups.map(group => `<div class="dashboard-release-candidate pending-intake-${escapeHtml(group.intakeStatus)}">
     <div class="dashboard-release-candidate-main">
-      <strong>${escapeHtml(item.seriesTitle)}</strong>
-      <span>Band ${escapeHtml(item.volumeNumber)}</span>
+      <strong>${escapeHtml(group.seriesTitle)}</strong>
+      <span>Band/Bände ${escapeHtml(group.volumes.join(', '))}</span>
     </div>
     <div class="dashboard-release-candidate-meta">
-      ${item.publisher ? `<span>${escapeHtml(item.publisher)}</span>` : ''}
-      <span>Status: ${escapeHtml(item.status)}</span>
+      ${group.publisher ? `<span>${escapeHtml(group.publisher)}</span>` : '<span>Publisher fehlt</span>'}
+      <span>${escapeHtml(group.intakeReason)}</span>
+      <span>gesehen: ${escapeHtml(group.seenCount)}-mal</span>
+      ${group.lastSeenAt ? `<span>zuletzt: ${escapeHtml(group.lastSeenAt)}</span>` : ''}
+      ${group.replacedCount ? `<span>ersetzte Duplikate: ${escapeHtml(group.replacedCount)}</span>` : ''}
     </div>
   </div>`).join('');
   return `<div id="local-release-coverage-pending" class="dashboard-release-preview local-release-coverage-pending">
     <h4>Neue Release-Coverage-Kandidaten</h4>
-    <p class="stats-empty-note">${items.length} Serien/Band-Kandidat(en) sind lokal vorgemerkt und noch nicht im Release-System erfasst.</p>
+    <div class="stat-big-grid cols-3 dashboard-action-stats">
+      <div class="stat-big-card"><div class="stat-big-n">${escapeHtml(summary.totalCandidates)}</div><div class="stat-big-l">Kandidaten</div></div>
+      <div class="stat-big-card"><div class="stat-big-n">${escapeHtml(summary.exportableCandidates)}</div><div class="stat-big-l">exportierbar</div></div>
+      <div class="stat-big-card"><div class="stat-big-n">${escapeHtml(summary.blockedCandidates)}</div><div class="stat-big-l">blockiert</div></div>
+      <div class="stat-big-card"><div class="stat-big-n">${escapeHtml(summary.replacedCandidates)}</div><div class="stat-big-l">ersetzt</div></div>
+      <div class="stat-big-card"><div class="stat-big-n">${escapeHtml(summary.ignoredDummyCandidates)}</div><div class="stat-big-l">Dummy/Test ignoriert</div></div>
+      <div class="stat-big-card"><div class="stat-big-n">${escapeHtml(summary.affectedSeries)}</div><div class="stat-big-l">Serien</div></div>
+    </div>
+    <p class="stats-empty-note">Lokaler, sanitisierter Export: Pending-Daten werden nur nach Validierung, Escaping und Allowlist kopierbar gemacht. Es gibt keine automatische Veröffentlichung und keinen Schreibpfad auf data/*.json, Supabase, GitHub oder GitHub Actions.</p>
+    <p class="stats-empty-note">Wishlist-Serien werden nicht als Release-Coverage-Kandidaten erfasst, weil sie noch nicht Teil der Sammlungslücken-Prüfung sind.</p>
     <div class="dashboard-release-candidates">${rows}</div>
     <div class="dashboard-actions">
-      <button type="button" class="add-btn dashboard-action-btn" data-action="copy-local-release-coverage-watchlist-batch">Sanitisierten Watchlist-Batch kopieren</button>
-      <button type="button" class="add-btn dashboard-action-btn" data-action="ignore-local-release-coverage-pending">Pending-Liste ignorieren</button>
-      <button type="button" class="add-btn dashboard-action-btn" data-action="clear-local-release-coverage-resolved">Erledigte bereinigen</button>
+      <button type="button" class="add-btn dashboard-action-btn" data-action="copy-local-release-coverage-watchlist-batch">Sanitisierten Watchlist-Vorschlag kopieren</button>
+      <button type="button" class="add-btn dashboard-action-btn" data-action="mark-reviewed-local-release-coverage-pending">Pending-Kandidaten als geprüft markieren</button>
+      <button type="button" class="add-btn dashboard-action-btn" data-action="delete-local-release-coverage-pending">Pending-Kandidaten löschen</button>
     </div>
-    <p class="stats-empty-note">Export/Kopieren ist eine bewusste Nutzeraktion. Gespeichert werden nur Titel, Verlag, Bandnummer und Wartungsstatus.</p>
+    <p class="stats-empty-note">Copy mutiert nichts. Löschen/Mark-reviewed ändert ausschließlich localStorage.mtReleaseCoveragePending.</p>
   </div>`;
 }
 
-function copyLocalReleaseCoverageWatchlistBatch() {
-  const batch = buildLocalReleaseCoverageWatchlistBatch();
-  if (!batch.length) { toast('ℹ️ Keine lokalen Release-Coverage-Kandidaten vorhanden.'); return; }
+function copySanitizedPendingWatchlistBatch() {
+  const batch = buildSanitizedPendingWatchlistBatch();
+  if (!batch.length) { toast('ℹ️ Keine exportierbaren lokalen Release-Coverage-Kandidaten vorhanden.'); return; }
   const json = JSON.stringify(batch, null, 2);
   if (navigator.clipboard && navigator.clipboard.writeText) {
     navigator.clipboard.writeText(json).then(() => {
-      toast(`📋 Sanitisierten Watchlist-Batch (${batch.length} Einträge) kopiert.`);
+      toast(`📋 Sanitisierten Watchlist-Vorschlag (${batch.length} Einträge) kopiert.`);
     }).catch(() => toast('⚠️ Kopieren fehlgeschlagen – Browser ohne Clipboard-Zugriff.'));
   } else {
     toast('⚠️ Kopieren fehlgeschlagen – Browser ohne Clipboard-Zugriff.');
   }
 }
 
+function copyLocalReleaseCoverageWatchlistBatch() {
+  copySanitizedPendingWatchlistBatch();
+}
+
 function ignoreLocalReleaseCoveragePending() {
+  markReviewedLocalReleaseCoveragePending();
+}
+
+function markReviewedLocalReleaseCoveragePending() {
   if (!canEditLocal() || isPublicReadOnly()) return;
+  if (!confirm('Pending-Kandidaten als geprüft markieren? Dies ändert nur localStorage.mtReleaseCoveragePending.')) return;
   const queue = loadLocalReleaseCoveragePending();
   let changed = false;
   queue.items.forEach(item => {
     if (item.status === 'pending') { item.status = 'ignored'; changed = true; }
   });
   if (changed) saveLocalReleaseCoveragePending(queue);
+  render();
+}
+
+function deleteLocalReleaseCoveragePending() {
+  if (!canEditLocal() || isPublicReadOnly()) return;
+  if (!confirm('Alle Pending-Kandidaten löschen? Dies ändert nur localStorage.mtReleaseCoveragePending.')) return;
+  const queue = loadLocalReleaseCoveragePending();
+  queue.items = queue.items.filter(item => item.status !== 'pending');
+  saveLocalReleaseCoveragePending(queue);
   render();
 }
 
@@ -2903,7 +3090,6 @@ function clearResolvedLocalReleaseCoveragePending() {
   saveLocalReleaseCoveragePending(queue);
   render();
 }
-
 async function loadJsonReadOnly(url) {
   const res = await fetch(url, { cache: 'no-store' });
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -4134,6 +4320,12 @@ function bindDelegatedEvents() {
         break;
       case 'ignore-local-release-coverage-pending':
         ignoreLocalReleaseCoveragePending();
+        break;
+      case 'mark-reviewed-local-release-coverage-pending':
+        markReviewedLocalReleaseCoveragePending();
+        break;
+      case 'delete-local-release-coverage-pending':
+        deleteLocalReleaseCoveragePending();
         break;
       case 'clear-local-release-coverage-resolved':
         clearResolvedLocalReleaseCoveragePending();

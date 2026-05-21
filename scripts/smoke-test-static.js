@@ -633,6 +633,33 @@ if (/mtReleaseCoveragePending[\s\S]{0,240}(pushCloud|persist|supabase\.(from|rpc
   pass('src/app.js: keine Supabase-/Persist-Schreiblogik fuer Pending-Coverage');
 }
 
+
+console.log('\nPruefe: Phase 35 - Pending-Intake aus lokaler Queue\n');
+
+[
+  ['Dashboard-Text', 'Neue Release-Coverage-Kandidaten'],
+  ['Sanitizer-Batch', 'buildSanitizedPendingWatchlistBatch'],
+  ['Copy-Funktion', 'copySanitizedPendingWatchlistBatch'],
+  ['Gruppierung', 'groupPendingCoverageCandidates'],
+  ['lokaler/sanitisierter Export-Hinweis', 'Lokaler, sanitisierter Export'],
+  ['keine automatische Veroeffentlichung', 'keine automatische Veröffentlichung'],
+  ['Wishlist-Hinweis', 'Wishlist-Serien werden nicht als Release-Coverage-Kandidaten erfasst'],
+].forEach(([label, marker]) => {
+  if (!appJs26.includes(marker)) fail('src/app.js: Phase-35-Marker fehlt: ' + label);
+  else pass('src/app.js: Phase-35-Marker vorhanden: ' + label);
+});
+
+if (/fetch\([^)]*release-watchlist\.json[^)]*\)[\s\S]{0,160}\b(PUT|POST|PATCH|DELETE)\b/i.test(appJs26)) {
+  fail('src/app.js: direkter Browser-Schreibpfad auf data/release-watchlist.json gefunden');
+} else {
+  pass('src/app.js: kein direkter Browser-Schreibpfad auf data/release-watchlist.json');
+}
+
+if (/fetch\([^)]*release-cache\.json[^)]*\)[\s\S]{0,160}\b(PUT|POST|PATCH|DELETE)\b/i.test(appJs26)) {
+  fail('src/app.js: direkter Browser-Schreibpfad auf data/release-cache.json gefunden');
+} else {
+  pass('src/app.js: kein direkter Browser-Schreibpfad auf data/release-cache.json');
+}
 console.log('');
 if (totalErrors > 0) {
   console.error('❌ Smoke-Test fehlgeschlagen — ' + totalErrors + ' Fehler\n');

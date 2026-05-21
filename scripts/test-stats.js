@@ -1669,5 +1669,155 @@ test('Phase 33: Review-Queue erlaubt manuelle deferred/needs-source Klassifizier
   });
 });
 
+
+console.log('\nPhase 35 - Release-Coverage-Intake aus Pending-Queue Tests\n');
+
+const PHASE35_PRIVATE_FIELDS = ['owned', 'readAt', 'boughtAt', 'collectionStatus', 'readStatus', 'status', 'seriesId', 'owner_token', 'view_token', 'supabaseId', 'supabase_id', 'privateDebug'];
+function p35NormalizeCandidate(item) {
+  if (!item || typeof item !== 'object') return null;
+  const seriesTitle = String(item.seriesTitle || '').trim();
+  const publisher = String(item.publisher || '').trim();
+  const volumeNumber = Number(item.volumeNumber);
+  if (!seriesTitle || !Number.isInteger(volumeNumber) || volumeNumber < 1) return null;
+  return {
+    seriesTitle,
+    normalizedSeriesTitle: normalizeReleaseTitle(seriesTitle),
+    publisher,
+    normalizedPublisher: normalizeReleasePublisher(publisher),
+    volumeNumber,
+    status: ['pending', 'resolved', 'ignored'].includes(item.status) ? item.status : 'pending',
+    checkedAt: item.checkedAt || '2026-05-21T00:00:00.000Z',
+    lastSeenAt: item.lastSeenAt || item.checkedAt || '2026-05-21T00:00:00.000Z',
+    seenCount: Number.isInteger(Number(item.seenCount)) && Number(item.seenCount) > 0 ? Number(item.seenCount) : 1,
+  };
+}
+function p35IsDummyTitle(title) {
+  const norm = normalizeReleaseTitle(title || '');
+  return /^zzz(?:\s|-|_)*test/.test(norm) || /\btest(?:\s|-|_)*serie\b/.test(norm);
+}
+function p35Group(candidates) {
+  const clean = (Array.isArray(candidates) ? candidates : []).map(p35NormalizeCandidate).filter(Boolean).filter(i => i.status === 'pending');
+  const exact = new Map();
+  clean.forEach(i => {
+    const k = [i.normalizedSeriesTitle, i.normalizedPublisher, i.volumeNumber].join('|');
+    if (!exact.has(k)) exact.set(k, { ...i });
+    else exact.get(k).seenCount += i.seenCount;
+  });
+  const deduped = [...exact.values()];
+  const titleVolWithPub = new Set(deduped.filter(i => i.publisher).map(i => `${i.normalizedSeriesTitle}|${i.volumeNumber}`));
+  const replacement = new Map();
+  const items = deduped.map(i => {
+    const titleVol = `${i.normalizedSeriesTitle}|${i.volumeNumber}`;
+    let intakeStatus = 'exportable';
+    if (p35IsDummyTitle(i.seriesTitle)) intakeStatus = 'ignored-dummy';
+    else if (!i.publisher && titleVolWithPub.has(titleVol)) {
+      intakeStatus = 'replaced-empty-publisher';
+      deduped.filter(o => o.normalizedSeriesTitle === i.normalizedSeriesTitle && o.volumeNumber === i.volumeNumber && o.publisher).forEach(o => {
+        const key = `${o.normalizedSeriesTitle}|${o.normalizedPublisher}`;
+        replacement.set(key, (replacement.get(key) || 0) + 1);
+      });
+    } else if (!i.publisher) intakeStatus = 'blocked-missing-publisher';
+    return { ...i, intakeStatus };
+  });
+  const map = new Map();
+  items.forEach(i => {
+    const key = i.intakeStatus === 'exportable' ? `${i.normalizedSeriesTitle}|${i.normalizedPublisher}` : `${i.normalizedSeriesTitle}|${i.normalizedPublisher}|${i.intakeStatus}`;
+    if (!map.has(key)) map.set(key, { seriesTitle: i.seriesTitle, publisher: i.publisher, normalizedSeriesTitle: i.normalizedSeriesTitle, normalizedPublisher: i.normalizedPublisher, intakeStatus: i.intakeStatus, volumes: [], seenCount: 0, replacedCount: 0 });
+    const g = map.get(key);
+    if (!g.volumes.includes(i.volumeNumber)) g.volumes.push(i.volumeNumber);
+    g.seenCount += i.seenCount;
+  });
+  map.forEach(g => { g.volumes.sort((a,b) => a-b); if (g.intakeStatus === 'exportable') g.replacedCount = replacement.get(`${g.normalizedSeriesTitle}|${g.normalizedPublisher}`) || 0; });
+  const groups = [...map.values()];
+  const count = s => items.filter(i => i.intakeStatus === s).length;
+  return { groups, items, summary: { totalCandidates: items.length, exportableCandidates: count('exportable'), blockedCandidates: count('blocked-missing-publisher'), replacedCandidates: count('replaced-empty-publisher'), ignoredDummyCandidates: count('ignored-dummy') } };
+}
+function p35BuildBatch(input) {
+  const groups = Array.isArray(input) ? input : input.groups;
+  return groups.filter(g => g.intakeStatus === 'exportable' && g.publisher).map(g => {
+    const out = { seriesTitle: g.seriesTitle, publisher: g.publisher, sourceUrl: null, notes: g.replacedCount ? 'Aus lokaler Release-Coverage-Pending-Queue ergänzt; Publisher manuell ergänzt.' : 'Aus lokaler Release-Coverage-Pending-Queue ergänzt.', enabled: true };
+    if (g.volumes.length === 1) out.volumeNumber = g.volumes[0]; else out.volumeNumbers = g.volumes;
+    return out;
+  });
+}
+function p35LoadFromRaw(raw) {
+  let parsed = null;
+  try { parsed = JSON.parse(raw || 'null'); } catch { parsed = null; }
+  const items = Array.isArray(parsed) ? parsed : (parsed && Array.isArray(parsed.items) ? parsed.items : []);
+  return { items: items.map(p35NormalizeCandidate).filter(Boolean) };
+}
+function p35MarkReviewed(storage, confirm = true, publicView = false) {
+  if (publicView || !confirm) return storage;
+  const q = p35LoadFromRaw(storage); q.items.forEach(i => { if (i.status === 'pending') i.status = 'ignored'; });
+  return JSON.stringify({ schemaVersion: 1, items: q.items });
+}
+function p35Delete(storage, confirm = true, publicView = false) {
+  if (publicView || !confirm) return storage;
+  const q = p35LoadFromRaw(storage); q.items = q.items.filter(i => i.status !== 'pending');
+  return JSON.stringify({ schemaVersion: 1, items: q.items });
+}
+
+test('Phase 35: kaputtes JSON und manipulierte Werte crashen nicht', () => {
+  assert.deepStrictEqual(p35LoadFromRaw('{nope').items, []);
+  assert.deepStrictEqual(p35LoadFromRaw(JSON.stringify({ items: [null, 7, { seriesTitle: '', volumeNumber: 1 }, { seriesTitle: 'Ok', volumeNumber: 1 }] })).items.length, 1);
+});
+
+test('Phase 35: leerer Publisher blockiert Export und Dashboard-Zähler', () => {
+  const grouped = p35Group([{ seriesTitle: 'Ohne Verlag', publisher: '', volumeNumber: 1 }]);
+  assert.strictEqual(grouped.summary.blockedCandidates, 1);
+  assert.deepStrictEqual(p35BuildBatch(grouped), []);
+});
+
+test('Phase 35: Demon Slave Band 2 nutzt korrigierten Publisher einmalig', () => {
+  const grouped = p35Group([
+    { seriesTitle: 'Demon Slave', publisher: '', volumeNumber: 2 },
+    { seriesTitle: 'Demon Slave', publisher: 'Crunchyroll Manga', volumeNumber: 2 },
+  ]);
+  const batch = p35BuildBatch(grouped);
+  assert.strictEqual(grouped.summary.replacedCandidates, 1);
+  assert.strictEqual(batch.length, 1);
+  assert.strictEqual(batch[0].seriesTitle, 'Demon Slave');
+  assert.strictEqual(batch[0].publisher, 'Crunchyroll Manga');
+  assert.strictEqual(batch[0].volumeNumber, 2);
+  assert.ok(batch[0].notes.includes('Publisher manuell ergänzt'));
+});
+
+test('Phase 35: ZZZ-TEST-SERIE wird ignoriert und nicht exportiert', () => {
+  const grouped = p35Group([{ seriesTitle: 'ZZZ-TEST-SERIE', publisher: 'Test', volumeNumber: 1 }]);
+  assert.strictEqual(grouped.summary.ignoredDummyCandidates, 1);
+  assert.deepStrictEqual(p35BuildBatch(grouped), []);
+});
+
+test('Phase 35: mehrere Bände werden als volumeNumbers gebündelt', () => {
+  const batch = p35BuildBatch(p35Group([
+    { seriesTitle: 'Beispielserie', publisher: 'Beispiel Verlag', volumeNumber: 3 },
+    { seriesTitle: 'Beispielserie', publisher: 'Beispiel Verlag', volumeNumber: 2 },
+    { seriesTitle: 'Beispielserie', publisher: 'Beispiel Verlag', volumeNumber: 2, seenCount: 3 },
+  ]));
+  assert.deepStrictEqual(batch, [{ seriesTitle: 'Beispielserie', publisher: 'Beispiel Verlag', sourceUrl: null, notes: 'Aus lokaler Release-Coverage-Pending-Queue ergänzt.', enabled: true, volumeNumbers: [2, 3] }]);
+});
+
+test('Phase 35: Export nutzt harte Allowlist und enthält keine privaten Felder oder Duplikate', () => {
+  const batch = p35BuildBatch(p35Group([{ seriesTitle: 'Privat', publisher: 'Carlsen Manga', volumeNumber: 1, owned: 9, readAt: 'x', seriesId: 'secret' }]));
+  assert.deepStrictEqual(Object.keys(batch[0]).sort(), ['enabled', 'notes', 'publisher', 'seriesTitle', 'sourceUrl', 'volumeNumber'].sort());
+  PHASE35_PRIVATE_FIELDS.forEach(field => assert.ok(!(field in batch[0]), 'Export darf kein privates Feld enthalten: ' + field));
+});
+
+test('Phase 35: Copy-Vorschau mutiert Eingabe nicht', () => {
+  const input = [{ seriesTitle: 'Copy', publisher: 'Manga Cult', volumeNumber: 1 }];
+  const before = JSON.stringify(input);
+  p35BuildBatch(p35Group(input));
+  assert.strictEqual(JSON.stringify(input), before);
+});
+
+test('Phase 35: Delete-/Mark-reviewed mutieren nur Pending-localStorage und Public View bleibt read-only', () => {
+  const storage = JSON.stringify({ schemaVersion: 1, items: [{ seriesTitle: 'A', publisher: 'B', volumeNumber: 1 }] });
+  assert.strictEqual(p35MarkReviewed(storage, true, true), storage);
+  assert.strictEqual(p35Delete(storage, true, true), storage);
+  const marked = p35MarkReviewed(storage);
+  assert.ok(marked.includes('ignored'));
+  const deleted = p35Delete(storage);
+  assert.strictEqual(JSON.parse(deleted).items.length, 0);
+});
 console.log(`\n${passed + failed} Tests — ${passed} bestanden, ${failed} fehlgeschlagen\n`);
 if (failed > 0) process.exit(1);
