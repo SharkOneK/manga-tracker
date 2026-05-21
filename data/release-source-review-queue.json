@@ -35,7 +35,7 @@
       "reviewStatus": "auto-not-yet-released",
       "sourceUrl": "https://www.manga-passion.de/editions/5211",
       "releaseDate": null,
-      "checkedAt": "2026-05-19T15:26:34.180Z",
+      "checkedAt": "2026-05-21T16:30:57.508Z",
       "evidence": "Automatische Quellenprüfung: volume-found. Confidence: blocked. Gruende: placeholder-release-date. Edition: 5211. Score: 100.",
       "notes": "Automatisch geprüft; nicht sicher genug für den öffentlichen Cache.",
       "sourceConfidence": "blocked",
@@ -47,7 +47,8 @@
       "sourceResult": "volume-found",
       "confidenceReasons": [
         "placeholder-release-date"
-      ]
+      ],
+      "providerId": "manga-passion"
     },
     {
       "queueKey": "Berserk Master Edition|Panini Manga|8",
@@ -71,7 +72,7 @@
       "reviewStatus": "auto-not-yet-released",
       "sourceUrl": "https://www.manga-passion.de/editions/5211",
       "releaseDate": null,
-      "checkedAt": "2026-05-19T15:26:34.180Z",
+      "checkedAt": "2026-05-21T16:30:57.508Z",
       "evidence": "Automatische Quellenprüfung: volume-found. Confidence: blocked. Gruende: placeholder-release-date. Edition: 5211. Score: 100.",
       "notes": "Automatisch geprüft; nicht sicher genug für den öffentlichen Cache.",
       "sourceConfidence": "blocked",
@@ -83,7 +84,8 @@
       "sourceResult": "volume-found",
       "confidenceReasons": [
         "placeholder-release-date"
-      ]
+      ],
+      "providerId": "manga-passion"
     },
     {
       "queueKey": "Berserk Master Edition|Panini Manga|9",
@@ -107,7 +109,7 @@
       "reviewStatus": "auto-not-yet-released",
       "sourceUrl": "https://www.manga-passion.de/editions/5211",
       "releaseDate": null,
-      "checkedAt": "2026-05-19T15:26:34.180Z",
+      "checkedAt": "2026-05-21T16:30:57.508Z",
       "evidence": "Automatische Quellenprüfung: volume-found. Confidence: blocked. Gruende: placeholder-release-date. Edition: 5211. Score: 100.",
       "notes": "Automatisch geprüft; nicht sicher genug für den öffentlichen Cache.",
       "sourceConfidence": "blocked",
@@ -119,7 +121,8 @@
       "sourceResult": "volume-found",
       "confidenceReasons": [
         "placeholder-release-date"
-      ]
+      ],
+      "providerId": "manga-passion"
     },
     {
       "queueKey": "Berserk Master Edition|Panini Manga|10",
@@ -143,7 +146,7 @@
       "reviewStatus": "auto-not-yet-released",
       "sourceUrl": "https://www.manga-passion.de/editions/5211",
       "releaseDate": null,
-      "checkedAt": "2026-05-19T15:26:34.180Z",
+      "checkedAt": "2026-05-21T16:30:57.508Z",
       "evidence": "Automatische Quellenprüfung: volume-found. Confidence: blocked. Gruende: placeholder-release-date. Edition: 5211. Score: 100.",
       "notes": "Automatisch geprüft; nicht sicher genug für den öffentlichen Cache.",
       "sourceConfidence": "blocked",
@@ -155,7 +158,8 @@
       "sourceResult": "volume-found",
       "confidenceReasons": [
         "placeholder-release-date"
-      ]
+      ],
+      "providerId": "manga-passion"
     },
     {
       "queueKey": "Berserk Master Edition|Panini Manga|11",
@@ -179,7 +183,7 @@
       "reviewStatus": "auto-not-yet-released",
       "sourceUrl": "https://www.manga-passion.de/editions/5211",
       "releaseDate": null,
-      "checkedAt": "2026-05-19T15:26:34.180Z",
+      "checkedAt": "2026-05-21T16:30:57.508Z",
       "evidence": "Automatische Quellenprüfung: volume-found. Confidence: blocked. Gruende: placeholder-release-date. Edition: 5211. Score: 100.",
       "notes": "Automatisch geprüft; nicht sicher genug für den öffentlichen Cache.",
       "sourceConfidence": "blocked",
@@ -191,7 +195,8 @@
       "sourceResult": "volume-found",
       "confidenceReasons": [
         "placeholder-release-date"
-      ]
+      ],
+      "providerId": "manga-passion"
     },
     {
       "queueKey": "Berserk Master Edition|Panini Manga|12",
@@ -215,7 +220,7 @@
       "reviewStatus": "auto-not-yet-released",
       "sourceUrl": "https://www.manga-passion.de/editions/5211",
       "releaseDate": null,
-      "checkedAt": "2026-05-19T15:26:34.180Z",
+      "checkedAt": "2026-05-21T16:30:57.508Z",
       "evidence": "Automatische Quellenprüfung: volume-found. Confidence: blocked. Gruende: placeholder-release-date. Edition: 5211. Score: 100.",
       "notes": "Automatisch geprüft; nicht sicher genug für den öffentlichen Cache.",
       "sourceConfidence": "blocked",
@@ -227,7 +232,8 @@
       "sourceResult": "volume-found",
       "confidenceReasons": [
         "placeholder-release-date"
-      ]
+      ],
+      "providerId": "manga-passion"
     },
     {
       "queueKey": "Berserk Master Edition|Panini Manga|13",
@@ -251,7 +257,7 @@
       "reviewStatus": "auto-not-yet-released",
       "sourceUrl": "https://www.manga-passion.de/editions/5211",
       "releaseDate": null,
-      "checkedAt": "2026-05-19T15:26:34.180Z",
+      "checkedAt": "2026-05-21T16:30:57.508Z",
       "evidence": "Automatische Quellenprüfung: volume-found. Confidence: blocked. Gruende: placeholder-release-date. Edition: 5211. Score: 100.",
       "notes": "Automatisch geprüft; nicht sicher genug für den öffentlichen Cache.",
       "sourceConfidence": "blocked",
@@ -263,7 +269,8 @@
       "sourceResult": "volume-found",
       "confidenceReasons": [
         "placeholder-release-date"
-      ]
+      ],
+      "providerId": "manga-passion"
     },
     {
       "queueKey": "Berserk Master Edition|Panini Manga|14",
@@ -287,7 +294,7 @@
       "reviewStatus": "auto-not-yet-released",
       "sourceUrl": "https://www.manga-passion.de/editions/5211",
       "releaseDate": null,
-      "checkedAt": "2026-05-19T15:26:34.180Z",
+      "checkedAt": "2026-05-21T16:30:57.508Z",
       "evidence": "Automatische Quellenprüfung: volume-found. Confidence: blocked. Gruende: placeholder-release-date. Edition: 5211. Score: 100.",
       "notes": "Automatisch geprüft; nicht sicher genug für den öffentlichen Cache.",
       "sourceConfidence": "blocked",
@@ -299,7 +306,8 @@
       "sourceResult": "volume-found",
       "confidenceReasons": [
         "placeholder-release-date"
-      ]
+      ],
+      "providerId": "manga-passion"
     },
     {
       "queueKey": "Vagabond – Master Edition|Egmont Manga|13",
@@ -323,7 +331,7 @@
       "reviewStatus": "auto-not-yet-released",
       "sourceUrl": "https://www.manga-passion.de/editions/4636",
       "releaseDate": null,
-      "checkedAt": "2026-05-19T15:26:34.180Z",
+      "checkedAt": "2026-05-21T16:30:57.508Z",
       "evidence": "Automatische Quellenprüfung: volume-found. Confidence: blocked. Gruende: placeholder-release-date. Edition: 4636. Score: 100.",
       "notes": "Automatisch geprüft; nicht sicher genug für den öffentlichen Cache.",
       "sourceConfidence": "blocked",
@@ -335,7 +343,8 @@
       "sourceResult": "volume-found",
       "confidenceReasons": [
         "placeholder-release-date"
-      ]
+      ],
+      "providerId": "manga-passion"
     },
     {
       "queueKey": "Vagabond – Master Edition|Egmont Manga|14",
@@ -359,7 +368,7 @@
       "reviewStatus": "auto-not-yet-released",
       "sourceUrl": "https://www.manga-passion.de/editions/4636",
       "releaseDate": null,
-      "checkedAt": "2026-05-19T15:26:34.180Z",
+      "checkedAt": "2026-05-21T16:30:57.508Z",
       "evidence": "Automatische Quellenprüfung: volume-found. Confidence: blocked. Gruende: placeholder-release-date. Edition: 4636. Score: 100.",
       "notes": "Automatisch geprüft; nicht sicher genug für den öffentlichen Cache.",
       "sourceConfidence": "blocked",
@@ -371,7 +380,8 @@
       "sourceResult": "volume-found",
       "confidenceReasons": [
         "placeholder-release-date"
-      ]
+      ],
+      "providerId": "manga-passion"
     },
     {
       "queueKey": "Vagabond – Master Edition|Egmont Manga|15",
@@ -395,7 +405,7 @@
       "reviewStatus": "auto-not-yet-released",
       "sourceUrl": "https://www.manga-passion.de/editions/4636",
       "releaseDate": null,
-      "checkedAt": "2026-05-19T15:26:34.180Z",
+      "checkedAt": "2026-05-21T16:30:57.508Z",
       "evidence": "Automatische Quellenprüfung: volume-found. Confidence: blocked. Gruende: placeholder-release-date. Edition: 4636. Score: 100.",
       "notes": "Automatisch geprüft; nicht sicher genug für den öffentlichen Cache.",
       "sourceConfidence": "blocked",
@@ -407,7 +417,8 @@
       "sourceResult": "volume-found",
       "confidenceReasons": [
         "placeholder-release-date"
-      ]
+      ],
+      "providerId": "manga-passion"
     },
     {
       "queueKey": "Vagabond – Master Edition|Egmont Manga|16",
@@ -431,7 +442,7 @@
       "reviewStatus": "auto-not-yet-released",
       "sourceUrl": "https://www.manga-passion.de/editions/4636",
       "releaseDate": null,
-      "checkedAt": "2026-05-19T15:26:34.180Z",
+      "checkedAt": "2026-05-21T16:30:57.508Z",
       "evidence": "Automatische Quellenprüfung: volume-found. Confidence: blocked. Gruende: placeholder-release-date. Edition: 4636. Score: 100.",
       "notes": "Automatisch geprüft; nicht sicher genug für den öffentlichen Cache.",
       "sourceConfidence": "blocked",
@@ -443,7 +454,8 @@
       "sourceResult": "volume-found",
       "confidenceReasons": [
         "placeholder-release-date"
-      ]
+      ],
+      "providerId": "manga-passion"
     },
     {
       "queueKey": "Vagabond – Master Edition|Egmont Manga|17",
@@ -467,7 +479,7 @@
       "reviewStatus": "auto-not-yet-released",
       "sourceUrl": "https://www.manga-passion.de/editions/4636",
       "releaseDate": null,
-      "checkedAt": "2026-05-19T15:26:34.180Z",
+      "checkedAt": "2026-05-21T16:30:57.508Z",
       "evidence": "Automatische Quellenprüfung: volume-found. Confidence: blocked. Gruende: placeholder-release-date. Edition: 4636. Score: 100.",
       "notes": "Automatisch geprüft; nicht sicher genug für den öffentlichen Cache.",
       "sourceConfidence": "blocked",
@@ -479,7 +491,8 @@
       "sourceResult": "volume-found",
       "confidenceReasons": [
         "placeholder-release-date"
-      ]
+      ],
+      "providerId": "manga-passion"
     },
     {
       "queueKey": "Vagabond – Master Edition|Egmont Manga|18",
@@ -503,7 +516,7 @@
       "reviewStatus": "auto-not-yet-released",
       "sourceUrl": "https://www.manga-passion.de/editions/4636",
       "releaseDate": null,
-      "checkedAt": "2026-05-19T15:26:34.180Z",
+      "checkedAt": "2026-05-21T16:30:57.508Z",
       "evidence": "Automatische Quellenprüfung: volume-found. Confidence: blocked. Gruende: placeholder-release-date. Edition: 4636. Score: 100.",
       "notes": "Automatisch geprüft; nicht sicher genug für den öffentlichen Cache.",
       "sourceConfidence": "blocked",
@@ -515,7 +528,8 @@
       "sourceResult": "volume-found",
       "confidenceReasons": [
         "placeholder-release-date"
-      ]
+      ],
+      "providerId": "manga-passion"
     },
     {
       "queueKey": "Vagabond – Master Edition|Egmont Manga|19",
@@ -539,7 +553,7 @@
       "reviewStatus": "auto-not-yet-released",
       "sourceUrl": "https://www.manga-passion.de/editions/4636",
       "releaseDate": null,
-      "checkedAt": "2026-05-19T15:26:34.180Z",
+      "checkedAt": "2026-05-21T16:30:57.508Z",
       "evidence": "Automatische Quellenprüfung: volume-found. Confidence: blocked. Gruende: placeholder-release-date. Edition: 4636. Score: 100.",
       "notes": "Automatisch geprüft; nicht sicher genug für den öffentlichen Cache.",
       "sourceConfidence": "blocked",
@@ -551,7 +565,8 @@
       "sourceResult": "volume-found",
       "confidenceReasons": [
         "placeholder-release-date"
-      ]
+      ],
+      "providerId": "manga-passion"
     },
     {
       "queueKey": "Arifureta: Der Kampf zurück in meine Welt – Zero|Altraverse|4",
@@ -575,7 +590,7 @@
       "reviewStatus": "auto-not-yet-released",
       "sourceUrl": "https://www.manga-passion.de/editions/5807",
       "releaseDate": null,
-      "checkedAt": "2026-05-19T15:26:34.180Z",
+      "checkedAt": "2026-05-21T16:30:57.508Z",
       "evidence": "Automatische Quellenprüfung: volume-found. Confidence: blocked. Gruende: placeholder-release-date. Edition: 5807. Score: 100.",
       "notes": "Automatisch geprüft; nicht sicher genug für den öffentlichen Cache.",
       "sourceConfidence": "blocked",
@@ -587,7 +602,8 @@
       "sourceResult": "volume-found",
       "confidenceReasons": [
         "placeholder-release-date"
-      ]
+      ],
+      "providerId": "manga-passion"
     },
     {
       "queueKey": "Arifureta: Der Kampf zurück in meine Welt – Zero|Altraverse|5",
@@ -611,7 +627,7 @@
       "reviewStatus": "auto-not-yet-released",
       "sourceUrl": "https://www.manga-passion.de/editions/5807",
       "releaseDate": null,
-      "checkedAt": "2026-05-19T15:26:34.180Z",
+      "checkedAt": "2026-05-21T16:30:57.508Z",
       "evidence": "Automatische Quellenprüfung: volume-found. Confidence: blocked. Gruende: placeholder-release-date. Edition: 5807. Score: 100.",
       "notes": "Automatisch geprüft; nicht sicher genug für den öffentlichen Cache.",
       "sourceConfidence": "blocked",
@@ -623,7 +639,8 @@
       "sourceResult": "volume-found",
       "confidenceReasons": [
         "placeholder-release-date"
-      ]
+      ],
+      "providerId": "manga-passion"
     },
     {
       "queueKey": "Arifureta: Der Kampf zurück in meine Welt – Zero|Altraverse|6",
@@ -647,7 +664,7 @@
       "reviewStatus": "auto-not-yet-released",
       "sourceUrl": "https://www.manga-passion.de/editions/5807",
       "releaseDate": null,
-      "checkedAt": "2026-05-19T15:26:34.180Z",
+      "checkedAt": "2026-05-21T16:30:57.508Z",
       "evidence": "Automatische Quellenprüfung: volume-found. Confidence: blocked. Gruende: placeholder-release-date. Edition: 5807. Score: 100.",
       "notes": "Automatisch geprüft; nicht sicher genug für den öffentlichen Cache.",
       "sourceConfidence": "blocked",
@@ -659,7 +676,8 @@
       "sourceResult": "volume-found",
       "confidenceReasons": [
         "placeholder-release-date"
-      ]
+      ],
+      "providerId": "manga-passion"
     },
     {
       "queueKey": "Arifureta: Der Kampf zurück in meine Welt – Zero|Altraverse|7",
@@ -683,7 +701,7 @@
       "reviewStatus": "auto-not-yet-released",
       "sourceUrl": "https://www.manga-passion.de/editions/5807",
       "releaseDate": null,
-      "checkedAt": "2026-05-19T15:26:34.180Z",
+      "checkedAt": "2026-05-21T16:30:57.508Z",
       "evidence": "Automatische Quellenprüfung: volume-found. Confidence: blocked. Gruende: placeholder-release-date. Edition: 5807. Score: 100.",
       "notes": "Automatisch geprüft; nicht sicher genug für den öffentlichen Cache.",
       "sourceConfidence": "blocked",
@@ -695,7 +713,8 @@
       "sourceResult": "volume-found",
       "confidenceReasons": [
         "placeholder-release-date"
-      ]
+      ],
+      "providerId": "manga-passion"
     },
     {
       "queueKey": "Arifureta: Der Kampf zurück in meine Welt – Zero|Altraverse|8",
@@ -719,7 +738,7 @@
       "reviewStatus": "auto-not-yet-released",
       "sourceUrl": "https://www.manga-passion.de/editions/5807",
       "releaseDate": null,
-      "checkedAt": "2026-05-19T15:26:34.180Z",
+      "checkedAt": "2026-05-21T16:30:57.508Z",
       "evidence": "Automatische Quellenprüfung: volume-found. Confidence: blocked. Gruende: placeholder-release-date. Edition: 5807. Score: 100.",
       "notes": "Automatisch geprüft; nicht sicher genug für den öffentlichen Cache.",
       "sourceConfidence": "blocked",
@@ -731,7 +750,8 @@
       "sourceResult": "volume-found",
       "confidenceReasons": [
         "placeholder-release-date"
-      ]
+      ],
+      "providerId": "manga-passion"
     },
     {
       "queueKey": "Isekai Soapland|MANGAMOON|3",
@@ -755,7 +775,7 @@
       "reviewStatus": "auto-not-yet-released",
       "sourceUrl": "https://www.manga-passion.de/editions/6069",
       "releaseDate": null,
-      "checkedAt": "2026-05-19T15:26:34.180Z",
+      "checkedAt": "2026-05-21T16:30:57.508Z",
       "evidence": "Automatische Quellenprüfung: volume-found. Confidence: blocked. Gruende: placeholder-release-date. Edition: 6069. Score: 100.",
       "notes": "Automatisch geprüft; nicht sicher genug für den öffentlichen Cache.",
       "sourceConfidence": "blocked",
@@ -767,7 +787,8 @@
       "sourceResult": "volume-found",
       "confidenceReasons": [
         "placeholder-release-date"
-      ]
+      ],
+      "providerId": "manga-passion"
     },
     {
       "queueKey": "Isekai Soapland|MANGAMOON|4",
@@ -791,7 +812,7 @@
       "reviewStatus": "auto-not-yet-released",
       "sourceUrl": "https://www.manga-passion.de/editions/6069",
       "releaseDate": null,
-      "checkedAt": "2026-05-19T15:26:34.180Z",
+      "checkedAt": "2026-05-21T16:30:57.508Z",
       "evidence": "Automatische Quellenprüfung: volume-found. Confidence: blocked. Gruende: placeholder-release-date. Edition: 6069. Score: 100.",
       "notes": "Automatisch geprüft; nicht sicher genug für den öffentlichen Cache.",
       "sourceConfidence": "blocked",
@@ -803,7 +824,8 @@
       "sourceResult": "volume-found",
       "confidenceReasons": [
         "placeholder-release-date"
-      ]
+      ],
+      "providerId": "manga-passion"
     },
     {
       "queueKey": "Isekai Soapland|MANGAMOON|5",
@@ -827,7 +849,7 @@
       "reviewStatus": "auto-not-yet-released",
       "sourceUrl": "https://www.manga-passion.de/editions/6069",
       "releaseDate": null,
-      "checkedAt": "2026-05-19T15:26:34.180Z",
+      "checkedAt": "2026-05-21T16:30:57.508Z",
       "evidence": "Automatische Quellenprüfung: volume-found. Confidence: blocked. Gruende: placeholder-release-date. Edition: 6069. Score: 100.",
       "notes": "Automatisch geprüft; nicht sicher genug für den öffentlichen Cache.",
       "sourceConfidence": "blocked",
@@ -839,7 +861,8 @@
       "sourceResult": "volume-found",
       "confidenceReasons": [
         "placeholder-release-date"
-      ]
+      ],
+      "providerId": "manga-passion"
     },
     {
       "queueKey": "Isekai Soapland|MANGAMOON|6",
@@ -863,7 +886,7 @@
       "reviewStatus": "auto-not-yet-released",
       "sourceUrl": "https://www.manga-passion.de/editions/6069",
       "releaseDate": null,
-      "checkedAt": "2026-05-19T15:26:34.180Z",
+      "checkedAt": "2026-05-21T16:30:57.508Z",
       "evidence": "Automatische Quellenprüfung: volume-found. Confidence: blocked. Gruende: placeholder-release-date. Edition: 6069. Score: 100.",
       "notes": "Automatisch geprüft; nicht sicher genug für den öffentlichen Cache.",
       "sourceConfidence": "blocked",
@@ -875,7 +898,8 @@
       "sourceResult": "volume-found",
       "confidenceReasons": [
         "placeholder-release-date"
-      ]
+      ],
+      "providerId": "manga-passion"
     },
     {
       "queueKey": "Isekai Soapland|MANGAMOON|7",
@@ -899,7 +923,7 @@
       "reviewStatus": "auto-not-yet-released",
       "sourceUrl": "https://www.manga-passion.de/editions/6069",
       "releaseDate": null,
-      "checkedAt": "2026-05-19T15:26:34.180Z",
+      "checkedAt": "2026-05-21T16:30:57.508Z",
       "evidence": "Automatische Quellenprüfung: volume-found. Confidence: blocked. Gruende: placeholder-release-date. Edition: 6069. Score: 100.",
       "notes": "Automatisch geprüft; nicht sicher genug für den öffentlichen Cache.",
       "sourceConfidence": "blocked",
@@ -911,7 +935,8 @@
       "sourceResult": "volume-found",
       "confidenceReasons": [
         "placeholder-release-date"
-      ]
+      ],
+      "providerId": "manga-passion"
     },
     {
       "queueKey": "Isekai Soapland|MANGAMOON|8",
@@ -935,7 +960,7 @@
       "reviewStatus": "auto-not-yet-released",
       "sourceUrl": "https://www.manga-passion.de/editions/6069",
       "releaseDate": null,
-      "checkedAt": "2026-05-19T15:26:34.180Z",
+      "checkedAt": "2026-05-21T16:30:57.508Z",
       "evidence": "Automatische Quellenprüfung: volume-found. Confidence: blocked. Gruende: placeholder-release-date. Edition: 6069. Score: 100.",
       "notes": "Automatisch geprüft; nicht sicher genug für den öffentlichen Cache.",
       "sourceConfidence": "blocked",
@@ -947,7 +972,8 @@
       "sourceResult": "volume-found",
       "confidenceReasons": [
         "placeholder-release-date"
-      ]
+      ],
+      "providerId": "manga-passion"
     },
     {
       "queueKey": "Adou|Altraverse|12",
@@ -971,7 +997,7 @@
       "reviewStatus": "auto-low-confidence",
       "sourceUrl": "https://www.manga-passion.de/editions/518",
       "releaseDate": null,
-      "checkedAt": "2026-05-19T15:42:35.914Z",
+      "checkedAt": "2026-05-21T16:30:57.508Z",
       "evidence": "Automatische Quellenprüfung: volume-not-found. Confidence: low. Gruende: missing-source-volume-number, missing-release-date. Edition: 518.",
       "notes": "Automatisch geprüft; nicht sicher genug für den öffentlichen Cache.",
       "sourceConfidence": "low",
@@ -984,7 +1010,8 @@
       "confidenceReasons": [
         "missing-source-volume-number",
         "missing-release-date"
-      ]
+      ],
+      "providerId": "manga-passion"
     },
     {
       "queueKey": "Chainsaw Man|Egmont Manga|23",
@@ -1008,7 +1035,7 @@
       "reviewStatus": "auto-not-yet-released",
       "sourceUrl": "https://www.manga-passion.de/editions/269",
       "releaseDate": null,
-      "checkedAt": "2026-05-19T15:26:34.180Z",
+      "checkedAt": "2026-05-21T16:30:57.508Z",
       "evidence": "Automatische Quellenprüfung: volume-found. Confidence: blocked. Gruende: placeholder-release-date. Edition: 269. Score: 100.",
       "notes": "Automatisch geprüft; nicht sicher genug für den öffentlichen Cache.",
       "sourceConfidence": "blocked",
@@ -1020,7 +1047,8 @@
       "sourceResult": "volume-found",
       "confidenceReasons": [
         "placeholder-release-date"
-      ]
+      ],
+      "providerId": "manga-passion"
     },
     {
       "queueKey": "Fairy Tail|Carlsen Manga|16",
@@ -1038,7 +1066,7 @@
       "reviewStatus": "auto-blocked",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2011-11-22",
-      "checkedAt": "2026-05-19T15:26:34.180Z",
+      "checkedAt": "2026-05-21T16:30:57.508Z",
       "evidence": "Automatische Quellenprüfung: volume-found. Confidence: blocked. Gruende: ambiguous-edition. Edition: 960. Score: 105.",
       "notes": "Automatisch geprüft; nicht sicher genug für den öffentlichen Cache.",
       "sourceConfidence": "blocked",
@@ -1050,7 +1078,8 @@
       "sourceResult": "volume-found",
       "confidenceReasons": [
         "ambiguous-edition"
-      ]
+      ],
+      "providerId": "manga-passion"
     },
     {
       "queueKey": "Fairy Tail|Carlsen Manga|17",
@@ -1068,7 +1097,7 @@
       "reviewStatus": "auto-blocked",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2011-12-16",
-      "checkedAt": "2026-05-19T15:26:34.180Z",
+      "checkedAt": "2026-05-21T16:30:57.508Z",
       "evidence": "Automatische Quellenprüfung: volume-found. Confidence: blocked. Gruende: ambiguous-edition. Edition: 960. Score: 105.",
       "notes": "Automatisch geprüft; nicht sicher genug für den öffentlichen Cache.",
       "sourceConfidence": "blocked",
@@ -1080,7 +1109,8 @@
       "sourceResult": "volume-found",
       "confidenceReasons": [
         "ambiguous-edition"
-      ]
+      ],
+      "providerId": "manga-passion"
     },
     {
       "queueKey": "Fairy Tail|Carlsen Manga|18",
@@ -1098,7 +1128,7 @@
       "reviewStatus": "auto-blocked",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2012-01-31",
-      "checkedAt": "2026-05-19T15:26:34.180Z",
+      "checkedAt": "2026-05-21T16:30:57.508Z",
       "evidence": "Automatische Quellenprüfung: volume-found. Confidence: blocked. Gruende: ambiguous-edition. Edition: 960. Score: 105.",
       "notes": "Automatisch geprüft; nicht sicher genug für den öffentlichen Cache.",
       "sourceConfidence": "blocked",
@@ -1110,7 +1140,8 @@
       "sourceResult": "volume-found",
       "confidenceReasons": [
         "ambiguous-edition"
-      ]
+      ],
+      "providerId": "manga-passion"
     },
     {
       "queueKey": "Fairy Tail|Carlsen Manga|19",
@@ -1128,7 +1159,7 @@
       "reviewStatus": "auto-blocked",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2012-02-28",
-      "checkedAt": "2026-05-19T15:26:34.180Z",
+      "checkedAt": "2026-05-21T16:30:57.508Z",
       "evidence": "Automatische Quellenprüfung: volume-found. Confidence: blocked. Gruende: ambiguous-edition. Edition: 960. Score: 105.",
       "notes": "Automatisch geprüft; nicht sicher genug für den öffentlichen Cache.",
       "sourceConfidence": "blocked",
@@ -1140,7 +1171,8 @@
       "sourceResult": "volume-found",
       "confidenceReasons": [
         "ambiguous-edition"
-      ]
+      ],
+      "providerId": "manga-passion"
     },
     {
       "queueKey": "Fairy Tail|Carlsen Manga|20",
@@ -1158,7 +1190,7 @@
       "reviewStatus": "auto-blocked",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2012-03-20",
-      "checkedAt": "2026-05-19T15:26:34.180Z",
+      "checkedAt": "2026-05-21T16:30:57.508Z",
       "evidence": "Automatische Quellenprüfung: volume-found. Confidence: blocked. Gruende: ambiguous-edition. Edition: 960. Score: 105.",
       "notes": "Automatisch geprüft; nicht sicher genug für den öffentlichen Cache.",
       "sourceConfidence": "blocked",
@@ -1170,7 +1202,8 @@
       "sourceResult": "volume-found",
       "confidenceReasons": [
         "ambiguous-edition"
-      ]
+      ],
+      "providerId": "manga-passion"
     },
     {
       "queueKey": "Fairy Tail|Carlsen Manga|21",
@@ -1188,7 +1221,7 @@
       "reviewStatus": "auto-blocked",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2012-05-29",
-      "checkedAt": "2026-05-19T15:26:34.180Z",
+      "checkedAt": "2026-05-21T16:30:57.508Z",
       "evidence": "Automatische Quellenprüfung: volume-found. Confidence: blocked. Gruende: ambiguous-edition. Edition: 960. Score: 105.",
       "notes": "Automatisch geprüft; nicht sicher genug für den öffentlichen Cache.",
       "sourceConfidence": "blocked",
@@ -1200,7 +1233,8 @@
       "sourceResult": "volume-found",
       "confidenceReasons": [
         "ambiguous-edition"
-      ]
+      ],
+      "providerId": "manga-passion"
     },
     {
       "queueKey": "Fairy Tail|Carlsen Manga|22",
@@ -1218,7 +1252,7 @@
       "reviewStatus": "auto-blocked",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2012-07-31",
-      "checkedAt": "2026-05-19T15:26:34.180Z",
+      "checkedAt": "2026-05-21T16:30:57.508Z",
       "evidence": "Automatische Quellenprüfung: volume-found. Confidence: blocked. Gruende: ambiguous-edition. Edition: 960. Score: 105.",
       "notes": "Automatisch geprüft; nicht sicher genug für den öffentlichen Cache.",
       "sourceConfidence": "blocked",
@@ -1230,7 +1264,8 @@
       "sourceResult": "volume-found",
       "confidenceReasons": [
         "ambiguous-edition"
-      ]
+      ],
+      "providerId": "manga-passion"
     },
     {
       "queueKey": "Fairy Tail|Carlsen Manga|23",
@@ -1248,7 +1283,7 @@
       "reviewStatus": "auto-blocked",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2012-10-02",
-      "checkedAt": "2026-05-19T15:26:34.180Z",
+      "checkedAt": "2026-05-21T16:30:57.508Z",
       "evidence": "Automatische Quellenprüfung: volume-found. Confidence: blocked. Gruende: ambiguous-edition. Edition: 960. Score: 105.",
       "notes": "Automatisch geprüft; nicht sicher genug für den öffentlichen Cache.",
       "sourceConfidence": "blocked",
@@ -1260,7 +1295,8 @@
       "sourceResult": "volume-found",
       "confidenceReasons": [
         "ambiguous-edition"
-      ]
+      ],
+      "providerId": "manga-passion"
     },
     {
       "queueKey": "Fairy Tail|Carlsen Manga|24",
@@ -1278,7 +1314,7 @@
       "reviewStatus": "auto-blocked",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2012-12-04",
-      "checkedAt": "2026-05-19T15:26:34.180Z",
+      "checkedAt": "2026-05-21T16:30:57.508Z",
       "evidence": "Automatische Quellenprüfung: volume-found. Confidence: blocked. Gruende: ambiguous-edition. Edition: 960. Score: 105.",
       "notes": "Automatisch geprüft; nicht sicher genug für den öffentlichen Cache.",
       "sourceConfidence": "blocked",
@@ -1290,7 +1326,8 @@
       "sourceResult": "volume-found",
       "confidenceReasons": [
         "ambiguous-edition"
-      ]
+      ],
+      "providerId": "manga-passion"
     },
     {
       "queueKey": "Fairy Tail|Carlsen Manga|25",
@@ -1308,7 +1345,7 @@
       "reviewStatus": "auto-blocked",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2013-01-29",
-      "checkedAt": "2026-05-19T15:26:34.180Z",
+      "checkedAt": "2026-05-21T16:30:57.508Z",
       "evidence": "Automatische Quellenprüfung: volume-found. Confidence: blocked. Gruende: ambiguous-edition. Edition: 960. Score: 105.",
       "notes": "Automatisch geprüft; nicht sicher genug für den öffentlichen Cache.",
       "sourceConfidence": "blocked",
@@ -1320,7 +1357,8 @@
       "sourceResult": "volume-found",
       "confidenceReasons": [
         "ambiguous-edition"
-      ]
+      ],
+      "providerId": "manga-passion"
     },
     {
       "queueKey": "Fairy Tail|Carlsen Manga|26",
@@ -1338,7 +1376,7 @@
       "reviewStatus": "auto-blocked",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2013-03-19",
-      "checkedAt": "2026-05-19T15:26:34.180Z",
+      "checkedAt": "2026-05-21T16:30:57.508Z",
       "evidence": "Automatische Quellenprüfung: volume-found. Confidence: blocked. Gruende: ambiguous-edition. Edition: 960. Score: 105.",
       "notes": "Automatisch geprüft; nicht sicher genug für den öffentlichen Cache.",
       "sourceConfidence": "blocked",
@@ -1350,7 +1388,8 @@
       "sourceResult": "volume-found",
       "confidenceReasons": [
         "ambiguous-edition"
-      ]
+      ],
+      "providerId": "manga-passion"
     },
     {
       "queueKey": "Fairy Tail|Carlsen Manga|27",
@@ -1368,7 +1407,7 @@
       "reviewStatus": "auto-blocked",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2013-05-29",
-      "checkedAt": "2026-05-19T15:26:34.180Z",
+      "checkedAt": "2026-05-21T16:30:57.508Z",
       "evidence": "Automatische Quellenprüfung: volume-found. Confidence: blocked. Gruende: ambiguous-edition. Edition: 960. Score: 105.",
       "notes": "Automatisch geprüft; nicht sicher genug für den öffentlichen Cache.",
       "sourceConfidence": "blocked",
@@ -1380,7 +1419,8 @@
       "sourceResult": "volume-found",
       "confidenceReasons": [
         "ambiguous-edition"
-      ]
+      ],
+      "providerId": "manga-passion"
     },
     {
       "queueKey": "Fairy Tail|Carlsen Manga|28",
@@ -1398,7 +1438,7 @@
       "reviewStatus": "auto-blocked",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2013-07-30",
-      "checkedAt": "2026-05-19T15:26:34.180Z",
+      "checkedAt": "2026-05-21T16:30:57.508Z",
       "evidence": "Automatische Quellenprüfung: volume-found. Confidence: blocked. Gruende: ambiguous-edition. Edition: 960. Score: 105.",
       "notes": "Automatisch geprüft; nicht sicher genug für den öffentlichen Cache.",
       "sourceConfidence": "blocked",
@@ -1410,7 +1450,8 @@
       "sourceResult": "volume-found",
       "confidenceReasons": [
         "ambiguous-edition"
-      ]
+      ],
+      "providerId": "manga-passion"
     },
     {
       "queueKey": "Fairy Tail|Carlsen Manga|29",
@@ -1428,7 +1469,7 @@
       "reviewStatus": "auto-blocked",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2013-10-01",
-      "checkedAt": "2026-05-19T15:26:34.180Z",
+      "checkedAt": "2026-05-21T16:30:57.508Z",
       "evidence": "Automatische Quellenprüfung: volume-found. Confidence: blocked. Gruende: ambiguous-edition. Edition: 960. Score: 105.",
       "notes": "Automatisch geprüft; nicht sicher genug für den öffentlichen Cache.",
       "sourceConfidence": "blocked",
@@ -1440,7 +1481,8 @@
       "sourceResult": "volume-found",
       "confidenceReasons": [
         "ambiguous-edition"
-      ]
+      ],
+      "providerId": "manga-passion"
     },
     {
       "queueKey": "Fairy Tail|Carlsen Manga|30",
@@ -1458,7 +1500,7 @@
       "reviewStatus": "auto-blocked",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2013-12-03",
-      "checkedAt": "2026-05-19T15:26:34.180Z",
+      "checkedAt": "2026-05-21T16:30:57.508Z",
       "evidence": "Automatische Quellenprüfung: volume-found. Confidence: blocked. Gruende: ambiguous-edition. Edition: 960. Score: 105.",
       "notes": "Automatisch geprüft; nicht sicher genug für den öffentlichen Cache.",
       "sourceConfidence": "blocked",
@@ -1470,7 +1512,8 @@
       "sourceResult": "volume-found",
       "confidenceReasons": [
         "ambiguous-edition"
-      ]
+      ],
+      "providerId": "manga-passion"
     },
     {
       "queueKey": "Fairy Tail|Carlsen Manga|31",
@@ -1488,7 +1531,7 @@
       "reviewStatus": "auto-blocked",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2014-01-28",
-      "checkedAt": "2026-05-19T15:26:34.180Z",
+      "checkedAt": "2026-05-21T16:30:57.508Z",
       "evidence": "Automatische Quellenprüfung: volume-found. Confidence: blocked. Gruende: ambiguous-edition. Edition: 960. Score: 105.",
       "notes": "Automatisch geprüft; nicht sicher genug für den öffentlichen Cache.",
       "sourceConfidence": "blocked",
@@ -1500,7 +1543,8 @@
       "sourceResult": "volume-found",
       "confidenceReasons": [
         "ambiguous-edition"
-      ]
+      ],
+      "providerId": "manga-passion"
     },
     {
       "queueKey": "Fairy Tail|Carlsen Manga|32",
@@ -1518,7 +1562,7 @@
       "reviewStatus": "auto-blocked",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2014-03-18",
-      "checkedAt": "2026-05-19T15:26:34.180Z",
+      "checkedAt": "2026-05-21T16:30:57.508Z",
       "evidence": "Automatische Quellenprüfung: volume-found. Confidence: blocked. Gruende: ambiguous-edition. Edition: 960. Score: 105.",
       "notes": "Automatisch geprüft; nicht sicher genug für den öffentlichen Cache.",
       "sourceConfidence": "blocked",
@@ -1530,7 +1574,8 @@
       "sourceResult": "volume-found",
       "confidenceReasons": [
         "ambiguous-edition"
-      ]
+      ],
+      "providerId": "manga-passion"
     },
     {
       "queueKey": "Fairy Tail|Carlsen Manga|33",
@@ -1548,7 +1593,7 @@
       "reviewStatus": "auto-blocked",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2014-05-27",
-      "checkedAt": "2026-05-19T15:26:34.180Z",
+      "checkedAt": "2026-05-21T16:30:57.508Z",
       "evidence": "Automatische Quellenprüfung: volume-found. Confidence: blocked. Gruende: ambiguous-edition. Edition: 960. Score: 105.",
       "notes": "Automatisch geprüft; nicht sicher genug für den öffentlichen Cache.",
       "sourceConfidence": "blocked",
@@ -1560,7 +1605,8 @@
       "sourceResult": "volume-found",
       "confidenceReasons": [
         "ambiguous-edition"
-      ]
+      ],
+      "providerId": "manga-passion"
     },
     {
       "queueKey": "Fairy Tail|Carlsen Manga|34",
@@ -1578,7 +1624,7 @@
       "reviewStatus": "auto-blocked",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2014-07-29",
-      "checkedAt": "2026-05-19T15:26:34.180Z",
+      "checkedAt": "2026-05-21T16:30:57.508Z",
       "evidence": "Automatische Quellenprüfung: volume-found. Confidence: blocked. Gruende: ambiguous-edition. Edition: 960. Score: 105.",
       "notes": "Automatisch geprüft; nicht sicher genug für den öffentlichen Cache.",
       "sourceConfidence": "blocked",
@@ -1590,7 +1636,8 @@
       "sourceResult": "volume-found",
       "confidenceReasons": [
         "ambiguous-edition"
-      ]
+      ],
+      "providerId": "manga-passion"
     },
     {
       "queueKey": "Fairy Tail|Carlsen Manga|35",
@@ -1608,7 +1655,7 @@
       "reviewStatus": "auto-blocked",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2014-09-30",
-      "checkedAt": "2026-05-19T15:26:34.180Z",
+      "checkedAt": "2026-05-21T16:30:57.508Z",
       "evidence": "Automatische Quellenprüfung: volume-found. Confidence: blocked. Gruende: ambiguous-edition. Edition: 960. Score: 105.",
       "notes": "Automatisch geprüft; nicht sicher genug für den öffentlichen Cache.",
       "sourceConfidence": "blocked",
@@ -1620,7 +1667,8 @@
       "sourceResult": "volume-found",
       "confidenceReasons": [
         "ambiguous-edition"
-      ]
+      ],
+      "providerId": "manga-passion"
     },
     {
       "queueKey": "Fairy Tail|Carlsen Manga|36",
@@ -1638,7 +1686,7 @@
       "reviewStatus": "auto-blocked",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2014-11-25",
-      "checkedAt": "2026-05-19T15:26:34.180Z",
+      "checkedAt": "2026-05-21T16:30:57.508Z",
       "evidence": "Automatische Quellenprüfung: volume-found. Confidence: blocked. Gruende: ambiguous-edition. Edition: 960. Score: 105.",
       "notes": "Automatisch geprüft; nicht sicher genug für den öffentlichen Cache.",
       "sourceConfidence": "blocked",
@@ -1650,7 +1698,8 @@
       "sourceResult": "volume-found",
       "confidenceReasons": [
         "ambiguous-edition"
-      ]
+      ],
+      "providerId": "manga-passion"
     },
     {
       "queueKey": "Fairy Tail|Carlsen Manga|37",
@@ -1668,7 +1717,7 @@
       "reviewStatus": "auto-blocked",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2015-01-27",
-      "checkedAt": "2026-05-19T15:26:34.180Z",
+      "checkedAt": "2026-05-21T16:30:57.508Z",
       "evidence": "Automatische Quellenprüfung: volume-found. Confidence: blocked. Gruende: ambiguous-edition. Edition: 960. Score: 105.",
       "notes": "Automatisch geprüft; nicht sicher genug für den öffentlichen Cache.",
       "sourceConfidence": "blocked",
@@ -1680,7 +1729,8 @@
       "sourceResult": "volume-found",
       "confidenceReasons": [
         "ambiguous-edition"
-      ]
+      ],
+      "providerId": "manga-passion"
     },
     {
       "queueKey": "Fairy Tail|Carlsen Manga|38",
@@ -1698,7 +1748,7 @@
       "reviewStatus": "auto-blocked",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2015-04-28",
-      "checkedAt": "2026-05-19T15:26:34.180Z",
+      "checkedAt": "2026-05-21T16:30:57.508Z",
       "evidence": "Automatische Quellenprüfung: volume-found. Confidence: blocked. Gruende: ambiguous-edition. Edition: 960. Score: 105.",
       "notes": "Automatisch geprüft; nicht sicher genug für den öffentlichen Cache.",
       "sourceConfidence": "blocked",
@@ -1710,7 +1760,8 @@
       "sourceResult": "volume-found",
       "confidenceReasons": [
         "ambiguous-edition"
-      ]
+      ],
+      "providerId": "manga-passion"
     },
     {
       "queueKey": "Fairy Tail|Carlsen Manga|39",
@@ -1728,7 +1779,7 @@
       "reviewStatus": "auto-blocked",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2015-06-30",
-      "checkedAt": "2026-05-19T15:26:34.180Z",
+      "checkedAt": "2026-05-21T16:30:57.508Z",
       "evidence": "Automatische Quellenprüfung: volume-found. Confidence: blocked. Gruende: ambiguous-edition. Edition: 960. Score: 105.",
       "notes": "Automatisch geprüft; nicht sicher genug für den öffentlichen Cache.",
       "sourceConfidence": "blocked",
@@ -1740,7 +1791,8 @@
       "sourceResult": "volume-found",
       "confidenceReasons": [
         "ambiguous-edition"
-      ]
+      ],
+      "providerId": "manga-passion"
     },
     {
       "queueKey": "Fairy Tail|Carlsen Manga|40",
@@ -1758,7 +1810,7 @@
       "reviewStatus": "auto-blocked",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2015-08-25",
-      "checkedAt": "2026-05-19T15:26:34.180Z",
+      "checkedAt": "2026-05-21T16:30:57.508Z",
       "evidence": "Automatische Quellenprüfung: volume-found. Confidence: blocked. Gruende: ambiguous-edition. Edition: 960. Score: 105.",
       "notes": "Automatisch geprüft; nicht sicher genug für den öffentlichen Cache.",
       "sourceConfidence": "blocked",
@@ -1770,7 +1822,8 @@
       "sourceResult": "volume-found",
       "confidenceReasons": [
         "ambiguous-edition"
-      ]
+      ],
+      "providerId": "manga-passion"
     },
     {
       "queueKey": "Fairy Tail|Carlsen Manga|41",
@@ -1788,7 +1841,7 @@
       "reviewStatus": "auto-blocked",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2015-10-28",
-      "checkedAt": "2026-05-19T15:26:34.180Z",
+      "checkedAt": "2026-05-21T16:30:57.508Z",
       "evidence": "Automatische Quellenprüfung: volume-found. Confidence: blocked. Gruende: ambiguous-edition. Edition: 960. Score: 105.",
       "notes": "Automatisch geprüft; nicht sicher genug für den öffentlichen Cache.",
       "sourceConfidence": "blocked",
@@ -1800,7 +1853,8 @@
       "sourceResult": "volume-found",
       "confidenceReasons": [
         "ambiguous-edition"
-      ]
+      ],
+      "providerId": "manga-passion"
     },
     {
       "queueKey": "Fairy Tail|Carlsen Manga|42",
@@ -1818,7 +1872,7 @@
       "reviewStatus": "auto-blocked",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2015-12-22",
-      "checkedAt": "2026-05-19T15:26:34.180Z",
+      "checkedAt": "2026-05-21T16:30:57.508Z",
       "evidence": "Automatische Quellenprüfung: volume-found. Confidence: blocked. Gruende: ambiguous-edition. Edition: 960. Score: 105.",
       "notes": "Automatisch geprüft; nicht sicher genug für den öffentlichen Cache.",
       "sourceConfidence": "blocked",
@@ -1830,7 +1884,8 @@
       "sourceResult": "volume-found",
       "confidenceReasons": [
         "ambiguous-edition"
-      ]
+      ],
+      "providerId": "manga-passion"
     },
     {
       "queueKey": "Fairy Tail|Carlsen Manga|43",
@@ -1848,7 +1903,7 @@
       "reviewStatus": "auto-blocked",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2016-03-01",
-      "checkedAt": "2026-05-19T15:26:34.180Z",
+      "checkedAt": "2026-05-21T16:30:57.508Z",
       "evidence": "Automatische Quellenprüfung: volume-found. Confidence: blocked. Gruende: ambiguous-edition. Edition: 960. Score: 105.",
       "notes": "Automatisch geprüft; nicht sicher genug für den öffentlichen Cache.",
       "sourceConfidence": "blocked",
@@ -1860,7 +1915,8 @@
       "sourceResult": "volume-found",
       "confidenceReasons": [
         "ambiguous-edition"
-      ]
+      ],
+      "providerId": "manga-passion"
     },
     {
       "queueKey": "Fairy Tail|Carlsen Manga|44",
@@ -1878,7 +1934,7 @@
       "reviewStatus": "auto-blocked",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2016-04-26",
-      "checkedAt": "2026-05-19T15:26:34.180Z",
+      "checkedAt": "2026-05-21T16:30:57.508Z",
       "evidence": "Automatische Quellenprüfung: volume-found. Confidence: blocked. Gruende: ambiguous-edition. Edition: 960. Score: 105.",
       "notes": "Automatisch geprüft; nicht sicher genug für den öffentlichen Cache.",
       "sourceConfidence": "blocked",
@@ -1890,7 +1946,8 @@
       "sourceResult": "volume-found",
       "confidenceReasons": [
         "ambiguous-edition"
-      ]
+      ],
+      "providerId": "manga-passion"
     },
     {
       "queueKey": "Fairy Tail|Carlsen Manga|45",
@@ -1908,7 +1965,7 @@
       "reviewStatus": "auto-blocked",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2016-06-26",
-      "checkedAt": "2026-05-19T15:26:34.180Z",
+      "checkedAt": "2026-05-21T16:30:57.508Z",
       "evidence": "Automatische Quellenprüfung: volume-found. Confidence: blocked. Gruende: ambiguous-edition. Edition: 960. Score: 105.",
       "notes": "Automatisch geprüft; nicht sicher genug für den öffentlichen Cache.",
       "sourceConfidence": "blocked",
@@ -1920,7 +1977,8 @@
       "sourceResult": "volume-found",
       "confidenceReasons": [
         "ambiguous-edition"
-      ]
+      ],
+      "providerId": "manga-passion"
     },
     {
       "queueKey": "Fairy Tail|Carlsen Manga|46",
@@ -1938,7 +1996,7 @@
       "reviewStatus": "auto-blocked",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2016-08-30",
-      "checkedAt": "2026-05-19T15:26:34.180Z",
+      "checkedAt": "2026-05-21T16:30:57.508Z",
       "evidence": "Automatische Quellenprüfung: volume-found. Confidence: blocked. Gruende: ambiguous-edition. Edition: 960. Score: 105.",
       "notes": "Automatisch geprüft; nicht sicher genug für den öffentlichen Cache.",
       "sourceConfidence": "blocked",
@@ -1950,7 +2008,8 @@
       "sourceResult": "volume-found",
       "confidenceReasons": [
         "ambiguous-edition"
-      ]
+      ],
+      "providerId": "manga-passion"
     },
     {
       "queueKey": "Fairy Tail|Carlsen Manga|47",
@@ -1968,7 +2027,7 @@
       "reviewStatus": "auto-blocked",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2016-10-25",
-      "checkedAt": "2026-05-19T15:26:34.180Z",
+      "checkedAt": "2026-05-21T16:30:57.508Z",
       "evidence": "Automatische Quellenprüfung: volume-found. Confidence: blocked. Gruende: ambiguous-edition. Edition: 960. Score: 105.",
       "notes": "Automatisch geprüft; nicht sicher genug für den öffentlichen Cache.",
       "sourceConfidence": "blocked",
@@ -1980,7 +2039,8 @@
       "sourceResult": "volume-found",
       "confidenceReasons": [
         "ambiguous-edition"
-      ]
+      ],
+      "providerId": "manga-passion"
     },
     {
       "queueKey": "Fairy Tail|Carlsen Manga|48",
@@ -1998,7 +2058,7 @@
       "reviewStatus": "auto-blocked",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2016-12-20",
-      "checkedAt": "2026-05-19T15:26:34.180Z",
+      "checkedAt": "2026-05-21T16:30:57.508Z",
       "evidence": "Automatische Quellenprüfung: volume-found. Confidence: blocked. Gruende: ambiguous-edition. Edition: 960. Score: 105.",
       "notes": "Automatisch geprüft; nicht sicher genug für den öffentlichen Cache.",
       "sourceConfidence": "blocked",
@@ -2010,7 +2070,8 @@
       "sourceResult": "volume-found",
       "confidenceReasons": [
         "ambiguous-edition"
-      ]
+      ],
+      "providerId": "manga-passion"
     },
     {
       "queueKey": "Fairy Tail|Carlsen Manga|49",
@@ -2028,7 +2089,7 @@
       "reviewStatus": "auto-blocked",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2017-02-28",
-      "checkedAt": "2026-05-19T15:26:34.180Z",
+      "checkedAt": "2026-05-21T16:30:57.508Z",
       "evidence": "Automatische Quellenprüfung: volume-found. Confidence: blocked. Gruende: ambiguous-edition. Edition: 960. Score: 105.",
       "notes": "Automatisch geprüft; nicht sicher genug für den öffentlichen Cache.",
       "sourceConfidence": "blocked",
@@ -2040,7 +2101,8 @@
       "sourceResult": "volume-found",
       "confidenceReasons": [
         "ambiguous-edition"
-      ]
+      ],
+      "providerId": "manga-passion"
     },
     {
       "queueKey": "Fairy Tail|Carlsen Manga|50",
@@ -2058,7 +2120,7 @@
       "reviewStatus": "auto-blocked",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2017-03-28",
-      "checkedAt": "2026-05-19T15:26:34.180Z",
+      "checkedAt": "2026-05-21T16:30:57.508Z",
       "evidence": "Automatische Quellenprüfung: volume-found. Confidence: blocked. Gruende: ambiguous-edition. Edition: 960. Score: 105.",
       "notes": "Automatisch geprüft; nicht sicher genug für den öffentlichen Cache.",
       "sourceConfidence": "blocked",
@@ -2070,7 +2132,8 @@
       "sourceResult": "volume-found",
       "confidenceReasons": [
         "ambiguous-edition"
-      ]
+      ],
+      "providerId": "manga-passion"
     },
     {
       "queueKey": "Fairy Tail|Carlsen Manga|51",
@@ -2088,7 +2151,7 @@
       "reviewStatus": "auto-blocked",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2017-05-30",
-      "checkedAt": "2026-05-19T15:26:34.180Z",
+      "checkedAt": "2026-05-21T16:30:57.508Z",
       "evidence": "Automatische Quellenprüfung: volume-found. Confidence: blocked. Gruende: ambiguous-edition. Edition: 960. Score: 105.",
       "notes": "Automatisch geprüft; nicht sicher genug für den öffentlichen Cache.",
       "sourceConfidence": "blocked",
@@ -2100,7 +2163,8 @@
       "sourceResult": "volume-found",
       "confidenceReasons": [
         "ambiguous-edition"
-      ]
+      ],
+      "providerId": "manga-passion"
     },
     {
       "queueKey": "Fairy Tail|Carlsen Manga|52",
@@ -2118,7 +2182,7 @@
       "reviewStatus": "auto-blocked",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2017-08-01",
-      "checkedAt": "2026-05-19T15:26:34.180Z",
+      "checkedAt": "2026-05-21T16:30:57.508Z",
       "evidence": "Automatische Quellenprüfung: volume-found. Confidence: blocked. Gruende: ambiguous-edition. Edition: 960. Score: 105.",
       "notes": "Automatisch geprüft; nicht sicher genug für den öffentlichen Cache.",
       "sourceConfidence": "blocked",
@@ -2130,7 +2194,8 @@
       "sourceResult": "volume-found",
       "confidenceReasons": [
         "ambiguous-edition"
-      ]
+      ],
+      "providerId": "manga-passion"
     },
     {
       "queueKey": "Fairy Tail|Carlsen Manga|53",
@@ -2148,7 +2213,7 @@
       "reviewStatus": "auto-blocked",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2017-10-03",
-      "checkedAt": "2026-05-19T15:26:34.180Z",
+      "checkedAt": "2026-05-21T16:30:57.508Z",
       "evidence": "Automatische Quellenprüfung: volume-found. Confidence: blocked. Gruende: ambiguous-edition. Edition: 960. Score: 105.",
       "notes": "Automatisch geprüft; nicht sicher genug für den öffentlichen Cache.",
       "sourceConfidence": "blocked",
@@ -2160,7 +2225,8 @@
       "sourceResult": "volume-found",
       "confidenceReasons": [
         "ambiguous-edition"
-      ]
+      ],
+      "providerId": "manga-passion"
     },
     {
       "queueKey": "Fairy Tail|Carlsen Manga|54",
@@ -2178,7 +2244,7 @@
       "reviewStatus": "auto-blocked",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2017-11-28",
-      "checkedAt": "2026-05-19T15:26:34.180Z",
+      "checkedAt": "2026-05-21T16:30:57.508Z",
       "evidence": "Automatische Quellenprüfung: volume-found. Confidence: blocked. Gruende: ambiguous-edition. Edition: 960. Score: 105.",
       "notes": "Automatisch geprüft; nicht sicher genug für den öffentlichen Cache.",
       "sourceConfidence": "blocked",
@@ -2190,7 +2256,8 @@
       "sourceResult": "volume-found",
       "confidenceReasons": [
         "ambiguous-edition"
-      ]
+      ],
+      "providerId": "manga-passion"
     },
     {
       "queueKey": "Fairy Tail|Carlsen Manga|55",
@@ -2208,7 +2275,7 @@
       "reviewStatus": "auto-blocked",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2018-01-30",
-      "checkedAt": "2026-05-19T15:26:34.180Z",
+      "checkedAt": "2026-05-21T16:30:57.508Z",
       "evidence": "Automatische Quellenprüfung: volume-found. Confidence: blocked. Gruende: ambiguous-edition. Edition: 960. Score: 105.",
       "notes": "Automatisch geprüft; nicht sicher genug für den öffentlichen Cache.",
       "sourceConfidence": "blocked",
@@ -2220,7 +2287,8 @@
       "sourceResult": "volume-found",
       "confidenceReasons": [
         "ambiguous-edition"
-      ]
+      ],
+      "providerId": "manga-passion"
     },
     {
       "queueKey": "Fairy Tail|Carlsen Manga|56",
@@ -2238,7 +2306,7 @@
       "reviewStatus": "auto-blocked",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2018-04-30",
-      "checkedAt": "2026-05-19T15:26:34.180Z",
+      "checkedAt": "2026-05-21T16:30:57.508Z",
       "evidence": "Automatische Quellenprüfung: volume-found. Confidence: blocked. Gruende: ambiguous-edition. Edition: 960. Score: 105.",
       "notes": "Automatisch geprüft; nicht sicher genug für den öffentlichen Cache.",
       "sourceConfidence": "blocked",
@@ -2250,7 +2318,8 @@
       "sourceResult": "volume-found",
       "confidenceReasons": [
         "ambiguous-edition"
-      ]
+      ],
+      "providerId": "manga-passion"
     },
     {
       "queueKey": "Fairy Tail|Carlsen Manga|57",
@@ -2268,7 +2337,7 @@
       "reviewStatus": "auto-blocked",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2018-06-26",
-      "checkedAt": "2026-05-19T15:26:34.180Z",
+      "checkedAt": "2026-05-21T16:30:57.508Z",
       "evidence": "Automatische Quellenprüfung: volume-found. Confidence: blocked. Gruende: ambiguous-edition. Edition: 960. Score: 105.",
       "notes": "Automatisch geprüft; nicht sicher genug für den öffentlichen Cache.",
       "sourceConfidence": "blocked",
@@ -2280,7 +2349,8 @@
       "sourceResult": "volume-found",
       "confidenceReasons": [
         "ambiguous-edition"
-      ]
+      ],
+      "providerId": "manga-passion"
     },
     {
       "queueKey": "Fairy Tail|Carlsen Manga|58",
@@ -2298,7 +2368,7 @@
       "reviewStatus": "auto-blocked",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2018-08-28",
-      "checkedAt": "2026-05-19T15:26:34.180Z",
+      "checkedAt": "2026-05-21T16:30:57.508Z",
       "evidence": "Automatische Quellenprüfung: volume-found. Confidence: blocked. Gruende: ambiguous-edition. Edition: 960. Score: 105.",
       "notes": "Automatisch geprüft; nicht sicher genug für den öffentlichen Cache.",
       "sourceConfidence": "blocked",
@@ -2310,7 +2380,8 @@
       "sourceResult": "volume-found",
       "confidenceReasons": [
         "ambiguous-edition"
-      ]
+      ],
+      "providerId": "manga-passion"
     },
     {
       "queueKey": "Fairy Tail|Carlsen Manga|59",
@@ -2328,7 +2399,7 @@
       "reviewStatus": "auto-blocked",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2018-10-02",
-      "checkedAt": "2026-05-19T15:26:34.180Z",
+      "checkedAt": "2026-05-21T16:30:57.508Z",
       "evidence": "Automatische Quellenprüfung: volume-found. Confidence: blocked. Gruende: ambiguous-edition. Edition: 960. Score: 105.",
       "notes": "Automatisch geprüft; nicht sicher genug für den öffentlichen Cache.",
       "sourceConfidence": "blocked",
@@ -2340,7 +2411,8 @@
       "sourceResult": "volume-found",
       "confidenceReasons": [
         "ambiguous-edition"
-      ]
+      ],
+      "providerId": "manga-passion"
     },
     {
       "queueKey": "Fairy Tail|Carlsen Manga|60",
@@ -2358,7 +2430,7 @@
       "reviewStatus": "auto-blocked",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2018-10-30",
-      "checkedAt": "2026-05-19T15:26:34.180Z",
+      "checkedAt": "2026-05-21T16:30:57.508Z",
       "evidence": "Automatische Quellenprüfung: volume-found. Confidence: blocked. Gruende: ambiguous-edition. Edition: 960. Score: 105.",
       "notes": "Automatisch geprüft; nicht sicher genug für den öffentlichen Cache.",
       "sourceConfidence": "blocked",
@@ -2370,7 +2442,8 @@
       "sourceResult": "volume-found",
       "confidenceReasons": [
         "ambiguous-edition"
-      ]
+      ],
+      "providerId": "manga-passion"
     },
     {
       "queueKey": "Fairy Tail|Carlsen Manga|61",
@@ -2388,7 +2461,7 @@
       "reviewStatus": "auto-blocked",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2018-12-27",
-      "checkedAt": "2026-05-19T15:26:34.180Z",
+      "checkedAt": "2026-05-21T16:30:57.508Z",
       "evidence": "Automatische Quellenprüfung: volume-found. Confidence: blocked. Gruende: ambiguous-edition. Edition: 960. Score: 105.",
       "notes": "Automatisch geprüft; nicht sicher genug für den öffentlichen Cache.",
       "sourceConfidence": "blocked",
@@ -2400,7 +2473,8 @@
       "sourceResult": "volume-found",
       "confidenceReasons": [
         "ambiguous-edition"
-      ]
+      ],
+      "providerId": "manga-passion"
     },
     {
       "queueKey": "Fairy Tail|Carlsen Manga|62",
@@ -2418,7 +2492,7 @@
       "reviewStatus": "auto-blocked",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2019-02-26",
-      "checkedAt": "2026-05-19T15:26:34.180Z",
+      "checkedAt": "2026-05-21T16:30:57.508Z",
       "evidence": "Automatische Quellenprüfung: volume-found. Confidence: blocked. Gruende: ambiguous-edition. Edition: 960. Score: 105.",
       "notes": "Automatisch geprüft; nicht sicher genug für den öffentlichen Cache.",
       "sourceConfidence": "blocked",
@@ -2430,7 +2504,8 @@
       "sourceResult": "volume-found",
       "confidenceReasons": [
         "ambiguous-edition"
-      ]
+      ],
+      "providerId": "manga-passion"
     },
     {
       "queueKey": "Fairy Tail|Carlsen Manga|63",
@@ -2448,7 +2523,7 @@
       "reviewStatus": "auto-blocked",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2019-03-26",
-      "checkedAt": "2026-05-19T15:26:34.180Z",
+      "checkedAt": "2026-05-21T16:30:57.508Z",
       "evidence": "Automatische Quellenprüfung: volume-found. Confidence: blocked. Gruende: ambiguous-edition. Edition: 960. Score: 105.",
       "notes": "Automatisch geprüft; nicht sicher genug für den öffentlichen Cache.",
       "sourceConfidence": "blocked",
@@ -2460,7 +2535,8 @@
       "sourceResult": "volume-found",
       "confidenceReasons": [
         "ambiguous-edition"
-      ]
+      ],
+      "providerId": "manga-passion"
     },
     {
       "queueKey": "Gushing over Magical Girls|MangaMoon|4",
@@ -2484,7 +2560,7 @@
       "reviewStatus": "auto-not-yet-released",
       "sourceUrl": "https://www.manga-passion.de/editions/5407",
       "releaseDate": null,
-      "checkedAt": "2026-05-19T15:26:34.180Z",
+      "checkedAt": "2026-05-21T16:30:57.508Z",
       "evidence": "Automatische Quellenprüfung: volume-found. Confidence: blocked. Gruende: placeholder-release-date. Edition: 5407. Score: 100.",
       "notes": "Automatisch geprüft; nicht sicher genug für den öffentlichen Cache.",
       "sourceConfidence": "blocked",
@@ -2496,7 +2572,8 @@
       "sourceResult": "volume-found",
       "confidenceReasons": [
         "placeholder-release-date"
-      ]
+      ],
+      "providerId": "manga-passion"
     },
     {
       "queueKey": "Kaiju No.8|Crunchyroll Manga|16",
@@ -2514,7 +2591,7 @@
       "reviewStatus": "auto-blocked",
       "sourceUrl": "https://www.manga-passion.de/editions/1966",
       "releaseDate": "2026-05-01",
-      "checkedAt": "2026-05-19T15:26:34.180Z",
+      "checkedAt": "2026-05-21T16:30:57.508Z",
       "evidence": "Automatische Quellenprüfung: volume-found. Confidence: blocked. Gruende: publisher-conflict. Edition: 1966. Score: 105.",
       "notes": "Automatisch geprüft; nicht sicher genug für den öffentlichen Cache.",
       "sourceConfidence": "blocked",
@@ -2526,7 +2603,8 @@
       "sourceResult": "volume-found",
       "confidenceReasons": [
         "publisher-conflict"
-      ]
+      ],
+      "providerId": "manga-passion"
     },
     {
       "queueKey": "Meine Chefin kommt immer zuerst!!|MangaMoon|2",
@@ -2550,7 +2628,7 @@
       "reviewStatus": "auto-not-yet-released",
       "sourceUrl": "https://www.manga-passion.de/editions/6135",
       "releaseDate": null,
-      "checkedAt": "2026-05-19T15:26:34.180Z",
+      "checkedAt": "2026-05-21T16:30:57.508Z",
       "evidence": "Automatische Quellenprüfung: volume-found. Confidence: blocked. Gruende: placeholder-release-date. Edition: 6135. Score: 100.",
       "notes": "Automatisch geprüft; nicht sicher genug für den öffentlichen Cache.",
       "sourceConfidence": "blocked",
@@ -2562,7 +2640,8 @@
       "sourceResult": "volume-found",
       "confidenceReasons": [
         "placeholder-release-date"
-      ]
+      ],
+      "providerId": "manga-passion"
     },
     {
       "queueKey": "Mirai Nikki – New Edition|Egmont Manga|6",
@@ -2586,7 +2665,7 @@
       "reviewStatus": "auto-not-yet-released",
       "sourceUrl": "https://www.manga-passion.de/editions/5504",
       "releaseDate": null,
-      "checkedAt": "2026-05-19T15:26:34.180Z",
+      "checkedAt": "2026-05-21T16:30:57.508Z",
       "evidence": "Automatische Quellenprüfung: volume-found. Confidence: blocked. Gruende: placeholder-release-date. Edition: 5504. Score: 100.",
       "notes": "Automatisch geprüft; nicht sicher genug für den öffentlichen Cache.",
       "sourceConfidence": "blocked",
@@ -2598,7 +2677,8 @@
       "sourceResult": "volume-found",
       "confidenceReasons": [
         "placeholder-release-date"
-      ]
+      ],
+      "providerId": "manga-passion"
     },
     {
       "queueKey": "Neck mich nicht, Nagatoro-san|dani books|6",
@@ -2622,7 +2702,7 @@
       "reviewStatus": "auto-not-yet-released",
       "sourceUrl": "https://www.manga-passion.de/editions/1750",
       "releaseDate": null,
-      "checkedAt": "2026-05-19T15:26:34.180Z",
+      "checkedAt": "2026-05-21T16:30:57.508Z",
       "evidence": "Automatische Quellenprüfung: volume-found. Confidence: blocked. Gruende: placeholder-release-date. Edition: 1750. Score: 100.",
       "notes": "Automatisch geprüft; nicht sicher genug für den öffentlichen Cache.",
       "sourceConfidence": "blocked",
@@ -2634,7 +2714,8 @@
       "sourceResult": "volume-found",
       "confidenceReasons": [
         "placeholder-release-date"
-      ]
+      ],
+      "providerId": "manga-passion"
     },
     {
       "queueKey": "Spy x Family|Crunchyroll Manga|4",
@@ -2652,7 +2733,7 @@
       "reviewStatus": "auto-blocked",
       "sourceUrl": "https://www.manga-passion.de/editions/364",
       "releaseDate": "2021-04-01",
-      "checkedAt": "2026-05-19T15:26:34.180Z",
+      "checkedAt": "2026-05-21T16:30:57.508Z",
       "evidence": "Automatische Quellenprüfung: volume-found. Confidence: blocked. Gruende: publisher-conflict. Edition: 364. Score: 105.",
       "notes": "Automatisch geprüft; nicht sicher genug für den öffentlichen Cache.",
       "sourceConfidence": "blocked",
@@ -2664,7 +2745,8 @@
       "sourceResult": "volume-found",
       "confidenceReasons": [
         "publisher-conflict"
-      ]
+      ],
+      "providerId": "manga-passion"
     },
     {
       "queueKey": "Spy x Family|Crunchyroll Manga|5",
@@ -2682,7 +2764,7 @@
       "reviewStatus": "auto-blocked",
       "sourceUrl": "https://www.manga-passion.de/editions/364",
       "releaseDate": "2021-06-03",
-      "checkedAt": "2026-05-19T15:26:34.180Z",
+      "checkedAt": "2026-05-21T16:30:57.508Z",
       "evidence": "Automatische Quellenprüfung: volume-found. Confidence: blocked. Gruende: publisher-conflict. Edition: 364. Score: 105.",
       "notes": "Automatisch geprüft; nicht sicher genug für den öffentlichen Cache.",
       "sourceConfidence": "blocked",
@@ -2694,7 +2776,8 @@
       "sourceResult": "volume-found",
       "confidenceReasons": [
         "publisher-conflict"
-      ]
+      ],
+      "providerId": "manga-passion"
     },
     {
       "queueKey": "Spy x Family|Crunchyroll Manga|6",
@@ -2712,7 +2795,7 @@
       "reviewStatus": "auto-blocked",
       "sourceUrl": "https://www.manga-passion.de/editions/364",
       "releaseDate": "2021-08-05",
-      "checkedAt": "2026-05-19T15:26:34.180Z",
+      "checkedAt": "2026-05-21T16:30:57.508Z",
       "evidence": "Automatische Quellenprüfung: volume-found. Confidence: blocked. Gruende: publisher-conflict. Edition: 364. Score: 105.",
       "notes": "Automatisch geprüft; nicht sicher genug für den öffentlichen Cache.",
       "sourceConfidence": "blocked",
@@ -2724,7 +2807,8 @@
       "sourceResult": "volume-found",
       "confidenceReasons": [
         "publisher-conflict"
-      ]
+      ],
+      "providerId": "manga-passion"
     },
     {
       "queueKey": "Spy x Family|Crunchyroll Manga|7",
@@ -2742,7 +2826,7 @@
       "reviewStatus": "auto-blocked",
       "sourceUrl": "https://www.manga-passion.de/editions/364",
       "releaseDate": "2021-12-02",
-      "checkedAt": "2026-05-19T15:26:34.180Z",
+      "checkedAt": "2026-05-21T16:30:57.508Z",
       "evidence": "Automatische Quellenprüfung: volume-found. Confidence: blocked. Gruende: publisher-conflict. Edition: 364. Score: 105.",
       "notes": "Automatisch geprüft; nicht sicher genug für den öffentlichen Cache.",
       "sourceConfidence": "blocked",
@@ -2754,7 +2838,8 @@
       "sourceResult": "volume-found",
       "confidenceReasons": [
         "publisher-conflict"
-      ]
+      ],
+      "providerId": "manga-passion"
     },
     {
       "queueKey": "Spy x Family|Crunchyroll Manga|8",
@@ -2772,7 +2857,7 @@
       "reviewStatus": "auto-blocked",
       "sourceUrl": "https://www.manga-passion.de/editions/364",
       "releaseDate": "2022-04-07",
-      "checkedAt": "2026-05-19T15:26:34.180Z",
+      "checkedAt": "2026-05-21T16:30:57.508Z",
       "evidence": "Automatische Quellenprüfung: volume-found. Confidence: blocked. Gruende: publisher-conflict. Edition: 364. Score: 105.",
       "notes": "Automatisch geprüft; nicht sicher genug für den öffentlichen Cache.",
       "sourceConfidence": "blocked",
@@ -2784,7 +2869,8 @@
       "sourceResult": "volume-found",
       "confidenceReasons": [
         "publisher-conflict"
-      ]
+      ],
+      "providerId": "manga-passion"
     },
     {
       "queueKey": "Spy x Family|Crunchyroll Manga|9",
@@ -2802,7 +2888,7 @@
       "reviewStatus": "auto-blocked",
       "sourceUrl": "https://www.manga-passion.de/editions/364",
       "releaseDate": "2022-10-06",
-      "checkedAt": "2026-05-19T15:26:34.180Z",
+      "checkedAt": "2026-05-21T16:30:57.508Z",
       "evidence": "Automatische Quellenprüfung: volume-found. Confidence: blocked. Gruende: publisher-conflict. Edition: 364. Score: 105.",
       "notes": "Automatisch geprüft; nicht sicher genug für den öffentlichen Cache.",
       "sourceConfidence": "blocked",
@@ -2814,7 +2900,8 @@
       "sourceResult": "volume-found",
       "confidenceReasons": [
         "publisher-conflict"
-      ]
+      ],
+      "providerId": "manga-passion"
     },
     {
       "queueKey": "Spy x Family|Crunchyroll Manga|10",
@@ -2832,7 +2919,7 @@
       "reviewStatus": "auto-blocked",
       "sourceUrl": "https://www.manga-passion.de/editions/364",
       "releaseDate": "2023-10-06",
-      "checkedAt": "2026-05-19T15:26:34.180Z",
+      "checkedAt": "2026-05-21T16:30:57.508Z",
       "evidence": "Automatische Quellenprüfung: volume-found. Confidence: blocked. Gruende: publisher-conflict. Edition: 364. Score: 105.",
       "notes": "Automatisch geprüft; nicht sicher genug für den öffentlichen Cache.",
       "sourceConfidence": "blocked",
@@ -2844,7 +2931,8 @@
       "sourceResult": "volume-found",
       "confidenceReasons": [
         "publisher-conflict"
-      ]
+      ],
+      "providerId": "manga-passion"
     },
     {
       "queueKey": "Spy x Family|Crunchyroll Manga|11",
@@ -2862,7 +2950,7 @@
       "reviewStatus": "auto-blocked",
       "sourceUrl": "https://www.manga-passion.de/editions/364",
       "releaseDate": "2024-04-05",
-      "checkedAt": "2026-05-19T15:26:34.180Z",
+      "checkedAt": "2026-05-21T16:30:57.508Z",
       "evidence": "Automatische Quellenprüfung: volume-found. Confidence: blocked. Gruende: publisher-conflict. Edition: 364. Score: 105.",
       "notes": "Automatisch geprüft; nicht sicher genug für den öffentlichen Cache.",
       "sourceConfidence": "blocked",
@@ -2874,7 +2962,8 @@
       "sourceResult": "volume-found",
       "confidenceReasons": [
         "publisher-conflict"
-      ]
+      ],
+      "providerId": "manga-passion"
     },
     {
       "queueKey": "Spy x Family|Crunchyroll Manga|12",
@@ -2892,7 +2981,7 @@
       "reviewStatus": "auto-blocked",
       "sourceUrl": "https://www.manga-passion.de/editions/364",
       "releaseDate": "2024-10-04",
-      "checkedAt": "2026-05-19T15:26:34.180Z",
+      "checkedAt": "2026-05-21T16:30:57.508Z",
       "evidence": "Automatische Quellenprüfung: volume-found. Confidence: blocked. Gruende: publisher-conflict. Edition: 364. Score: 105.",
       "notes": "Automatisch geprüft; nicht sicher genug für den öffentlichen Cache.",
       "sourceConfidence": "blocked",
@@ -2904,7 +2993,8 @@
       "sourceResult": "volume-found",
       "confidenceReasons": [
         "publisher-conflict"
-      ]
+      ],
+      "providerId": "manga-passion"
     },
     {
       "queueKey": "Spy x Family|Crunchyroll Manga|13",
@@ -2922,7 +3012,7 @@
       "reviewStatus": "auto-blocked",
       "sourceUrl": "https://www.manga-passion.de/editions/364",
       "releaseDate": "2025-04-04",
-      "checkedAt": "2026-05-19T15:26:34.180Z",
+      "checkedAt": "2026-05-21T16:30:57.508Z",
       "evidence": "Automatische Quellenprüfung: volume-found. Confidence: blocked. Gruende: publisher-conflict. Edition: 364. Score: 105.",
       "notes": "Automatisch geprüft; nicht sicher genug für den öffentlichen Cache.",
       "sourceConfidence": "blocked",
@@ -2934,7 +3024,8 @@
       "sourceResult": "volume-found",
       "confidenceReasons": [
         "publisher-conflict"
-      ]
+      ],
+      "providerId": "manga-passion"
     },
     {
       "queueKey": "Spy x Family|Crunchyroll Manga|14",
@@ -2952,7 +3043,7 @@
       "reviewStatus": "auto-blocked",
       "sourceUrl": "https://www.manga-passion.de/editions/364",
       "releaseDate": "2025-10-03",
-      "checkedAt": "2026-05-19T15:26:34.180Z",
+      "checkedAt": "2026-05-21T16:30:57.508Z",
       "evidence": "Automatische Quellenprüfung: volume-found. Confidence: blocked. Gruende: publisher-conflict. Edition: 364. Score: 105.",
       "notes": "Automatisch geprüft; nicht sicher genug für den öffentlichen Cache.",
       "sourceConfidence": "blocked",
@@ -2964,7 +3055,8 @@
       "sourceResult": "volume-found",
       "confidenceReasons": [
         "publisher-conflict"
-      ]
+      ],
+      "providerId": "manga-passion"
     },
     {
       "queueKey": "Spy x Family|Crunchyroll Manga|15",
@@ -2982,7 +3074,7 @@
       "reviewStatus": "auto-blocked",
       "sourceUrl": "https://www.manga-passion.de/editions/364",
       "releaseDate": "2026-04-03",
-      "checkedAt": "2026-05-19T15:26:34.180Z",
+      "checkedAt": "2026-05-21T16:30:57.508Z",
       "evidence": "Automatische Quellenprüfung: volume-found. Confidence: blocked. Gruende: publisher-conflict. Edition: 364. Score: 105.",
       "notes": "Automatisch geprüft; nicht sicher genug für den öffentlichen Cache.",
       "sourceConfidence": "blocked",
@@ -2994,7 +3086,8 @@
       "sourceResult": "volume-found",
       "confidenceReasons": [
         "publisher-conflict"
-      ]
+      ],
+      "providerId": "manga-passion"
     },
     {
       "queueKey": "Tokyo Revengers – Doppelband-Edition|Carlsen Manga|16",
@@ -3018,7 +3111,7 @@
       "reviewStatus": "auto-low-confidence",
       "sourceUrl": "https://www.manga-passion.de/editions/1599",
       "releaseDate": null,
-      "checkedAt": "2026-05-19T15:42:35.914Z",
+      "checkedAt": "2026-05-21T16:30:57.508Z",
       "evidence": "Automatische Quellenprüfung: volume-not-found. Confidence: low. Gruende: missing-source-volume-number, missing-release-date. Edition: 1599.",
       "notes": "Automatisch geprüft; nicht sicher genug für den öffentlichen Cache.",
       "sourceConfidence": "low",
@@ -3031,7 +3124,8 @@
       "confidenceReasons": [
         "missing-source-volume-number",
         "missing-release-date"
-      ]
+      ],
+      "providerId": "manga-passion"
     },
     {
       "queueKey": "Vermeil in Gold|Manga Cult|2",
@@ -3055,7 +3149,7 @@
       "reviewStatus": "auto-not-yet-released",
       "sourceUrl": "https://www.manga-passion.de/editions/6137",
       "releaseDate": null,
-      "checkedAt": "2026-05-19T15:26:34.180Z",
+      "checkedAt": "2026-05-21T16:30:57.508Z",
       "evidence": "Automatische Quellenprüfung: volume-found. Confidence: blocked. Gruende: placeholder-release-date, publisher-conflict. Edition: 6137. Score: 70.",
       "notes": "Automatisch geprüft; nicht sicher genug für den öffentlichen Cache.",
       "sourceConfidence": "blocked",
@@ -3068,7 +3162,8 @@
       "confidenceReasons": [
         "placeholder-release-date",
         "publisher-conflict"
-      ]
+      ],
+      "providerId": "manga-passion"
     },
     {
       "queueKey": "August 9th, I will be eaten by you|Hayabusa|6",
@@ -3086,7 +3181,7 @@
       "reviewStatus": "auto-not-yet-released",
       "sourceUrl": "https://www.manga-passion.de/editions/2015",
       "releaseDate": null,
-      "checkedAt": "2026-05-19T15:26:34.180Z",
+      "checkedAt": "2026-05-21T16:30:57.508Z",
       "evidence": "Automatische Quellenprüfung: volume-found. Confidence: blocked. Gruende: placeholder-release-date. Edition: 2015. Score: 100.",
       "notes": "Automatisch geprüft; nicht sicher genug für den öffentlichen Cache.",
       "sourceConfidence": "blocked",
@@ -3098,7 +3193,8 @@
       "sourceResult": "volume-found",
       "confidenceReasons": [
         "placeholder-release-date"
-      ]
+      ],
+      "providerId": "manga-passion"
     },
     {
       "queueKey": "Die letzte Elfe|Yomeru|3",
@@ -3116,7 +3212,7 @@
       "reviewStatus": "auto-not-yet-released",
       "sourceUrl": "https://www.manga-passion.de/editions/5652",
       "releaseDate": null,
-      "checkedAt": "2026-05-19T15:26:34.180Z",
+      "checkedAt": "2026-05-21T16:30:57.508Z",
       "evidence": "Automatische Quellenprüfung: volume-found. Confidence: blocked. Gruende: placeholder-release-date. Edition: 5652. Score: 100.",
       "notes": "Automatisch geprüft; nicht sicher genug für den öffentlichen Cache.",
       "sourceConfidence": "blocked",
@@ -3128,7 +3224,8 @@
       "sourceResult": "volume-found",
       "confidenceReasons": [
         "placeholder-release-date"
-      ]
+      ],
+      "providerId": "manga-passion"
     }
   ]
 }

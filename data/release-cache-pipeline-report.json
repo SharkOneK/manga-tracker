@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-05-19T15:42:35.914Z",
+  "generatedAt": "2026-05-21T16:30:57.508Z",
   "source": "run-release-cache-pipeline.js",
   "inputs": {
     "cacheItems": 171,
@@ -14,6 +14,9 @@
     "timeoutMs": 12000,
     "allowedSourceIds": [
       "carlsen",
+      "manga-passion"
+    ],
+    "activeProviderIds": [
       "manga-passion"
     ]
   },
@@ -45,6 +48,7 @@
         "placeholder-release-date"
       ],
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/5211",
       "releaseDate": null,
       "sourceResult": "volume-found"
@@ -61,6 +65,7 @@
         "placeholder-release-date"
       ],
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/5211",
       "releaseDate": null,
       "sourceResult": "volume-found"
@@ -77,6 +82,7 @@
         "placeholder-release-date"
       ],
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/5211",
       "releaseDate": null,
       "sourceResult": "volume-found"
@@ -93,6 +99,7 @@
         "placeholder-release-date"
       ],
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/5211",
       "releaseDate": null,
       "sourceResult": "volume-found"
@@ -109,6 +116,7 @@
         "placeholder-release-date"
       ],
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/5211",
       "releaseDate": null,
       "sourceResult": "volume-found"
@@ -125,6 +133,7 @@
         "placeholder-release-date"
       ],
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/5211",
       "releaseDate": null,
       "sourceResult": "volume-found"
@@ -141,6 +150,7 @@
         "placeholder-release-date"
       ],
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/5211",
       "releaseDate": null,
       "sourceResult": "volume-found"
@@ -157,6 +167,7 @@
         "placeholder-release-date"
       ],
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/5211",
       "releaseDate": null,
       "sourceResult": "volume-found"
@@ -173,6 +184,7 @@
         "placeholder-release-date"
       ],
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/4636",
       "releaseDate": null,
       "sourceResult": "volume-found"
@@ -189,6 +201,7 @@
         "placeholder-release-date"
       ],
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/4636",
       "releaseDate": null,
       "sourceResult": "volume-found"
@@ -205,6 +218,7 @@
         "placeholder-release-date"
       ],
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/4636",
       "releaseDate": null,
       "sourceResult": "volume-found"
@@ -221,6 +235,7 @@
         "placeholder-release-date"
       ],
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/4636",
       "releaseDate": null,
       "sourceResult": "volume-found"
@@ -237,6 +252,7 @@
         "placeholder-release-date"
       ],
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/4636",
       "releaseDate": null,
       "sourceResult": "volume-found"
@@ -253,6 +269,7 @@
         "placeholder-release-date"
       ],
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/4636",
       "releaseDate": null,
       "sourceResult": "volume-found"
@@ -269,6 +286,7 @@
         "placeholder-release-date"
       ],
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/4636",
       "releaseDate": null,
       "sourceResult": "volume-found"
@@ -285,6 +303,7 @@
         "placeholder-release-date"
       ],
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/5807",
       "releaseDate": null,
       "sourceResult": "volume-found"
@@ -301,6 +320,7 @@
         "placeholder-release-date"
       ],
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/5807",
       "releaseDate": null,
       "sourceResult": "volume-found"
@@ -317,6 +337,7 @@
         "placeholder-release-date"
       ],
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/5807",
       "releaseDate": null,
       "sourceResult": "volume-found"
@@ -333,6 +354,7 @@
         "placeholder-release-date"
       ],
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/5807",
       "releaseDate": null,
       "sourceResult": "volume-found"
@@ -349,6 +371,7 @@
         "placeholder-release-date"
       ],
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/5807",
       "releaseDate": null,
       "sourceResult": "volume-found"
@@ -365,6 +388,7 @@
         "placeholder-release-date"
       ],
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/6069",
       "releaseDate": null,
       "sourceResult": "volume-found"
@@ -381,6 +405,7 @@
         "placeholder-release-date"
       ],
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/6069",
       "releaseDate": null,
       "sourceResult": "volume-found"
@@ -397,6 +422,7 @@
         "placeholder-release-date"
       ],
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/6069",
       "releaseDate": null,
       "sourceResult": "volume-found"
@@ -413,6 +439,7 @@
         "placeholder-release-date"
       ],
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/6069",
       "releaseDate": null,
       "sourceResult": "volume-found"
@@ -429,6 +456,7 @@
         "placeholder-release-date"
       ],
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/6069",
       "releaseDate": null,
       "sourceResult": "volume-found"
@@ -445,6 +473,7 @@
         "placeholder-release-date"
       ],
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/6069",
       "releaseDate": null,
       "sourceResult": "volume-found"
@@ -462,6 +491,7 @@
         "missing-release-date"
       ],
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/518",
       "releaseDate": null,
       "sourceResult": "volume-not-found"
@@ -478,6 +508,7 @@
         "placeholder-release-date"
       ],
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/269",
       "releaseDate": null,
       "sourceResult": "volume-found"
@@ -494,6 +525,7 @@
         "ambiguous-edition"
       ],
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2011-11-22",
       "sourceResult": "volume-found"
@@ -510,6 +542,7 @@
         "ambiguous-edition"
       ],
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2011-12-16",
       "sourceResult": "volume-found"
@@ -526,6 +559,7 @@
         "ambiguous-edition"
       ],
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2012-01-31",
       "sourceResult": "volume-found"
@@ -542,6 +576,7 @@
         "ambiguous-edition"
       ],
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2012-02-28",
       "sourceResult": "volume-found"
@@ -558,6 +593,7 @@
         "ambiguous-edition"
       ],
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2012-03-20",
       "sourceResult": "volume-found"
@@ -574,6 +610,7 @@
         "ambiguous-edition"
       ],
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2012-05-29",
       "sourceResult": "volume-found"
@@ -590,6 +627,7 @@
         "ambiguous-edition"
       ],
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2012-07-31",
       "sourceResult": "volume-found"
@@ -606,6 +644,7 @@
         "ambiguous-edition"
       ],
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2012-10-02",
       "sourceResult": "volume-found"
@@ -622,6 +661,7 @@
         "ambiguous-edition"
       ],
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2012-12-04",
       "sourceResult": "volume-found"
@@ -638,6 +678,7 @@
         "ambiguous-edition"
       ],
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2013-01-29",
       "sourceResult": "volume-found"
@@ -654,6 +695,7 @@
         "ambiguous-edition"
       ],
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2013-03-19",
       "sourceResult": "volume-found"
@@ -670,6 +712,7 @@
         "ambiguous-edition"
       ],
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2013-05-29",
       "sourceResult": "volume-found"
@@ -686,6 +729,7 @@
         "ambiguous-edition"
       ],
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2013-07-30",
       "sourceResult": "volume-found"
@@ -702,6 +746,7 @@
         "ambiguous-edition"
       ],
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2013-10-01",
       "sourceResult": "volume-found"
@@ -718,6 +763,7 @@
         "ambiguous-edition"
       ],
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2013-12-03",
       "sourceResult": "volume-found"
@@ -734,6 +780,7 @@
         "ambiguous-edition"
       ],
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2014-01-28",
       "sourceResult": "volume-found"
@@ -750,6 +797,7 @@
         "ambiguous-edition"
       ],
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2014-03-18",
       "sourceResult": "volume-found"
@@ -766,6 +814,7 @@
         "ambiguous-edition"
       ],
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2014-05-27",
       "sourceResult": "volume-found"
@@ -782,6 +831,7 @@
         "ambiguous-edition"
       ],
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2014-07-29",
       "sourceResult": "volume-found"
@@ -798,6 +848,7 @@
         "ambiguous-edition"
       ],
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2014-09-30",
       "sourceResult": "volume-found"
@@ -814,6 +865,7 @@
         "ambiguous-edition"
       ],
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2014-11-25",
       "sourceResult": "volume-found"
@@ -830,6 +882,7 @@
         "ambiguous-edition"
       ],
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2015-01-27",
       "sourceResult": "volume-found"
@@ -846,6 +899,7 @@
         "ambiguous-edition"
       ],
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2015-04-28",
       "sourceResult": "volume-found"
@@ -862,6 +916,7 @@
         "ambiguous-edition"
       ],
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2015-06-30",
       "sourceResult": "volume-found"
@@ -878,6 +933,7 @@
         "ambiguous-edition"
       ],
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2015-08-25",
       "sourceResult": "volume-found"
@@ -894,6 +950,7 @@
         "ambiguous-edition"
       ],
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2015-10-28",
       "sourceResult": "volume-found"
@@ -910,6 +967,7 @@
         "ambiguous-edition"
       ],
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2015-12-22",
       "sourceResult": "volume-found"
@@ -926,6 +984,7 @@
         "ambiguous-edition"
       ],
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2016-03-01",
       "sourceResult": "volume-found"
@@ -942,6 +1001,7 @@
         "ambiguous-edition"
       ],
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2016-04-26",
       "sourceResult": "volume-found"
@@ -958,6 +1018,7 @@
         "ambiguous-edition"
       ],
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2016-06-26",
       "sourceResult": "volume-found"
@@ -974,6 +1035,7 @@
         "ambiguous-edition"
       ],
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2016-08-30",
       "sourceResult": "volume-found"
@@ -990,6 +1052,7 @@
         "ambiguous-edition"
       ],
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2016-10-25",
       "sourceResult": "volume-found"
@@ -1006,6 +1069,7 @@
         "ambiguous-edition"
       ],
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2016-12-20",
       "sourceResult": "volume-found"
@@ -1022,6 +1086,7 @@
         "ambiguous-edition"
       ],
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2017-02-28",
       "sourceResult": "volume-found"
@@ -1038,6 +1103,7 @@
         "ambiguous-edition"
       ],
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2017-03-28",
       "sourceResult": "volume-found"
@@ -1054,6 +1120,7 @@
         "ambiguous-edition"
       ],
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2017-05-30",
       "sourceResult": "volume-found"
@@ -1070,6 +1137,7 @@
         "ambiguous-edition"
       ],
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2017-08-01",
       "sourceResult": "volume-found"
@@ -1086,6 +1154,7 @@
         "ambiguous-edition"
       ],
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2017-10-03",
       "sourceResult": "volume-found"
@@ -1102,6 +1171,7 @@
         "ambiguous-edition"
       ],
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2017-11-28",
       "sourceResult": "volume-found"
@@ -1118,6 +1188,7 @@
         "ambiguous-edition"
       ],
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2018-01-30",
       "sourceResult": "volume-found"
@@ -1134,6 +1205,7 @@
         "ambiguous-edition"
       ],
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2018-04-30",
       "sourceResult": "volume-found"
@@ -1150,6 +1222,7 @@
         "ambiguous-edition"
       ],
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2018-06-26",
       "sourceResult": "volume-found"
@@ -1166,6 +1239,7 @@
         "ambiguous-edition"
       ],
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2018-08-28",
       "sourceResult": "volume-found"
@@ -1182,6 +1256,7 @@
         "ambiguous-edition"
       ],
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2018-10-02",
       "sourceResult": "volume-found"
@@ -1198,6 +1273,7 @@
         "ambiguous-edition"
       ],
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2018-10-30",
       "sourceResult": "volume-found"
@@ -1214,6 +1290,7 @@
         "ambiguous-edition"
       ],
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2018-12-27",
       "sourceResult": "volume-found"
@@ -1230,6 +1307,7 @@
         "ambiguous-edition"
       ],
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2019-02-26",
       "sourceResult": "volume-found"
@@ -1246,6 +1324,7 @@
         "ambiguous-edition"
       ],
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2019-03-26",
       "sourceResult": "volume-found"
@@ -1262,6 +1341,7 @@
         "placeholder-release-date"
       ],
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/5407",
       "releaseDate": null,
       "sourceResult": "volume-found"
@@ -1278,6 +1358,7 @@
         "publisher-conflict"
       ],
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/1966",
       "releaseDate": "2026-05-01",
       "sourceResult": "volume-found"
@@ -1294,6 +1375,7 @@
         "placeholder-release-date"
       ],
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/6135",
       "releaseDate": null,
       "sourceResult": "volume-found"
@@ -1310,6 +1392,7 @@
         "placeholder-release-date"
       ],
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/5504",
       "releaseDate": null,
       "sourceResult": "volume-found"
@@ -1326,6 +1409,7 @@
         "placeholder-release-date"
       ],
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/1750",
       "releaseDate": null,
       "sourceResult": "volume-found"
@@ -1342,6 +1426,7 @@
         "publisher-conflict"
       ],
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/364",
       "releaseDate": "2021-04-01",
       "sourceResult": "volume-found"
@@ -1358,6 +1443,7 @@
         "publisher-conflict"
       ],
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/364",
       "releaseDate": "2021-06-03",
       "sourceResult": "volume-found"
@@ -1374,6 +1460,7 @@
         "publisher-conflict"
       ],
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/364",
       "releaseDate": "2021-08-05",
       "sourceResult": "volume-found"
@@ -1390,6 +1477,7 @@
         "publisher-conflict"
       ],
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/364",
       "releaseDate": "2021-12-02",
       "sourceResult": "volume-found"
@@ -1406,6 +1494,7 @@
         "publisher-conflict"
       ],
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/364",
       "releaseDate": "2022-04-07",
       "sourceResult": "volume-found"
@@ -1422,6 +1511,7 @@
         "publisher-conflict"
       ],
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/364",
       "releaseDate": "2022-10-06",
       "sourceResult": "volume-found"
@@ -1438,6 +1528,7 @@
         "publisher-conflict"
       ],
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/364",
       "releaseDate": "2023-10-06",
       "sourceResult": "volume-found"
@@ -1454,6 +1545,7 @@
         "publisher-conflict"
       ],
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/364",
       "releaseDate": "2024-04-05",
       "sourceResult": "volume-found"
@@ -1470,6 +1562,7 @@
         "publisher-conflict"
       ],
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/364",
       "releaseDate": "2024-10-04",
       "sourceResult": "volume-found"
@@ -1486,6 +1579,7 @@
         "publisher-conflict"
       ],
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/364",
       "releaseDate": "2025-04-04",
       "sourceResult": "volume-found"
@@ -1502,6 +1596,7 @@
         "publisher-conflict"
       ],
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/364",
       "releaseDate": "2025-10-03",
       "sourceResult": "volume-found"
@@ -1518,6 +1613,7 @@
         "publisher-conflict"
       ],
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/364",
       "releaseDate": "2026-04-03",
       "sourceResult": "volume-found"
@@ -1535,6 +1631,7 @@
         "missing-release-date"
       ],
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/1599",
       "releaseDate": null,
       "sourceResult": "volume-not-found"
@@ -1552,6 +1649,7 @@
         "publisher-conflict"
       ],
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/6137",
       "releaseDate": null,
       "sourceResult": "volume-found"
@@ -1568,6 +1666,7 @@
         "placeholder-release-date"
       ],
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/2015",
       "releaseDate": null,
       "sourceResult": "volume-found"
@@ -1584,6 +1683,7 @@
         "placeholder-release-date"
       ],
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/5652",
       "releaseDate": null,
       "sourceResult": "volume-found"
@@ -1598,6 +1698,7 @@
       "publisher": "Panini Manga",
       "volumeNumber": 7,
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/5211",
       "releaseDate": null,
       "confidence": "blocked",
@@ -1615,6 +1716,7 @@
       "publisher": "Panini Manga",
       "volumeNumber": 8,
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/5211",
       "releaseDate": null,
       "confidence": "blocked",
@@ -1632,6 +1734,7 @@
       "publisher": "Panini Manga",
       "volumeNumber": 9,
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/5211",
       "releaseDate": null,
       "confidence": "blocked",
@@ -1649,6 +1752,7 @@
       "publisher": "Panini Manga",
       "volumeNumber": 10,
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/5211",
       "releaseDate": null,
       "confidence": "blocked",
@@ -1666,6 +1770,7 @@
       "publisher": "Panini Manga",
       "volumeNumber": 11,
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/5211",
       "releaseDate": null,
       "confidence": "blocked",
@@ -1683,6 +1788,7 @@
       "publisher": "Panini Manga",
       "volumeNumber": 12,
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/5211",
       "releaseDate": null,
       "confidence": "blocked",
@@ -1700,6 +1806,7 @@
       "publisher": "Panini Manga",
       "volumeNumber": 13,
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/5211",
       "releaseDate": null,
       "confidence": "blocked",
@@ -1717,6 +1824,7 @@
       "publisher": "Panini Manga",
       "volumeNumber": 14,
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/5211",
       "releaseDate": null,
       "confidence": "blocked",
@@ -1734,6 +1842,7 @@
       "publisher": "Egmont Manga",
       "volumeNumber": 13,
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/4636",
       "releaseDate": null,
       "confidence": "blocked",
@@ -1751,6 +1860,7 @@
       "publisher": "Egmont Manga",
       "volumeNumber": 14,
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/4636",
       "releaseDate": null,
       "confidence": "blocked",
@@ -1768,6 +1878,7 @@
       "publisher": "Egmont Manga",
       "volumeNumber": 15,
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/4636",
       "releaseDate": null,
       "confidence": "blocked",
@@ -1785,6 +1896,7 @@
       "publisher": "Egmont Manga",
       "volumeNumber": 16,
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/4636",
       "releaseDate": null,
       "confidence": "blocked",
@@ -1802,6 +1914,7 @@
       "publisher": "Egmont Manga",
       "volumeNumber": 17,
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/4636",
       "releaseDate": null,
       "confidence": "blocked",
@@ -1819,6 +1932,7 @@
       "publisher": "Egmont Manga",
       "volumeNumber": 18,
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/4636",
       "releaseDate": null,
       "confidence": "blocked",
@@ -1836,6 +1950,7 @@
       "publisher": "Egmont Manga",
       "volumeNumber": 19,
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/4636",
       "releaseDate": null,
       "confidence": "blocked",
@@ -1853,6 +1968,7 @@
       "publisher": "Altraverse",
       "volumeNumber": 4,
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/5807",
       "releaseDate": null,
       "confidence": "blocked",
@@ -1870,6 +1986,7 @@
       "publisher": "Altraverse",
       "volumeNumber": 5,
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/5807",
       "releaseDate": null,
       "confidence": "blocked",
@@ -1887,6 +2004,7 @@
       "publisher": "Altraverse",
       "volumeNumber": 6,
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/5807",
       "releaseDate": null,
       "confidence": "blocked",
@@ -1904,6 +2022,7 @@
       "publisher": "Altraverse",
       "volumeNumber": 7,
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/5807",
       "releaseDate": null,
       "confidence": "blocked",
@@ -1921,6 +2040,7 @@
       "publisher": "Altraverse",
       "volumeNumber": 8,
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/5807",
       "releaseDate": null,
       "confidence": "blocked",
@@ -1938,6 +2058,7 @@
       "publisher": "MANGAMOON",
       "volumeNumber": 3,
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/6069",
       "releaseDate": null,
       "confidence": "blocked",
@@ -1955,6 +2076,7 @@
       "publisher": "MANGAMOON",
       "volumeNumber": 4,
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/6069",
       "releaseDate": null,
       "confidence": "blocked",
@@ -1972,6 +2094,7 @@
       "publisher": "MANGAMOON",
       "volumeNumber": 5,
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/6069",
       "releaseDate": null,
       "confidence": "blocked",
@@ -1989,6 +2112,7 @@
       "publisher": "MANGAMOON",
       "volumeNumber": 6,
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/6069",
       "releaseDate": null,
       "confidence": "blocked",
@@ -2006,6 +2130,7 @@
       "publisher": "MANGAMOON",
       "volumeNumber": 7,
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/6069",
       "releaseDate": null,
       "confidence": "blocked",
@@ -2023,6 +2148,7 @@
       "publisher": "MANGAMOON",
       "volumeNumber": 8,
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/6069",
       "releaseDate": null,
       "confidence": "blocked",
@@ -2040,6 +2166,7 @@
       "publisher": "Egmont Manga",
       "volumeNumber": 23,
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/269",
       "releaseDate": null,
       "confidence": "blocked",
@@ -2057,6 +2184,7 @@
       "publisher": "Carlsen Manga",
       "volumeNumber": 16,
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2011-11-22",
       "confidence": "blocked",
@@ -2074,6 +2202,7 @@
       "publisher": "Carlsen Manga",
       "volumeNumber": 17,
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2011-12-16",
       "confidence": "blocked",
@@ -2091,6 +2220,7 @@
       "publisher": "Carlsen Manga",
       "volumeNumber": 18,
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2012-01-31",
       "confidence": "blocked",
@@ -2108,6 +2238,7 @@
       "publisher": "Carlsen Manga",
       "volumeNumber": 19,
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2012-02-28",
       "confidence": "blocked",
@@ -2125,6 +2256,7 @@
       "publisher": "Carlsen Manga",
       "volumeNumber": 20,
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2012-03-20",
       "confidence": "blocked",
@@ -2142,6 +2274,7 @@
       "publisher": "Carlsen Manga",
       "volumeNumber": 21,
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2012-05-29",
       "confidence": "blocked",
@@ -2159,6 +2292,7 @@
       "publisher": "Carlsen Manga",
       "volumeNumber": 22,
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2012-07-31",
       "confidence": "blocked",
@@ -2176,6 +2310,7 @@
       "publisher": "Carlsen Manga",
       "volumeNumber": 23,
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2012-10-02",
       "confidence": "blocked",
@@ -2193,6 +2328,7 @@
       "publisher": "Carlsen Manga",
       "volumeNumber": 24,
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2012-12-04",
       "confidence": "blocked",
@@ -2210,6 +2346,7 @@
       "publisher": "Carlsen Manga",
       "volumeNumber": 25,
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2013-01-29",
       "confidence": "blocked",
@@ -2227,6 +2364,7 @@
       "publisher": "Carlsen Manga",
       "volumeNumber": 26,
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2013-03-19",
       "confidence": "blocked",
@@ -2244,6 +2382,7 @@
       "publisher": "Carlsen Manga",
       "volumeNumber": 27,
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2013-05-29",
       "confidence": "blocked",
@@ -2261,6 +2400,7 @@
       "publisher": "Carlsen Manga",
       "volumeNumber": 28,
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2013-07-30",
       "confidence": "blocked",
@@ -2278,6 +2418,7 @@
       "publisher": "Carlsen Manga",
       "volumeNumber": 29,
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2013-10-01",
       "confidence": "blocked",
@@ -2295,6 +2436,7 @@
       "publisher": "Carlsen Manga",
       "volumeNumber": 30,
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2013-12-03",
       "confidence": "blocked",
@@ -2312,6 +2454,7 @@
       "publisher": "Carlsen Manga",
       "volumeNumber": 31,
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2014-01-28",
       "confidence": "blocked",
@@ -2329,6 +2472,7 @@
       "publisher": "Carlsen Manga",
       "volumeNumber": 32,
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2014-03-18",
       "confidence": "blocked",
@@ -2346,6 +2490,7 @@
       "publisher": "Carlsen Manga",
       "volumeNumber": 33,
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2014-05-27",
       "confidence": "blocked",
@@ -2363,6 +2508,7 @@
       "publisher": "Carlsen Manga",
       "volumeNumber": 34,
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2014-07-29",
       "confidence": "blocked",
@@ -2380,6 +2526,7 @@
       "publisher": "Carlsen Manga",
       "volumeNumber": 35,
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2014-09-30",
       "confidence": "blocked",
@@ -2397,6 +2544,7 @@
       "publisher": "Carlsen Manga",
       "volumeNumber": 36,
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2014-11-25",
       "confidence": "blocked",
@@ -2414,6 +2562,7 @@
       "publisher": "Carlsen Manga",
       "volumeNumber": 37,
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2015-01-27",
       "confidence": "blocked",
@@ -2431,6 +2580,7 @@
       "publisher": "Carlsen Manga",
       "volumeNumber": 38,
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2015-04-28",
       "confidence": "blocked",
@@ -2448,6 +2598,7 @@
       "publisher": "Carlsen Manga",
       "volumeNumber": 39,
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2015-06-30",
       "confidence": "blocked",
@@ -2465,6 +2616,7 @@
       "publisher": "Carlsen Manga",
       "volumeNumber": 40,
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2015-08-25",
       "confidence": "blocked",
@@ -2482,6 +2634,7 @@
       "publisher": "Carlsen Manga",
       "volumeNumber": 41,
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2015-10-28",
       "confidence": "blocked",
@@ -2499,6 +2652,7 @@
       "publisher": "Carlsen Manga",
       "volumeNumber": 42,
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2015-12-22",
       "confidence": "blocked",
@@ -2516,6 +2670,7 @@
       "publisher": "Carlsen Manga",
       "volumeNumber": 43,
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2016-03-01",
       "confidence": "blocked",
@@ -2533,6 +2688,7 @@
       "publisher": "Carlsen Manga",
       "volumeNumber": 44,
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2016-04-26",
       "confidence": "blocked",
@@ -2550,6 +2706,7 @@
       "publisher": "Carlsen Manga",
       "volumeNumber": 45,
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2016-06-26",
       "confidence": "blocked",
@@ -2567,6 +2724,7 @@
       "publisher": "Carlsen Manga",
       "volumeNumber": 46,
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2016-08-30",
       "confidence": "blocked",
@@ -2584,6 +2742,7 @@
       "publisher": "Carlsen Manga",
       "volumeNumber": 47,
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2016-10-25",
       "confidence": "blocked",
@@ -2601,6 +2760,7 @@
       "publisher": "Carlsen Manga",
       "volumeNumber": 48,
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2016-12-20",
       "confidence": "blocked",
@@ -2618,6 +2778,7 @@
       "publisher": "Carlsen Manga",
       "volumeNumber": 49,
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2017-02-28",
       "confidence": "blocked",
@@ -2635,6 +2796,7 @@
       "publisher": "Carlsen Manga",
       "volumeNumber": 50,
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2017-03-28",
       "confidence": "blocked",
@@ -2652,6 +2814,7 @@
       "publisher": "Carlsen Manga",
       "volumeNumber": 51,
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2017-05-30",
       "confidence": "blocked",
@@ -2669,6 +2832,7 @@
       "publisher": "Carlsen Manga",
       "volumeNumber": 52,
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2017-08-01",
       "confidence": "blocked",
@@ -2686,6 +2850,7 @@
       "publisher": "Carlsen Manga",
       "volumeNumber": 53,
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2017-10-03",
       "confidence": "blocked",
@@ -2703,6 +2868,7 @@
       "publisher": "Carlsen Manga",
       "volumeNumber": 54,
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2017-11-28",
       "confidence": "blocked",
@@ -2720,6 +2886,7 @@
       "publisher": "Carlsen Manga",
       "volumeNumber": 55,
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2018-01-30",
       "confidence": "blocked",
@@ -2737,6 +2904,7 @@
       "publisher": "Carlsen Manga",
       "volumeNumber": 56,
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2018-04-30",
       "confidence": "blocked",
@@ -2754,6 +2922,7 @@
       "publisher": "Carlsen Manga",
       "volumeNumber": 57,
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2018-06-26",
       "confidence": "blocked",
@@ -2771,6 +2940,7 @@
       "publisher": "Carlsen Manga",
       "volumeNumber": 58,
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2018-08-28",
       "confidence": "blocked",
@@ -2788,6 +2958,7 @@
       "publisher": "Carlsen Manga",
       "volumeNumber": 59,
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2018-10-02",
       "confidence": "blocked",
@@ -2805,6 +2976,7 @@
       "publisher": "Carlsen Manga",
       "volumeNumber": 60,
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2018-10-30",
       "confidence": "blocked",
@@ -2822,6 +2994,7 @@
       "publisher": "Carlsen Manga",
       "volumeNumber": 61,
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2018-12-27",
       "confidence": "blocked",
@@ -2839,6 +3012,7 @@
       "publisher": "Carlsen Manga",
       "volumeNumber": 62,
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2019-02-26",
       "confidence": "blocked",
@@ -2856,6 +3030,7 @@
       "publisher": "Carlsen Manga",
       "volumeNumber": 63,
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/960",
       "releaseDate": "2019-03-26",
       "confidence": "blocked",
@@ -2873,6 +3048,7 @@
       "publisher": "MangaMoon",
       "volumeNumber": 4,
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/5407",
       "releaseDate": null,
       "confidence": "blocked",
@@ -2890,6 +3066,7 @@
       "publisher": "Crunchyroll Manga",
       "volumeNumber": 16,
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/1966",
       "releaseDate": "2026-05-01",
       "confidence": "blocked",
@@ -2907,6 +3084,7 @@
       "publisher": "MangaMoon",
       "volumeNumber": 2,
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/6135",
       "releaseDate": null,
       "confidence": "blocked",
@@ -2924,6 +3102,7 @@
       "publisher": "Egmont Manga",
       "volumeNumber": 6,
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/5504",
       "releaseDate": null,
       "confidence": "blocked",
@@ -2941,6 +3120,7 @@
       "publisher": "dani books",
       "volumeNumber": 6,
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/1750",
       "releaseDate": null,
       "confidence": "blocked",
@@ -2958,6 +3138,7 @@
       "publisher": "Crunchyroll Manga",
       "volumeNumber": 4,
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/364",
       "releaseDate": "2021-04-01",
       "confidence": "blocked",
@@ -2975,6 +3156,7 @@
       "publisher": "Crunchyroll Manga",
       "volumeNumber": 5,
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/364",
       "releaseDate": "2021-06-03",
       "confidence": "blocked",
@@ -2992,6 +3174,7 @@
       "publisher": "Crunchyroll Manga",
       "volumeNumber": 6,
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/364",
       "releaseDate": "2021-08-05",
       "confidence": "blocked",
@@ -3009,6 +3192,7 @@
       "publisher": "Crunchyroll Manga",
       "volumeNumber": 7,
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/364",
       "releaseDate": "2021-12-02",
       "confidence": "blocked",
@@ -3026,6 +3210,7 @@
       "publisher": "Crunchyroll Manga",
       "volumeNumber": 8,
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/364",
       "releaseDate": "2022-04-07",
       "confidence": "blocked",
@@ -3043,6 +3228,7 @@
       "publisher": "Crunchyroll Manga",
       "volumeNumber": 9,
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/364",
       "releaseDate": "2022-10-06",
       "confidence": "blocked",
@@ -3060,6 +3246,7 @@
       "publisher": "Crunchyroll Manga",
       "volumeNumber": 10,
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/364",
       "releaseDate": "2023-10-06",
       "confidence": "blocked",
@@ -3077,6 +3264,7 @@
       "publisher": "Crunchyroll Manga",
       "volumeNumber": 11,
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/364",
       "releaseDate": "2024-04-05",
       "confidence": "blocked",
@@ -3094,6 +3282,7 @@
       "publisher": "Crunchyroll Manga",
       "volumeNumber": 12,
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/364",
       "releaseDate": "2024-10-04",
       "confidence": "blocked",
@@ -3111,6 +3300,7 @@
       "publisher": "Crunchyroll Manga",
       "volumeNumber": 13,
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/364",
       "releaseDate": "2025-04-04",
       "confidence": "blocked",
@@ -3128,6 +3318,7 @@
       "publisher": "Crunchyroll Manga",
       "volumeNumber": 14,
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/364",
       "releaseDate": "2025-10-03",
       "confidence": "blocked",
@@ -3145,6 +3336,7 @@
       "publisher": "Crunchyroll Manga",
       "volumeNumber": 15,
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/364",
       "releaseDate": "2026-04-03",
       "confidence": "blocked",
@@ -3162,6 +3354,7 @@
       "publisher": "Manga Cult",
       "volumeNumber": 2,
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/6137",
       "releaseDate": null,
       "confidence": "blocked",
@@ -3180,6 +3373,7 @@
       "publisher": "Hayabusa",
       "volumeNumber": 6,
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/2015",
       "releaseDate": null,
       "confidence": "blocked",
@@ -3197,6 +3391,7 @@
       "publisher": "Yomeru",
       "volumeNumber": 3,
       "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/5652",
       "releaseDate": null,
       "confidence": "blocked",
