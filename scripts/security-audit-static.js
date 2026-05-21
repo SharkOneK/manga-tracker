@@ -472,6 +472,44 @@ if (!appJs) {
 }
 
 // ── Ergebnis ───────────────────────────────────────────────────────────────
+
+// ─── Check 32: Phase-35-Pending-Intake bleibt sanitisiert und read-only nach außen ───
+if (!appJs) {
+  fail('Check 32: src/app.js nicht gefunden (Phase-35-Pending-Intake nicht prüfbar)');
+} else {
+  const phase35Start = appJs.indexOf('function groupPendingCoverageCandidates');
+  const phase35End = appJs.indexOf('async function loadJsonReadOnly', phase35Start);
+  const phase35Code = phase35Start >= 0 && phase35End > phase35Start ? appJs.slice(phase35Start, phase35End) : '';
+  const batchMatch = appJs.match(/function buildSanitizedPendingWatchlistBatch[\s\S]*?\n}\n\nfunction buildLocalReleaseCoverageWatchlistBatch/);
+  const batchCode = batchMatch ? batchMatch[0] : '';
+  const forbiddenExportFields = ['owned', 'readAt', 'boughtAt', 'collectionStatus', 'readStatus', 'seriesId', 'owner_token', 'view_token', 'supabaseId', 'supabase_id', 'privateDebug'];
+  const leakedExport = forbiddenExportFields.filter(field => new RegExp('\\b' + field + '\\b').test(batchCode));
+  if (!phase35Code || !batchCode || !phase35Code.includes('blocked-missing-publisher') || !phase35Code.includes('replaced-empty-publisher')) {
+    fail('Check 32: Phase-35-Intake-/Dedupe-Guardrails fehlen');
+  } else if (leakedExport.length) {
+    fail('Check 32: Phase-35-Sanitizer referenziert private Exportfelder: ' + leakedExport.join(', '));
+  } else if (/pushCloud\s*\(|persist\s*\(|patchCollection|api\.github\.com|repos\/[^/]+\/[^/]+\/contents|release-watchlist\.json[\s\S]{0,120}\b(PUT|POST|PATCH|DELETE)\b|release-cache\.json[\s\S]{0,120}\b(PUT|POST|PATCH|DELETE)\b/i.test(phase35Code)) {
+    fail('Check 32: Phase-35-Pending-Intake enthält externen Schreibpfad');
+  } else {
+    pass('Check 32: Phase-35-Pending-Intake nutzt Allowlist, blockiert unsichere Daten und schreibt nicht extern');
+  }
+}
+
+// ─── Check 33: Phase-35-UI-Aktionen mutieren nur mtReleaseCoveragePending ───
+if (!appJs) {
+  fail('Check 33: src/app.js nicht gefunden (Phase-35-Aktionen nicht prüfbar)');
+} else {
+  const actionStart = appJs.indexOf('function copySanitizedPendingWatchlistBatch');
+  const actionEnd = appJs.indexOf('function clearResolvedLocalReleaseCoveragePending', actionStart);
+  const actionCode = actionStart >= 0 && actionEnd > actionStart ? appJs.slice(actionStart, actionEnd) : '';
+  if (!actionCode.includes('navigator.clipboard.writeText') || !actionCode.includes('markReviewedLocalReleaseCoveragePending') || !actionCode.includes('deleteLocalReleaseCoveragePending')) {
+    fail('Check 33: Phase-35-Copy/Delete/Mark-reviewed-Aktionen fehlen');
+  } else if (/\bdb\.m\b|pushCloud\s*\(|persist\s*\(|patchCollection|supabase\.(from|rpc)|api\.github\.com/i.test(actionCode)) {
+    fail('Check 33: Phase-35-Aktionen mutieren mehr als Pending-localStorage oder schreiben extern');
+  } else {
+    pass('Check 33: Phase-35-Copy mutiert nichts, Delete/Mark-reviewed bleiben lokal auf Pending begrenzt');
+  }
+}
 const passed = totalChecks - totalFailed - totalWarns;
 console.log('');
 if (totalWarns > 0) {

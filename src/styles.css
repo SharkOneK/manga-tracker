@@ -1,4 +1,4 @@
-﻿:root {
+:root {
   color-scheme: light;
   --primary: #e8405a;
   --primary-light: #ffeef1;
@@ -907,3 +907,10 @@ body.dark .dashboard-release-candidate { background: #1a1a2e; }
 .dashboard-series-status-reasons span { color: var(--text-muted); }
 .stats-empty-note.success { color: #059669; font-style: normal; }
 body.dark .dashboard-series-status-candidate { background: #1a1a2e; }
+
+/* Phase 35: lokaler Release-Coverage-Pending-Intake */
+.local-release-coverage-pending .dashboard-release-candidate { align-items: flex-start; }
+.pending-intake-exportable { border-left-color: #10b981; }
+.pending-intake-blocked-missing-publisher { border-left-color: #f59e0b; }
+.pending-intake-replaced-empty-publisher { border-left-color: #6366f1; opacity: 0.9; }
+.pending-intake-ignored-dummy { border-left-color: #ef4444; opacity: 0.85; }
