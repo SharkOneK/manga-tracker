@@ -480,7 +480,8 @@ if (!appJs) {
   const phase35Start = appJs.indexOf('function groupPendingCoverageCandidates');
   const phase35End = appJs.indexOf('async function loadJsonReadOnly', phase35Start);
   const phase35Code = phase35Start >= 0 && phase35End > phase35Start ? appJs.slice(phase35Start, phase35End) : '';
-  const batchMatch = appJs.match(/function buildSanitizedPendingWatchlistBatch[\s\S]*?\n}\n\nfunction buildLocalReleaseCoverageWatchlistBatch/);
+  const appJsNorm = appJs.replace(/\r\n/g, '\n');
+  const batchMatch = appJsNorm.match(/function buildSanitizedPendingWatchlistBatch[\s\S]*?\n}\n\nfunction buildLocalReleaseCoverageWatchlistBatch/);
   const batchCode = batchMatch ? batchMatch[0] : '';
   const forbiddenExportFields = ['owned', 'readAt', 'boughtAt', 'collectionStatus', 'readStatus', 'seriesId', 'owner_token', 'view_token', 'supabaseId', 'supabase_id', 'privateDebug'];
   const leakedExport = forbiddenExportFields.filter(field => new RegExp('\\b' + field + '\\b').test(batchCode));
@@ -510,6 +511,26 @@ if (!appJs) {
     pass('Check 33: Phase-35-Copy mutiert nichts, Delete/Mark-reviewed bleiben lokal auf Pending begrenzt');
   }
 }
+// ─── Check 34: Phase-36a-Intake-Funktionen enthalten keine externen Schreibpfade ───
+if (!appJs) {
+  fail('Check 34: src/app.js nicht gefunden (Phase-36a nicht prüfbar)');
+} else {
+  const resolveStart = appJs.indexOf('function resolveEmptyPublisherPendingCandidates(');
+  const resolveEnd = appJs.indexOf('\nfunction ', resolveStart + 1);
+  const resolveCode = resolveStart >= 0 && resolveEnd > resolveStart ? appJs.slice(resolveStart, resolveEnd) : '';
+  const forbiddenPrivate = ['owned', 'readAt', 'boughtAt', 'collectionStatus', 'readStatus', 'seriesId', 'owner_token', 'view_token'];
+  const leaked = forbiddenPrivate.filter(f => new RegExp('\\b' + f + '\\b').test(resolveCode));
+  if (!resolveCode) {
+    fail('Check 34: resolveEmptyPublisherPendingCandidates fehlt in app.js');
+  } else if (leaked.length) {
+    fail('Check 34: resolveEmptyPublisherPendingCandidates referenziert private Felder: ' + leaked.join(', '));
+  } else if (/pushCloud\s*\(|persist\s*\(|patchCollection|api\.github\.com|release-watchlist\.json[\s\S]{0,80}\b(PUT|POST|PATCH)\b|release-cache\.json[\s\S]{0,80}\b(PUT|POST|PATCH)\b/i.test(resolveCode)) {
+    fail('Check 34: resolveEmptyPublisherPendingCandidates enthält externen Schreibpfad');
+  } else {
+    pass('Check 34: Phase-36a-resolveEmptyPublisher ist privat-frei und enthält keinen externen Schreibpfad');
+  }
+}
+
 const passed = totalChecks - totalFailed - totalWarns;
 console.log('');
 if (totalWarns > 0) {
