@@ -2429,6 +2429,8 @@ function markBought(id, e) {
   }
   if (m.status === 'wishlist') m.status = 'owned';
   persist();
+  // Phase 36a: nach Bandkauf nächsten Zielband automatisch in Coverage-Pending aufnehmen
+  maybeRunLocalReleaseCoverageCheck(m);
   render();
   toast(`✅ Band ${nextBand} von „${m.title}" zu „Zu lesen" hinzugefügt`);
 }
@@ -2818,7 +2820,38 @@ function maybeRunLocalReleaseCoverageCheck(manga) {
     reconcileLocalReleaseCoveragePending();
     return false;
   }
-  return upsertLocalReleaseCoveragePending(candidate);
+  const result = upsertLocalReleaseCoveragePending(candidate);
+  // Phase 36a: wenn Publisher jetzt gesetzt ist, alte leere-Publisher-Kandidaten für
+  // denselben Titel+Band als resolved markieren (Korrektur-Dedupe auf Storage-Ebene)
+  if (candidate.publisher) {
+    resolveEmptyPublisherPendingCandidates(candidate.seriesTitle, candidate.volumeNumber);
+  }
+  return result;
+}
+
+// Phase 36a: Leere-Publisher-Kandidaten aufräumen, sobald ein korrigierter Eintrag gespeichert wurde.
+// Sucht nach pending-Items mit leerem publisher für denselben normalisierten Titel + Bandnummer
+// und markiert sie als resolved, damit sie nicht mehr als exportierbar auftauchen.
+function resolveEmptyPublisherPendingCandidates(seriesTitle, volumeNumber) {
+  if (isPublicReadOnly() || !canEditLocal()) return false;
+  const normTitle = normalizeReleaseTitle(seriesTitle || '');
+  const vol = Number(volumeNumber);
+  if (!normTitle || !Number.isInteger(vol) || vol < 1) return false;
+  const queue = loadLocalReleaseCoveragePending();
+  const now = new Date().toISOString();
+  let changed = false;
+  queue.items.forEach(item => {
+    if (item.status !== 'pending') return;
+    if (normalizeReleaseTitle(item.seriesTitle || '') === normTitle &&
+        Number(item.volumeNumber) === vol &&
+        !item.publisher) {
+      item.status = 'resolved';
+      item.resolvedAt = now;
+      changed = true;
+    }
+  });
+  if (changed) saveLocalReleaseCoveragePending(queue);
+  return changed;
 }
 
 function reconcileLocalReleaseCoveragePending() {
@@ -3029,6 +3062,7 @@ function renderLocalReleaseCoveragePendingSummary() {
       <div class="stat-big-card"><div class="stat-big-n">${escapeHtml(summary.ignoredDummyCandidates)}</div><div class="stat-big-l">Dummy/Test ignoriert</div></div>
       <div class="stat-big-card"><div class="stat-big-n">${escapeHtml(summary.affectedSeries)}</div><div class="stat-big-l">Serien</div></div>
     </div>
+    ${summary.exportableCandidates > 0 ? `<p class="release-coverage-ready-notice">✅ ${escapeHtml(String(summary.exportableCandidates))} ${summary.exportableCandidates === 1 ? 'Kandidat bereit' : 'Kandidaten bereit'} — Batch kopieren und in <code>data/release-watchlist.json</code> einfügen, damit die nächste Pipeline die Bände aufgreift.</p>` : ''}
     <p class="stats-empty-note">Lokaler, sanitisierter Export: Pending-Daten werden nur nach Validierung, Escaping und Allowlist kopierbar gemacht. Es gibt keine automatische Veröffentlichung und keinen Schreibpfad auf data/*.json, Supabase, GitHub oder GitHub Actions.</p>
     <p class="stats-empty-note">Wishlist-Serien werden nicht als Release-Coverage-Kandidaten erfasst, weil sie noch nicht Teil der Sammlungslücken-Prüfung sind.</p>
     <div class="dashboard-release-candidates">${rows}</div>

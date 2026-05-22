@@ -1819,5 +1819,181 @@ test('Phase 35: Delete-/Mark-reviewed mutieren nur Pending-localStorage und Publ
   const deleted = p35Delete(storage);
   assert.strictEqual(JSON.parse(deleted).items.length, 0);
 });
+console.log('\nPhase 36a - Automatisierter Release-Datum-Intake fuer neue Manga Tests\n');
+
+// Helfer: spiegelt resolveEmptyPublisherPendingCandidates aus app.js
+function p36aResolveEmptyPublisher(queue, seriesTitle, volumeNumber) {
+  const normTitle = normalizeReleaseTitle(seriesTitle || '');
+  const vol = Number(volumeNumber);
+  if (!normTitle || !Number.isInteger(vol) || vol < 1) return false;
+  let changed = false;
+  const now = '2026-05-22T12:00:00.000Z';
+  queue.items.forEach(item => {
+    if (item.status !== 'pending') return;
+    if (normalizeReleaseTitle(item.seriesTitle || '') === normTitle &&
+        Number(item.volumeNumber) === vol &&
+        !item.publisher) {
+      item.status = 'resolved';
+      item.resolvedAt = now;
+      changed = true;
+    }
+  });
+  return changed;
+}
+
+// Helfer: MaybeCheck mit anschließendem resolveEmptyPublisher (Phase 36a Gesamtablauf)
+function p36aMaybeCheckWithResolve(m, releaseSystem, queue, mode = { publicReadOnly: false, canEditLocal: true }) {
+  if (mode.publicReadOnly || !mode.canEditLocal) return queue;
+  const candidate = p34BuildCandidate(m);
+  if (!candidate) return queue;
+  if (p34KnownSet(releaseSystem, queue, false).has(p34Key(candidate))) return queue;
+  p34Upsert(queue, candidate);
+  if (candidate.publisher) {
+    p36aResolveEmptyPublisher(queue, candidate.seriesTitle, candidate.volumeNumber);
+  }
+  return queue;
+}
+
+test('Phase 36a: Neuer Manga mit Titel, Publisher und Zielband erzeugt automatisch Pending-Kandidaten', () => {
+  const queue = { schemaVersion: 1, items: [] };
+  p36aMaybeCheckWithResolve({ title: 'Demon Slave', pub: 'Crunchyroll Manga', bands: { '1': 'owned' }, total: 5, ongoing: 'true' }, {}, queue);
+  assert.strictEqual(queue.items.length, 1);
+  assert.strictEqual(queue.items[0].seriesTitle, 'Demon Slave');
+  assert.strictEqual(queue.items[0].publisher, 'Crunchyroll Manga');
+  assert.strictEqual(queue.items[0].volumeNumber, 2);
+  assert.strictEqual(queue.items[0].status, 'pending');
+});
+
+test('Phase 36a: Neuer Manga ohne Publisher erzeugt blockierten Kandidaten (nicht exportierbar)', () => {
+  const queue = { schemaVersion: 1, items: [] };
+  p36aMaybeCheckWithResolve({ title: 'Unbekannte Serie', pub: '', bands: {}, ongoing: 'true' }, {}, queue);
+  assert.strictEqual(queue.items.length, 1);
+  assert.strictEqual(queue.items[0].publisher, '');
+  // grouping markiert ihn als blocked-missing-publisher, exportierbar = false
+  const grouped = p35Group(queue.items);
+  assert.ok(grouped.groups.every(g => g.intakeStatus !== 'exportable'));
+});
+
+test('Phase 36a: Publisher nachträglich ergänzt — leerer Kandidat wird als resolved markiert (Korrektur-Dedupe Storage)', () => {
+  const queue = { schemaVersion: 1, items: [] };
+  // 1. Erst ohne Publisher speichern
+  p34MaybeCheck({ title: 'Demon Slave', pub: '', bands: { '1': 'owned' }, total: 5, ongoing: 'true' }, {}, queue);
+  assert.strictEqual(queue.items.length, 1);
+  assert.strictEqual(queue.items[0].publisher, '');
+  assert.strictEqual(queue.items[0].status, 'pending');
+  // 2. Mit korrigiertem Publisher speichern (Phase 36a Ablauf)
+  p36aMaybeCheckWithResolve({ title: 'Demon Slave', pub: 'Crunchyroll Manga', bands: { '1': 'owned' }, total: 5, ongoing: 'true' }, {}, queue);
+  // Alter leerer-Publisher-Eintrag muss als resolved markiert sein
+  const emptyPub = queue.items.find(i => i.publisher === '');
+  assert.ok(emptyPub, 'Leerer-Publisher-Eintrag muss noch in Queue sein');
+  assert.strictEqual(emptyPub.status, 'resolved', 'Leerer-Publisher-Eintrag muss resolved sein');
+  // Neuer gefüllter Publisher-Eintrag muss pending sein
+  const filledPub = queue.items.find(i => i.publisher !== '');
+  assert.ok(filledPub, 'Gefüllter-Publisher-Eintrag muss vorhanden sein');
+  assert.strictEqual(filledPub.status, 'pending');
+  // Export darf nur den gefüllten enthalten
+  const batch = p35BuildBatch(p35Group(queue.items.filter(i => i.status === 'pending')));
+  assert.strictEqual(batch.length, 1);
+  assert.strictEqual(batch[0].publisher, 'Crunchyroll Manga');
+});
+
+test('Phase 36a: markBought triggert Release-Coverage-Check für nächsten Band', () => {
+  // Simuliert: Band 1 kaufen → Band 2 wird als neuer Zielband geprüft
+  const queue = { schemaVersion: 1, items: [] };
+  const mangaNachKauf = { title: 'My Hero Academia', pub: 'Manga Cult', bands: { '1': 'owned' }, total: 40, ongoing: 'true' };
+  // Nach Kauf von Band 1 ist Band 2 der neue Zielband
+  p36aMaybeCheckWithResolve(mangaNachKauf, {}, queue);
+  assert.strictEqual(queue.items.length, 1);
+  assert.strictEqual(queue.items[0].volumeNumber, 2);
+});
+
+test('Phase 36a: Bereits vorhandener Cache-Eintrag erzeugt keinen Pending-Kandidaten', () => {
+  const queue = { schemaVersion: 1, items: [] };
+  const releaseSystem = { cacheItems: [{ seriesTitle: 'One Piece', publisher: 'Carlsen Manga', volumeNumber: 105 }] };
+  p36aMaybeCheckWithResolve({ title: 'One Piece', pub: 'Carlsen', bands: { ...Object.fromEntries(Array.from({ length: 104 }, (_, i) => [String(i + 1), 'owned'])) }, total: 110, ongoing: 'true' }, releaseSystem, queue);
+  assert.strictEqual(queue.items.length, 0);
+});
+
+test('Phase 36a: Wishlist-Serie erzeugt keinen Pending-Kandidaten', () => {
+  const queue = { schemaVersion: 1, items: [] };
+  p36aMaybeCheckWithResolve({ title: 'Wish Serie', pub: 'Egmont Manga', status: 'wishlist', bands: {}, ongoing: 'true' }, {}, queue);
+  assert.strictEqual(queue.items.length, 0);
+});
+
+test('Phase 36a: Public View erzeugt keinen Pending-Kandidaten', () => {
+  const queue = { schemaVersion: 1, items: [] };
+  p36aMaybeCheckWithResolve({ title: 'Public Test', pub: 'Carlsen', bands: {}, ongoing: 'true' }, {}, queue, { publicReadOnly: true, canEditLocal: false });
+  assert.strictEqual(queue.items.length, 0);
+});
+
+test('Phase 36a: Wiederholtes Speichern erhöht seenCount statt Duplikat anzulegen', () => {
+  const queue = { schemaVersion: 1, items: [] };
+  const m = { title: 'Repeat Test', pub: 'Manga Cult', bands: {}, ongoing: 'true' };
+  p36aMaybeCheckWithResolve(m, {}, queue);
+  p36aMaybeCheckWithResolve(m, {}, queue);
+  p36aMaybeCheckWithResolve(m, {}, queue);
+  assert.strictEqual(queue.items.length, 1);
+  assert.strictEqual(queue.items[0].seenCount, 3);
+});
+
+test('Phase 36a: Export nach Publisher-Korrektur enthält nur Allowlist-Felder ohne private Daten', () => {
+  const queue = { schemaVersion: 1, items: [] };
+  p34MaybeCheck({ title: 'Kagurabachi', pub: '', bands: {}, ongoing: 'true' }, {}, queue);
+  p36aMaybeCheckWithResolve({ title: 'Kagurabachi', pub: 'Crunchyroll Manga', bands: {}, ongoing: 'true' }, {}, queue);
+  const pendingItems = queue.items.filter(i => i.status === 'pending');
+  const batch = p35BuildBatch(p35Group(pendingItems));
+  assert.ok(batch.length > 0, 'Batch muss exportierbaren Eintrag enthalten');
+  const ALLOWED_EXPORT = new Set(['seriesTitle', 'publisher', 'sourceUrl', 'notes', 'enabled', 'volumeNumber', 'volumeNumbers']);
+  batch.forEach(entry => {
+    Object.keys(entry).forEach(k => assert.ok(ALLOWED_EXPORT.has(k), `Export darf kein Feld '${k}' enthalten`));
+    PHASE34_PRIVATE_FIELDS.filter(f => f !== 'notes').forEach(f => assert.ok(!(f in entry), `Export darf kein privates Feld ${f} enthalten`));
+  });
+});
+
+test('Phase 36a: resolveEmptyPublisherPendingCandidates-Funktion existiert in app.js', () => {
+  const fs = require('fs');
+  const appJs = fs.readFileSync('src/app.js', 'utf8');
+  assert.ok(appJs.includes('function resolveEmptyPublisherPendingCandidates'), 'resolveEmptyPublisherPendingCandidates muss in app.js vorhanden sein');
+  assert.ok(appJs.includes('resolveEmptyPublisherPendingCandidates('), 'resolveEmptyPublisherPendingCandidates muss aufgerufen werden');
+});
+
+test('Phase 36a: markBought ruft maybeRunLocalReleaseCoverageCheck auf', () => {
+  const fs = require('fs');
+  const appJs = fs.readFileSync('src/app.js', 'utf8');
+  // markBought-Funktion extrahieren
+  const start = appJs.indexOf('function markBought(');
+  const end = appJs.indexOf('\nfunction ', start + 1);
+  const fnCode = start >= 0 && end > start ? appJs.slice(start, end) : '';
+  assert.ok(fnCode.includes('maybeRunLocalReleaseCoverageCheck('), 'markBought muss maybeRunLocalReleaseCoverageCheck aufrufen');
+});
+
+test('Phase 36a: Dashboard-Hinweis enthält "release-coverage-ready-notice" wenn exportierbare Kandidaten vorhanden', () => {
+  const fs = require('fs');
+  const appJs = fs.readFileSync('src/app.js', 'utf8');
+  assert.ok(appJs.includes('release-coverage-ready-notice'), 'Dashboard muss release-coverage-ready-notice für exportierbare Kandidaten zeigen');
+  assert.ok(appJs.includes('exportableCandidates > 0'), 'Dashboard muss prüfen ob exportierbare Kandidaten vorhanden sind');
+});
+
+test('Phase 36a: maybeRunLocalReleaseCoverageCheck ruft resolveEmptyPublisherPendingCandidates auf', () => {
+  const fs = require('fs');
+  const appJs = fs.readFileSync('src/app.js', 'utf8');
+  const fnStart = appJs.indexOf('function maybeRunLocalReleaseCoverageCheck(');
+  const fnEnd = appJs.indexOf('\nfunction ', fnStart + 1);
+  const fnCode = fnStart >= 0 && fnEnd > fnStart ? appJs.slice(fnStart, fnEnd) : '';
+  assert.ok(fnCode.includes('resolveEmptyPublisherPendingCandidates('), 'maybeRunLocalReleaseCoverageCheck muss resolveEmptyPublisherPendingCandidates aufrufen');
+  assert.ok(fnCode.includes('candidate.publisher'), 'Aufruf muss publisher-bedingt sein');
+});
+
+test('Phase 36a: Keine Browser-Write-Pfade auf data/*.json in neuen Phase-36a-Funktionen', () => {
+  const fs = require('fs');
+  const appJs = fs.readFileSync('src/app.js', 'utf8');
+  const p36aFnStart = appJs.indexOf('function resolveEmptyPublisherPendingCandidates(');
+  const p36aFnEnd = appJs.indexOf('\nfunction ', p36aFnStart + 1);
+  const fnCode = p36aFnStart >= 0 && p36aFnEnd > p36aFnStart ? appJs.slice(p36aFnStart, p36aFnEnd) : '';
+  assert.ok(fnCode.length > 0, 'resolveEmptyPublisherPendingCandidates muss gefunden werden');
+  const forbidden = /api\.github\.com|release-watchlist\.json|release-cache\.json|pushCloud\s*\(|persist\s*\(/;
+  assert.ok(!forbidden.test(fnCode), 'resolveEmptyPublisherPendingCandidates darf keinen externen Schreibpfad enthalten');
+});
+
 console.log(`\n${passed + failed} Tests — ${passed} bestanden, ${failed} fehlgeschlagen\n`);
 if (failed > 0) process.exit(1);

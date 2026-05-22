@@ -660,6 +660,44 @@ if (/fetch\([^)]*release-cache\.json[^)]*\)[\s\S]{0,160}\b(PUT|POST|PATCH|DELETE
 } else {
   pass('src/app.js: kein direkter Browser-Schreibpfad auf data/release-cache.json');
 }
+
+console.log('\nPruefe: Phase 36a - Automatisierter Release-Datum-Intake fuer neue Manga\n');
+
+[
+  ['resolveEmptyPublisherPendingCandidates-Funktion', 'function resolveEmptyPublisherPendingCandidates('],
+  ['maybeRunLocalReleaseCoverageCheck ruft resolveEmptyPublisher auf', 'resolveEmptyPublisherPendingCandidates(candidate.seriesTitle'],
+  ['markBought ruft Coverage-Check auf', 'maybeRunLocalReleaseCoverageCheck(m)'],
+  ['Dashboard-Bereit-Hinweis vorhanden', 'release-coverage-ready-notice'],
+  ['Dashboard prueft exportierbare Kandidaten', 'exportableCandidates > 0'],
+].forEach(([label, marker]) => {
+  if (!appJs26.includes(marker)) fail('src/app.js: Phase-36a-Marker fehlt: ' + label);
+  else pass('src/app.js: Phase-36a-Marker vorhanden: ' + label);
+});
+
+// Phase 36a: resolveEmptyPublisher darf keinen externen Schreibpfad enthalten
+const appJs36aStart = appJs26.indexOf('function resolveEmptyPublisherPendingCandidates(');
+const appJs36aEnd = appJs26.indexOf('\nfunction ', appJs36aStart + 1);
+const appJs36aCode = appJs36aStart >= 0 && appJs36aEnd > appJs36aStart ? appJs26.slice(appJs36aStart, appJs36aEnd) : '';
+if (appJs36aCode && /api\.github\.com|release-watchlist\.json|release-cache\.json|pushCloud\s*\(|persist\s*\(/.test(appJs36aCode)) {
+  fail('src/app.js: resolveEmptyPublisherPendingCandidates enthält externen Schreibpfad');
+} else if (!appJs36aCode) {
+  fail('src/app.js: resolveEmptyPublisherPendingCandidates nicht gefunden');
+} else {
+  pass('src/app.js: resolveEmptyPublisherPendingCandidates enthält keinen externen Schreibpfad');
+}
+
+// CSS-Klasse fuer Bereit-Hinweis vorhanden
+if (typeof stylesCs !== 'undefined' && stylesCs) {
+  if (stylesCs.includes('release-coverage-ready-notice')) pass('src/styles.css: release-coverage-ready-notice CSS-Klasse vorhanden');
+  else fail('src/styles.css: release-coverage-ready-notice CSS-Klasse fehlt');
+} else {
+  // stylesCs könnte nicht gelesen worden sein, Fallback-Check über fs
+  const _stylesPath = require('path').join(__dirname, '..', 'src', 'styles.css');
+  const _styles = require('fs').existsSync(_stylesPath) ? require('fs').readFileSync(_stylesPath, 'utf8') : '';
+  if (_styles.includes('release-coverage-ready-notice')) pass('src/styles.css: release-coverage-ready-notice CSS-Klasse vorhanden');
+  else fail('src/styles.css: release-coverage-ready-notice CSS-Klasse fehlt');
+}
+
 console.log('');
 if (totalErrors > 0) {
   console.error('❌ Smoke-Test fehlgeschlagen — ' + totalErrors + ' Fehler\n');
