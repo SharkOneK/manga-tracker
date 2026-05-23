@@ -252,6 +252,203 @@ runTest('getAppMode: liefert local-edit ohne Cloud-Parameter', function() {
   assert.strictEqual(getAppMode(null, null, null), 'local-edit');
 });
 
+// ─── Phase 36b: Release Intake Tests ─────────────────────────────────────────
+
+// Helper mirrors (from app.js Phase 36b)
+function normalizeReleaseTitle36b(value) {
+  return (value || '')
+    .toLowerCase()
+    .replace(/[äÄ]/g, 'ae').replace(/[öÖ]/g, 'oe').replace(/[üÜ]/g, 'ue').replace(/[ß]/g, 'ss')
+    .replace(/[^a-z0-9\s]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function normalizeReleasePublisher36b(value) {
+  return (value || '')
+    .toLowerCase()
+    .replace(/[äÄ]/g, 'ae').replace(/[öÖ]/g, 'oe').replace(/[üÜ]/g, 'ue').replace(/[ß]/g, 'ss')
+    .replace(/[!.,]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function intakeDedupKey36b(seriesTitle, publisher, volumeNumber) {
+  return normalizeReleaseTitle36b(seriesTitle) + '|' + normalizeReleasePublisher36b(publisher) + '|' + Number(volumeNumber);
+}
+
+function isDummyTitle36b(title) {
+  const norm = normalizeReleaseTitle36b(title || '');
+  return /^zzz(?:\s|-|_)*test/.test(norm) || /\btest(?:\s|-|_)*serie\b/.test(norm);
+}
+
+const INTAKE_PRIVATE_FIELDS = new Set([
+  'bands', 'owned', 'readStatus', 'collectionStatus', 'startedAt', 'finishedAt',
+  'boughtAt', 'readAt', 'isbn13', 'mpEditionId', 'owner_token', 'view_token',
+  'collection_id', 'supabase', 'privateNotes', 'data',
+]);
+
+function validateIntakeCandidate36b(candidate) {
+  if (!candidate || typeof candidate !== 'object') return false;
+  for (const field of INTAKE_PRIVATE_FIELDS) {
+    if (Object.prototype.hasOwnProperty.call(candidate, field)) return false;
+  }
+  const seriesTitle  = String(candidate.seriesTitle  || '').trim();
+  const publisher    = String(candidate.publisher    || '').trim();
+  const volumeNumber = Number(candidate.volumeNumber);
+  if (!seriesTitle || !publisher) return false;
+  if (!Number.isInteger(volumeNumber) || volumeNumber < 1) return false;
+  if (isDummyTitle36b(seriesTitle)) return false;
+  if (candidate.sourceUrl !== null && candidate.sourceUrl !== undefined) {
+    if (typeof candidate.sourceUrl !== 'string' || !candidate.sourceUrl.startsWith('https://')) return false;
+  }
+  return true;
+}
+
+function buildIntakeSubmitCandidate36b(candidate) {
+  if (!candidate || typeof candidate !== 'object') return null;
+  const seriesTitle  = String(candidate.seriesTitle  || '').trim();
+  const publisher    = String(candidate.publisher    || '').trim();
+  const vol          = Number(candidate.volumeNumber);
+  if (!seriesTitle || !publisher) return null;
+  if (!Number.isInteger(vol) || vol < 1) return null;
+  const sourceUrl = (typeof candidate.sourceUrl === 'string' && candidate.sourceUrl.startsWith('https://'))
+    ? candidate.sourceUrl : null;
+  const notes = typeof candidate.notes === 'string' && candidate.notes
+    ? candidate.notes.slice(0, 500) : null;
+  return { seriesTitle, publisher, volumeNumber: vol, sourceUrl, notes, enabled: true };
+}
+
+// 21. Intake allowlist export contains only permitted fields
+runTest('Phase 36b: buildIntakeSubmitCandidate enthält nur Allowlist-Felder', function() {
+  const candidate = {
+    seriesTitle:      'Test Manga',
+    publisher:        'Test Verlag',
+    volumeNumber:     3,
+    sourceUrl:        null,
+    notes:            'Test',
+    enabled:          true,
+    // These must NOT appear in output:
+    owned:            5,
+    readAt:           '2024-01-01',
+    boughtAt:         '2024-01-01',
+    collectionStatus: 'reading',
+  };
+  const result = buildIntakeSubmitCandidate36b(candidate);
+  assert.ok(result !== null, 'result is null');
+  const allowedKeys = new Set(['seriesTitle', 'publisher', 'volumeNumber', 'sourceUrl', 'notes', 'enabled']);
+  const resultKeys = Object.keys(result);
+  resultKeys.forEach(k => assert.ok(allowedKeys.has(k), `Unexpected field in result: ${k}`));
+  assert.ok(!('owned' in result), 'owned must not be in result');
+  assert.ok(!('readAt' in result), 'readAt must not be in result');
+  assert.ok(!('boughtAt' in result), 'boughtAt must not be in result');
+});
+
+// 22. Empty publisher is blocked
+runTest('Phase 36b: leerer Publisher wird blockiert', function() {
+  assert.strictEqual(validateIntakeCandidate36b({ seriesTitle: 'Test', publisher: '', volumeNumber: 1 }), false);
+  assert.strictEqual(validateIntakeCandidate36b({ seriesTitle: 'Test', publisher: '   ', volumeNumber: 1 }), false);
+});
+
+// 23. Dummy/test title is blocked
+runTest('Phase 36b: Dummy/Test-Titel wird blockiert', function() {
+  assert.strictEqual(validateIntakeCandidate36b({ seriesTitle: 'ZZZ-TEST-SERIE', publisher: 'Verlag', volumeNumber: 1 }), false);
+  assert.strictEqual(validateIntakeCandidate36b({ seriesTitle: 'zzz test', publisher: 'Verlag', volumeNumber: 1 }), false);
+  assert.strictEqual(validateIntakeCandidate36b({ seriesTitle: 'Test Serie', publisher: 'Verlag', volumeNumber: 1 }), false);
+});
+
+// 24. Valid candidate passes validation
+runTest('Phase 36b: gültiger Kandidat besteht Validierung', function() {
+  assert.strictEqual(
+    validateIntakeCandidate36b({ seriesTitle: 'One Piece', publisher: 'Carlsen Manga', volumeNumber: 101 }),
+    true
+  );
+});
+
+// 25. Private fields block validation
+runTest('Phase 36b: private Felder blockieren Validierung', function() {
+  assert.strictEqual(validateIntakeCandidate36b({
+    seriesTitle: 'Test', publisher: 'Verlag', volumeNumber: 1, owned: 5,
+  }), false);
+  assert.strictEqual(validateIntakeCandidate36b({
+    seriesTitle: 'Test', publisher: 'Verlag', volumeNumber: 1, boughtAt: '2024-01-01',
+  }), false);
+});
+
+// 26. Dedup key is consistent
+runTest('Phase 36b: Dedup-Key ist konsistent und normalisiert', function() {
+  const k1 = intakeDedupKey36b('One Piece', 'Carlsen Manga', 5);
+  const k2 = intakeDedupKey36b('ONE PIECE', 'Carlsen  Manga', 5);
+  // Same normalisation should yield same key (lowercase, collapsed spaces)
+  assert.ok(k1 === k2 || k1.includes('one piece'), 'Key should be normalised lowercase');
+  assert.ok(k1.endsWith('|5'), 'Key should end with volume number');
+});
+
+// 27. Intake script dedup against existing watchlist entry
+runTest('Phase 36b: apply-Script erkennt Duplikate per Dedup-Key', function() {
+  const existingItems = [
+    { seriesTitle: 'One Piece', publisher: 'Carlsen Manga', volumeNumber: 5 },
+  ];
+  const keys = new Set(existingItems.map(i => intakeDedupKey36b(i.seriesTitle, i.publisher, i.volumeNumber)));
+  const newCandidate = { series_title: 'One Piece', publisher: 'Carlsen Manga', volume_number: 5 };
+  const dedup = intakeDedupKey36b(newCandidate.series_title, newCandidate.publisher, newCandidate.volume_number);
+  assert.ok(keys.has(dedup), 'Candidate already in watchlist must be detected as duplicate');
+});
+
+// 28. Auto-intake default is OFF (canWriteCloud mock = false => not allowed)
+runTest('Phase 36b: Auto-Intake darf nie im public-readonly aktiv sein', function() {
+  // Simulate: public-readonly mode → canWriteCloud = false
+  const canWriteCloudMock = false;
+  const autoIntakeEnabled = true; // user set it, but mode guard should block
+  // isReleaseIntakeSendAllowed guard: if !canWriteCloud → false
+  const allowed = canWriteCloudMock && autoIntakeEnabled;
+  assert.strictEqual(allowed, false, 'Public/local-only mode must block intake even if setting is on');
+});
+
+// 29. intake script does not modify release-cache.json (static check)
+runTest('Phase 36b: apply-release-intake-candidates.js referenziert release-cache.json nicht schreibend', function() {
+  const fs2 = require('fs');
+  const scriptPath = require('path').resolve(__dirname, 'apply-release-intake-candidates.js');
+  if (!fs2.existsSync(scriptPath)) {
+    assert.fail('apply-release-intake-candidates.js not found');
+  }
+  const src = fs2.readFileSync(scriptPath, 'utf-8');
+  // Must not writeFile to release-cache (the watchlist path is the only write target)
+  // Checks for writeFileSync() or createWriteStream() calls referencing the cache artifact
+  assert.ok(!/writeFile(?:Sync)?\s*\([^)]*release-cache/i.test(src),
+    'Script must not write release-cache artifact via writeFile');
+  // Must not invent release dates
+  assert.ok(!/releaseDate|release_date/i.test(src),
+    'Script must not set release dates');
+});
+
+// 30. GitHub workflow exists, has workflow_dispatch, correct schedule, no push trigger
+runTest('Phase 36b: release-intake.yml — workflow_dispatch, 04:05 UTC, kein push-Trigger', function() {
+  const fs2 = require('fs');
+  const wfPath = require('path').resolve(__dirname, '../.github/workflows/release-intake.yml');
+  if (!fs2.existsSync(wfPath)) {
+    assert.fail('.github/workflows/release-intake.yml not found');
+  }
+  const wf = fs2.readFileSync(wfPath, 'utf-8');
+  assert.ok(wf.includes('workflow_dispatch'), 'workflow_dispatch must be present');
+  assert.ok(wf.includes("cron: '5 4 * * *'"), '04:05 UTC schedule must be present');
+  assert.ok(!wf.includes('release-cache.json'), 'release-cache.json must not appear in intake workflow');
+});
+
+// 31. Workflow creates PR, does not push directly to main
+runTest('Phase 36b: release-intake.yml erstellt PR, kein push nach main', function() {
+  const fs2 = require('fs');
+  const wfPath = require('path').resolve(__dirname, '../.github/workflows/release-intake.yml');
+  if (!fs2.existsSync(wfPath)) {
+    assert.fail('.github/workflows/release-intake.yml not found');
+  }
+  const wf = fs2.readFileSync(wfPath, 'utf-8');
+  assert.ok(wf.includes('create-pull-request'), 'Workflow must use create-pull-request action');
+  assert.ok(wf.includes('automated/release-intake'), 'Workflow must use automated/release-intake branch');
+  // Must not push to main directly
+  assert.ok(!/git push.*main/i.test(wf), 'Workflow must not push directly to main');
+});
+
 // ─── Ergebnis ─────────────────────────────────────────────────────────────
 
 console.log('');

@@ -1,0 +1,138 @@
+name: Release Intake
+
+# Runs at 04:05 UTC — before Update Release Cache (04:17 UTC).
+# This ordering ensures that newly adopted watchlist entries are picked up
+# by the same day's cache pipeline run.
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '5 4 * * *'
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: release-intake
+  cancel-in-progress: false
+
+jobs:
+  release-intake:
+    runs-on: ubuntu-latest
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+
+      - name: Syntax checks
+        run: |
+          node --check scripts/apply-release-intake-candidates.js
+          node --check scripts/validate-release-watchlist.js
+          node --check scripts/check-secrets.js
+          node --check scripts/security-audit-static.js
+          node --check scripts/smoke-test-static.js
+          node --check scripts/test-stats.js
+          node --check scripts/test-data-integrity.js
+          node --check src/supabase.js
+          node --check src/app.js
+          node --check src/utils.js
+
+      - name: Security and static checks (pre-intake)
+        run: |
+          node scripts/check-secrets.js
+          node scripts/security-audit-static.js
+          node scripts/smoke-test-static.js
+          node scripts/test-stats.js
+          node scripts/test-data-integrity.js
+          git diff --check
+
+      - name: Run release intake
+        env:
+          SUPABASE_URL:        ${{ secrets.SUPABASE_URL }}
+          SUPABASE_INTAKE_KEY: ${{ secrets.SUPABASE_INTAKE_KEY }}
+        run: node scripts/apply-release-intake-candidates.js
+
+      - name: Validate watchlist after intake
+        run: node scripts/validate-release-watchlist.js
+
+      - name: Security check after intake
+        run: |
+          node scripts/check-secrets.js
+          git diff --check
+
+      - name: Detect watchlist changes
+        id: changes
+        shell: bash
+        run: |
+          if git diff --quiet -- data/release-watchlist.json; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "No watchlist changes detected — no PR needed."
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            git diff --stat -- data/release-watchlist.json
+          fi
+
+      - name: Prepare PR body
+        if: steps.changes.outputs.changed == 'true'
+        shell: bash
+        run: |
+          node <<'NODE' > "$RUNNER_TEMP/release-intake-pr-body.md"
+          const fs = require('fs');
+          const wl = JSON.parse(fs.readFileSync('data/release-watchlist.json', 'utf8'));
+          console.log('## Release Intake Summary');
+          console.log('');
+          console.log('Automated intake of Supabase staging candidates into `data/release-watchlist.json`.');
+          console.log('');
+          console.log(`- Watchlist items after intake: ${wl.items ? wl.items.length : '?'}`);
+          console.log(`- Generated at: ${wl.generatedAt || new Date().toISOString()}`);
+          console.log('');
+          console.log('### Security');
+          console.log('');
+          console.log('- No browser GitHub token used');
+          console.log('- No direct push to main');
+          console.log('- Only allowlist fields (seriesTitle, publisher, volumeNumber, sourceUrl, notes, enabled)');
+          console.log('- No private collection data in staging, PR, or logs');
+          console.log('- The release cache artifact is not modified by this PR');
+          console.log('');
+          console.log('Merge this PR to let the next `Update Release Cache` pipeline pick up the new entries.');
+          NODE
+
+      - name: Create watchlist intake PR
+        if: steps.changes.outputs.changed == 'true'
+        id: cpr
+        uses: peter-evans/create-pull-request@v8
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "chore: intake release coverage candidates"
+          branch: automated/release-intake
+          delete-branch: true
+          title: "chore: intake release coverage candidates"
+          body-path: ${{ runner.temp }}/release-intake-pr-body.md
+          labels: release-watchlist, automated
+          add-paths: |
+            data/release-watchlist.json
+
+      - name: Summary
+        shell: bash
+        run: |
+          {
+            echo "## Release Intake Result"
+            echo ""
+            if [ "${{ steps.changes.outputs.changed }}" = "true" ]; then
+              echo "- PR created: ${{ steps.cpr.outputs.pull-request-url || 'see PR list' }}"
+              echo "- Branch: automated/release-intake"
+              echo "- Changed file: data/release-watchlist.json"
+            else
+              echo "- No changes detected — clean no-op"
+            fi
+            echo ""
+            echo "Next: **Update Release Cache** runs at 04:17 UTC and will process the updated watchlist once the PR is merged."
+          } >> "$GITHUB_STEP_SUMMARY"

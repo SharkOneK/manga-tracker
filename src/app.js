@@ -2826,7 +2826,114 @@ function maybeRunLocalReleaseCoverageCheck(manga) {
   if (candidate.publisher) {
     resolveEmptyPublisherPendingCandidates(candidate.seriesTitle, candidate.volumeNumber);
   }
+  // Phase 36b: optional async submit to Supabase staging (fire-and-forget, non-blocking)
+  if (result) maybeSubmitReleaseIntakeCandidate(candidate);
   return result;
+}
+
+// ── Phase 36b: Auto-Intake Submit to Supabase Staging ────────────────────────
+//
+// The auto-intake feature is OFF by default. The user must explicitly enable it
+// via the dashboard toggle. When enabled, exportable pending candidates are
+// submitted to Supabase staging as an allowlist-sanitized release intake candidate.
+//
+// Security guarantees:
+// - Only active in cloud-owner mode (never in local-edit or public-readonly)
+// - Only sends when the user has explicitly enabled the setting
+// - Only sends exportable candidates (publisher set, non-dummy, non-wishlist)
+// - Only allowlist fields: seriesTitle, publisher, volumeNumber, sourceUrl, notes, enabled
+// - Submit errors never block save, purchase, or any local operation
+// - No private collection data is ever sent (see RELEASE_INTAKE_SUBMIT_ALLOWED_FIELDS)
+// - Public view sends nothing and cannot enable the setting
+
+const MT_AUTO_RELEASE_INTAKE_KEY = 'mtAutoReleaseIntake';
+
+// Allowlist for fields that may be submitted to Supabase staging
+const RELEASE_INTAKE_SUBMIT_ALLOWED_FIELDS = new Set([
+  'seriesTitle', 'publisher', 'volumeNumber', 'sourceUrl', 'notes', 'enabled',
+]);
+
+function getAutoReleaseIntakeSetting() {
+  try {
+    return localStorage.getItem(MT_AUTO_RELEASE_INTAKE_KEY) === 'true';
+  } catch (_) { return false; }
+}
+
+function setAutoReleaseIntakeSetting(value) {
+  if (isPublicReadOnly()) return; // Public view may not enable this
+  try {
+    if (value) {
+      localStorage.setItem(MT_AUTO_RELEASE_INTAKE_KEY, 'true');
+    } else {
+      localStorage.removeItem(MT_AUTO_RELEASE_INTAKE_KEY);
+    }
+  } catch (_) {}
+}
+
+// Validates that a pending candidate is safe to submit to Supabase staging.
+// All conditions must be met; on any failure returns false (silent gate).
+function isReleaseIntakeSendAllowed(candidate) {
+  if (!candidate || typeof candidate !== 'object') return false;
+  // Mode guards
+  if (isPublicReadOnly()) return false;
+  if (!canWriteCloud()) return false;
+  if (!getAutoReleaseIntakeSetting()) return false;
+  // Candidate guards
+  if (!candidate.publisher) return false;
+  if (isPendingCoverageDummyTitle(candidate.seriesTitle)) return false;
+  const vol = Number(candidate.volumeNumber);
+  if (!Number.isInteger(vol) || vol < 1) return false;
+  // sourceUrl must be null/undefined or a https:// URL
+  if (candidate.sourceUrl !== null && candidate.sourceUrl !== undefined) {
+    if (typeof candidate.sourceUrl !== 'string' || !candidate.sourceUrl.startsWith('https://')) return false;
+  }
+  return true;
+}
+
+// Builds a submission object containing only the allowlisted fields.
+// Returns null if the candidate fails any structural requirement.
+function buildIntakeSubmitCandidate(candidate) {
+  if (!candidate || typeof candidate !== 'object') return null;
+  const seriesTitle  = String(candidate.seriesTitle  || '').trim();
+  const publisher    = String(candidate.publisher    || '').trim();
+  const vol          = Number(candidate.volumeNumber);
+  if (!seriesTitle || !publisher) return null;
+  if (!Number.isInteger(vol) || vol < 1) return null;
+  const sourceUrl = (typeof candidate.sourceUrl === 'string' && candidate.sourceUrl.startsWith('https://'))
+    ? candidate.sourceUrl : null;
+  const notes = typeof candidate.notes === 'string' && candidate.notes
+    ? candidate.notes.slice(0, 500) : null;
+  // Explicit field list — never spread candidate to prevent accidental leakage
+  return {
+    seriesTitle,
+    publisher,
+    volumeNumber: vol,
+    sourceUrl,
+    notes,
+    enabled: true,
+  };
+}
+
+// Fire-and-forget async submit. Never throws, never blocks the call site.
+function maybeSubmitReleaseIntakeCandidate(candidate) {
+  if (!isReleaseIntakeSendAllowed(candidate)) return;
+  const { ownerToken } = window.MangaTrackerSupabase.getOwnerState();
+  if (!ownerToken) return;
+  const submission = buildIntakeSubmitCandidate(candidate);
+  if (!submission) return;
+  // Schedule asynchronously so save/purchase flow completes first
+  Promise.resolve().then(async function () {
+    try {
+      const r = await window.MangaTrackerSupabase.submitReleaseIntakeCandidate(submission, ownerToken);
+      if (r && r.result && r.result !== 'error') {
+        console.info('[Phase 36b] Release intake:', r.result, submission.seriesTitle, 'Bd.', submission.volumeNumber);
+      } else if (r && r.result === 'error') {
+        console.warn('[Phase 36b] Release intake submit failed (non-blocking):', r.message || '');
+      }
+    } catch (e) {
+      console.warn('[Phase 36b] Release intake submit exception (non-blocking):', String(e && e.message || e).slice(0, 200));
+    }
+  });
 }
 
 // Phase 36a: Leere-Publisher-Kandidaten aufräumen, sobald ein korrigierter Eintrag gespeichert wurde.
@@ -3072,7 +3179,34 @@ function renderLocalReleaseCoveragePendingSummary() {
       <button type="button" class="add-btn dashboard-action-btn" data-action="delete-local-release-coverage-pending">Pending-Kandidaten löschen</button>
     </div>
     <p class="stats-empty-note">Copy mutiert nichts. Löschen/Mark-reviewed ändert ausschließlich localStorage.mtReleaseCoveragePending.</p>
+    ${canWriteCloud() ? renderAutoReleaseIntakeToggle() : ''}
   </div>`;
+}
+
+// Phase 36b: Auto-Intake Toggle UI
+// Renders the cloud-owner-only toggle for "Automatischen Release-Intake senden".
+// Only shown when in cloud-owner mode. Never shown in public-readonly or local-edit.
+function renderAutoReleaseIntakeToggle() {
+  if (!canWriteCloud()) return '';
+  const enabled = getAutoReleaseIntakeSetting();
+  const statusLabel = enabled ? 'aktiv' : 'inaktiv';
+  const btnLabel    = enabled ? 'Auto-Intake deaktivieren' : 'Auto-Intake aktivieren';
+  return `<div class="auto-release-intake-toggle stats-empty-note">
+    <strong>Automatischer Release-Intake:</strong> ${escapeHtml(statusLabel)}
+    <button type="button" class="add-btn dashboard-action-btn" data-action="toggle-auto-release-intake">${escapeHtml(btnLabel)}</button>
+    <span class="intake-toggle-hint">Sendet nur Titel, Verlag und Bandnummer als Release-Watchlist-Kandidat an das Supabase-Staging. Keine Besitz-, Lese-, Notiz- oder privaten Sammlungsdaten werden übertragen. Standardmäßig AUS.</span>
+  </div>`;
+}
+
+function toggleAutoReleaseIntake() {
+  if (!canWriteCloud()) {
+    toast('🔒 Auto-Intake nur im Cloud-Owner-Modus verfügbar.');
+    return;
+  }
+  const current = getAutoReleaseIntakeSetting();
+  setAutoReleaseIntakeSetting(!current);
+  render();
+  toast(!current ? '✅ Auto-Intake aktiviert — neue Kandidaten werden an Staging gesendet.' : 'ℹ️ Auto-Intake deaktiviert.');
 }
 
 function copySanitizedPendingWatchlistBatch() {
@@ -4363,6 +4497,9 @@ function bindDelegatedEvents() {
         break;
       case 'clear-local-release-coverage-resolved':
         clearResolvedLocalReleaseCoveragePending();
+        break;
+      case 'toggle-auto-release-intake':
+        toggleAutoReleaseIntake();
         break;
       case 'set-tab':
         setTab(target.dataset.tab);
