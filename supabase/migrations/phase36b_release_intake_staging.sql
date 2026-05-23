@@ -6,7 +6,7 @@
 --
 -- Browser sends only allowlist-sanitized watchlist candidates (series_title, publisher,
 -- volume_number, source_url, notes, enabled). No collection data, no private fields.
--- GitHub Action reads pending rows with the SUPABASE_SERVICE_ROLE_KEY secret (never in browser)
+-- GitHub Action reads pending rows with the SUPABASE_INTAKE_KEY secret (never in browser)
 -- and creates a PR against data/release-watchlist.json.
 --
 -- ┌─────────────────────────────────────────────────────────────────────────────┐
