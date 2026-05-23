@@ -531,6 +531,96 @@ if (!appJs) {
   }
 }
 
+// ── Check 35: Phase-36b — submitReleaseIntakeCandidate in supabase.js ─────────
+if (!supabaseJs) {
+  fail('Check 35: src/supabase.js nicht gefunden (Phase-36b Submit nicht prüfbar)');
+} else {
+  const submitStart = supabaseJs.indexOf('async function submitReleaseIntakeCandidate(');
+  const submitEnd   = supabaseJs.indexOf('\n  async function ', submitStart + 1);
+  const submitCode  = submitStart >= 0 && submitEnd > submitStart
+    ? supabaseJs.slice(submitStart, submitEnd)
+    : (submitStart >= 0 ? supabaseJs.slice(submitStart) : '');
+  const privateForbidden = ['data', 'bands', 'owned', 'readAt', 'boughtAt', 'collectionStatus', 'readStatus', 'seriesId'];
+  const leaked = privateForbidden.filter(f => new RegExp('\\b' + f + '\\b').test(submitCode));
+  if (!submitCode) {
+    fail('Check 35: submitReleaseIntakeCandidate fehlt in src/supabase.js');
+  } else if (leaked.length) {
+    fail('Check 35: submitReleaseIntakeCandidate referenziert private Felder: ' + leaked.join(', '));
+  } else if (!submitCode.includes('INTAKE_ALLOWED_FIELDS') && !submitCode.includes('p_series_title')) {
+    fail('Check 35: submitReleaseIntakeCandidate enthält keine erkennbare Allowlist/RPC-Logik');
+  } else if (!supabaseJs.includes('submitReleaseIntakeCandidate: submitReleaseIntakeCandidate')) {
+    fail('Check 35: submitReleaseIntakeCandidate nicht in window.MangaTrackerSupabase exportiert');
+  } else {
+    pass('Check 35: submitReleaseIntakeCandidate in supabase.js — privat-frei, Allowlist, exportiert');
+  }
+}
+
+// ── Check 36: Phase-36b — Auto-Intake Guards in app.js ────────────────────────
+if (!appJs) {
+  fail('Check 36: src/app.js nicht gefunden (Phase-36b Guards nicht prüfbar)');
+} else {
+  const intakeStart = appJs.indexOf('function isReleaseIntakeSendAllowed(');
+  const intakeEnd   = appJs.indexOf('\nfunction ', intakeStart + 1);
+  const intakeCode  = intakeStart >= 0 && intakeEnd > intakeStart ? appJs.slice(intakeStart, intakeEnd) : '';
+  const buildStart  = appJs.indexOf('function buildIntakeSubmitCandidate(');
+  const buildEnd    = appJs.indexOf('\nfunction ', buildStart + 1);
+  const buildCode   = buildStart >= 0 && buildEnd > buildStart ? appJs.slice(buildStart, buildEnd) : '';
+  const privateGuards = ['owned', 'readAt', 'boughtAt', 'collectionStatus', 'readStatus', 'seriesId'];
+  const leakedIntake = privateGuards.filter(f => new RegExp('\\b' + f + '\\b').test(intakeCode));
+  const leakedBuild  = privateGuards.filter(f => new RegExp('\\b' + f + '\\b').test(buildCode));
+  if (!intakeCode) {
+    fail('Check 36a: isReleaseIntakeSendAllowed fehlt in app.js');
+  } else if (leakedIntake.length) {
+    fail('Check 36a: isReleaseIntakeSendAllowed referenziert private Felder: ' + leakedIntake.join(', '));
+  } else if (!intakeCode.includes('isPublicReadOnly') || !intakeCode.includes('canWriteCloud')) {
+    fail('Check 36a: isReleaseIntakeSendAllowed enthält nicht beide Mode-Guards (isPublicReadOnly, canWriteCloud)');
+  } else {
+    pass('Check 36a: isReleaseIntakeSendAllowed — privat-frei, Mode-Guards vorhanden');
+  }
+  if (!buildCode) {
+    fail('Check 36b: buildIntakeSubmitCandidate fehlt in app.js');
+  } else if (leakedBuild.length) {
+    fail('Check 36b: buildIntakeSubmitCandidate referenziert private Felder: ' + leakedBuild.join(', '));
+  } else if (!buildCode.includes('RELEASE_INTAKE_SUBMIT_ALLOWED_FIELDS') && !buildCode.includes('seriesTitle') && !buildCode.includes('publisher')) {
+    fail('Check 36b: buildIntakeSubmitCandidate enthält keine erkennbare Allowlist-Logik');
+  } else {
+    pass('Check 36b: buildIntakeSubmitCandidate — privat-frei, Allowlist-Konstruktion');
+  }
+  // Auto-intake default must be OFF
+  if (!appJs.includes('MT_AUTO_RELEASE_INTAKE_KEY') || !appJs.includes("'mtAutoReleaseIntake'")) {
+    fail('Check 36c: MT_AUTO_RELEASE_INTAKE_KEY oder localStorage-Key mtAutoReleaseIntake fehlt in app.js');
+  } else if (!appJs.includes("localStorage.getItem(MT_AUTO_RELEASE_INTAKE_KEY) === 'true'")) {
+    fail("Check 36c: getAutoReleaseIntakeSetting prüft nicht === 'true' (default OFF sichergestellt)");
+  } else {
+    pass("Check 36c: Auto-Intake-Setting liest nur 'true' als aktiviert (default OFF)");
+  }
+  // maybeSubmitReleaseIntakeCandidate must not block save/purchase
+  const maybeSubmitStart = appJs.indexOf('function maybeSubmitReleaseIntakeCandidate(');
+  const maybeSubmitEnd   = appJs.indexOf('\nfunction ', maybeSubmitStart + 1);
+  const maybeSubmitCode  = maybeSubmitStart >= 0 && maybeSubmitEnd > maybeSubmitStart
+    ? appJs.slice(maybeSubmitStart, maybeSubmitEnd) : '';
+  if (!maybeSubmitCode || !maybeSubmitCode.includes('Promise.resolve')) {
+    fail('Check 36d: maybeSubmitReleaseIntakeCandidate fehlt oder ist nicht async/fire-and-forget');
+  } else {
+    pass('Check 36d: maybeSubmitReleaseIntakeCandidate ist fire-and-forget (Promise.resolve)');
+  }
+  // release-intake.yml exists
+  if (!fileExists('.github/workflows/release-intake.yml')) {
+    fail('Check 36e: .github/workflows/release-intake.yml nicht gefunden');
+  } else {
+    const intakeYml = readFile('.github/workflows/release-intake.yml');
+    if (!intakeYml || !intakeYml.includes('workflow_dispatch')) {
+      fail('Check 36e: release-intake.yml enthält kein workflow_dispatch');
+    } else if (!intakeYml.includes("cron: '5 4 * * *'")) {
+      fail("Check 36e: release-intake.yml enthält nicht Schedule '5 4 * * *' (04:05 UTC)");
+    } else if (intakeYml.includes('push:\n') || /^  push:/m.test(intakeYml)) {
+      fail('Check 36e: release-intake.yml hat push-Trigger — kein direkter Push auf main erlaubt');
+    } else {
+      pass('Check 36e: release-intake.yml — workflow_dispatch, 04:05 UTC Schedule, kein push-Trigger');
+    }
+  }
+}
+
 const passed = totalChecks - totalFailed - totalWarns;
 console.log('');
 if (totalWarns > 0) {

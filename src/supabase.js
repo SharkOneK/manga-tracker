@@ -126,6 +126,69 @@
     return r;
   }
 
+  // ── Phase 36b: Release Intake Staging ─────────────────────────────────────
+  // Submits a single allowlist-sanitized release candidate to Supabase staging.
+  // Only called when the user has enabled auto-intake AND is in cloud-owner mode.
+  // Never contains private collection data; only the fields in INTAKE_ALLOWED_FIELDS.
+  //
+  // Returns { result: string } where result is one of:
+  //   'submitted'       — new pending row inserted in staging
+  //   'updated'         — existing row updated (seen again)
+  //   'already_adopted' — candidate already adopted into watchlist
+  //   'blocked'         — RPC rejected the submission (validation failed)
+  //   'error'           — network or unexpected error (non-fatal)
+  var INTAKE_ALLOWED_FIELDS = new Set([
+    'seriesTitle', 'publisher', 'volumeNumber', 'sourceUrl', 'notes', 'enabled',
+  ]);
+
+  async function submitReleaseIntakeCandidate(candidate, ownerToken) {
+    if (!ownerToken) return { result: 'blocked' };
+    if (!candidate || typeof candidate !== 'object') return { result: 'blocked' };
+
+    var seriesTitle  = String(candidate.seriesTitle  || '').trim();
+    var publisher    = String(candidate.publisher    || '').trim();
+    var volumeNumber = Number(candidate.volumeNumber);
+
+    if (!seriesTitle || !publisher) return { result: 'blocked' };
+    if (!Number.isInteger(volumeNumber) || volumeNumber < 1) return { result: 'blocked' };
+
+    // Strict allowlist: build the body from scratch to prevent field leakage
+    var body = {
+      p_series_title:  seriesTitle,
+      p_publisher:     publisher,
+      p_volume_number: volumeNumber,
+      p_source_url:    (typeof candidate.sourceUrl === 'string' && candidate.sourceUrl.startsWith('https://'))
+                         ? candidate.sourceUrl : null,
+      p_notes:         (typeof candidate.notes === 'string' && candidate.notes)
+                         ? candidate.notes.slice(0, 500) : null,
+      p_enabled:       candidate.enabled !== false,
+    };
+
+    // Verify no private fields leaked into the submitted body
+    var bodyKeys = Object.keys(body);
+    for (var i = 0; i < bodyKeys.length; i++) {
+      if (!INTAKE_ALLOWED_FIELDS.has(bodyKeys[i].replace(/^p_/, '').replace(/_([a-z])/g, function(_, c) { return c.toUpperCase(); }))) {
+        // Extra safety: reject body if any unexpected key appears
+        if (!['p_series_title','p_publisher','p_volume_number','p_source_url','p_notes','p_enabled'].includes(bodyKeys[i])) {
+          return { result: 'blocked' };
+        }
+      }
+    }
+
+    try {
+      var rpcHeaders = Object.assign({}, headers(ownerToken, true), { 'Content-Type': 'application/json' });
+      var result = await requestJson(SUPA_RPC + '/submit_release_intake_candidate', rpcHeaders, {
+        method: 'POST',
+        body: JSON.stringify(body),
+      });
+      // PostgREST returns scalar text result as a JSON string
+      var resultStr = typeof result === 'string' ? result : String(result || 'blocked');
+      return { result: resultStr };
+    } catch (e) {
+      return { result: 'error', message: String(e.message || e).slice(0, 200) };
+    }
+  }
+
   async function patchCollection(collId, ownerToken, data, publicData) {
     if (publicData !== undefined) {
       try {
@@ -151,5 +214,6 @@
     fetchCollection: fetchCollection,
     fetchPublicCollection: fetchPublicCollection,
     patchCollection: patchCollection,
+    submitReleaseIntakeCandidate: submitReleaseIntakeCandidate,
   };
 })();
