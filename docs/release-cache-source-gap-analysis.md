@@ -17,8 +17,7 @@ Diese Datei dokumentiert die 35 bekannten `source-data-gap`-Luecken aus `docs/re
 
 | Vermutete Ursache | Gaps |
 |---|---:|
-| not-yet-released | 32 |
-| publisher-normalization | 1 |
+| not-yet-released | 33 |
 | source-missing | 1 |
 | volume-numbering-mismatch | 1 |
 
@@ -41,7 +40,7 @@ Der einzige sichere naechste Schritt ist aktuell `manual-source-review`: offizie
 
 | Serie | Verlag | Fehlende Baende | Anzahl | Ursache | Empfehlung | Safe to patch |
 |---|---|---:|---:|---|---|---|
-| Vermeil in Gold | Manga Cult | 2 | 1 | publisher-normalization | manual-source-review | nein |
+| Vermeil in Gold | MANGAMOON | 2 | 1 | not-yet-released | manual-source-review | nein |
 | Meine Chefin kommt immer zuerst!! | MangaMoon | 2 | 1 | not-yet-released | manual-source-review | nein |
 | Vagabond – Master Edition | Egmont Manga | 13-19 | 7 | not-yet-released | manual-source-review | nein |
 | Adou | Altraverse | 12 | 1 | source-missing | manual-source-review | nein |
@@ -58,7 +57,7 @@ Der einzige sichere naechste Schritt ist aktuell `manual-source-review`: offizie
 
 | Serie | Verlag | Band | Ursache | Empfehlung | Safe to patch | Manuelle Quellenpruefung |
 |---|---|---:|---|---|---|---|
-| Vermeil in Gold | Manga Cult | 2 | publisher-normalization | manual-source-review | nein | ja |
+| Vermeil in Gold | MANGAMOON | 2 | not-yet-released | manual-source-review | nein | ja |
 | Meine Chefin kommt immer zuerst!! | MangaMoon | 2 | not-yet-released | manual-source-review | nein | ja |
 | Vagabond – Master Edition | Egmont Manga | 13 | not-yet-released | manual-source-review | nein | ja |
 | Vagabond – Master Edition | Egmont Manga | 14 | not-yet-released | manual-source-review | nein | ja |
@@ -103,19 +102,19 @@ Der einzige sichere naechste Schritt ist aktuell `manual-source-review`: offizie
   "gapAnalysis": [
     {
       "seriesTitle": "Vermeil in Gold",
-      "publisher": "Manga Cult",
+      "publisher": "MANGAMOON",
       "volumeNumber": 2,
       "classification": "source-data-gap",
       "priority": "mittel",
-      "suspectedCause": "publisher-normalization",
+      "suspectedCause": "not-yet-released",
       "checkedSources": [
         {
           "name": "Manga Passion API",
           "url": "https://www.manga-passion.de",
-          "result": "Edition 6137 vorhanden; Publisher MANGAMOON; Band 2 ohne valides Release-Datum."
+          "result": "Edition 6137 vorhanden; Publisher MANGAMOON bestaetigt; Band 2 ohne valides Release-Datum."
         }
       ],
-      "evidence": "Manga Passion fuehrt die Serie unter MANGAMOON, waehrend die Watchlist Manga Cult nennt; Band 2 hat dort zusaetzlich kein valides Release-Datum.",
+      "evidence": "Publisher-Mismatch wurde 2026-05-23 behoben (Watchlist-Korrektur: Manga Cult -> MANGAMOON). Band 2 fehlt weiterhin im Cache, da Manga Passion kein valides Release-Datum fuer Band 2 fuehrt.",
       "recommendedFix": "manual-source-review",
       "safeToPatch": false,
       "manualSourceReviewNeeded": true
@@ -784,7 +783,7 @@ Der einzige sichere naechste Schritt ist aktuell `manual-source-review`: offizie
 
 ## Konkrete naechste Fixes
 
-1. Publisher-Metadaten pruefen: `Vermeil in Gold` steht in der Watchlist als Manga Cult, die gepruefte Quelle nennt MANGAMOON.
+1. ~~Publisher-Metadaten pruefen: `Vermeil in Gold` steht in der Watchlist als Manga Cult, die gepruefte Quelle nennt MANGAMOON.~~ Erledigt 2026-05-23 (PR #44): Watchlist-Publisher auf MANGAMOON korrigiert. Band 2 bleibt gap da kein valides Release-Datum.
 2. Offizielle Verlagsquellen fuer die vier grossen Bloecke priorisieren: Berserk ME, Vagabond ME, Isekai Soapland, Arifureta Zero.
 3. Tokyo Revengers Doppelband-Edition Band 16 gegen Carlsen pruefen; moeglicherweise ist die Watchlist-Bandnummer fachlich falsch.
 4. Demon Slave Band 2 gegen eine verlaessliche Crunchyroll-/Verlagsquelle pruefen; ohne belegtes Datum bleibt der Gap sichtbar.

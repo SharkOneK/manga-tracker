@@ -12,7 +12,7 @@ Stand: nach Bot-Commit `d909f57` (`release-cache.json` aktualisiert).
 | Gefundene Cache-Eintraege | 152 |
 | Verbleibende Luecken | 35 |
 | Betroffene Serien | 13 |
-| Betroffene Verlage | 9 |
+| Betroffene Verlage | 8 |
 
 ## Klassifikation
 
@@ -26,7 +26,7 @@ Empfohlener Umgang: manuell in verlaesslicher Quelle pruefen, erst danach echte 
 
 | Serie | Verlag | Fehlende Baende | Anzahl | Klassifikation |
 |---|---|---:|---:|---|
-| Vermeil in Gold | Manga Cult | 2 | 1 | source-data-gap |
+| Vermeil in Gold | MANGAMOON | 2 | 1 | source-data-gap |
 | Meine Chefin kommt immer zuerst!! | MangaMoon | 2 | 1 | source-data-gap |
 | Vagabond - Master Edition | Egmont Manga | 13-19 | 7 | source-data-gap |
 | Adou | Altraverse | 12 | 1 | source-data-gap |
@@ -47,11 +47,10 @@ Empfohlener Umgang: manuell in verlaesslicher Quelle pruefen, erst danach echte 
 | Egmont Manga | 9 | 3 |
 | Panini Manga | 8 | 1 |
 | Altraverse | 6 | 2 |
-| MANGAMOON | 6 | 1 |
+| MANGAMOON | 7 | 2 |
 | MangaMoon | 2 | 2 |
 | Carlsen Manga | 1 | 1 |
 | dani books | 1 | 1 |
-| Manga Cult | 1 | 1 |
 
 ## Maschinenlesbarer Audit
 
