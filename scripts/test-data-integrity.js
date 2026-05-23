@@ -449,6 +449,194 @@ runTest('Phase 36b: release-intake.yml erstellt PR, kein push nach main', functi
   assert.ok(!/git push.*main/i.test(wf), 'Workflow must not push directly to main');
 });
 
+// ─── Phase 37: Cover-Preserve und Wishlist-Coverage ──────────────────────────
+
+// Spiegelt die Phase-37-Cover-Preserve-Logik aus doSave()
+function resolveDoSaveCover(formCoverUrl, existingCover) {
+  const val = (formCoverUrl || '').trim();
+  return val || existingCover || null;
+}
+
+// Spiegelt buildLocalReleaseCoverageCandidate (ohne Wishlist-Ausschluss, Phase 37)
+function buildCoverageCandidate37(manga) {
+  if (!manga || typeof manga !== 'object') return null;
+  // Phase 37: Kein Wishlist-Ausschluss mehr
+  const targetVolume = getReleaseTargetVolume(manga);
+  if (targetVolume === null) return null;
+  const volumeNumber = Number(targetVolume);
+  if (!Number.isInteger(volumeNumber) || volumeNumber < 1) return null;
+  const seriesTitle = String(manga.title || '').trim();
+  if (!seriesTitle) return null;
+  const publisher = String(manga.pub || '').trim();
+  return { seriesTitle, publisher, volumeNumber };
+}
+
+// Spiegelt buildIntakeSubmitCandidate (Allowlist)
+function buildIntakeSubmit37(candidate) {
+  if (!candidate || typeof candidate !== 'object') return null;
+  const seriesTitle  = String(candidate.seriesTitle  || '').trim();
+  const publisher    = String(candidate.publisher    || '').trim();
+  const vol          = Number(candidate.volumeNumber);
+  if (!seriesTitle || !publisher) return null;
+  if (!Number.isInteger(vol) || vol < 1) return null;
+  const sourceUrl = (typeof candidate.sourceUrl === 'string' && candidate.sourceUrl.startsWith('https://'))
+    ? candidate.sourceUrl : null;
+  const notes = typeof candidate.notes === 'string' && candidate.notes
+    ? candidate.notes.slice(0, 500) : null;
+  return { seriesTitle, publisher, volumeNumber: vol, sourceUrl, notes, enabled: true };
+}
+
+console.log('\nPhase 37 — Cover-Preserve und Wishlist-Coverage Tests\n');
+
+// 32. Cover-Preserve: leeres Formularfeld erhält bestehende Cover-URL
+runTest('Phase 37: Cover-Preserve — leeres Formularfeld erhält bestehende Cover-URL', function() {
+  const existingCover = 'https://covers.openlibrary.org/b/isbn/9783551762405-L.jpg';
+  const result = resolveDoSaveCover('', existingCover);
+  assert.strictEqual(result, existingCover, 'Bestehende Cover-URL muss erhalten bleiben');
+});
+
+// 33. Cover-Preserve: neue URL ersetzt bestehende korrekt
+runTest('Phase 37: Cover-Preserve — neue gültige URL ersetzt bestehende Cover-URL', function() {
+  const existingCover = 'https://example.com/old-cover.jpg';
+  const newCover = 'https://example.com/new-cover.jpg';
+  const result = resolveDoSaveCover(newCover, existingCover);
+  assert.strictEqual(result, newCover, 'Neue Cover-URL muss die bestehende ersetzen');
+});
+
+// 34. Cover-Preserve: leeres Formular ohne bestehende Cover → null
+runTest('Phase 37: Cover-Preserve — leeres Formular ohne bestehende Cover gibt null', function() {
+  const result = resolveDoSaveCover('', null);
+  assert.strictEqual(result, null, 'Kein Cover → null erwartet');
+});
+
+// 35. Cover-Preserve: Whitespace-only Formularfeld gilt als leer
+runTest('Phase 37: Cover-Preserve — Whitespace-only Formularfeld gilt als leer', function() {
+  const existingCover = 'https://example.com/cover.jpg';
+  const result = resolveDoSaveCover('   ', existingCover);
+  assert.strictEqual(result, existingCover, 'Whitespace muss wie leer behandelt werden');
+});
+
+// 36. Wishlist-Serie mit Publisher und ohne Bände → Kandidat Band 1
+runTest('Phase 37: Wishlist-Serie ohne Bände erzeugt Coverage-Kandidaten für Band 1', function() {
+  const manga = {
+    title: 'I Was Reincarnated as the 7th Prince',
+    pub: 'Crunchyroll Manga',
+    status: 'wishlist',
+    bands: {},
+    total: null,
+    ongoing: 'true',
+  };
+  const candidate = buildCoverageCandidate37(manga);
+  assert.ok(candidate !== null, 'Kandidat muss erzeugt werden');
+  assert.strictEqual(candidate.volumeNumber, 1, 'Zielband muss 1 sein');
+  assert.strictEqual(candidate.seriesTitle, 'I Was Reincarnated as the 7th Prince');
+  assert.strictEqual(candidate.publisher, 'Crunchyroll Manga');
+});
+
+// 37. Wishlist-Serie ohne Publisher → blockiert
+runTest('Phase 37: Wishlist-Serie ohne Publisher wird blockiert', function() {
+  const manga = {
+    title: 'Unbekannte Wunsch-Serie',
+    pub: '',
+    status: 'wishlist',
+    bands: {},
+    total: null,
+    ongoing: 'true',
+  };
+  const candidate = buildCoverageCandidate37(manga);
+  // Kandidat wird erzeugt, aber mit leerem Publisher nicht exportierbar
+  // buildIntakeSubmit37 blockiert ihn bei publisher-check
+  const submit = candidate ? buildIntakeSubmit37(candidate) : null;
+  assert.strictEqual(submit, null, 'Submit muss blockiert werden wenn Publisher leer ist');
+});
+
+// 38. Wishlist-Kandidat enthält keine privaten Felder
+runTest('Phase 37: Wishlist-Kandidat enthält keine privaten Felder im Export', function() {
+  const manga = {
+    title: 'Test Wishlist Manga',
+    pub: 'Test Verlag',
+    status: 'wishlist',
+    bands: {},
+    total: null,
+    ongoing: 'true',
+    notes: 'private note',
+    startedAt: '2024-01-01',
+    finishedAt: null,
+  };
+  const candidate = buildCoverageCandidate37(manga);
+  assert.ok(candidate !== null, 'Kandidat muss erzeugt werden');
+  const submit = buildIntakeSubmit37(candidate);
+  assert.ok(submit !== null, 'Submit-Kandidat muss erzeugt werden');
+  // notes ist ein erlaubtes Exportfeld (in RELEASE_INTAKE_SUBMIT_ALLOWED_FIELDS enthalten)
+  const forbiddenFields = ['status', 'wishlist', 'owned', 'collectionStatus', 'readAt', 'boughtAt',
+    'seriesId', 'bands', 'startedAt', 'finishedAt'];
+  forbiddenFields.forEach(f => {
+    assert.ok(!(f in submit), `Privates Feld "${f}" darf nicht im Export-Kandidat enthalten sein`);
+  });
+  // Nur erlaubte Felder
+  const allowedKeys = new Set(['seriesTitle', 'publisher', 'volumeNumber', 'sourceUrl', 'notes', 'enabled']);
+  Object.keys(submit).forEach(k => {
+    assert.ok(allowedKeys.has(k), `Unerlaubtes Feld im Submit-Kandidat: ${k}`);
+  });
+});
+
+// 39. Abgeschlossene Wishlist-Serie ohne Lücken → kein Kandidat (defensive Prüfung)
+runTest('Phase 37: vollständige abgeschlossene Wishlist-Serie erzeugt keinen Kandidaten', function() {
+  const manga = {
+    title: 'Abgeschlossene Wunsch-Serie',
+    pub: 'Verlag',
+    status: 'wishlist',
+    bands: { '1': 'completed', '2': 'completed', '3': 'completed' },
+    total: 3,
+    ongoing: 'false',
+  };
+  const candidate = buildCoverageCandidate37(manga);
+  assert.strictEqual(candidate, null, 'Vollständig abgeschlossene Serie darf keinen Kandidaten erzeugen');
+});
+
+// 40. BandCovers für Wishlist-Serie: Covers ohne Band-Eintrag bleiben erhalten
+runTest('Phase 37: BandCovers ohne Band-Eintrag bleiben für Wishlist-Serien erhalten', function() {
+  // Spiegelt die Phase-37-bandCovers-Preserve-Logik
+  function resolveBandCovers(modalBandCovers, bands, existingBands, existingBandCovers) {
+    const result = {};
+    Object.entries(modalBandCovers).forEach(([k, v]) => {
+      const bandExists = !!bands[k];
+      const isCoverWithoutBand = !!(v && existingBandCovers?.[k] && !existingBands?.[k]);
+      if ((bandExists || isCoverWithoutBand) && v) result[k] = v;
+    });
+    return result;
+  }
+  // Wishlist-Serie: kein Band-Eintrag, aber MP-geladene Cover
+  const modalBandCovers = { '1': 'https://example.com/cover-vol1.jpg' };
+  const bands = {};  // keine Bände
+  const existingBands = {};  // auch keine
+  const existingBandCovers = { '1': 'https://example.com/cover-vol1.jpg' };
+  const result = resolveBandCovers(modalBandCovers, bands, existingBands, existingBandCovers);
+  assert.strictEqual(result['1'], 'https://example.com/cover-vol1.jpg',
+    'MP-geladenes Cover für Wishlist-Serie ohne Band-Eintrag muss erhalten bleiben');
+});
+
+// 41. BandCovers: gelöschter Band verliert sein Cover (korrekte Bereinigung)
+runTest('Phase 37: BandCover für gelöschten Band wird korrekt entfernt', function() {
+  function resolveBandCovers(modalBandCovers, bands, existingBands, existingBandCovers) {
+    const result = {};
+    Object.entries(modalBandCovers).forEach(([k, v]) => {
+      const bandExists = !!bands[k];
+      const isCoverWithoutBand = !!(v && existingBandCovers?.[k] && !existingBands?.[k]);
+      if ((bandExists || isCoverWithoutBand) && v) result[k] = v;
+    });
+    return result;
+  }
+  // Nicht-Wishlist: Band 1 war in existing.bands, jetzt gelöscht
+  const modalBandCovers = { '1': 'https://example.com/cover-vol1.jpg', '2': 'https://example.com/cover-vol2.jpg' };
+  const bands = { '2': 'owned' };  // Band 1 wurde gelöscht
+  const existingBands = { '1': 'owned', '2': 'owned' };  // Band 1 war vorhanden
+  const existingBandCovers = { '1': 'https://example.com/cover-vol1.jpg', '2': 'https://example.com/cover-vol2.jpg' };
+  const result = resolveBandCovers(modalBandCovers, bands, existingBands, existingBandCovers);
+  assert.ok(!('1' in result), 'Cover für gelöschten Band 1 muss entfernt werden');
+  assert.strictEqual(result['2'], 'https://example.com/cover-vol2.jpg', 'Cover für Band 2 muss erhalten bleiben');
+});
+
 // ─── Ergebnis ─────────────────────────────────────────────────────────────
 
 console.log('');

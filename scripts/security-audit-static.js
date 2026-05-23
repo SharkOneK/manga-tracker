@@ -621,6 +621,55 @@ if (!appJs) {
   }
 }
 
+// ── Check 37: Phase 37 — Cover-Preserve und Wishlist-Coverage ─────────────────
+if (!appJs) {
+  fail('Check 37: src/app.js nicht gefunden (Phase-37 Checks nicht prüfbar)');
+} else {
+  // 37a: Cover-Preserve-Logik vorhanden (kein stummes Überschreiben durch leeres Formularfeld)
+  if (!appJs.includes('formCoverUrl || existing?.cover || null')) {
+    fail('Check 37a: Cover-Preserve-Logik (formCoverUrl || existing?.cover || null) fehlt in app.js');
+  } else {
+    pass('Check 37a: Cover-Preserve-Logik vorhanden — leeres Formularfeld löscht Cover nicht');
+  }
+
+  // 37b: Wishlist-Ausschluss entfernt (buildLocalReleaseCoverageCandidate schließt wishlist nicht mehr aus)
+  const buildCandStart = appJs.indexOf('function buildLocalReleaseCoverageCandidate(');
+  const buildCandEnd   = appJs.indexOf('\nfunction ', buildCandStart + 1);
+  const buildCandCode  = buildCandStart >= 0 && buildCandEnd > buildCandStart
+    ? appJs.slice(buildCandStart, buildCandEnd) : '';
+  if (!buildCandCode) {
+    fail('Check 37b: buildLocalReleaseCoverageCandidate nicht gefunden in app.js');
+  } else if (/manga\.status\s*===\s*'wishlist'|mSeriesStatus\(manga\)\s*===\s*'wishlist'/.test(buildCandCode)) {
+    fail('Check 37b: buildLocalReleaseCoverageCandidate enthält noch den Wishlist-Ausschluss (Phase-34-Guard)');
+  } else {
+    pass('Check 37b: Wishlist-Ausschluss in buildLocalReleaseCoverageCandidate entfernt');
+  }
+
+  // 37c: Export-Kandidat enthält keine privaten Wishlist-/Sammlungsfelder
+  const buildSubmitStart = appJs.indexOf('function buildIntakeSubmitCandidate(');
+  const buildSubmitEnd   = appJs.indexOf('\nfunction ', buildSubmitStart + 1);
+  const buildSubmitCode  = buildSubmitStart >= 0 && buildSubmitEnd > buildSubmitStart
+    ? appJs.slice(buildSubmitStart, buildSubmitEnd) : '';
+  const wishlistPrivateFields = ['status', 'wishlist', 'owned', 'collectionStatus', 'readAt', 'boughtAt', 'seriesId'];
+  const leakedSubmit = wishlistPrivateFields.filter(f =>
+    new RegExp('(?:return|\\{|,)\\s*["\']?' + f + '["\']?\\s*[,:\\}]').test(buildSubmitCode)
+  );
+  if (!buildSubmitCode) {
+    fail('Check 37c: buildIntakeSubmitCandidate nicht gefunden in app.js');
+  } else if (leakedSubmit.length) {
+    fail('Check 37c: buildIntakeSubmitCandidate gibt private Felder zurück: ' + leakedSubmit.join(', '));
+  } else {
+    pass('Check 37c: buildIntakeSubmitCandidate enthält keine privaten Wishlist-/Sammlungsfelder');
+  }
+
+  // 37d: Dashboard-Info-Text für Wishlist-Coverage-Aktivierung vorhanden
+  if (!appJs.includes('Phase-37: Wishlist-Serien mit Titel und Publisher')) {
+    fail('Check 37d: Dashboard-Info-Text für Phase-37-Wishlist-Coverage fehlt in app.js');
+  } else {
+    pass('Check 37d: Dashboard zeigt Phase-37-Wishlist-Coverage-Info-Text');
+  }
+}
+
 const passed = totalChecks - totalFailed - totalWarns;
 console.log('');
 if (totalWarns > 0) {

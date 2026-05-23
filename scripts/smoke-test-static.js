@@ -643,7 +643,8 @@ console.log('\nPruefe: Phase 35 - Pending-Intake aus lokaler Queue\n');
   ['Gruppierung', 'groupPendingCoverageCandidates'],
   ['lokaler/sanitisierter Export-Hinweis', 'Lokaler, sanitisierter Export'],
   ['keine automatische Veroeffentlichung', 'keine automatische Veröffentlichung'],
-  ['Wishlist-Hinweis', 'Wishlist-Serien werden nicht als Release-Coverage-Kandidaten erfasst'],
+  ['Phase-37-Wishlist-Coverage-Marker', 'Phase 37: Wishlist-Serien sind jetzt gültige Coverage-Kandidaten'],
+  ['Phase-37-Cover-Preserve-Marker', 'Phase 37: Cover-URL aus bestehendem Eintrag erhalten'],
 ].forEach(([label, marker]) => {
   if (!appJs26.includes(marker)) fail('src/app.js: Phase-35-Marker fehlt: ' + label);
   else pass('src/app.js: Phase-35-Marker vorhanden: ' + label);

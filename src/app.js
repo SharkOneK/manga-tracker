@@ -2354,9 +2354,24 @@ function doSave() {
   // Wenn Serie nicht mehr „komplett gelesen" ist (z.B. Band rückgängig), finishedAt nicht löschen — manuelle Korrektur möglich
   // ────────────────────────────────────────────────────────────────────────
 
-  // bandCovers: nur Einträge behalten, deren Band noch existiert
+  // Phase 37: Cover-URL aus bestehendem Eintrag erhalten, wenn Formularfeld leer ist.
+  // Ein leeres Formularfeld darf eine vorhandene Cover-URL nicht stillschweigend löschen.
+  // Explizites Entfernen ist nur durch eine dedizierte Entfernen-Aktion möglich (nicht in dieser Phase).
+  const formCoverUrl = document.getElementById('f-cover').value.trim();
+  const cover = formCoverUrl || existing?.cover || null;
+
+  // bandCovers: Einträge behalten, deren Band existiert.
+  // Phase 37: Zusätzlich Covers erhalten, für die kein Band-Eintrag in bands[] vorhanden war
+  // (z.B. MP-geladene Covers für Wishlist-Serien ohne eigene Bände).
   const bandCovers = {};
-  Object.entries(modalBandCovers).forEach(([k, v]) => { if (bands[k] && v) bandCovers[k] = v; });
+  Object.entries(modalBandCovers).forEach(([k, v]) => {
+    const bandExists = !!bands[k];
+    // Cover ohne korrespondierenden Band-Eintrag erhalten, falls bereits in existing gesetzt
+    // und dort ebenfalls kein Band-Eintrag vorhanden war (kein versehentliches Wiederherstellen
+    // von Covers gelöschter Bände).
+    const isCoverWithoutBand = !!(v && existing?.bandCovers?.[k] && !existing?.bands?.[k]);
+    if ((bandExists || isCoverWithoutBand) && v) bandCovers[k] = v;
+  });
 
   const entry = {
     id: editId || uid(),
@@ -2370,7 +2385,7 @@ function doSave() {
     total,
     ongoing,
     nextDate: document.getElementById('f-nextdate').value || null,
-    cover: document.getElementById('f-cover').value.trim() || null,
+    cover,
     notes: document.getElementById('f-notes').value.trim(),
     genres: [...modalGenres],
     startedAt,
@@ -2768,7 +2783,10 @@ function isReleaseCoverageKnown(candidate, options = {}) {
 
 function buildLocalReleaseCoverageCandidate(manga) {
   if (!manga || typeof manga !== 'object') return null;
-  if (manga.status === 'wishlist' || mSeriesStatus(manga) === 'wishlist') return null;
+  // Phase 37: Wishlist-Serien sind jetzt gültige Coverage-Kandidaten.
+  // Der bewusste Ausschluss aus Phase 34 wurde aufgehoben, da die Staging-Kette
+  // (Phase 36) sanitisiert ist und keine privaten Daten exportiert werden.
+  // Datenschutzgrenze liegt ausschließlich im sanitisierten Export-Kandidat.
   const targetVolume = getReleaseTargetVolume(manga);
   if (targetVolume === null) return null;
   const volumeNumber = Number(targetVolume);
@@ -2840,7 +2858,8 @@ function maybeRunLocalReleaseCoverageCheck(manga) {
 // Security guarantees:
 // - Only active in cloud-owner mode (never in local-edit or public-readonly)
 // - Only sends when the user has explicitly enabled the setting
-// - Only sends exportable candidates (publisher set, non-dummy, non-wishlist)
+// - Only sends exportable candidates (publisher set, non-dummy)
+// - Phase 37: Wishlist series are allowed candidates; wishlist status is never transmitted
 // - Only allowlist fields: seriesTitle, publisher, volumeNumber, sourceUrl, notes, enabled
 // - Submit errors never block save, purchase, or any local operation
 // - No private collection data is ever sent (see RELEASE_INTAKE_SUBMIT_ALLOWED_FIELDS)
@@ -3171,7 +3190,7 @@ function renderLocalReleaseCoveragePendingSummary() {
     </div>
     ${summary.exportableCandidates > 0 ? `<p class="release-coverage-ready-notice">✅ ${escapeHtml(String(summary.exportableCandidates))} ${summary.exportableCandidates === 1 ? 'Kandidat bereit' : 'Kandidaten bereit'} — Batch kopieren und in <code>data/release-watchlist.json</code> einfügen, damit die nächste Pipeline die Bände aufgreift.</p>` : ''}
     <p class="stats-empty-note">Lokaler, sanitisierter Export: Pending-Daten werden nur nach Validierung, Escaping und Allowlist kopierbar gemacht. Es gibt keine automatische Veröffentlichung und keinen Schreibpfad auf data/*.json, Supabase, GitHub oder GitHub Actions.</p>
-    <p class="stats-empty-note">Wishlist-Serien werden nicht als Release-Coverage-Kandidaten erfasst, weil sie noch nicht Teil der Sammlungslücken-Prüfung sind.</p>
+    <p class="stats-empty-note">Phase-37: Wishlist-Serien mit Titel und Publisher erzeugen jetzt ebenfalls Release-Coverage-Kandidaten. Nur sanitisierte Felder (Titel, Verlag, Band) werden exportiert — kein Wishlist-/Sammlungsstatus.</p>
     <div class="dashboard-release-candidates">${rows}</div>
     <div class="dashboard-actions">
       <button type="button" class="add-btn dashboard-action-btn" data-action="copy-local-release-coverage-watchlist-batch">Sanitisierten Watchlist-Vorschlag kopieren</button>
