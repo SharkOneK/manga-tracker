@@ -16,6 +16,10 @@ concurrency:
 jobs:
   update-release-cache:
     runs-on: ubuntu-latest
+    outputs:
+      pr_number: ${{ steps.cpr.outputs.pull-request-number }}
+      pr_url: ${{ steps.cpr.outputs.pull-request-url }}
+      auto_merge_triggered: ${{ steps.auto_merge.outputs.triggered }}
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
@@ -45,6 +49,7 @@ jobs:
           node --check scripts/audit-release-cache-coverage.js
           node --check scripts/test-public-projection.js
           node --check scripts/test-automerge-gate.js
+          node --check scripts/write-release-cache-status-mail.js
 
       - name: Run automated release-cache pipeline
         run: node scripts/run-release-cache-pipeline.js
@@ -175,6 +180,82 @@ jobs:
 
       - name: Enable auto-merge for safe report/queue-only PRs
         if: steps.automerge_gate.outputs.allowed == 'true'
+        id: auto_merge
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh pr merge ${{ steps.cpr.outputs.pull-request-number }} --squash --auto
+        run: |
+          gh pr merge ${{ steps.cpr.outputs.pull-request-number }} --squash --auto
+          echo "triggered=true" >> "$GITHUB_OUTPUT"
+
+      - name: Upload pipeline report artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-cache-pipeline-report
+          path: data/release-cache-pipeline-report.json
+          if-no-files-found: ignore
+
+  notify:
+    name: Send status mail
+    needs: update-release-cache
+    if: always()
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+
+      - name: Download pipeline report artifact
+        id: download_report
+        continue-on-error: true
+        uses: actions/download-artifact@v4
+        with:
+          name: release-cache-pipeline-report
+          path: artifacts/
+
+      - name: Check mail configuration
+        id: mail_config
+        env:
+          MAIL_HOST: ${{ secrets.MAIL_HOST }}
+          MAIL_USERNAME: ${{ secrets.MAIL_USERNAME }}
+          MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
+          MAIL_TO: ${{ secrets.MAIL_TO }}
+          MAIL_FROM: ${{ secrets.MAIL_FROM }}
+        run: |
+          if [ -n "$MAIL_HOST" ] && [ -n "$MAIL_USERNAME" ] && [ -n "$MAIL_PASSWORD" ] && [ -n "$MAIL_TO" ] && [ -n "$MAIL_FROM" ]; then
+            echo "enabled=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Write status mail body
+        if: always()
+        env:
+          JOB_RESULT: ${{ needs.update-release-cache.result }}
+          PR_NUMBER: ${{ needs.update-release-cache.outputs.pr_number }}
+          PR_URL: ${{ needs.update-release-cache.outputs.pr_url }}
+          AUTO_MERGE_TRIGGERED: ${{ needs.update-release-cache.outputs.auto_merge_triggered }}
+        run: |
+          mkdir -p artifacts
+          node scripts/write-release-cache-status-mail.js \
+            --report artifacts/release-cache-pipeline-report.json \
+            --out artifacts/release-cache-status-mail.txt
+
+      - name: Send status mail
+        if: always() && steps.mail_config.outputs.enabled == 'true'
+        continue-on-error: true
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: ${{ secrets.MAIL_HOST }}
+          server_port: ${{ vars.MAIL_PORT }}
+          username: ${{ secrets.MAIL_USERNAME }}
+          password: ${{ secrets.MAIL_PASSWORD }}
+          subject: "Manga Tracker Release Cache: ${{ needs.update-release-cache.result }}"
+          to: ${{ secrets.MAIL_TO }}
+          from: ${{ secrets.MAIL_FROM }}
+          body: file://artifacts/release-cache-status-mail.txt
