@@ -3,10 +3,10 @@
   "items": [
     {
       "seriesTitle": "Vermeil in Gold",
-      "publisher": "Manga Cult",
+      "publisher": "MANGAMOON",
       "volumeNumber": 2,
       "sourceUrl": null,
-      "notes": "Aus App-Cache-Miss ergänzt.",
+      "notes": "Aus App-Cache-Miss ergänzt. Publisher korrigiert 2026-05-23: Manga Cult → MANGAMOON (Manga Passion Edition 6137 bestätigt MANGAMOON).",
       "enabled": true
     },
     {
@@ -475,8 +475,8 @@
       "seriesTitle": "Demon Slave",
       "publisher": "Crunchyroll Manga",
       "volumeNumber": 2,
-      "sourceUrl": null,
-      "notes": "Aus Release-Intake-Staging übernommen.",
+      "sourceUrl": "https://www.manga-passion.de/editions/509",
+      "notes": "Aus Release-Intake-Staging übernommen. sourceUrl ergänzt 2026-05-23: Manga Passion Edition 509 (manga-passion.de/editions/509/demon-slave).",
       "enabled": true
     }
   ],
