@@ -670,6 +670,27 @@ if (!appJs) {
   }
 }
 
+// ── Check 38: Phase-28-Status-Mail-Script existiert und enthält keinen Env-Dump ───
+const statusMailJs = readFile('scripts/write-release-cache-status-mail.js');
+if (!statusMailJs) {
+  fail('Check 38a: scripts/write-release-cache-status-mail.js nicht gefunden');
+} else {
+  pass('Check 38a: scripts/write-release-cache-status-mail.js vorhanden');
+}
+
+if (!statusMailJs) {
+  fail('Check 38b: scripts/write-release-cache-status-mail.js nicht prüfbar');
+} else if (
+  /JSON\.stringify\s*\(\s*process\.env\b/.test(statusMailJs) ||
+  /Object\.entries\s*\(\s*process\.env\b/.test(statusMailJs) ||
+  /Object\.keys\s*\(\s*process\.env\b/.test(statusMailJs) ||
+  /for\s*\([^)]*\bin\s+process\.env\b/.test(statusMailJs)
+) {
+  fail('Check 38b: write-release-cache-status-mail.js enthält process.env-Dump-Pattern');
+} else {
+  pass('Check 38b: write-release-cache-status-mail.js enthält keinen process.env-Dump');
+}
+
 const passed = totalChecks - totalFailed - totalWarns;
 console.log('');
 if (totalWarns > 0) {
