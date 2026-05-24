@@ -1,5 +1,10 @@
 # Release-Cache-Dokumentation
 
+> **Phase 38 – Hinweis zum Serienstatus:** Das Feld `ongoing` einer Serie beschreibt
+> seit Phase 38 ausschließlich den Stand der **deutschsprachigen** Veröffentlichung,
+> nicht den japanischen/originalen Status. Details siehe
+> [`german-publication-status-audit.md`](./german-publication-status-audit.md).
+
 ## Überblick
 
 Der Release-Cache (`data/release-cache.json`) enthält vorberechnete Release-Informationen für Manga-Serien. Die App liest diese Datei read-only. Nutzerdaten werden nicht automatisch verändert.

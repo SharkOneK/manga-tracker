@@ -696,11 +696,12 @@ function mangaCard(m) {
   const hasProg = !isNaN(total) && total > 0;
   const prog = hasProg ? Math.min(100, Math.round(owned / total * 100)) : 0;
   const volText = hasProg ? `${owned} / ${total} Bände` : `${owned} Bände`;
+  // Phase 38: Statusbedeutung bezieht sich auf die deutschsprachige Veröffentlichung.
   const statusPill = m.ongoing === 'true'
-    ? '<span class="ongoing-pill">laufend</span>'
+    ? '<span class="ongoing-pill" title="Deutschsprachige Veröffentlichung läuft – weitere DE-Bände erwartet">laufend (DE)</span>'
     : m.ongoing === 'false'
-      ? '<span class="done-pill">abgeschlossen</span>'
-      : '<span class="unknown-pill">unbekannt</span>';
+      ? '<span class="done-pill" title="Deutschsprachige Veröffentlichung abgeschlossen">abgeschlossen (DE)</span>'
+      : '<span class="unknown-pill" title="Deutschsprachiger Veröffentlichungsstatus unklar">unbekannt (DE)</span>';
   const readingBadge = cur ? `<div class="reading-badge">Band ${cur}</div>` : '';
   const wishBadge = mSeriesStatus(m) === 'wishlist' ? `<div class="wishlist-badge">💜 Wunsch</div>` : '';
 
@@ -922,10 +923,15 @@ function escapeHtml(value) {
     .replace(/'/g, '&#39;');
 }
 
+// Phase 38: Der Wert `ongoing` beschreibt den Stand der deutschsprachigen
+// Veröffentlichung – NICHT den japanischen/originalen Veröffentlichungsstatus.
+//   'true'    → DE-Ausgabe läuft (weitere reguläre Bände erwartet)
+//   'false'   → DE-Ausgabe abgeschlossen oder offiziell beendet
+//   'unknown' → DE-Status nicht belastbar geklärt
 function seriesStatusLabel(value) {
-  if (value === 'true') return 'Laufend';
-  if (value === 'false') return 'Abgeschlossen';
-  return 'Unbekannt';
+  if (value === 'true') return 'Laufend (DE)';
+  if (value === 'false') return 'Abgeschlossen (DE)';
+  return 'Unbekannt (DE)';
 }
 
 function collectionStatusLabel(value) {
@@ -1375,11 +1381,12 @@ function renderDashboard() {
     </div>
 
     <div class="stats-section">
-      <h3>Publikationsstatus</h3>
+      <h3>Deutschsprachige Veröffentlichung</h3>
+      <p class="stats-section-hint small">Bezieht sich ausschließlich auf den Stand der deutschsprachigen Ausgabe – nicht auf den japanischen Originalstatus.</p>
       <div class="stat-big-grid cols-3">
-        <div class="stat-big-card"><div class="stat-big-n">${ongoingCount}</div><div class="stat-big-l">Laufend</div></div>
-        <div class="stat-big-card"><div class="stat-big-n">${finishedCount}</div><div class="stat-big-l">Abgeschlossen</div></div>
-        <div class="stat-big-card"><div class="stat-big-n">${unknownCount}</div><div class="stat-big-l">Unbekannt</div></div>
+        <div class="stat-big-card" title="DE-Ausgabe läuft – weitere reguläre Bände erwartet"><div class="stat-big-n">${ongoingCount}</div><div class="stat-big-l">Laufend (DE)</div></div>
+        <div class="stat-big-card" title="DE-Ausgabe vollständig erschienen oder offiziell beendet"><div class="stat-big-n">${finishedCount}</div><div class="stat-big-l">Abgeschlossen (DE)</div></div>
+        <div class="stat-big-card" title="DE-Status nicht belastbar geklärt"><div class="stat-big-n">${unknownCount}</div><div class="stat-big-l">Unbekannt (DE)</div></div>
       </div>
     </div>
 
@@ -1797,7 +1804,8 @@ function buildSeriesMd(m) {
   lines.push(
     `**Verlag:** ${m.pub || 'Unbekannt'}`,
     `**Bände:** ${owned}${total !== null ? ' / ' + total : ''} Bände`,
-    `**Status:** ${m.ongoing === 'true' ? 'Laufend' : m.ongoing === 'false' ? 'Abgeschlossen' : 'Unbekannt'}`,
+    // Phase 38: Status beschreibt den deutschsprachigen Veröffentlichungsstand.
+    `**Deutschsprachige Veröffentlichung:** ${m.ongoing === 'true' ? 'Laufend (weitere DE-Bände erwartet)' : m.ongoing === 'false' ? 'Abgeschlossen (DE-Ausgabe komplett)' : 'Unbekannt (DE-Status unklar)'}`,
   );
   if (m.nextDate) lines.push(`**Nächster Band:** ${m.nextDate}`);
   if (bandLines) lines.push('', '## Bände', bandLines);
@@ -1941,7 +1949,8 @@ function shareManga(id, e) {
   const m = db.m.find(x => x.id === id);
   if (!m) return;
   const total = m.total ? `${m.total} Bände` : 'laufend';
-  const ongoing = m.ongoing === 'true' ? 'laufend 🔄' : m.ongoing === 'false' ? 'abgeschlossen ✓' : 'unbekannt ?';
+  // Phase 38: DE-Veröffentlichungsstatus
+  const ongoing = m.ongoing === 'true' ? 'laufend (DE) 🔄' : m.ongoing === 'false' ? 'abgeschlossen (DE) ✓' : 'unbekannt (DE) ?';
   const next = m.nextDate ? `\n📅 Nächster Band: ${new Date(m.nextDate+'T00:00:00').toLocaleDateString('de-DE',{day:'2-digit',month:'long',year:'numeric'})}` : '';
   const q = encodeURIComponent(`${m.title} Manga`);
   const text = `📚 ${m.title}\n${m.pub||'Unbekannt'} · ${total} · ${ongoing}${next}\n🔗 https://www.thalia.de/suche?sq=${q}`;
