@@ -10,8 +10,12 @@
  *   - UUIDs (collId, ownerToken etc. — landen nur im localStorage)
  *
  * Verboten:
- *   - "service_role" (Supabase Service-Role-Secret)
- *   - JWT-Format (eyJhbG...) — entspricht einem signierten Supabase-Secret-Key
+ *   - echte Supabase Secret Keys (sb_secret_*)
+ *   - JWT-Format (eyJhbG...) — entspricht legacy signierten Supabase-Secret-Keys
+ *
+ * Erlaubt sind reine Variablen-/Rollenbezeichnungen wie
+ * SUPABASE_SERVICE_ROLE_KEY oder service_role. Diese Namen sind keine Secrets;
+ * echte Schlüssel werden über sb_secret_* bzw. JWT-Muster erkannt.
  *
  * Hinweis: Diese Datei selbst ist von der Prüfung ausgenommen,
  *          damit die Regex-Muster keine false positives erzeugen.
@@ -55,10 +59,6 @@ const EXCLUDED_FILES = new Set([
 //          damit dieser Quellcode selbst kein Match erzeugt.
 const FORBIDDEN_PATTERNS = [
   [
-    new RegExp('service' + '_role'),
-    'service_role — Supabase Service-Role-Key darf nicht committed werden',
-  ],
-  [
     // Supabase JWT-Format: base64-kodiertes {"alg":"HS256"} — nur echte Secrets haben dieses Format
     // Der aktuelle publishable Key (sb_publishable_*) ist KEIN JWT und wird hier NICHT geflaggt.
     new RegExp('eyJhbG' + 'ciOi'),
@@ -95,10 +95,6 @@ const FORBIDDEN_PATTERNS = [
   [
     new RegExp('sb' + '_secret_'),
     'sb_secret_... — Supabase Secret Key darf nicht committed werden',
-  ],
-  [
-    new RegExp('SUPABASE' + '_SERVICE_ROLE'),
-    'SUPABASE_SERVICE_ROLE — Service-Role-Umgebungsvariable darf nicht committed werden',
   ],
 ];
 
