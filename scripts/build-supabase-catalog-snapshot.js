@@ -114,6 +114,33 @@ function sortEntries(items) {
   });
 }
 
+function stableSnapshotPayload(snapshot) {
+  return JSON.stringify({
+    schemaVersion: snapshot.schemaVersion,
+    source: snapshot.source,
+    supabaseProject: snapshot.supabaseProject,
+    itemCount: snapshot.itemCount,
+    items: snapshot.items,
+  });
+}
+
+function preserveGeneratedAtIfUnchanged(outFile, snapshot) {
+  if (!fs.existsSync(outFile)) return snapshot;
+  try {
+    const previous = JSON.parse(fs.readFileSync(outFile, 'utf-8'));
+    if (
+      previous &&
+      typeof previous.generatedAt === 'string' &&
+      stableSnapshotPayload(previous) === stableSnapshotPayload(snapshot)
+    ) {
+      return { ...snapshot, generatedAt: previous.generatedAt };
+    }
+  } catch (_) {
+    // Defekte/unerwartete Altdatei nicht kaschieren: neuen Snapshot schreiben.
+  }
+  return snapshot;
+}
+
 async function fetchPage(supaUrl, anonKey, from, to) {
   const url =
     supaUrl.replace(/\/+$/, '') +
@@ -201,14 +228,14 @@ async function main() {
   const clean = mapped.filter((it) => !bad.includes(it));
   const sorted = sortEntries(clean);
 
-  const snapshot = {
+  const snapshot = preserveGeneratedAtIfUnchanged(outFile, {
     schemaVersion: 1,
     generatedAt: new Date().toISOString(),
     source: 'build-supabase-catalog-snapshot.js',
     supabaseProject: projectRef,
     itemCount: sorted.length,
     items: sorted,
-  };
+  });
 
   const json = JSON.stringify(snapshot, null, 2) + '\n';
   fs.mkdirSync(path.dirname(outFile), { recursive: true });
