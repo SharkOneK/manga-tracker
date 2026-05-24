@@ -3128,12 +3128,12 @@
       "providerId": "manga-passion"
     },
     {
-      "queueKey": "Vermeil in Gold|Manga Cult|2",
+      "queueKey": "Vermeil in Gold|MANGAMOON|2",
       "seriesTitle": "Vermeil in Gold",
-      "publisher": "Manga Cult",
+      "publisher": "MANGAMOON",
       "volumeNumber": 2,
       "classification": "source-data-gap",
-      "suspectedCause": "publisher-normalization",
+      "suspectedCause": "not-yet-released",
       "priority": "mittel",
       "recommendedFix": "manual-source-review",
       "manualSourceReviewNeeded": true,
@@ -3144,14 +3144,14 @@
           "result": "Edition 6137 vorhanden; Publisher MANGAMOON; Band 2 ohne valides Release-Datum."
         }
       ],
-      "sourceAnalysisEvidence": "Manga Passion fuehrt die Serie unter MANGAMOON, waehrend die Watchlist Manga Cult nennt; Band 2 hat dort zusaetzlich kein valides Release-Datum.",
+      "sourceAnalysisEvidence": "Manga Passion fuehrt die Serie unter MANGAMOON; Band 2 hat dort kein valides Release-Datum.",
       "safeToPatch": false,
       "reviewStatus": "needs-source",
       "sourceUrl": "https://www.manga-passion.de/articles/tags/321/mangamoon",
       "releaseDate": null,
       "checkedAt": "2026-05-20T00:00:00.000Z",
       "evidence": "Phase-33-Pruefung: MangaMoon/MANGAMOON-Lizenz-/Auftaktmeldung vorhanden, aber kein eindeutiges HTTPS-Quellendatum fuer Band 2.",
-      "notes": "Phase 33: Watchlist nennt Manga Cult, Oeffentliche Quellenlage verweist auf MangaMoon/MANGAMOON; nur Auftakt/April 2026 belastbar, kein valides Release-Datum fuer Band 2. Nicht patchen.",
+      "notes": "Watchlist-Publisher ist MANGAMOON; nur Auftakt/April 2026 belastbar, kein valides Release-Datum fuer Band 2. Nicht patchen.",
       "sourceConfidence": "blocked",
       "sourceName": "Manga Passion",
       "sourceEditionId": 6137,
@@ -3160,8 +3160,7 @@
       "sourceVolumeNumber": 2,
       "sourceResult": "volume-found",
       "confidenceReasons": [
-        "placeholder-release-date",
-        "publisher-conflict"
+        "placeholder-release-date"
       ],
       "providerId": "manga-passion"
     },

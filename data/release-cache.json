@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-05-19T15:26:34.180Z",
+  "generatedAt": "2026-05-24T06:25:50.318Z",
   "source": "run-release-cache-pipeline.js",
-  "itemCount": 171,
+  "itemCount": 172,
   "items": [
     {
       "seriesTitle": "Adou",
@@ -528,6 +528,23 @@
       "confidence": "high",
       "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 2485, Band 4). Ursprung: watchlist.",
       "checkedAt": "2026-05-19T15:26:34.180Z"
+    },
+    {
+      "seriesTitle": "Demon Slave",
+      "normalizedSeriesTitle": "demon slave",
+      "publisher": "KAZÉ Manga",
+      "normalizedPublisher": "crunchyroll manga",
+      "volumeNumber": 2,
+      "releaseDate": "2021-03-04",
+      "isbn13": null,
+      "coverUrl": "https://media.manga-passion.de/volume/cover/2021/0826/0731/05071600f2049619df.jpg",
+      "sourceUrl": "https://www.manga-passion.de/editions/509",
+      "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
+      "evidence": "Manga Passion Edition, Verlag und Bandnummer wurden gegen die Bandliste abgeglichen.",
+      "confidence": "high",
+      "notes": "Hotfix: per Manga-Passion-API bestätigt (Edition 509, Band 2). Ursprung: watchlist.",
+      "checkedAt": "2026-05-24T06:25:50.318Z"
     },
     {
       "seriesTitle": "Die letzte Elfe",

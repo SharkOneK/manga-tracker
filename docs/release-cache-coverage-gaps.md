@@ -8,15 +8,15 @@ Stand: nach Bot-Commit `d909f57` (`release-cache.json` aktualisiert).
 |---|---:|
 | Aktivierte Watchlist-Eintraege | 33 |
 | Expandierte Watchlist-Bandkandidaten | 187 |
-| Release-Cache-Eintraege | 171 |
-| Gefundene Cache-Eintraege | 152 |
-| Verbleibende Luecken | 35 |
-| Betroffene Serien | 13 |
-| Betroffene Verlage | 8 |
+| Release-Cache-Eintraege | 172 |
+| Gefundene Cache-Eintraege | 153 |
+| Verbleibende Luecken | 34 |
+| Betroffene Serien | 12 |
+| Betroffene Verlage | 7 |
 
 ## Klassifikation
 
-Alle 35 verbleibenden Luecken sind als `source-data-gap` klassifiziert.
+Alle 34 verbleibenden Luecken sind als `source-data-gap` klassifiziert.
 
 Bedeutung: Der Watchlist-Band wurde nach dem Cache-Update weiterhin nicht in `data/release-cache.json` gefunden. Diese Faelle sind Quellen-/Datenqualitaetsfaelle und duerfen nicht durch Fake-Daten geschlossen werden.
 
@@ -38,7 +38,6 @@ Empfohlener Umgang: manuell in verlaesslicher Quelle pruefen, erst danach echte 
 | Mirai Nikki - New Edition | Egmont Manga | 6 | 1 | source-data-gap |
 | Neck mich nicht, Nagatoro-san | dani books | 6 | 1 | source-data-gap |
 | Tokyo Revengers - Doppelband-Edition | Carlsen Manga | 16 | 1 | source-data-gap |
-| Demon Slave | Crunchyroll Manga | 2 | 1 | source-data-gap |
 
 ## Luecken nach Verlag
 
@@ -92,7 +91,7 @@ Der normale Workflow scheitert weiterhin nicht an bekannten `source-data-gap`-Lu
 
 ## Phase 23a: Ursachenanalyse
 
-Die 35 `source-data-gap`-Einzelluecken sind in `docs/release-cache-source-gap-analysis.md` strukturiert analysiert.
+Die 34 `source-data-gap`-Einzelluecken sind in `docs/release-cache-source-gap-analysis.md` strukturiert analysiert.
 
 Die Analyse dokumentiert pro Gap:
 

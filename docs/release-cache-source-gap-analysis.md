@@ -2,16 +2,16 @@
 
 Stand: 2026-05-19, nach Audit von `data/release-watchlist.json` gegen `data/release-cache.json`.
 
-Diese Datei dokumentiert die 35 bekannten `source-data-gap`-Luecken aus `docs/release-cache-coverage-gaps.md`. Sie ist bewusst eine Analyse- und Entscheidungsdatei: Es werden keine Release-Daten geraten, keine privaten Sammlungsdaten ergaenzt und `data/release-cache.json` bleibt unangetastet.
+Diese Datei dokumentiert die 34 bekannten `source-data-gap`-Luecken aus `docs/release-cache-coverage-gaps.md`. Sie ist bewusst eine Analyse- und Entscheidungsdatei: Es werden keine Release-Daten geraten, keine privaten Sammlungsdaten ergaenzt und `data/release-cache.json` bleibt unangetastet.
 
 ## Ergebnis
 
 | Kennzahl | Wert |
 |---|---:|
-| Analysierte Gaps | 35 |
-| Betroffene Serien | 13 |
+| Analysierte Gaps | 34 |
+| Betroffene Serien | 12 |
 | Sichere direkte Cache-Patches | 0 |
-| Manuelle Quellenpruefung noetig | 35 |
+| Manuelle Quellenpruefung noetig | 34 |
 
 ## Ursachencluster
 
@@ -32,7 +32,7 @@ Interpretation:
 
 | Empfohlener Fix | Gaps |
 |---|---:|
-| manual-source-review | 35 |
+| manual-source-review | 34 |
 
 Der einzige sichere naechste Schritt ist aktuell `manual-source-review`: offizielle Verlagsseite oder bereits erlaubte vertrauenswuerdige Quelle pruefen und erst danach echte Release-Daten mit Source-URL uebernehmen.
 
@@ -745,25 +745,6 @@ Der einzige sichere naechste Schritt ist aktuell `manual-source-review`: offizie
       "recommendedFix": "manual-source-review",
       "safeToPatch": false,
       "manualSourceReviewNeeded": true
-    },
-    {
-      "seriesTitle": "Demon Slave",
-      "publisher": "Crunchyroll Manga",
-      "volumeNumber": 2,
-      "classification": "source-data-gap",
-      "priority": "mittel",
-      "suspectedCause": "not-yet-released",
-      "checkedSources": [
-        {
-          "name": "Release-Cache-Audit",
-          "url": "data/release-watchlist.json",
-          "result": "Nach Release-Intake in der Watchlist vorhanden; kein passender Eintrag in data/release-cache.json."
-        }
-      ],
-      "evidence": "Demon Slave Band 2 wurde per Release-Intake-Staging in die Watchlist uebernommen. Der Release-Cache enthaelt noch kein belegtes Datum; kein Cache-Patch ohne verifizierte Quelle.",
-      "recommendedFix": "manual-source-review",
-      "safeToPatch": false,
-      "manualSourceReviewNeeded": true
     }
   ]
 }
@@ -787,7 +768,7 @@ Der einzige sichere naechste Schritt ist aktuell `manual-source-review`: offizie
 2. Offizielle Verlagsquellen fuer die vier grossen Bloecke priorisieren: Berserk ME, Vagabond ME, Isekai Soapland, Arifureta Zero.
 3. Tokyo Revengers Doppelband-Edition Band 16 gegen Carlsen pruefen; moeglicherweise ist die Watchlist-Bandnummer fachlich falsch.
 4. Demon Slave Band 2 gegen eine verlaessliche Crunchyroll-/Verlagsquelle pruefen; ohne belegtes Datum bleibt der Gap sichtbar.
-5. Erst wenn ein echtes Datum mit Source-URL vorliegt: Updater/Quelle erweitern oder Watchlist-Metadaten ergaenzen, danach Cache per Skriptprozess aktualisieren.
+4. Erst wenn ein echtes Datum mit Source-URL vorliegt: Updater/Quelle erweitern oder Watchlist-Metadaten ergaenzen, danach Cache per Skriptprozess aktualisieren.
 
 ## Sicherheitsbestaetigung
 

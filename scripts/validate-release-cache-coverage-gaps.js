@@ -27,9 +27,9 @@ const gapsDocPath = path.join(repoRoot, 'docs', 'release-cache-coverage-gaps.md'
 const sourceGapAnalysisDocPath = path.join(repoRoot, 'docs', 'release-cache-source-gap-analysis.md');
 
 const EXPECTED = {
-  missingCacheCoverage: 35,
-  missingSeries: 13,
-  missingPublishers: 8,
+  missingCacheCoverage: 34,
+  missingSeries: 12,
+  missingPublishers: 7,
   classification: 'source-data-gap',
 };
 

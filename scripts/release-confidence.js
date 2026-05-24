@@ -26,6 +26,7 @@ const DEFAULT_PUBLISHER_ALIASES = new Map([
   ['tokyopop', 'tokyopop'],
   ['tokyo-pop', 'tokyopop'],
   ['kaze manga', 'crunchyroll manga'],
+  ['kaz manga', 'crunchyroll manga'],
   ['kazé manga', 'crunchyroll manga'],
   ['kaze', 'crunchyroll manga'],
   ['crunchyroll', 'crunchyroll manga'],
@@ -38,6 +39,8 @@ const DEFAULT_PUBLISHER_ALIASES = new Map([
 function normalizeBase(value) {
   return String(value == null ? '' : value)
     .toLowerCase()
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '')
     .replace(/ä/g, 'ae')
     .replace(/ö/g, 'oe')
     .replace(/ü/g, 'ue')
