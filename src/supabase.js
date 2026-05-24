@@ -189,6 +189,84 @@
     }
   }
 
+  // ── Phase 39b: Manga Catalog Candidate Intake (Dual-Write) ───────────────
+  // Spiegelt den Phase-36b-Intake zusaetzlich in den zentralen Supabase-Katalog
+  // (public.manga_catalog_candidates). Laeuft parallel zum bestehenden RPC,
+  // bis Phase 39e die JSON-Queue ersetzt. Nie blockierend, nie privat.
+  //
+  // Allowlist-Felder (zusaetzlich zu 36b):
+  //   sourceKey    — referenziert public.manga_catalog_sources.source_key
+  //   releaseDate  — ISO-8601 (YYYY-MM-DD)
+  //   isbn13       — optionale ISBN
+  //   coverUrl     — optionale https-URL
+  //   origin       — Whitelist: browser | pending-queue | coverage-gap | watchlist | provider | manual | intake
+  //
+  // Returns { result: string } analog zu submitReleaseIntakeCandidate; zusaetzliche
+  // Werte: 'already_verified', 'already_rejected'.
+  var CATALOG_INTAKE_ALLOWED_KEYS = [
+    'p_series_title', 'p_publisher', 'p_volume_number',
+    'p_source_url', 'p_source_key', 'p_release_date',
+    'p_isbn13', 'p_cover_url', 'p_origin', 'p_metadata',
+  ];
+  var CATALOG_INTAKE_ORIGINS = new Set([
+    'browser', 'pending-queue', 'coverage-gap', 'watchlist', 'provider', 'manual', 'intake',
+  ]);
+  var ISO_DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+  var ISBN_RE = /^[0-9Xx]{10,13}$/;
+
+  async function submitMangaCatalogCandidate(candidate, ownerToken) {
+    if (!ownerToken) return { result: 'blocked' };
+    if (!candidate || typeof candidate !== 'object') return { result: 'blocked' };
+
+    var seriesTitle  = String(candidate.seriesTitle  || '').trim();
+    var publisher    = String(candidate.publisher    || '').trim();
+    var volumeNumber = Number(candidate.volumeNumber);
+
+    if (!seriesTitle || !publisher) return { result: 'blocked' };
+    if (!Number.isInteger(volumeNumber) || volumeNumber < 0) return { result: 'blocked' };
+
+    var origin = (typeof candidate.origin === 'string' && CATALOG_INTAKE_ORIGINS.has(candidate.origin))
+      ? candidate.origin : 'browser';
+
+    var body = {
+      p_series_title:  seriesTitle,
+      p_publisher:     publisher,
+      p_volume_number: volumeNumber,
+      p_source_url:    (typeof candidate.sourceUrl === 'string' && candidate.sourceUrl.startsWith('https://'))
+                         ? candidate.sourceUrl : null,
+      p_source_key:    (typeof candidate.sourceKey === 'string' && candidate.sourceKey)
+                         ? candidate.sourceKey.toLowerCase().slice(0, 64) : null,
+      p_release_date:  (typeof candidate.releaseDate === 'string' && ISO_DATE_RE.test(candidate.releaseDate))
+                         ? candidate.releaseDate : null,
+      p_isbn13:        (typeof candidate.isbn13 === 'string' && ISBN_RE.test(candidate.isbn13))
+                         ? candidate.isbn13 : null,
+      p_cover_url:     (typeof candidate.coverUrl === 'string' && candidate.coverUrl.startsWith('https://'))
+                         ? candidate.coverUrl : null,
+      p_origin:        origin,
+      p_metadata:      {},
+    };
+
+    // Strict allowlist: reject body if it has any unexpected key
+    var bodyKeys = Object.keys(body);
+    for (var i = 0; i < bodyKeys.length; i++) {
+      if (CATALOG_INTAKE_ALLOWED_KEYS.indexOf(bodyKeys[i]) === -1) {
+        return { result: 'blocked' };
+      }
+    }
+
+    try {
+      var rpcHeaders = Object.assign({}, headers(ownerToken, true), { 'Content-Type': 'application/json' });
+      var result = await requestJson(SUPA_RPC + '/submit_manga_catalog_candidate', rpcHeaders, {
+        method: 'POST',
+        body: JSON.stringify(body),
+      });
+      var resultStr = typeof result === 'string' ? result : String(result || 'blocked');
+      return { result: resultStr };
+    } catch (e) {
+      return { result: 'error', message: String(e.message || e).slice(0, 200) };
+    }
+  }
+
   async function patchCollection(collId, ownerToken, data, publicData) {
     if (publicData !== undefined) {
       try {
@@ -215,5 +293,6 @@
     fetchPublicCollection: fetchPublicCollection,
     patchCollection: patchCollection,
     submitReleaseIntakeCandidate: submitReleaseIntakeCandidate,
+    submitMangaCatalogCandidate:  submitMangaCatalogCandidate,
   };
 })();
