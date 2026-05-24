@@ -2943,13 +2943,19 @@ function buildIntakeSubmitCandidate(candidate) {
 }
 
 // Fire-and-forget async submit. Never throws, never blocks the call site.
+// Phase 39b: Dual-Write — feuert sowohl den Phase-36b-Intake (release_intake_candidates)
+// als auch den Phase-39b-Katalog-Intake (manga_catalog_candidates). Beide Aufrufe sind
+// voneinander unabhaengig (eigene try/catch), damit ein Fehler in einem Pfad den
+// anderen nicht blockiert. Der Katalog-Intake wiederholt die fachliche Signatur
+// und ergaenzt 'origin', sourceKey/coverUrl bleiben null bis Provider-Anbindung greift.
 function maybeSubmitReleaseIntakeCandidate(candidate) {
   if (!isReleaseIntakeSendAllowed(candidate)) return;
   const { ownerToken } = window.MangaTrackerSupabase.getOwnerState();
   if (!ownerToken) return;
   const submission = buildIntakeSubmitCandidate(candidate);
   if (!submission) return;
-  // Schedule asynchronously so save/purchase flow completes first
+
+  // Phase 36b — bestehender Intake in release_intake_candidates
   Promise.resolve().then(async function () {
     try {
       const r = await window.MangaTrackerSupabase.submitReleaseIntakeCandidate(submission, ownerToken);
@@ -2960,6 +2966,30 @@ function maybeSubmitReleaseIntakeCandidate(candidate) {
       }
     } catch (e) {
       console.warn('[Phase 36b] Release intake submit exception (non-blocking):', String(e && e.message || e).slice(0, 200));
+    }
+  });
+
+  // Phase 39b — paralleler Dual-Write in manga_catalog_candidates
+  // sourceKey/releaseDate/isbn13/coverUrl bleiben hier bewusst leer; sie werden
+  // erst durch Provider-/Coverage-Pfaede befuellt. origin='browser' markiert den
+  // Eintrag eindeutig als Browser-Sammelfluss.
+  Promise.resolve().then(async function () {
+    try {
+      const catalogSubmission = {
+        seriesTitle:  submission.seriesTitle,
+        publisher:    submission.publisher,
+        volumeNumber: submission.volumeNumber,
+        sourceUrl:    submission.sourceUrl,
+        origin:       'browser',
+      };
+      const r = await window.MangaTrackerSupabase.submitMangaCatalogCandidate(catalogSubmission, ownerToken);
+      if (r && r.result && r.result !== 'error') {
+        console.info('[Phase 39b] Catalog intake:', r.result, catalogSubmission.seriesTitle, 'Bd.', catalogSubmission.volumeNumber);
+      } else if (r && r.result === 'error') {
+        console.warn('[Phase 39b] Catalog intake submit failed (non-blocking):', r.message || '');
+      }
+    } catch (e) {
+      console.warn('[Phase 39b] Catalog intake submit exception (non-blocking):', String(e && e.message || e).slice(0, 200));
     }
   });
 }

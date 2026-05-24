@@ -1,0 +1,99 @@
+name: Snapshot Supabase Catalog
+
+# Phase 39d: liest verified entries aus public.manga_catalog_entries und
+# schreibt einen statischen Snapshot data/release-cache-supabase-snapshot.json.
+# Laeuft PARALLEL zur Update-Release-Cache-Pipeline und ersetzt diese nicht.
+# Erzeugt ausschliesslich PRs ohne Auto-Merge.
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '27 5 * * *'
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: snapshot-supabase-catalog
+  cancel-in-progress: false
+
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+      SUPABASE_URL:      ${{ secrets.SUPABASE_URL }}
+      SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+
+      - name: Check 39d script syntax
+        run: |
+          node --check scripts/build-supabase-catalog-snapshot.js
+          node --check scripts/validate-supabase-catalog-snapshot.js
+
+      - name: Fail fast if Supabase secrets missing
+        run: |
+          if [ -z "$SUPABASE_URL" ] || [ -z "$SUPABASE_ANON_KEY" ]; then
+            echo "::error::Phase 39d requires GitHub secrets SUPABASE_URL and SUPABASE_ANON_KEY."
+            exit 1
+          fi
+
+      - name: Build Supabase catalog snapshot
+        run: node scripts/build-supabase-catalog-snapshot.js
+
+      - name: Validate Supabase catalog snapshot
+        run: node scripts/validate-supabase-catalog-snapshot.js
+
+      - name: Detect snapshot changes
+        id: changes
+        shell: bash
+        run: |
+          if git diff --quiet -- data/release-cache-supabase-snapshot.json; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "No snapshot changes detected."
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            git diff --stat -- data/release-cache-supabase-snapshot.json
+          fi
+
+      - name: Prepare PR body
+        if: steps.changes.outputs.changed == 'true'
+        shell: bash
+        run: |
+          node <<'NODE' > "$RUNNER_TEMP/snapshot-pr-body.md"
+          const fs = require('fs');
+          const snap = JSON.parse(fs.readFileSync('data/release-cache-supabase-snapshot.json', 'utf8'));
+          console.log('## Phase 39d Supabase Catalog Snapshot');
+          console.log('');
+          console.log('- Generated at: ' + snap.generatedAt);
+          console.log('- Supabase project: ' + snap.supabaseProject);
+          console.log('- Verified entries: ' + snap.itemCount);
+          console.log('');
+          console.log('Dieser PR ersetzt **nicht** data/release-cache.json — der Snapshot laeuft parallel');
+          console.log('und dient als Drift-Check zwischen Supabase manga_catalog_entries und der bestehenden Pipeline.');
+          console.log('Auto-Merge ist bewusst deaktiviert; jeder Diff muss manuell gereviewt werden, bis Phase 39e');
+          console.log('die JSON-Review-Queue ersetzt.');
+          NODE
+
+      - name: Create snapshot PR (no auto-merge)
+        if: steps.changes.outputs.changed == 'true'
+        uses: peter-evans/create-pull-request@v8
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "chore: refresh Supabase catalog snapshot (phase 39d)"
+          branch: automated/supabase-catalog-snapshot
+          delete-branch: true
+          title: "chore: refresh Supabase catalog snapshot (phase 39d)"
+          body-path: ${{ runner.temp }}/snapshot-pr-body.md
+          labels: supabase-snapshot, automated
+          add-paths: |
+            data/release-cache-supabase-snapshot.json

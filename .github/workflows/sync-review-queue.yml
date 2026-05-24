@@ -1,0 +1,112 @@
+name: Sync Review Queue (Phase 39e)
+
+# Phase 39e: spiegelt data/release-source-review-queue.json -> Supabase candidates.
+# Manueller Trigger only - kein cron, weil service_role im Spiel.
+# Erzeugt PR ohne Auto-Merge.
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Nur zaehlen, nicht schreiben'
+        required: false
+        default: 'false'
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: sync-review-queue
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+      SUPABASE_URL:              ${{ secrets.SUPABASE_URL }}
+      SUPABASE_ANON_KEY:         ${{ secrets.SUPABASE_ANON_KEY }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+
+      - name: Check 39e script syntax
+        run: |
+          node --check scripts/sync-review-queue-to-supabase.js
+          node --check scripts/report-review-queue-supabase-coverage.js
+
+      - name: Fail fast if secrets missing
+        run: |
+          if [ -z "$SUPABASE_URL" ] || [ -z "$SUPABASE_SERVICE_ROLE_KEY" ]; then
+            echo "::error::Phase 39e requires SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY secrets."
+            exit 1
+          fi
+
+      - name: Sync queue -> candidates
+        run: |
+          if [ "${{ inputs.dry_run }}" = "true" ]; then
+            node scripts/sync-review-queue-to-supabase.js --dry-run
+          else
+            node scripts/sync-review-queue-to-supabase.js
+          fi
+
+      - name: Build coverage report
+        run: node scripts/report-review-queue-supabase-coverage.js
+
+      - name: Detect changes
+        id: changes
+        shell: bash
+        run: |
+          if git diff --quiet -- data/release-source-review-queue-sync-report.json data/release-source-review-queue-coverage.json; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "No 39e artifact changes."
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            git diff --stat -- data/release-source-review-queue-sync-report.json data/release-source-review-queue-coverage.json
+          fi
+
+      - name: Prepare PR body
+        if: steps.changes.outputs.changed == 'true'
+        shell: bash
+        run: |
+          node <<'NODE' > "$RUNNER_TEMP/sync-pr-body.md"
+          const fs = require('fs');
+          const sync = JSON.parse(fs.readFileSync('data/release-source-review-queue-sync-report.json', 'utf8'));
+          const cov  = JSON.parse(fs.readFileSync('data/release-source-review-queue-coverage.json', 'utf8'));
+          console.log('## Phase 39e Sync + Coverage');
+          console.log('');
+          console.log('### Sync (' + (sync.dryRun ? 'dry-run' : 'live') + ')');
+          console.log('- queueTotal: ' + sync.queueTotal);
+          console.log('- eligibleTotal: ' + sync.eligibleTotal);
+          console.log('- counts: ' + JSON.stringify(sync.counts));
+          console.log('');
+          console.log('### Coverage');
+          console.log('- inQueueAndVerifiedEntry: ' + cov.counts.inQueueAndVerifiedEntry);
+          console.log('- inQueueAndCandidate:     ' + cov.counts.inQueueAndCandidate);
+          console.log('- inQueueOnly:             ' + cov.counts.inQueueOnly);
+          console.log('');
+          console.log('Diese Phase entfernt NICHTS aus release-source-review-queue.json. Reine Diagnose + Spiegelung.');
+          NODE
+
+      - name: Create PR (no auto-merge)
+        if: steps.changes.outputs.changed == 'true'
+        uses: peter-evans/create-pull-request@v8
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "chore: refresh phase 39e sync + coverage artifacts"
+          branch: automated/phase39e-review-queue-sync
+          delete-branch: true
+          title: "chore: refresh phase 39e sync + coverage artifacts"
+          body-path: ${{ runner.temp }}/sync-pr-body.md
+          labels: phase39e, automated
+          add-paths: |
+            data/release-source-review-queue-sync-report.json
+            data/release-source-review-queue-coverage.json
