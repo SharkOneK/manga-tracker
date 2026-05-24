@@ -4,17 +4,17 @@
     "minDelayMs": 1200,
     "timeoutMs": 12000,
     "maxItemsPerSource": 200,
-    "userAgent": "MangaTrackerReleaseBot/1.0"
+    "userAgent": "MangaTrackerReleaseBot/1.0 (+https://github.com/SharkOneK/manga-tracker)"
   },
   "sources": [
     {
       "id": "carlsen",
       "name": "Carlsen Manga",
-      "publisherAliases": ["Carlsen", "Carlsen Manga"],
+      "publisherAliases": ["Carlsen", "Carlsen Manga", "Hayabusa"],
       "baseUrl": "https://www.carlsen.de",
       "allowedUrls": ["https://www.carlsen.de"],
       "enabled": true,
-      "type": "curated"
+      "type": "provider"
     },
     {
       "id": "manga-passion",
@@ -23,7 +23,106 @@
       "baseUrl": "https://www.manga-passion.de",
       "allowedUrls": ["https://www.manga-passion.de"],
       "enabled": true,
-      "type": "curated"
+      "type": "provider"
+    },
+    {
+      "id": "altraverse",
+      "name": "Altraverse",
+      "publisherAliases": ["Altraverse"],
+      "baseUrl": "https://altraverse.de",
+      "allowedUrls": ["https://altraverse.de"],
+      "enabled": false,
+      "type": "provider"
+    },
+    {
+      "id": "egmont",
+      "name": "Egmont Manga",
+      "publisherAliases": ["Egmont", "Egmont Manga"],
+      "baseUrl": "https://www.egmont-manga.de",
+      "allowedUrls": ["https://www.egmont-manga.de"],
+      "enabled": false,
+      "type": "provider"
+    },
+    {
+      "id": "panini",
+      "name": "Panini Manga",
+      "publisherAliases": ["Panini", "Panini Manga", "Planet Manga"],
+      "baseUrl": "https://www.paninishop.de/manga",
+      "allowedUrls": ["https://www.paninishop.de"],
+      "enabled": false,
+      "type": "provider"
+    },
+    {
+      "id": "tokyopop",
+      "name": "Tokyopop",
+      "publisherAliases": ["Tokyopop", "Tokyo Pop", "Tokyo-Pop"],
+      "baseUrl": "https://www.tokyopop.de",
+      "allowedUrls": ["https://www.tokyopop.de"],
+      "enabled": false,
+      "type": "provider"
+    },
+    {
+      "id": "manga-cult",
+      "name": "Manga Cult",
+      "publisherAliases": ["Manga Cult"],
+      "baseUrl": "https://www.manga-cult.de",
+      "allowedUrls": ["https://www.manga-cult.de"],
+      "enabled": false,
+      "type": "provider"
+    },
+    {
+      "id": "mangamoon",
+      "name": "MangaMoon",
+      "publisherAliases": ["MangaMoon", "MANGAMOON", "Animoon Publishing"],
+      "baseUrl": "https://animoon-publishing.de",
+      "allowedUrls": ["https://animoon-publishing.de"],
+      "enabled": false,
+      "type": "provider"
+    },
+    {
+      "id": "dani-books",
+      "name": "dani books",
+      "publisherAliases": ["dani books", "Dani Books"],
+      "baseUrl": "https://dani-books.com",
+      "allowedUrls": ["https://dani-books.com"],
+      "enabled": false,
+      "type": "provider"
+    },
+    {
+      "id": "dokico",
+      "name": "Dokico",
+      "publisherAliases": ["Dokico"],
+      "baseUrl": "https://dokico.de",
+      "allowedUrls": ["https://dokico.de"],
+      "enabled": false,
+      "type": "provider"
+    },
+    {
+      "id": "hayabusa",
+      "name": "Hayabusa",
+      "publisherAliases": ["Hayabusa"],
+      "baseUrl": "https://hayabusa.de",
+      "allowedUrls": ["https://hayabusa.de"],
+      "enabled": false,
+      "type": "provider"
+    },
+    {
+      "id": "yomeru",
+      "name": "Yomeru",
+      "publisherAliases": ["Yomeru"],
+      "baseUrl": "https://yomeru.de",
+      "allowedUrls": ["https://yomeru.de"],
+      "enabled": false,
+      "type": "provider"
+    },
+    {
+      "id": "crunchyroll-manga",
+      "name": "Crunchyroll Manga",
+      "publisherAliases": ["Crunchyroll Manga", "Kazé Manga", "Kaze Manga", "Crunchyroll"],
+      "baseUrl": "https://www.crunchyroll.com",
+      "allowedUrls": ["https://www.crunchyroll.com", "https://www.kaze-online.de"],
+      "enabled": false,
+      "type": "provider"
     }
   ]
 }

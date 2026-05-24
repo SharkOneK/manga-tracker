@@ -6,10 +6,12 @@ const {
   normalizeTitle,
 } = require('../release-confidence');
 const mangaPassionProvider = require('./manga-passion-provider');
+const carlsenProvider = require('./carlsen-provider');
 const { sourceConfigEnabled } = require('./provider-utils');
 
 const REGISTERED_PROVIDERS = [
   mangaPassionProvider,
+  carlsenProvider,
 ];
 
 const CONFIDENCE_RANK = new Map([
