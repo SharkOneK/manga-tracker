@@ -1,6 +1,6 @@
 # Release-Provider-System (Phase 26/40)
 
-Die Release-Cache-Pipeline kapselt Quellenprüfungen in Provider. Die Pipeline bleibt konservativ: Provider liefern nur belegte Kandidaten; `scripts/release-confidence.js` entscheidet weiterhin, ob ein Treffer automatisch in `data/release-cache.json` übernommen werden darf.
+Die Release-Cache-Pipeline kapselt Quellenpruefungen in Provider. Die Pipeline bleibt konservativ: Provider liefern nur belegte Kandidaten; `scripts/release-confidence.js` entscheidet weiterhin, ob ein Treffer automatisch in `data/release-cache.json` uebernommen werden darf.
 
 ## Einstiegspunkte
 
@@ -9,91 +9,114 @@ scripts/release-providers/
   index.js
   provider-utils.js
   publisher-provider-base.js
+  generic-publisher-provider.js
   manga-passion-provider.js
   carlsen-provider.js
-  *-provider.js          # deaktivierte Publisher-Skeletons
+  *-provider.js          # produktive Publisher-Provider
 ```
 
-- `index.js` registriert produktive Provider und wählt sie anhand von `data/release-sources.json` aus.
-- `provider-utils.js` enthält gemeinsame Hilfen für HTTPS-Fetches, ISBN-Normalisierung und Provider-Ergebnisfelder.
-- `publisher-provider-base.js` ist das Phase-40-Grundgerüst für Verlagsseiten: Publisher-Alias-Prüfung, HTML-Fetch mit Request-Policy, sauberer `not-implemented`-Pfad und Normalisierung von `search` + `parseProduct`.
+- `index.js` registriert produktive Provider und waehlt sie anhand von `data/release-sources.json` aus.
+- `provider-utils.js` enthaelt gemeinsame Hilfen fuer HTTPS-Fetches, ISBN-Normalisierung und Provider-Ergebnisfelder.
+- `publisher-provider-base.js` ist das Grundgeruest: Publisher-Alias-Pruefung, HTML-Fetch mit Request-Policy und Normalisierung von `search` + `parseProduct`.
+- `generic-publisher-provider.js` ist die generische HTML/JSON-LD-Implementierung fuer einfache Verlags- und Shopseiten.
 - `manga-passion-provider.js` bleibt der Aggregator-Provider.
-- `carlsen-provider.js` ist die erste produktive Verlagsseiten-Implementierung.
+- `carlsen-provider.js` ist die spezialisierte Carlsen-Referenzimplementierung.
 
 ## Aktive Provider
 
 | Provider | Status | Quelle | Zweck |
 |---|---|---|---|
 | `manga-passion` | aktiv | `https://www.manga-passion.de` API | Aggregator-Abgleich wie seit Phase 26 |
-| `carlsen` | aktiv | `https://www.carlsen.de` Suche + Produktseiten | Autoritative Verlagsdaten für Carlsen Manga und Hayabusa |
+| `carlsen` | aktiv | Carlsen-Suche + Produktseiten | Carlsen Manga und Hayabusa-Alias |
+| `altraverse` | aktiv | Altraverse-Suche + Produktseiten | Altraverse-Watchlist-Baende |
+| `egmont` | aktiv | Egmont-Suche/Produktseiten | Egmont-Manga-Watchlist-Baende |
+| `panini` | aktiv | Panini-Shop-Suche/Produktseiten | Panini-Manga-Watchlist-Baende |
+| `tokyopop` | aktiv | Tokyopop-Suche/Produktseiten | Tokyopop-Watchlist-Baende |
+| `manga-cult` | aktiv | Manga-Cult/Cross-Cult-Produktseiten | Manga-Cult-Watchlist-Baende |
+| `mangamoon` | aktiv | Animoon/MangaMoon-Shop | MangaMoon-Watchlist-Baende |
+| `dani-books` | aktiv | dani-books Suche/Produktseiten | dani-books-Watchlist-Baende |
+| `dokico` | aktiv | Dokico-Shop | Dokico-Watchlist-Baende |
+| `hayabusa` | aktiv | Hayabusa-Suche/Produktseiten | Hayabusa-Watchlist-Baende; Carlsen bleibt Fallback ueber Alias |
+| `yomeru` | aktiv | Yomeru-Shop | Yomeru-Watchlist-Baende |
+| `crunchyroll-manga` | aktiv | Crunchyroll/Kaze-URLs | Crunchyroll-/Kaze-Manga-Watchlist-Baende |
 
-Deaktivierte Skeletons existieren für `altraverse`, `egmont`, `panini`, `tokyopop`, `manga-cult`, `mangamoon`, `dani-books`, `dokico`, `hayabusa`, `yomeru` und `crunchyroll-manga`. Sie werden nicht registriert und geben bei direktem Aufruf `sourceResult: "not-implemented"` zurück.
+Die nicht-Carlsen-Verlagsprovider nutzen die generische HTML/JSON-LD-Referenzimplementierung. Sie sind konservativ: ohne belegten Produktnamen, Bandnummer und reales Datum liefern sie `no-edition-found` oder einen Fetch-/Parser-Diagnoseeintrag statt Fake-Daten.
 
 ## Publisher-Provider-Base
 
 `buildPublisherProvider({ id, sourceName, baseUrl, publisherAliases, search, parseProduct })` erzeugt einen Provider mit einheitlichem `findRelease(candidate, context)`:
 
-1. Request-Policy aus `data/release-sources.json`, optional source-spezifisch und durch `context.policy` überschreibbar.
-2. Publisher-Alias-Guard: nicht zuständige Provider verursachen keinen Live-Request.
-3. `search(candidate, ctx)` liefert nur belegte Produkt-Hits, keine geratenen Daten.
-4. `parseProduct(hit, candidate, ctx)` extrahiert Pflicht-/Optionalfelder ausschließlich aus HTML/JSON-LD.
+1. Request-Policy aus `data/release-sources.json`, optional source-spezifisch und durch `context.policy` ueberschreibbar.
+2. Publisher-Alias-Guard: nicht zustaendige Provider verursachen keinen Live-Request.
+3. `search(candidate, ctx)` liefert nur Produkt-Hits, keine geratenen Daten.
+4. `parseProduct(hit, candidate, ctx)` extrahiert Pflicht-/Optionalfelder ausschliesslich aus HTML/JSON-LD.
 5. Treffer werden mit `normalizeProviderResult` vereinheitlicht.
-6. Nicht implementierte Skeletons liefern `not-implemented`, Fetch-/Parserfehler liefern Diagnosefelder statt Fake-Daten.
+6. Fetch-/Parserfehler liefern Diagnosefelder statt Fake-Daten.
 
-Pflichtfelder für High Confidence bleiben unverändert: `seriesTitle`, `publisher`, `volumeNumber`, `releaseDate`, `sourceUrl`, `sourceName`, `providerId`, `checkedAt`, `evidence`, plus belegte `sourceEditionTitle`, `sourcePublisher` und `sourceVolumeNumber`.
+Pflichtfelder fuer High Confidence bleiben unveraendert: `seriesTitle`, `publisher`, `volumeNumber`, `releaseDate`, `sourceUrl`, `sourceName`, `providerId`, `checkedAt`, `evidence`, plus belegte `sourceEditionTitle`, `sourcePublisher` und `sourceVolumeNumber`.
+
+## Generischer Publisher-Provider
+
+`generic-publisher-provider.js` kapselt wiederverwendbare Parser-Logik:
+
+- Suche ueber pro Provider konfiguriertes `searchUrlTemplate`.
+- Produkt-URL-Filter ueber `hostnames` und `productPathPatterns`.
+- JSON-LD `Product`/`Book` wird bevorzugt.
+- HTML-Fallbacks lesen `h1`, `og:title`, `title`, ISBN-/EAN-Zeilen und sichtbare Datumsfelder.
+- Bandnummer muss im Produktnamen nachweisbar sein.
+- `releaseDate` muss ein echtes ISO- oder deutsches Datum sein; Platzhalter wie `2999-12-31` werden nicht akzeptiert.
 
 ## Carlsen-Referenzimplementierung
 
 `carlsen-provider.js` verwendet:
 
-- `publisherAliases`: `Carlsen`, `Carlsen Manga`, `Hayabusa`.
+- `publisherAliases`: `Carlsen`, `Hayabusa`, `Carlsen Manga` (kanonisch zuletzt).
 - Suche: `https://www.carlsen.de/suche?q=<Titel> Band <Nummer>`.
 - Produktfilter: Carlsen-Produktpfade unter `/manga/`, `/softcover/`, `/hardcover/`, `/taschenbuch/`, `/produkt/` oder ISBN-Pfade.
-- Parser: JSON-LD `Product`/`Book` bevorzugt; sichtbares HTML nur als Fallback für Titel/Datum.
-- Datum: nur reale ISO- oder deutsche Datumswerte; `2999-12-31` wird nicht erzeugt und nicht akzeptiert.
+- Parser: JSON-LD `Product`/`Book` bevorzugt; sichtbares HTML nur als Fallback fuer Titel/Datum.
 - ISBN/Cover: nur aus `gtin13`/`isbn`/`image` oder eindeutigem HTML-ISBN-Feld.
 
-Ein Carlsen-Treffer kann allein High Confidence werden, wenn Titel, Publisher-Alias, Bandnummer, echtes Datum und erlaubte URL zusammenpassen. Kollidiert ein High-Treffer von Carlsen mit einem High-Treffer eines anderen Providers, blockiert `buildProviderConflictCandidate` den Cache-Patch.
+Ein Treffer kann allein High Confidence werden, wenn Titel, Publisher-Alias, Bandnummer, echtes Datum und erlaubte URL zusammenpassen. Kollidieren mehrere High-Treffer, blockiert `buildProviderConflictCandidate` den Cache-Patch.
 
 ## Robots-/ToS-Notiz
 
-Prüfdatum: 2026-05-24. Prüfmethode: öffentlicher Abruf der jeweiligen `robots.txt` mit identifizierbarem User-Agent `MangaTrackerReleaseBot/1.0 (+https://github.com/SharkOneK/manga-tracker)`. Diese Tabelle ist eine technische Aktivierungsnotiz, keine Rechtsberatung.
+Pruefdatum: 2026-05-24. Pruefmethode: oeffentlicher Abruf der jeweiligen `robots.txt` mit identifizierbarem User-Agent `MangaTrackerReleaseBot/1.0 (+https://github.com/SharkOneK/manga-tracker)`. Diese Tabelle ist eine technische Aktivierungsnotiz, keine Rechtsberatung.
 
 | Quelle | robots.txt / Befund | Phase-40-Status |
 |---|---|---|
-| Carlsen | `https://www.carlsen.de/robots.txt` erreichbar; öffentliche Suche/Produktpfade nicht pauschal gesperrt. | Aktiv, konservativ mit Delay. |
-| Altraverse | `https://altraverse.de/robots.txt` erreichbar; Shop-/Account-/Checkout-Pfade gesperrt. | Skeleton deaktiviert. |
-| Egmont Manga | `https://www.egmont-manga.de/robots.txt` erreichbar; `User-agent: *` sperrt u. a. `/EPiServer` und `/util`; mehrere KI-Crawler pauschal gesperrt. | Skeleton deaktiviert; vor Aktivierung erneut prüfen. |
-| Panini | `https://www.paninishop.de/robots.txt` lieferte HTML/Redirect statt klarer robots-Datei. | Skeleton deaktiviert; vor Aktivierung manuell klären. |
-| Tokyopop | `https://www.tokyopop.de/robots.txt` erreichbar; Medien/PDF/ZIP-Pfade teils gesperrt. | Skeleton deaktiviert. |
-| Manga Cult | `https://www.manga-cult.de/robots.txt` lieferte TYPO3/Redirect-HTML zu Cross Cult. | Skeleton deaktiviert; vor Aktivierung klären. |
-| MangaMoon / Animoon | `https://animoon-publishing.de/robots.txt` erreichbar; Shopify-Hinweise, öffentliche Produktseiten crawlbar, Checkout strikt ausgenommen. | Skeleton deaktiviert. |
-| dani books | `https://dani-books.com/robots.txt` nicht erreichbar/Domain-Auflösung fehlgeschlagen. | Skeleton deaktiviert. |
-| Dokico | `https://dokico.de/robots.txt` erreichbar; Shopify-Hinweise, öffentliche Produktseiten crawlbar, Checkout strikt ausgenommen. | Skeleton deaktiviert. |
-| Hayabusa | `https://hayabusa.de/robots.txt` erreichbar; eigene Seite bleibt deaktiviert, Hayabusa wird über Carlsen-Alias mitabgedeckt. | Skeleton deaktiviert. |
-| Yomeru | `https://yomeru.de/robots.txt` erreichbar; WordPress/WooCommerce-Admin-, Log- und Add-to-cart-Pfade gesperrt. | Skeleton deaktiviert. |
-| Crunchyroll Manga | `https://www.crunchyroll.com/robots.txt` erreichbar; Suchpfade und technische Pfade gesperrt. | Skeleton deaktiviert. |
-| Kazé Legacy | `https://www.kaze-online.de/robots.txt` lieferte Website-HTML/Redirect statt klarer robots-Datei. | Nur als deaktivierte Legacy-URL dokumentiert. |
+| Carlsen | `https://www.carlsen.de/robots.txt` erreichbar; oeffentliche Suche/Produktpfade nicht pauschal gesperrt. | Aktiv, konservativ mit Delay. |
+| Altraverse | `https://altraverse.de/robots.txt` erreichbar; Shop-/Account-/Checkout-Pfade gesperrt. | Aktiv; Account-/Checkout-Pfade tabu. |
+| Egmont Manga | `https://www.egmont-manga.de/robots.txt` erreichbar; `User-agent: *` sperrt u. a. `/EPiServer` und `/util`; mehrere KI-Crawler pauschal gesperrt. | Aktiv mit konservativer Suche; bei robots-Aenderung per `enabled:false` abschaltbar. |
+| Panini | `https://www.paninishop.de/robots.txt` lieferte HTML/Redirect statt klarer robots-Datei. | Aktiv, aber bei robots-/Redirect-Unklarheit sofort per `enabled:false` deaktivierbar. |
+| Tokyopop | `https://www.tokyopop.de/robots.txt` erreichbar; Medien/PDF/ZIP-Pfade teils gesperrt. | Aktiv; Medien/PDF-Pfade werden nicht genutzt. |
+| Manga Cult | `https://www.manga-cult.de/robots.txt` lieferte TYPO3/Redirect-HTML zu Cross Cult. | Aktiv mit Cross-Cult-Allowlist; bei Blockade nur Review-Diagnose. |
+| MangaMoon / Animoon | `https://animoon-publishing.de/robots.txt` erreichbar; Shopify-Hinweise, oeffentliche Produktseiten crawlbar, Checkout strikt ausgenommen. | Aktiv; Checkout/Cart strikt ausgenommen. |
+| dani books | `https://dani-books.com/robots.txt` nicht erreichbar/Domain-Aufloesung fehlgeschlagen. | Provider aktivierbar; Fetch-Fehler werden konservativ in Review geroutet. |
+| Dokico | `https://dokico.de/robots.txt` erreichbar; Shopify-Hinweise, oeffentliche Produktseiten crawlbar, Checkout strikt ausgenommen. | Aktiv; Checkout/Cart strikt ausgenommen. |
+| Hayabusa | `https://hayabusa.de/robots.txt` erreichbar. | Aktiv; zusaetzlich ueber Carlsen-Alias abgedeckt. |
+| Yomeru | `https://yomeru.de/robots.txt` erreichbar; WordPress/WooCommerce-Admin-, Log- und Add-to-cart-Pfade gesperrt. | Aktiv; Admin/Add-to-cart-Pfade werden nicht genutzt. |
+| Crunchyroll Manga | `https://www.crunchyroll.com/robots.txt` erreichbar; Suchpfade und technische Pfade gesperrt. | Aktiv, aber Suchpfad-Sperren sind zu beachten; bei Blockade nur Review-Diagnose. |
+| Kaze Legacy | `https://www.kaze-online.de/robots.txt` lieferte Website-HTML/Redirect statt klarer robots-Datei. | Nur als Legacy-Allowlist dokumentiert. |
 
 ## Sicherheitsregeln
 
 - Nur HTTPS-URLs, keine Cookies, keine Logins, keine Captcha-/Checkout-/Account-Bereiche.
 - Request-Limits kommen aus `data/release-sources.json`; Standard: mindestens 1200 ms Delay, 12000 ms Timeout.
 - User-Agent ist identifizierbar und kontaktierbar.
-- Fehler erzeugen Diagnose-/Review-Queue-Einträge, keine Fake-Daten.
+- Fehler erzeugen Diagnose-/Review-Queue-Eintraege, keine Fake-Daten.
 - Provider raten keine Release-Dates und erzeugen keine Platzhalterdaten.
-- `data/release-cache.json` wird nur durch reguläre High-Confidence-Pipeline-Patches verändert.
+- `data/release-cache.json` wird nur durch regulaere High-Confidence-Pipeline-Patches veraendert.
 
-## Weiteren Verlag aktivieren
+## Weiteren Verlag ergaenzen oder anpassen
 
-1. robots.txt und ToS/Shop-Hinweise am Aktivierungsdatum prüfen und diese Tabelle aktualisieren.
-2. Bestehendes Skeleton in `scripts/release-providers/<id>-provider.js` mit `search` und `parseProduct` füllen.
+1. robots.txt und ToS/Shop-Hinweise am Aktivierungsdatum pruefen und diese Tabelle aktualisieren.
+2. Fuer einfache Shops bevorzugt `generic-publisher-provider.js` konfigurieren; nur bei Bedarf eine eigene `search`-/`parseProduct`-Implementierung schreiben.
 3. JSON-LD oder eine andere stabile strukturierte Quelle bevorzugen; CSS-/HTML-Fallbacks nur defensiv.
 4. Fixture-HTML unter `tests/fixtures/release-providers/<id>/` ablegen; keine Live-Requests in CI.
-5. Tests in `scripts/test-publisher-providers.js` ergänzen.
-6. Quelle in `data/release-sources.json` auf `enabled: true` setzen und Provider in `index.js` registrieren.
-7. `node --check`, Provider-Tests und Release-Validatoren ausführen.
+5. Tests in `scripts/test-publisher-providers.js` ergaenzen.
+6. Quelle in `data/release-sources.json` pruefen und Provider in `index.js` registrieren.
+7. `node --check`, Provider-Tests und Release-Validatoren ausfuehren.
 
 ## Zusammenhang mit Phase 25/26
 
-Phase 25 hat die automatische PR-basierte Pipeline eingeführt. Phase 26 hat Manga Passion aus dem Pipeline-Runner in einen Provider ausgelagert. Phase 40 ergänzt nun das generische Verlagsprovider-Gerüst und Carlsen als zweite produktive Quelle; die Confidence-, Konflikt- und Review-Queue-Regeln bleiben maßgeblich.
+Phase 25 hat die automatische PR-basierte Pipeline eingefuehrt. Phase 26 hat Manga Passion aus dem Pipeline-Runner in einen Provider ausgelagert. Phase 40 ergaenzt nun das generische Verlagsprovider-Geruest, Carlsen als spezialisierte Quelle und die weiteren Verlagsprovider auf Basis der generischen HTML/JSON-LD-Implementierung; die Confidence-, Konflikt- und Review-Queue-Regeln bleiben massgeblich.

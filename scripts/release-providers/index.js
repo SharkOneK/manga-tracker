@@ -1,4 +1,4 @@
-﻿'use strict';
+'use strict';
 
 const {
   evaluateReleaseCandidate,
@@ -7,11 +7,33 @@ const {
 } = require('../release-confidence');
 const mangaPassionProvider = require('./manga-passion-provider');
 const carlsenProvider = require('./carlsen-provider');
+const altraverseProvider = require('./altraverse-provider');
+const egmontProvider = require('./egmont-provider');
+const paniniProvider = require('./panini-provider');
+const tokyopopProvider = require('./tokyopop-provider');
+const mangaCultProvider = require('./manga-cult-provider');
+const mangamoonProvider = require('./mangamoon-provider');
+const daniBooksProvider = require('./dani-books-provider');
+const dokicoProvider = require('./dokico-provider');
+const hayabusaProvider = require('./hayabusa-provider');
+const yomeruProvider = require('./yomeru-provider');
+const crunchyrollMangaProvider = require('./crunchyroll-manga-provider');
 const { sourceConfigEnabled } = require('./provider-utils');
 
 const REGISTERED_PROVIDERS = [
   mangaPassionProvider,
   carlsenProvider,
+  altraverseProvider,
+  egmontProvider,
+  paniniProvider,
+  tokyopopProvider,
+  mangaCultProvider,
+  mangamoonProvider,
+  daniBooksProvider,
+  dokicoProvider,
+  hayabusaProvider,
+  yomeruProvider,
+  crunchyrollMangaProvider,
 ];
 
 const CONFIDENCE_RANK = new Map([

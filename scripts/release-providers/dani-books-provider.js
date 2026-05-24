@@ -1,10 +1,13 @@
 'use strict';
 
-const { createNotImplementedPublisherProvider } = require('./publisher-provider-base');
+const { buildGenericPublisherProvider } = require('./generic-publisher-provider');
 
-module.exports = createNotImplementedPublisherProvider({
+module.exports = buildGenericPublisherProvider({
   id: 'dani-books',
   sourceName: 'dani books',
+  sourcePublisher: 'dani books',
   baseUrl: 'https://dani-books.com',
-  publisherAliases: ['dani books', 'Dani Books'],
+  searchUrlTemplate: 'https://dani-books.com/?s={query}',
+  publisherAliases: ['Dani Books', 'dani books'],
+  productPathPatterns: [/\/produkt\//i, /\/shop\//i, /\/manga\//i],
 });

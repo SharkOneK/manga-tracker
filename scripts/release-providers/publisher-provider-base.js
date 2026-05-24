@@ -113,7 +113,7 @@ function buildPublisherProvider({
       }
 
       if (!samePublisher(candidate && candidate.publisher, aliases, context.aliasMap)) {
-        return noResult(candidate, provider, ctx, 'publisher-not-supported', `${sourceName} ist fÃ¼r den Publisher dieses Kandidaten nicht zustÃ¤ndig.`);
+        return noResult(candidate, provider, ctx, 'publisher-not-supported', `${sourceName} ist fuer den Publisher dieses Kandidaten nicht zustaendig.`);
       }
 
       try {

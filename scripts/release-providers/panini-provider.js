@@ -1,10 +1,14 @@
 'use strict';
 
-const { createNotImplementedPublisherProvider } = require('./publisher-provider-base');
+const { buildGenericPublisherProvider } = require('./generic-publisher-provider');
 
-module.exports = createNotImplementedPublisherProvider({
+module.exports = buildGenericPublisherProvider({
   id: 'panini',
   sourceName: 'Panini Manga',
+  sourcePublisher: 'Panini Manga',
   baseUrl: 'https://www.paninishop.de/manga',
-  publisherAliases: ['Panini', 'Panini Manga', 'Planet Manga'],
+  searchUrlTemplate: 'https://www.paninishop.de/suche?q={query}',
+  hostnames: ['www.paninishop.de', 'www.panini.de'],
+  publisherAliases: ['Planet Manga', 'Panini', 'Panini Manga'],
+  productPathPatterns: [/\/shp_deu_de\//i, /\/manga\//i, /\/products?\//i, /\/978(?:3|\d)/i],
 });

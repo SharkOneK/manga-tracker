@@ -1,10 +1,13 @@
 'use strict';
 
-const { createNotImplementedPublisherProvider } = require('./publisher-provider-base');
+const { buildGenericPublisherProvider } = require('./generic-publisher-provider');
 
-module.exports = createNotImplementedPublisherProvider({
+module.exports = buildGenericPublisherProvider({
   id: 'mangamoon',
   sourceName: 'MangaMoon',
+  sourcePublisher: 'MangaMoon',
   baseUrl: 'https://animoon-publishing.de',
-  publisherAliases: ['MangaMoon', 'MANGAMOON', 'Animoon Publishing'],
+  searchUrlTemplate: 'https://animoon-publishing.de/search?q={query}',
+  publisherAliases: ['Animoon Publishing', 'MANGAMOON', 'MangaMoon'],
+  productPathPatterns: [/\/products\//i, /\/collections\/mangamoon/i],
 });

@@ -210,7 +210,7 @@ async function carlsenParseProduct(hit, candidate, ctx) {
     sourceScore: score,
     sourceProductTitle: productTitle,
     sourceResult: 'volume-found',
-    evidence: 'Carlsen-Produktseite: JSON-LD/HTML enthielt Produktname, Bandnummer und Erscheinungsdatum; ISBN/Cover wurden nur übernommen, wenn strukturiert vorhanden.',
+    evidence: 'Carlsen-Produktseite: JSON-LD/HTML enthielt Produktname, Bandnummer und Erscheinungsdatum; ISBN/Cover wurden nur uebernommen, wenn strukturiert vorhanden.',
   };
 }
 
