@@ -1332,7 +1332,7 @@ test('Phase 22d: Coverage-Gap-Validator und Docs sind vorhanden', () => {
   const docs = _fs22.readFileSync(docsPath, 'utf8');
   assert.ok(validator.includes('source-data-gap'), 'Validator muss source-data-gap pruefen');
   assert.ok(validator.includes('missingCacheCoverage'), 'Validator muss Summary-Zaehler pruefen');
-  assert.ok(docs.includes('35') && docs.includes('13') && docs.includes('9'), 'Docs muessen dokumentierten Stand 35/13/9 enthalten');
+  assert.ok(docs.includes('34') && docs.includes('12') && docs.includes('7'), 'Docs muessen dokumentierten Stand 34/12/7 enthalten');
   assert.ok(docs.includes('source-data-gap'), 'Docs muessen source-data-gap dokumentieren');
 });
 
