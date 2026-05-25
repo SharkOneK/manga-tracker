@@ -175,7 +175,7 @@ function buildQueue() {
   const analysisEntries = gapAnalysis
     .map(item => buildEntryFromAnalysis(item, existing.byKey));
   const automatedEntries = existing.entries
-    .filter(entry => entry && !analysisKeys.has(queueKey(entry)));
+    .filter(entry => entry && !analysisKeys.has(queueKey(entry)) && entry.classification === 'automated-source-check');
   const queue = [...analysisEntries, ...automatedEntries].sort(sortQueueEntries);
 
   const safeToPatchCount = queue.filter(item => item.safeToPatch === true).length;

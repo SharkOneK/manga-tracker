@@ -44,6 +44,7 @@ jobs:
           node --check scripts/update-release-cache.js
           node --check scripts/validate-release-cache.js
           node --check scripts/validate-release-watchlist.js
+          node --check scripts/sync-release-coverage-gap-docs.js
           node --check scripts/write-release-source-review-queue.js
           node --check scripts/validate-release-source-review-queue.js
           node --check scripts/audit-release-cache-coverage.js
@@ -59,6 +60,7 @@ jobs:
           node scripts/validate-release-cache-pipeline-report.js
           node scripts/validate-release-cache.js
           node scripts/validate-release-watchlist.js
+          node scripts/sync-release-coverage-gap-docs.js
           node scripts/write-release-source-review-queue.js
           node scripts/validate-release-source-review-queue.js
           node scripts/audit-release-cache-coverage.js --json
@@ -104,7 +106,8 @@ jobs:
             data/release-cache.json \
             data/release-source-review-queue.json \
             data/release-cache-pipeline-report.json \
-            docs/release-cache-coverage-gaps.md; then
+            docs/release-cache-coverage-gaps.md \
+            docs/release-cache-source-gap-analysis.md; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
             echo "No release-cache pipeline changes detected."
           else
@@ -113,7 +116,8 @@ jobs:
               data/release-cache.json \
               data/release-source-review-queue.json \
               data/release-cache-pipeline-report.json \
-              docs/release-cache-coverage-gaps.md
+              docs/release-cache-coverage-gaps.md \
+              docs/release-cache-source-gap-analysis.md
           fi
 
       - name: Create release-cache update PR
@@ -133,6 +137,7 @@ jobs:
             data/release-source-review-queue.json
             data/release-cache-pipeline-report.json
             docs/release-cache-coverage-gaps.md
+            docs/release-cache-source-gap-analysis.md
 
       - name: Block auto-merge if PR number is missing
         if: steps.changes.outputs.changed == 'true' && steps.cpr.outputs.pull-request-number == ''

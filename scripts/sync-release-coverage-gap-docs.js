@@ -19,7 +19,6 @@ const auditScript = path.join(repoRoot, 'scripts', 'audit-release-cache-coverage
 const gapsDocPath = path.join(repoRoot, 'docs', 'release-cache-coverage-gaps.md');
 const sourceGapAnalysisDocPath = path.join(repoRoot, 'docs', 'release-cache-source-gap-analysis.md');
 const sourceReviewQueuePath = path.join(repoRoot, 'data', 'release-source-review-queue.json');
-const validatorPath = path.join(repoRoot, 'scripts', 'validate-release-cache-coverage-gaps.js');
 
 const EXPECTED_CLASSIFICATION = 'source-data-gap';
 const DEFAULT_CAUSE = 'manual-source-required';
@@ -544,27 +543,6 @@ function buildSourceGapAnalysis(report) {
   return syncGapAnalysisItems(report, existingParsed);
 }
 
-function updateValidatorExpected(report) {
-  const current = readText(validatorPath);
-  if (!current) throw new Error(`${rel(validatorPath)} fehlt`);
-  const expectedRe = /const EXPECTED = \{\s*missingCacheCoverage:\s*(\d+),\s*missingSeries:\s*(\d+),\s*missingPublishers:\s*(\d+),\s*classification:\s*'([^']+)',\s*\};/m;
-  const match = current.match(expectedRe);
-  if (!match) {
-    throw new Error('EXPECTED-Block in validate-release-cache-coverage-gaps.js nicht gefunden');
-  }
-  if (
-    Number(match[1]) === report.summary.missingCacheCoverage &&
-    Number(match[2]) === report.summary.missingSeries &&
-    Number(match[3]) === report.summary.missingPublishers &&
-    match[4] === EXPECTED_CLASSIFICATION
-  ) {
-    return false;
-  }
-  const replacement = `const EXPECTED = {\n  missingCacheCoverage: ${report.summary.missingCacheCoverage},\n  missingSeries: ${report.summary.missingSeries},\n  missingPublishers: ${report.summary.missingPublishers},\n  classification: '${EXPECTED_CLASSIFICATION}',\n};`;
-  const updated = current.replace(expectedRe, replacement);
-  return writeIfChanged(validatorPath, updated);
-}
-
 function main() {
   const report = runAuditJson();
   assertAuditShape(report);
@@ -574,7 +552,6 @@ function main() {
   if (writeIfChanged(gapsDocPath, buildCoverageGapsDoc(report))) changed.push(rel(gapsDocPath));
   if (writeIfChanged(sourceGapAnalysisDocPath, buildSourceGapAnalysisDoc(report, parsedAnalysis))) changed.push(rel(sourceGapAnalysisDocPath));
   if (syncSourceReviewQueue(parsedAnalysis)) changed.push(rel(sourceReviewQueuePath));
-  if (updateValidatorExpected(report)) changed.push(rel(validatorPath));
 
   if (changed.length) {
     console.log('Release-Coverage-Gap-Dokumentation synchronisiert:');
