@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-05-20T06:22:56.971Z",
+  "generatedAt": "2026-05-25T05:48:59.277Z",
   "source": "run-release-cache-pipeline.js",
   "inputs": {
-    "cacheItems": 171,
-    "watchlistCandidates": 186,
+    "cacheItems": 172,
+    "watchlistCandidates": 187,
     "reviewQueueCandidates": 97,
     "appSeedCandidates": 5
   },
@@ -14,27 +14,207 @@
     "timeoutMs": 12000,
     "allowedSourceIds": [
       "carlsen",
-      "manga-passion"
+      "manga-passion",
+      "altraverse",
+      "egmont",
+      "panini",
+      "tokyopop",
+      "manga-cult",
+      "mangamoon",
+      "dani-books",
+      "dokico",
+      "hayabusa",
+      "yomeru",
+      "crunchyroll-manga"
     ],
     "activeProviderIds": [
-      "manga-passion"
+      "manga-passion",
+      "carlsen",
+      "altraverse",
+      "egmont",
+      "panini",
+      "tokyopop",
+      "manga-cult",
+      "mangamoon",
+      "dani-books",
+      "dokico",
+      "hayabusa",
+      "yomeru",
+      "crunchyroll-manga"
     ]
   },
   "summary": {
-    "candidatesDiscovered": 191,
+    "candidatesDiscovered": 192,
     "candidatesChecked": 97,
-    "skippedAlreadyCached": 94,
+    "skippedAlreadyCached": 95,
     "skippedDueToLimit": 0,
-    "highConfidence": 0,
+    "highConfidence": 13,
     "mediumConfidence": 0,
-    "lowConfidence": 2,
-    "blocked": 95,
-    "cachePatches": 0,
-    "reviewQueueWrites": 97,
+    "lowConfidence": 84,
+    "blocked": 0,
+    "cachePatches": 13,
+    "reviewQueueWrites": 84,
     "invalidExistingCache": 0
   },
   "autoMergeEligible": false,
-  "cachePatches": [],
+  "cachePatches": [
+    {
+      "action": "update",
+      "key": "kaiju no 8|crunchyroll manga|16",
+      "seriesTitle": "Kaiju No.8",
+      "publisher": "KAZÉ Manga",
+      "volumeNumber": 16,
+      "releaseDate": "2026-05-01",
+      "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
+      "sourceUrl": "https://www.manga-passion.de/editions/1966",
+      "confidence": "high"
+    },
+    {
+      "action": "update",
+      "key": "spy x family|crunchyroll manga|4",
+      "seriesTitle": "Spy x Family",
+      "publisher": "KAZÉ Manga",
+      "volumeNumber": 4,
+      "releaseDate": "2021-04-01",
+      "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
+      "sourceUrl": "https://www.manga-passion.de/editions/364",
+      "confidence": "high"
+    },
+    {
+      "action": "update",
+      "key": "spy x family|crunchyroll manga|5",
+      "seriesTitle": "Spy x Family",
+      "publisher": "KAZÉ Manga",
+      "volumeNumber": 5,
+      "releaseDate": "2021-06-03",
+      "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
+      "sourceUrl": "https://www.manga-passion.de/editions/364",
+      "confidence": "high"
+    },
+    {
+      "action": "update",
+      "key": "spy x family|crunchyroll manga|6",
+      "seriesTitle": "Spy x Family",
+      "publisher": "KAZÉ Manga",
+      "volumeNumber": 6,
+      "releaseDate": "2021-08-05",
+      "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
+      "sourceUrl": "https://www.manga-passion.de/editions/364",
+      "confidence": "high"
+    },
+    {
+      "action": "update",
+      "key": "spy x family|crunchyroll manga|7",
+      "seriesTitle": "Spy x Family",
+      "publisher": "KAZÉ Manga",
+      "volumeNumber": 7,
+      "releaseDate": "2021-12-02",
+      "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
+      "sourceUrl": "https://www.manga-passion.de/editions/364",
+      "confidence": "high"
+    },
+    {
+      "action": "update",
+      "key": "spy x family|crunchyroll manga|8",
+      "seriesTitle": "Spy x Family",
+      "publisher": "KAZÉ Manga",
+      "volumeNumber": 8,
+      "releaseDate": "2022-04-07",
+      "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
+      "sourceUrl": "https://www.manga-passion.de/editions/364",
+      "confidence": "high"
+    },
+    {
+      "action": "update",
+      "key": "spy x family|crunchyroll manga|9",
+      "seriesTitle": "Spy x Family",
+      "publisher": "KAZÉ Manga",
+      "volumeNumber": 9,
+      "releaseDate": "2022-10-06",
+      "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
+      "sourceUrl": "https://www.manga-passion.de/editions/364",
+      "confidence": "high"
+    },
+    {
+      "action": "update",
+      "key": "spy x family|crunchyroll manga|10",
+      "seriesTitle": "Spy x Family",
+      "publisher": "KAZÉ Manga",
+      "volumeNumber": 10,
+      "releaseDate": "2023-10-06",
+      "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
+      "sourceUrl": "https://www.manga-passion.de/editions/364",
+      "confidence": "high"
+    },
+    {
+      "action": "update",
+      "key": "spy x family|crunchyroll manga|11",
+      "seriesTitle": "Spy x Family",
+      "publisher": "KAZÉ Manga",
+      "volumeNumber": 11,
+      "releaseDate": "2024-04-05",
+      "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
+      "sourceUrl": "https://www.manga-passion.de/editions/364",
+      "confidence": "high"
+    },
+    {
+      "action": "update",
+      "key": "spy x family|crunchyroll manga|12",
+      "seriesTitle": "Spy x Family",
+      "publisher": "KAZÉ Manga",
+      "volumeNumber": 12,
+      "releaseDate": "2024-10-04",
+      "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
+      "sourceUrl": "https://www.manga-passion.de/editions/364",
+      "confidence": "high"
+    },
+    {
+      "action": "update",
+      "key": "spy x family|crunchyroll manga|13",
+      "seriesTitle": "Spy x Family",
+      "publisher": "KAZÉ Manga",
+      "volumeNumber": 13,
+      "releaseDate": "2025-04-04",
+      "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
+      "sourceUrl": "https://www.manga-passion.de/editions/364",
+      "confidence": "high"
+    },
+    {
+      "action": "update",
+      "key": "spy x family|crunchyroll manga|14",
+      "seriesTitle": "Spy x Family",
+      "publisher": "KAZÉ Manga",
+      "volumeNumber": 14,
+      "releaseDate": "2025-10-03",
+      "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
+      "sourceUrl": "https://www.manga-passion.de/editions/364",
+      "confidence": "high"
+    },
+    {
+      "action": "update",
+      "key": "spy x family|crunchyroll manga|15",
+      "seriesTitle": "Spy x Family",
+      "publisher": "KAZÉ Manga",
+      "volumeNumber": 15,
+      "releaseDate": "2026-04-03",
+      "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
+      "sourceUrl": "https://www.manga-passion.de/editions/364",
+      "confidence": "high"
+    }
+  ],
   "reviewQueueWrites": [
     {
       "key": "berserk master edition|panini manga|7",
@@ -42,16 +222,19 @@
       "seriesTitle": "Berserk Master Edition",
       "publisher": "Panini Manga",
       "volumeNumber": 7,
-      "confidence": "blocked",
-      "reviewStatus": "auto-not-yet-released",
+      "confidence": "low",
+      "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
-        "placeholder-release-date"
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date"
       ],
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/5211",
+      "sourceName": "Carlsen Manga",
+      "providerId": "carlsen",
+      "sourceUrl": "https://www.carlsen.de",
       "releaseDate": null,
-      "sourceResult": "volume-found"
+      "sourceResult": "publisher-not-supported"
     },
     {
       "key": "berserk master edition|panini manga|8",
@@ -59,16 +242,19 @@
       "seriesTitle": "Berserk Master Edition",
       "publisher": "Panini Manga",
       "volumeNumber": 8,
-      "confidence": "blocked",
-      "reviewStatus": "auto-not-yet-released",
+      "confidence": "low",
+      "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
-        "placeholder-release-date"
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date"
       ],
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/5211",
+      "sourceName": "Carlsen Manga",
+      "providerId": "carlsen",
+      "sourceUrl": "https://www.carlsen.de",
       "releaseDate": null,
-      "sourceResult": "volume-found"
+      "sourceResult": "publisher-not-supported"
     },
     {
       "key": "berserk master edition|panini manga|9",
@@ -76,16 +262,19 @@
       "seriesTitle": "Berserk Master Edition",
       "publisher": "Panini Manga",
       "volumeNumber": 9,
-      "confidence": "blocked",
-      "reviewStatus": "auto-not-yet-released",
+      "confidence": "low",
+      "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
-        "placeholder-release-date"
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date"
       ],
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/5211",
+      "sourceName": "Carlsen Manga",
+      "providerId": "carlsen",
+      "sourceUrl": "https://www.carlsen.de",
       "releaseDate": null,
-      "sourceResult": "volume-found"
+      "sourceResult": "publisher-not-supported"
     },
     {
       "key": "berserk master edition|panini manga|10",
@@ -93,16 +282,19 @@
       "seriesTitle": "Berserk Master Edition",
       "publisher": "Panini Manga",
       "volumeNumber": 10,
-      "confidence": "blocked",
-      "reviewStatus": "auto-not-yet-released",
+      "confidence": "low",
+      "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
-        "placeholder-release-date"
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date"
       ],
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/5211",
+      "sourceName": "Carlsen Manga",
+      "providerId": "carlsen",
+      "sourceUrl": "https://www.carlsen.de",
       "releaseDate": null,
-      "sourceResult": "volume-found"
+      "sourceResult": "publisher-not-supported"
     },
     {
       "key": "berserk master edition|panini manga|11",
@@ -110,16 +302,19 @@
       "seriesTitle": "Berserk Master Edition",
       "publisher": "Panini Manga",
       "volumeNumber": 11,
-      "confidence": "blocked",
-      "reviewStatus": "auto-not-yet-released",
+      "confidence": "low",
+      "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
-        "placeholder-release-date"
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date"
       ],
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/5211",
+      "sourceName": "Carlsen Manga",
+      "providerId": "carlsen",
+      "sourceUrl": "https://www.carlsen.de",
       "releaseDate": null,
-      "sourceResult": "volume-found"
+      "sourceResult": "publisher-not-supported"
     },
     {
       "key": "berserk master edition|panini manga|12",
@@ -127,16 +322,19 @@
       "seriesTitle": "Berserk Master Edition",
       "publisher": "Panini Manga",
       "volumeNumber": 12,
-      "confidence": "blocked",
-      "reviewStatus": "auto-not-yet-released",
+      "confidence": "low",
+      "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
-        "placeholder-release-date"
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date"
       ],
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/5211",
+      "sourceName": "Carlsen Manga",
+      "providerId": "carlsen",
+      "sourceUrl": "https://www.carlsen.de",
       "releaseDate": null,
-      "sourceResult": "volume-found"
+      "sourceResult": "publisher-not-supported"
     },
     {
       "key": "berserk master edition|panini manga|13",
@@ -144,16 +342,19 @@
       "seriesTitle": "Berserk Master Edition",
       "publisher": "Panini Manga",
       "volumeNumber": 13,
-      "confidence": "blocked",
-      "reviewStatus": "auto-not-yet-released",
+      "confidence": "low",
+      "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
-        "placeholder-release-date"
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date"
       ],
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/5211",
+      "sourceName": "Carlsen Manga",
+      "providerId": "carlsen",
+      "sourceUrl": "https://www.carlsen.de",
       "releaseDate": null,
-      "sourceResult": "volume-found"
+      "sourceResult": "publisher-not-supported"
     },
     {
       "key": "berserk master edition|panini manga|14",
@@ -161,16 +362,19 @@
       "seriesTitle": "Berserk Master Edition",
       "publisher": "Panini Manga",
       "volumeNumber": 14,
-      "confidence": "blocked",
-      "reviewStatus": "auto-not-yet-released",
+      "confidence": "low",
+      "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
-        "placeholder-release-date"
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date"
       ],
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/5211",
+      "sourceName": "Carlsen Manga",
+      "providerId": "carlsen",
+      "sourceUrl": "https://www.carlsen.de",
       "releaseDate": null,
-      "sourceResult": "volume-found"
+      "sourceResult": "publisher-not-supported"
     },
     {
       "key": "vagabond master edition|egmont manga|13",
@@ -178,16 +382,19 @@
       "seriesTitle": "Vagabond – Master Edition",
       "publisher": "Egmont Manga",
       "volumeNumber": 13,
-      "confidence": "blocked",
-      "reviewStatus": "auto-not-yet-released",
+      "confidence": "low",
+      "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
-        "placeholder-release-date"
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date"
       ],
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/4636",
+      "sourceName": "Carlsen Manga",
+      "providerId": "carlsen",
+      "sourceUrl": "https://www.carlsen.de",
       "releaseDate": null,
-      "sourceResult": "volume-found"
+      "sourceResult": "publisher-not-supported"
     },
     {
       "key": "vagabond master edition|egmont manga|14",
@@ -195,16 +402,19 @@
       "seriesTitle": "Vagabond – Master Edition",
       "publisher": "Egmont Manga",
       "volumeNumber": 14,
-      "confidence": "blocked",
-      "reviewStatus": "auto-not-yet-released",
+      "confidence": "low",
+      "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
-        "placeholder-release-date"
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date"
       ],
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/4636",
+      "sourceName": "Carlsen Manga",
+      "providerId": "carlsen",
+      "sourceUrl": "https://www.carlsen.de",
       "releaseDate": null,
-      "sourceResult": "volume-found"
+      "sourceResult": "publisher-not-supported"
     },
     {
       "key": "vagabond master edition|egmont manga|15",
@@ -212,16 +422,19 @@
       "seriesTitle": "Vagabond – Master Edition",
       "publisher": "Egmont Manga",
       "volumeNumber": 15,
-      "confidence": "blocked",
-      "reviewStatus": "auto-not-yet-released",
+      "confidence": "low",
+      "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
-        "placeholder-release-date"
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date"
       ],
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/4636",
+      "sourceName": "Carlsen Manga",
+      "providerId": "carlsen",
+      "sourceUrl": "https://www.carlsen.de",
       "releaseDate": null,
-      "sourceResult": "volume-found"
+      "sourceResult": "publisher-not-supported"
     },
     {
       "key": "vagabond master edition|egmont manga|16",
@@ -229,16 +442,19 @@
       "seriesTitle": "Vagabond – Master Edition",
       "publisher": "Egmont Manga",
       "volumeNumber": 16,
-      "confidence": "blocked",
-      "reviewStatus": "auto-not-yet-released",
+      "confidence": "low",
+      "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
-        "placeholder-release-date"
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date"
       ],
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/4636",
+      "sourceName": "Carlsen Manga",
+      "providerId": "carlsen",
+      "sourceUrl": "https://www.carlsen.de",
       "releaseDate": null,
-      "sourceResult": "volume-found"
+      "sourceResult": "publisher-not-supported"
     },
     {
       "key": "vagabond master edition|egmont manga|17",
@@ -246,16 +462,19 @@
       "seriesTitle": "Vagabond – Master Edition",
       "publisher": "Egmont Manga",
       "volumeNumber": 17,
-      "confidence": "blocked",
-      "reviewStatus": "auto-not-yet-released",
+      "confidence": "low",
+      "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
-        "placeholder-release-date"
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date"
       ],
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/4636",
+      "sourceName": "Carlsen Manga",
+      "providerId": "carlsen",
+      "sourceUrl": "https://www.carlsen.de",
       "releaseDate": null,
-      "sourceResult": "volume-found"
+      "sourceResult": "publisher-not-supported"
     },
     {
       "key": "vagabond master edition|egmont manga|18",
@@ -263,16 +482,19 @@
       "seriesTitle": "Vagabond – Master Edition",
       "publisher": "Egmont Manga",
       "volumeNumber": 18,
-      "confidence": "blocked",
-      "reviewStatus": "auto-not-yet-released",
+      "confidence": "low",
+      "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
-        "placeholder-release-date"
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date"
       ],
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/4636",
+      "sourceName": "Carlsen Manga",
+      "providerId": "carlsen",
+      "sourceUrl": "https://www.carlsen.de",
       "releaseDate": null,
-      "sourceResult": "volume-found"
+      "sourceResult": "publisher-not-supported"
     },
     {
       "key": "vagabond master edition|egmont manga|19",
@@ -280,101 +502,119 @@
       "seriesTitle": "Vagabond – Master Edition",
       "publisher": "Egmont Manga",
       "volumeNumber": 19,
-      "confidence": "blocked",
-      "reviewStatus": "auto-not-yet-released",
+      "confidence": "low",
+      "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
-        "placeholder-release-date"
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date"
       ],
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/4636",
+      "sourceName": "Carlsen Manga",
+      "providerId": "carlsen",
+      "sourceUrl": "https://www.carlsen.de",
       "releaseDate": null,
-      "sourceResult": "volume-found"
+      "sourceResult": "publisher-not-supported"
     },
     {
-      "key": "arifureta der kampf zurueck in meine welt zero|altraverse|4",
+      "key": "arifureta der kampf zuruck in meine welt zero|altraverse|4",
       "queueKey": "Arifureta: Der Kampf zurück in meine Welt – Zero|Altraverse|4",
       "seriesTitle": "Arifureta: Der Kampf zurück in meine Welt – Zero",
       "publisher": "Altraverse",
       "volumeNumber": 4,
-      "confidence": "blocked",
-      "reviewStatus": "auto-not-yet-released",
+      "confidence": "low",
+      "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
-        "placeholder-release-date"
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date"
       ],
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/5807",
+      "sourceName": "Carlsen Manga",
+      "providerId": "carlsen",
+      "sourceUrl": "https://www.carlsen.de",
       "releaseDate": null,
-      "sourceResult": "volume-found"
+      "sourceResult": "publisher-not-supported"
     },
     {
-      "key": "arifureta der kampf zurueck in meine welt zero|altraverse|5",
+      "key": "arifureta der kampf zuruck in meine welt zero|altraverse|5",
       "queueKey": "Arifureta: Der Kampf zurück in meine Welt – Zero|Altraverse|5",
       "seriesTitle": "Arifureta: Der Kampf zurück in meine Welt – Zero",
       "publisher": "Altraverse",
       "volumeNumber": 5,
-      "confidence": "blocked",
-      "reviewStatus": "auto-not-yet-released",
+      "confidence": "low",
+      "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
-        "placeholder-release-date"
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date"
       ],
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/5807",
+      "sourceName": "Carlsen Manga",
+      "providerId": "carlsen",
+      "sourceUrl": "https://www.carlsen.de",
       "releaseDate": null,
-      "sourceResult": "volume-found"
+      "sourceResult": "publisher-not-supported"
     },
     {
-      "key": "arifureta der kampf zurueck in meine welt zero|altraverse|6",
+      "key": "arifureta der kampf zuruck in meine welt zero|altraverse|6",
       "queueKey": "Arifureta: Der Kampf zurück in meine Welt – Zero|Altraverse|6",
       "seriesTitle": "Arifureta: Der Kampf zurück in meine Welt – Zero",
       "publisher": "Altraverse",
       "volumeNumber": 6,
-      "confidence": "blocked",
-      "reviewStatus": "auto-not-yet-released",
+      "confidence": "low",
+      "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
-        "placeholder-release-date"
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date"
       ],
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/5807",
+      "sourceName": "Carlsen Manga",
+      "providerId": "carlsen",
+      "sourceUrl": "https://www.carlsen.de",
       "releaseDate": null,
-      "sourceResult": "volume-found"
+      "sourceResult": "publisher-not-supported"
     },
     {
-      "key": "arifureta der kampf zurueck in meine welt zero|altraverse|7",
+      "key": "arifureta der kampf zuruck in meine welt zero|altraverse|7",
       "queueKey": "Arifureta: Der Kampf zurück in meine Welt – Zero|Altraverse|7",
       "seriesTitle": "Arifureta: Der Kampf zurück in meine Welt – Zero",
       "publisher": "Altraverse",
       "volumeNumber": 7,
-      "confidence": "blocked",
-      "reviewStatus": "auto-not-yet-released",
+      "confidence": "low",
+      "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
-        "placeholder-release-date"
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date"
       ],
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/5807",
+      "sourceName": "Carlsen Manga",
+      "providerId": "carlsen",
+      "sourceUrl": "https://www.carlsen.de",
       "releaseDate": null,
-      "sourceResult": "volume-found"
+      "sourceResult": "publisher-not-supported"
     },
     {
-      "key": "arifureta der kampf zurueck in meine welt zero|altraverse|8",
+      "key": "arifureta der kampf zuruck in meine welt zero|altraverse|8",
       "queueKey": "Arifureta: Der Kampf zurück in meine Welt – Zero|Altraverse|8",
       "seriesTitle": "Arifureta: Der Kampf zurück in meine Welt – Zero",
       "publisher": "Altraverse",
       "volumeNumber": 8,
-      "confidence": "blocked",
-      "reviewStatus": "auto-not-yet-released",
+      "confidence": "low",
+      "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
-        "placeholder-release-date"
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date"
       ],
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/5807",
+      "sourceName": "Carlsen Manga",
+      "providerId": "carlsen",
+      "sourceUrl": "https://www.carlsen.de",
       "releaseDate": null,
-      "sourceResult": "volume-found"
+      "sourceResult": "publisher-not-supported"
     },
     {
       "key": "isekai soapland|mangamoon|3",
@@ -382,16 +622,19 @@
       "seriesTitle": "Isekai Soapland",
       "publisher": "MANGAMOON",
       "volumeNumber": 3,
-      "confidence": "blocked",
-      "reviewStatus": "auto-not-yet-released",
+      "confidence": "low",
+      "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
-        "placeholder-release-date"
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date"
       ],
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/6069",
+      "sourceName": "Carlsen Manga",
+      "providerId": "carlsen",
+      "sourceUrl": "https://www.carlsen.de",
       "releaseDate": null,
-      "sourceResult": "volume-found"
+      "sourceResult": "publisher-not-supported"
     },
     {
       "key": "isekai soapland|mangamoon|4",
@@ -399,16 +642,19 @@
       "seriesTitle": "Isekai Soapland",
       "publisher": "MANGAMOON",
       "volumeNumber": 4,
-      "confidence": "blocked",
-      "reviewStatus": "auto-not-yet-released",
+      "confidence": "low",
+      "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
-        "placeholder-release-date"
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date"
       ],
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/6069",
+      "sourceName": "Carlsen Manga",
+      "providerId": "carlsen",
+      "sourceUrl": "https://www.carlsen.de",
       "releaseDate": null,
-      "sourceResult": "volume-found"
+      "sourceResult": "publisher-not-supported"
     },
     {
       "key": "isekai soapland|mangamoon|5",
@@ -416,16 +662,19 @@
       "seriesTitle": "Isekai Soapland",
       "publisher": "MANGAMOON",
       "volumeNumber": 5,
-      "confidence": "blocked",
-      "reviewStatus": "auto-not-yet-released",
+      "confidence": "low",
+      "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
-        "placeholder-release-date"
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date"
       ],
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/6069",
+      "sourceName": "Carlsen Manga",
+      "providerId": "carlsen",
+      "sourceUrl": "https://www.carlsen.de",
       "releaseDate": null,
-      "sourceResult": "volume-found"
+      "sourceResult": "publisher-not-supported"
     },
     {
       "key": "isekai soapland|mangamoon|6",
@@ -433,16 +682,19 @@
       "seriesTitle": "Isekai Soapland",
       "publisher": "MANGAMOON",
       "volumeNumber": 6,
-      "confidence": "blocked",
-      "reviewStatus": "auto-not-yet-released",
+      "confidence": "low",
+      "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
-        "placeholder-release-date"
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date"
       ],
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/6069",
+      "sourceName": "Carlsen Manga",
+      "providerId": "carlsen",
+      "sourceUrl": "https://www.carlsen.de",
       "releaseDate": null,
-      "sourceResult": "volume-found"
+      "sourceResult": "publisher-not-supported"
     },
     {
       "key": "isekai soapland|mangamoon|7",
@@ -450,16 +702,19 @@
       "seriesTitle": "Isekai Soapland",
       "publisher": "MANGAMOON",
       "volumeNumber": 7,
-      "confidence": "blocked",
-      "reviewStatus": "auto-not-yet-released",
+      "confidence": "low",
+      "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
-        "placeholder-release-date"
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date"
       ],
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/6069",
+      "sourceName": "Carlsen Manga",
+      "providerId": "carlsen",
+      "sourceUrl": "https://www.carlsen.de",
       "releaseDate": null,
-      "sourceResult": "volume-found"
+      "sourceResult": "publisher-not-supported"
     },
     {
       "key": "isekai soapland|mangamoon|8",
@@ -467,16 +722,19 @@
       "seriesTitle": "Isekai Soapland",
       "publisher": "MANGAMOON",
       "volumeNumber": 8,
-      "confidence": "blocked",
-      "reviewStatus": "auto-not-yet-released",
+      "confidence": "low",
+      "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
-        "placeholder-release-date"
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date"
       ],
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/6069",
+      "sourceName": "Carlsen Manga",
+      "providerId": "carlsen",
+      "sourceUrl": "https://www.carlsen.de",
       "releaseDate": null,
-      "sourceResult": "volume-found"
+      "sourceResult": "publisher-not-supported"
     },
     {
       "key": "adou|altraverse|12",
@@ -502,16 +760,19 @@
       "seriesTitle": "Chainsaw Man",
       "publisher": "Egmont Manga",
       "volumeNumber": 23,
-      "confidence": "blocked",
-      "reviewStatus": "auto-not-yet-released",
+      "confidence": "low",
+      "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
-        "placeholder-release-date"
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date"
       ],
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/269",
+      "sourceName": "Carlsen Manga",
+      "providerId": "carlsen",
+      "sourceUrl": "https://www.carlsen.de",
       "releaseDate": null,
-      "sourceResult": "volume-found"
+      "sourceResult": "publisher-not-supported"
     },
     {
       "key": "fairy tail|carlsen manga|16",
@@ -519,16 +780,19 @@
       "seriesTitle": "Fairy Tail",
       "publisher": "Carlsen Manga",
       "volumeNumber": 16,
-      "confidence": "blocked",
-      "reviewStatus": "auto-blocked",
+      "confidence": "low",
+      "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
-        "ambiguous-edition"
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date"
       ],
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/960",
-      "releaseDate": "2011-11-22",
-      "sourceResult": "volume-found"
+      "sourceName": "Carlsen Manga",
+      "providerId": "carlsen",
+      "sourceUrl": "https://www.carlsen.de",
+      "releaseDate": null,
+      "sourceResult": "no-edition-found"
     },
     {
       "key": "fairy tail|carlsen manga|17",
@@ -536,16 +800,19 @@
       "seriesTitle": "Fairy Tail",
       "publisher": "Carlsen Manga",
       "volumeNumber": 17,
-      "confidence": "blocked",
-      "reviewStatus": "auto-blocked",
+      "confidence": "low",
+      "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
-        "ambiguous-edition"
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date"
       ],
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/960",
-      "releaseDate": "2011-12-16",
-      "sourceResult": "volume-found"
+      "sourceName": "Carlsen Manga",
+      "providerId": "carlsen",
+      "sourceUrl": "https://www.carlsen.de",
+      "releaseDate": null,
+      "sourceResult": "no-edition-found"
     },
     {
       "key": "fairy tail|carlsen manga|18",
@@ -553,16 +820,19 @@
       "seriesTitle": "Fairy Tail",
       "publisher": "Carlsen Manga",
       "volumeNumber": 18,
-      "confidence": "blocked",
-      "reviewStatus": "auto-blocked",
+      "confidence": "low",
+      "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
-        "ambiguous-edition"
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date"
       ],
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/960",
-      "releaseDate": "2012-01-31",
-      "sourceResult": "volume-found"
+      "sourceName": "Carlsen Manga",
+      "providerId": "carlsen",
+      "sourceUrl": "https://www.carlsen.de",
+      "releaseDate": null,
+      "sourceResult": "no-edition-found"
     },
     {
       "key": "fairy tail|carlsen manga|19",
@@ -570,16 +840,19 @@
       "seriesTitle": "Fairy Tail",
       "publisher": "Carlsen Manga",
       "volumeNumber": 19,
-      "confidence": "blocked",
-      "reviewStatus": "auto-blocked",
+      "confidence": "low",
+      "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
-        "ambiguous-edition"
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date"
       ],
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/960",
-      "releaseDate": "2012-02-28",
-      "sourceResult": "volume-found"
+      "sourceName": "Carlsen Manga",
+      "providerId": "carlsen",
+      "sourceUrl": "https://www.carlsen.de",
+      "releaseDate": null,
+      "sourceResult": "no-edition-found"
     },
     {
       "key": "fairy tail|carlsen manga|20",
@@ -587,16 +860,19 @@
       "seriesTitle": "Fairy Tail",
       "publisher": "Carlsen Manga",
       "volumeNumber": 20,
-      "confidence": "blocked",
-      "reviewStatus": "auto-blocked",
+      "confidence": "low",
+      "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
-        "ambiguous-edition"
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date"
       ],
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/960",
-      "releaseDate": "2012-03-20",
-      "sourceResult": "volume-found"
+      "sourceName": "Carlsen Manga",
+      "providerId": "carlsen",
+      "sourceUrl": "https://www.carlsen.de",
+      "releaseDate": null,
+      "sourceResult": "no-edition-found"
     },
     {
       "key": "fairy tail|carlsen manga|21",
@@ -604,16 +880,19 @@
       "seriesTitle": "Fairy Tail",
       "publisher": "Carlsen Manga",
       "volumeNumber": 21,
-      "confidence": "blocked",
-      "reviewStatus": "auto-blocked",
+      "confidence": "low",
+      "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
-        "ambiguous-edition"
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date"
       ],
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/960",
-      "releaseDate": "2012-05-29",
-      "sourceResult": "volume-found"
+      "sourceName": "Carlsen Manga",
+      "providerId": "carlsen",
+      "sourceUrl": "https://www.carlsen.de",
+      "releaseDate": null,
+      "sourceResult": "no-edition-found"
     },
     {
       "key": "fairy tail|carlsen manga|22",
@@ -621,16 +900,19 @@
       "seriesTitle": "Fairy Tail",
       "publisher": "Carlsen Manga",
       "volumeNumber": 22,
-      "confidence": "blocked",
-      "reviewStatus": "auto-blocked",
+      "confidence": "low",
+      "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
-        "ambiguous-edition"
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date"
       ],
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/960",
-      "releaseDate": "2012-07-31",
-      "sourceResult": "volume-found"
+      "sourceName": "Carlsen Manga",
+      "providerId": "carlsen",
+      "sourceUrl": "https://www.carlsen.de",
+      "releaseDate": null,
+      "sourceResult": "no-edition-found"
     },
     {
       "key": "fairy tail|carlsen manga|23",
@@ -638,16 +920,19 @@
       "seriesTitle": "Fairy Tail",
       "publisher": "Carlsen Manga",
       "volumeNumber": 23,
-      "confidence": "blocked",
-      "reviewStatus": "auto-blocked",
+      "confidence": "low",
+      "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
-        "ambiguous-edition"
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date"
       ],
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/960",
-      "releaseDate": "2012-10-02",
-      "sourceResult": "volume-found"
+      "sourceName": "Carlsen Manga",
+      "providerId": "carlsen",
+      "sourceUrl": "https://www.carlsen.de",
+      "releaseDate": null,
+      "sourceResult": "no-edition-found"
     },
     {
       "key": "fairy tail|carlsen manga|24",
@@ -655,16 +940,19 @@
       "seriesTitle": "Fairy Tail",
       "publisher": "Carlsen Manga",
       "volumeNumber": 24,
-      "confidence": "blocked",
-      "reviewStatus": "auto-blocked",
+      "confidence": "low",
+      "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
-        "ambiguous-edition"
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date"
       ],
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/960",
-      "releaseDate": "2012-12-04",
-      "sourceResult": "volume-found"
+      "sourceName": "Carlsen Manga",
+      "providerId": "carlsen",
+      "sourceUrl": "https://www.carlsen.de",
+      "releaseDate": null,
+      "sourceResult": "no-edition-found"
     },
     {
       "key": "fairy tail|carlsen manga|25",
@@ -672,16 +960,19 @@
       "seriesTitle": "Fairy Tail",
       "publisher": "Carlsen Manga",
       "volumeNumber": 25,
-      "confidence": "blocked",
-      "reviewStatus": "auto-blocked",
+      "confidence": "low",
+      "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
-        "ambiguous-edition"
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date"
       ],
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/960",
-      "releaseDate": "2013-01-29",
-      "sourceResult": "volume-found"
+      "sourceName": "Carlsen Manga",
+      "providerId": "carlsen",
+      "sourceUrl": "https://www.carlsen.de",
+      "releaseDate": null,
+      "sourceResult": "no-edition-found"
     },
     {
       "key": "fairy tail|carlsen manga|26",
@@ -689,16 +980,19 @@
       "seriesTitle": "Fairy Tail",
       "publisher": "Carlsen Manga",
       "volumeNumber": 26,
-      "confidence": "blocked",
-      "reviewStatus": "auto-blocked",
+      "confidence": "low",
+      "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
-        "ambiguous-edition"
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date"
       ],
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/960",
-      "releaseDate": "2013-03-19",
-      "sourceResult": "volume-found"
+      "sourceName": "Carlsen Manga",
+      "providerId": "carlsen",
+      "sourceUrl": "https://www.carlsen.de",
+      "releaseDate": null,
+      "sourceResult": "no-edition-found"
     },
     {
       "key": "fairy tail|carlsen manga|27",
@@ -706,16 +1000,19 @@
       "seriesTitle": "Fairy Tail",
       "publisher": "Carlsen Manga",
       "volumeNumber": 27,
-      "confidence": "blocked",
-      "reviewStatus": "auto-blocked",
+      "confidence": "low",
+      "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
-        "ambiguous-edition"
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date"
       ],
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/960",
-      "releaseDate": "2013-05-29",
-      "sourceResult": "volume-found"
+      "sourceName": "Carlsen Manga",
+      "providerId": "carlsen",
+      "sourceUrl": "https://www.carlsen.de",
+      "releaseDate": null,
+      "sourceResult": "no-edition-found"
     },
     {
       "key": "fairy tail|carlsen manga|28",
@@ -723,16 +1020,19 @@
       "seriesTitle": "Fairy Tail",
       "publisher": "Carlsen Manga",
       "volumeNumber": 28,
-      "confidence": "blocked",
-      "reviewStatus": "auto-blocked",
+      "confidence": "low",
+      "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
-        "ambiguous-edition"
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date"
       ],
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/960",
-      "releaseDate": "2013-07-30",
-      "sourceResult": "volume-found"
+      "sourceName": "Carlsen Manga",
+      "providerId": "carlsen",
+      "sourceUrl": "https://www.carlsen.de",
+      "releaseDate": null,
+      "sourceResult": "no-edition-found"
     },
     {
       "key": "fairy tail|carlsen manga|29",
@@ -740,16 +1040,19 @@
       "seriesTitle": "Fairy Tail",
       "publisher": "Carlsen Manga",
       "volumeNumber": 29,
-      "confidence": "blocked",
-      "reviewStatus": "auto-blocked",
+      "confidence": "low",
+      "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
-        "ambiguous-edition"
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date"
       ],
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/960",
-      "releaseDate": "2013-10-01",
-      "sourceResult": "volume-found"
+      "sourceName": "Carlsen Manga",
+      "providerId": "carlsen",
+      "sourceUrl": "https://www.carlsen.de",
+      "releaseDate": null,
+      "sourceResult": "no-edition-found"
     },
     {
       "key": "fairy tail|carlsen manga|30",
@@ -757,16 +1060,19 @@
       "seriesTitle": "Fairy Tail",
       "publisher": "Carlsen Manga",
       "volumeNumber": 30,
-      "confidence": "blocked",
-      "reviewStatus": "auto-blocked",
+      "confidence": "low",
+      "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
-        "ambiguous-edition"
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date"
       ],
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/960",
-      "releaseDate": "2013-12-03",
-      "sourceResult": "volume-found"
+      "sourceName": "Carlsen Manga",
+      "providerId": "carlsen",
+      "sourceUrl": "https://www.carlsen.de",
+      "releaseDate": null,
+      "sourceResult": "no-edition-found"
     },
     {
       "key": "fairy tail|carlsen manga|31",
@@ -774,16 +1080,19 @@
       "seriesTitle": "Fairy Tail",
       "publisher": "Carlsen Manga",
       "volumeNumber": 31,
-      "confidence": "blocked",
-      "reviewStatus": "auto-blocked",
+      "confidence": "low",
+      "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
-        "ambiguous-edition"
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date"
       ],
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/960",
-      "releaseDate": "2014-01-28",
-      "sourceResult": "volume-found"
+      "sourceName": "Carlsen Manga",
+      "providerId": "carlsen",
+      "sourceUrl": "https://www.carlsen.de",
+      "releaseDate": null,
+      "sourceResult": "no-edition-found"
     },
     {
       "key": "fairy tail|carlsen manga|32",
@@ -791,16 +1100,19 @@
       "seriesTitle": "Fairy Tail",
       "publisher": "Carlsen Manga",
       "volumeNumber": 32,
-      "confidence": "blocked",
-      "reviewStatus": "auto-blocked",
+      "confidence": "low",
+      "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
-        "ambiguous-edition"
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date"
       ],
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/960",
-      "releaseDate": "2014-03-18",
-      "sourceResult": "volume-found"
+      "sourceName": "Carlsen Manga",
+      "providerId": "carlsen",
+      "sourceUrl": "https://www.carlsen.de",
+      "releaseDate": null,
+      "sourceResult": "no-edition-found"
     },
     {
       "key": "fairy tail|carlsen manga|33",
@@ -808,16 +1120,19 @@
       "seriesTitle": "Fairy Tail",
       "publisher": "Carlsen Manga",
       "volumeNumber": 33,
-      "confidence": "blocked",
-      "reviewStatus": "auto-blocked",
+      "confidence": "low",
+      "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
-        "ambiguous-edition"
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date"
       ],
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/960",
-      "releaseDate": "2014-05-27",
-      "sourceResult": "volume-found"
+      "sourceName": "Carlsen Manga",
+      "providerId": "carlsen",
+      "sourceUrl": "https://www.carlsen.de",
+      "releaseDate": null,
+      "sourceResult": "no-edition-found"
     },
     {
       "key": "fairy tail|carlsen manga|34",
@@ -825,16 +1140,19 @@
       "seriesTitle": "Fairy Tail",
       "publisher": "Carlsen Manga",
       "volumeNumber": 34,
-      "confidence": "blocked",
-      "reviewStatus": "auto-blocked",
+      "confidence": "low",
+      "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
-        "ambiguous-edition"
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date"
       ],
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/960",
-      "releaseDate": "2014-07-29",
-      "sourceResult": "volume-found"
+      "sourceName": "Carlsen Manga",
+      "providerId": "carlsen",
+      "sourceUrl": "https://www.carlsen.de",
+      "releaseDate": null,
+      "sourceResult": "no-edition-found"
     },
     {
       "key": "fairy tail|carlsen manga|35",
@@ -842,16 +1160,19 @@
       "seriesTitle": "Fairy Tail",
       "publisher": "Carlsen Manga",
       "volumeNumber": 35,
-      "confidence": "blocked",
-      "reviewStatus": "auto-blocked",
+      "confidence": "low",
+      "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
-        "ambiguous-edition"
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date"
       ],
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/960",
-      "releaseDate": "2014-09-30",
-      "sourceResult": "volume-found"
+      "sourceName": "Carlsen Manga",
+      "providerId": "carlsen",
+      "sourceUrl": "https://www.carlsen.de",
+      "releaseDate": null,
+      "sourceResult": "no-edition-found"
     },
     {
       "key": "fairy tail|carlsen manga|36",
@@ -859,16 +1180,19 @@
       "seriesTitle": "Fairy Tail",
       "publisher": "Carlsen Manga",
       "volumeNumber": 36,
-      "confidence": "blocked",
-      "reviewStatus": "auto-blocked",
+      "confidence": "low",
+      "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
-        "ambiguous-edition"
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date"
       ],
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/960",
-      "releaseDate": "2014-11-25",
-      "sourceResult": "volume-found"
+      "sourceName": "Carlsen Manga",
+      "providerId": "carlsen",
+      "sourceUrl": "https://www.carlsen.de",
+      "releaseDate": null,
+      "sourceResult": "no-edition-found"
     },
     {
       "key": "fairy tail|carlsen manga|37",
@@ -876,16 +1200,19 @@
       "seriesTitle": "Fairy Tail",
       "publisher": "Carlsen Manga",
       "volumeNumber": 37,
-      "confidence": "blocked",
-      "reviewStatus": "auto-blocked",
+      "confidence": "low",
+      "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
-        "ambiguous-edition"
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date"
       ],
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/960",
-      "releaseDate": "2015-01-27",
-      "sourceResult": "volume-found"
+      "sourceName": "Carlsen Manga",
+      "providerId": "carlsen",
+      "sourceUrl": "https://www.carlsen.de",
+      "releaseDate": null,
+      "sourceResult": "no-edition-found"
     },
     {
       "key": "fairy tail|carlsen manga|38",
@@ -893,16 +1220,19 @@
       "seriesTitle": "Fairy Tail",
       "publisher": "Carlsen Manga",
       "volumeNumber": 38,
-      "confidence": "blocked",
-      "reviewStatus": "auto-blocked",
+      "confidence": "low",
+      "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
-        "ambiguous-edition"
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date"
       ],
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/960",
-      "releaseDate": "2015-04-28",
-      "sourceResult": "volume-found"
+      "sourceName": "Carlsen Manga",
+      "providerId": "carlsen",
+      "sourceUrl": "https://www.carlsen.de",
+      "releaseDate": null,
+      "sourceResult": "no-edition-found"
     },
     {
       "key": "fairy tail|carlsen manga|39",
@@ -910,16 +1240,19 @@
       "seriesTitle": "Fairy Tail",
       "publisher": "Carlsen Manga",
       "volumeNumber": 39,
-      "confidence": "blocked",
-      "reviewStatus": "auto-blocked",
+      "confidence": "low",
+      "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
-        "ambiguous-edition"
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date"
       ],
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/960",
-      "releaseDate": "2015-06-30",
-      "sourceResult": "volume-found"
+      "sourceName": "Carlsen Manga",
+      "providerId": "carlsen",
+      "sourceUrl": "https://www.carlsen.de",
+      "releaseDate": null,
+      "sourceResult": "no-edition-found"
     },
     {
       "key": "fairy tail|carlsen manga|40",
@@ -927,16 +1260,19 @@
       "seriesTitle": "Fairy Tail",
       "publisher": "Carlsen Manga",
       "volumeNumber": 40,
-      "confidence": "blocked",
-      "reviewStatus": "auto-blocked",
+      "confidence": "low",
+      "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
-        "ambiguous-edition"
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date"
       ],
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/960",
-      "releaseDate": "2015-08-25",
-      "sourceResult": "volume-found"
+      "sourceName": "Carlsen Manga",
+      "providerId": "carlsen",
+      "sourceUrl": "https://www.carlsen.de",
+      "releaseDate": null,
+      "sourceResult": "no-edition-found"
     },
     {
       "key": "fairy tail|carlsen manga|41",
@@ -944,16 +1280,19 @@
       "seriesTitle": "Fairy Tail",
       "publisher": "Carlsen Manga",
       "volumeNumber": 41,
-      "confidence": "blocked",
-      "reviewStatus": "auto-blocked",
+      "confidence": "low",
+      "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
-        "ambiguous-edition"
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date"
       ],
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/960",
-      "releaseDate": "2015-10-28",
-      "sourceResult": "volume-found"
+      "sourceName": "Carlsen Manga",
+      "providerId": "carlsen",
+      "sourceUrl": "https://www.carlsen.de",
+      "releaseDate": null,
+      "sourceResult": "no-edition-found"
     },
     {
       "key": "fairy tail|carlsen manga|42",
@@ -961,16 +1300,19 @@
       "seriesTitle": "Fairy Tail",
       "publisher": "Carlsen Manga",
       "volumeNumber": 42,
-      "confidence": "blocked",
-      "reviewStatus": "auto-blocked",
+      "confidence": "low",
+      "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
-        "ambiguous-edition"
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date"
       ],
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/960",
-      "releaseDate": "2015-12-22",
-      "sourceResult": "volume-found"
+      "sourceName": "Carlsen Manga",
+      "providerId": "carlsen",
+      "sourceUrl": "https://www.carlsen.de",
+      "releaseDate": null,
+      "sourceResult": "no-edition-found"
     },
     {
       "key": "fairy tail|carlsen manga|43",
@@ -978,16 +1320,19 @@
       "seriesTitle": "Fairy Tail",
       "publisher": "Carlsen Manga",
       "volumeNumber": 43,
-      "confidence": "blocked",
-      "reviewStatus": "auto-blocked",
+      "confidence": "low",
+      "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
-        "ambiguous-edition"
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date"
       ],
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/960",
-      "releaseDate": "2016-03-01",
-      "sourceResult": "volume-found"
+      "sourceName": "Carlsen Manga",
+      "providerId": "carlsen",
+      "sourceUrl": "https://www.carlsen.de",
+      "releaseDate": null,
+      "sourceResult": "no-edition-found"
     },
     {
       "key": "fairy tail|carlsen manga|44",
@@ -995,16 +1340,19 @@
       "seriesTitle": "Fairy Tail",
       "publisher": "Carlsen Manga",
       "volumeNumber": 44,
-      "confidence": "blocked",
-      "reviewStatus": "auto-blocked",
+      "confidence": "low",
+      "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
-        "ambiguous-edition"
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date"
       ],
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/960",
-      "releaseDate": "2016-04-26",
-      "sourceResult": "volume-found"
+      "sourceName": "Carlsen Manga",
+      "providerId": "carlsen",
+      "sourceUrl": "https://www.carlsen.de",
+      "releaseDate": null,
+      "sourceResult": "no-edition-found"
     },
     {
       "key": "fairy tail|carlsen manga|45",
@@ -1012,16 +1360,19 @@
       "seriesTitle": "Fairy Tail",
       "publisher": "Carlsen Manga",
       "volumeNumber": 45,
-      "confidence": "blocked",
-      "reviewStatus": "auto-blocked",
+      "confidence": "low",
+      "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
-        "ambiguous-edition"
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date"
       ],
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/960",
-      "releaseDate": "2016-06-26",
-      "sourceResult": "volume-found"
+      "sourceName": "Carlsen Manga",
+      "providerId": "carlsen",
+      "sourceUrl": "https://www.carlsen.de",
+      "releaseDate": null,
+      "sourceResult": "no-edition-found"
     },
     {
       "key": "fairy tail|carlsen manga|46",
@@ -1029,16 +1380,19 @@
       "seriesTitle": "Fairy Tail",
       "publisher": "Carlsen Manga",
       "volumeNumber": 46,
-      "confidence": "blocked",
-      "reviewStatus": "auto-blocked",
+      "confidence": "low",
+      "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
-        "ambiguous-edition"
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date"
       ],
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/960",
-      "releaseDate": "2016-08-30",
-      "sourceResult": "volume-found"
+      "sourceName": "Carlsen Manga",
+      "providerId": "carlsen",
+      "sourceUrl": "https://www.carlsen.de",
+      "releaseDate": null,
+      "sourceResult": "no-edition-found"
     },
     {
       "key": "fairy tail|carlsen manga|47",
@@ -1046,16 +1400,19 @@
       "seriesTitle": "Fairy Tail",
       "publisher": "Carlsen Manga",
       "volumeNumber": 47,
-      "confidence": "blocked",
-      "reviewStatus": "auto-blocked",
+      "confidence": "low",
+      "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
-        "ambiguous-edition"
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date"
       ],
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/960",
-      "releaseDate": "2016-10-25",
-      "sourceResult": "volume-found"
+      "sourceName": "Carlsen Manga",
+      "providerId": "carlsen",
+      "sourceUrl": "https://www.carlsen.de",
+      "releaseDate": null,
+      "sourceResult": "no-edition-found"
     },
     {
       "key": "fairy tail|carlsen manga|48",
@@ -1063,16 +1420,19 @@
       "seriesTitle": "Fairy Tail",
       "publisher": "Carlsen Manga",
       "volumeNumber": 48,
-      "confidence": "blocked",
-      "reviewStatus": "auto-blocked",
+      "confidence": "low",
+      "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
-        "ambiguous-edition"
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date"
       ],
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/960",
-      "releaseDate": "2016-12-20",
-      "sourceResult": "volume-found"
+      "sourceName": "Carlsen Manga",
+      "providerId": "carlsen",
+      "sourceUrl": "https://www.carlsen.de",
+      "releaseDate": null,
+      "sourceResult": "no-edition-found"
     },
     {
       "key": "fairy tail|carlsen manga|49",
@@ -1080,16 +1440,19 @@
       "seriesTitle": "Fairy Tail",
       "publisher": "Carlsen Manga",
       "volumeNumber": 49,
-      "confidence": "blocked",
-      "reviewStatus": "auto-blocked",
+      "confidence": "low",
+      "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
-        "ambiguous-edition"
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date"
       ],
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/960",
-      "releaseDate": "2017-02-28",
-      "sourceResult": "volume-found"
+      "sourceName": "Carlsen Manga",
+      "providerId": "carlsen",
+      "sourceUrl": "https://www.carlsen.de",
+      "releaseDate": null,
+      "sourceResult": "no-edition-found"
     },
     {
       "key": "fairy tail|carlsen manga|50",
@@ -1097,16 +1460,19 @@
       "seriesTitle": "Fairy Tail",
       "publisher": "Carlsen Manga",
       "volumeNumber": 50,
-      "confidence": "blocked",
-      "reviewStatus": "auto-blocked",
+      "confidence": "low",
+      "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
-        "ambiguous-edition"
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date"
       ],
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/960",
-      "releaseDate": "2017-03-28",
-      "sourceResult": "volume-found"
+      "sourceName": "Carlsen Manga",
+      "providerId": "carlsen",
+      "sourceUrl": "https://www.carlsen.de",
+      "releaseDate": null,
+      "sourceResult": "no-edition-found"
     },
     {
       "key": "fairy tail|carlsen manga|51",
@@ -1114,16 +1480,19 @@
       "seriesTitle": "Fairy Tail",
       "publisher": "Carlsen Manga",
       "volumeNumber": 51,
-      "confidence": "blocked",
-      "reviewStatus": "auto-blocked",
+      "confidence": "low",
+      "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
-        "ambiguous-edition"
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date"
       ],
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/960",
-      "releaseDate": "2017-05-30",
-      "sourceResult": "volume-found"
+      "sourceName": "Carlsen Manga",
+      "providerId": "carlsen",
+      "sourceUrl": "https://www.carlsen.de",
+      "releaseDate": null,
+      "sourceResult": "no-edition-found"
     },
     {
       "key": "fairy tail|carlsen manga|52",
@@ -1131,16 +1500,19 @@
       "seriesTitle": "Fairy Tail",
       "publisher": "Carlsen Manga",
       "volumeNumber": 52,
-      "confidence": "blocked",
-      "reviewStatus": "auto-blocked",
+      "confidence": "low",
+      "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
-        "ambiguous-edition"
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date"
       ],
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/960",
-      "releaseDate": "2017-08-01",
-      "sourceResult": "volume-found"
+      "sourceName": "Carlsen Manga",
+      "providerId": "carlsen",
+      "sourceUrl": "https://www.carlsen.de",
+      "releaseDate": null,
+      "sourceResult": "no-edition-found"
     },
     {
       "key": "fairy tail|carlsen manga|53",
@@ -1148,16 +1520,19 @@
       "seriesTitle": "Fairy Tail",
       "publisher": "Carlsen Manga",
       "volumeNumber": 53,
-      "confidence": "blocked",
-      "reviewStatus": "auto-blocked",
+      "confidence": "low",
+      "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
-        "ambiguous-edition"
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date"
       ],
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/960",
-      "releaseDate": "2017-10-03",
-      "sourceResult": "volume-found"
+      "sourceName": "Carlsen Manga",
+      "providerId": "carlsen",
+      "sourceUrl": "https://www.carlsen.de",
+      "releaseDate": null,
+      "sourceResult": "no-edition-found"
     },
     {
       "key": "fairy tail|carlsen manga|54",
@@ -1165,16 +1540,19 @@
       "seriesTitle": "Fairy Tail",
       "publisher": "Carlsen Manga",
       "volumeNumber": 54,
-      "confidence": "blocked",
-      "reviewStatus": "auto-blocked",
+      "confidence": "low",
+      "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
-        "ambiguous-edition"
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date"
       ],
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/960",
-      "releaseDate": "2017-11-28",
-      "sourceResult": "volume-found"
+      "sourceName": "Carlsen Manga",
+      "providerId": "carlsen",
+      "sourceUrl": "https://www.carlsen.de",
+      "releaseDate": null,
+      "sourceResult": "no-edition-found"
     },
     {
       "key": "fairy tail|carlsen manga|55",
@@ -1182,16 +1560,19 @@
       "seriesTitle": "Fairy Tail",
       "publisher": "Carlsen Manga",
       "volumeNumber": 55,
-      "confidence": "blocked",
-      "reviewStatus": "auto-blocked",
+      "confidence": "low",
+      "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
-        "ambiguous-edition"
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date"
       ],
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/960",
-      "releaseDate": "2018-01-30",
-      "sourceResult": "volume-found"
+      "sourceName": "Carlsen Manga",
+      "providerId": "carlsen",
+      "sourceUrl": "https://www.carlsen.de",
+      "releaseDate": null,
+      "sourceResult": "no-edition-found"
     },
     {
       "key": "fairy tail|carlsen manga|56",
@@ -1199,16 +1580,19 @@
       "seriesTitle": "Fairy Tail",
       "publisher": "Carlsen Manga",
       "volumeNumber": 56,
-      "confidence": "blocked",
-      "reviewStatus": "auto-blocked",
+      "confidence": "low",
+      "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
-        "ambiguous-edition"
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date"
       ],
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/960",
-      "releaseDate": "2018-04-30",
-      "sourceResult": "volume-found"
+      "sourceName": "Carlsen Manga",
+      "providerId": "carlsen",
+      "sourceUrl": "https://www.carlsen.de",
+      "releaseDate": null,
+      "sourceResult": "no-edition-found"
     },
     {
       "key": "fairy tail|carlsen manga|57",
@@ -1216,16 +1600,19 @@
       "seriesTitle": "Fairy Tail",
       "publisher": "Carlsen Manga",
       "volumeNumber": 57,
-      "confidence": "blocked",
-      "reviewStatus": "auto-blocked",
+      "confidence": "low",
+      "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
-        "ambiguous-edition"
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date"
       ],
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/960",
-      "releaseDate": "2018-06-26",
-      "sourceResult": "volume-found"
+      "sourceName": "Carlsen Manga",
+      "providerId": "carlsen",
+      "sourceUrl": "https://www.carlsen.de",
+      "releaseDate": null,
+      "sourceResult": "no-edition-found"
     },
     {
       "key": "fairy tail|carlsen manga|58",
@@ -1233,16 +1620,19 @@
       "seriesTitle": "Fairy Tail",
       "publisher": "Carlsen Manga",
       "volumeNumber": 58,
-      "confidence": "blocked",
-      "reviewStatus": "auto-blocked",
+      "confidence": "low",
+      "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
-        "ambiguous-edition"
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date"
       ],
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/960",
-      "releaseDate": "2018-08-28",
-      "sourceResult": "volume-found"
+      "sourceName": "Carlsen Manga",
+      "providerId": "carlsen",
+      "sourceUrl": "https://www.carlsen.de",
+      "releaseDate": null,
+      "sourceResult": "no-edition-found"
     },
     {
       "key": "fairy tail|carlsen manga|59",
@@ -1250,16 +1640,19 @@
       "seriesTitle": "Fairy Tail",
       "publisher": "Carlsen Manga",
       "volumeNumber": 59,
-      "confidence": "blocked",
-      "reviewStatus": "auto-blocked",
+      "confidence": "low",
+      "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
-        "ambiguous-edition"
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date"
       ],
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/960",
-      "releaseDate": "2018-10-02",
-      "sourceResult": "volume-found"
+      "sourceName": "Carlsen Manga",
+      "providerId": "carlsen",
+      "sourceUrl": "https://www.carlsen.de",
+      "releaseDate": null,
+      "sourceResult": "no-edition-found"
     },
     {
       "key": "fairy tail|carlsen manga|60",
@@ -1267,16 +1660,19 @@
       "seriesTitle": "Fairy Tail",
       "publisher": "Carlsen Manga",
       "volumeNumber": 60,
-      "confidence": "blocked",
-      "reviewStatus": "auto-blocked",
+      "confidence": "low",
+      "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
-        "ambiguous-edition"
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date"
       ],
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/960",
-      "releaseDate": "2018-10-30",
-      "sourceResult": "volume-found"
+      "sourceName": "Carlsen Manga",
+      "providerId": "carlsen",
+      "sourceUrl": "https://www.carlsen.de",
+      "releaseDate": null,
+      "sourceResult": "no-edition-found"
     },
     {
       "key": "fairy tail|carlsen manga|61",
@@ -1284,16 +1680,19 @@
       "seriesTitle": "Fairy Tail",
       "publisher": "Carlsen Manga",
       "volumeNumber": 61,
-      "confidence": "blocked",
-      "reviewStatus": "auto-blocked",
+      "confidence": "low",
+      "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
-        "ambiguous-edition"
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date"
       ],
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/960",
-      "releaseDate": "2018-12-27",
-      "sourceResult": "volume-found"
+      "sourceName": "Carlsen Manga",
+      "providerId": "carlsen",
+      "sourceUrl": "https://www.carlsen.de",
+      "releaseDate": null,
+      "sourceResult": "no-edition-found"
     },
     {
       "key": "fairy tail|carlsen manga|62",
@@ -1301,16 +1700,19 @@
       "seriesTitle": "Fairy Tail",
       "publisher": "Carlsen Manga",
       "volumeNumber": 62,
-      "confidence": "blocked",
-      "reviewStatus": "auto-blocked",
+      "confidence": "low",
+      "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
-        "ambiguous-edition"
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date"
       ],
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/960",
-      "releaseDate": "2019-02-26",
-      "sourceResult": "volume-found"
+      "sourceName": "Carlsen Manga",
+      "providerId": "carlsen",
+      "sourceUrl": "https://www.carlsen.de",
+      "releaseDate": null,
+      "sourceResult": "no-edition-found"
     },
     {
       "key": "fairy tail|carlsen manga|63",
@@ -1318,16 +1720,19 @@
       "seriesTitle": "Fairy Tail",
       "publisher": "Carlsen Manga",
       "volumeNumber": 63,
-      "confidence": "blocked",
-      "reviewStatus": "auto-blocked",
+      "confidence": "low",
+      "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
-        "ambiguous-edition"
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date"
       ],
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/960",
-      "releaseDate": "2019-03-26",
-      "sourceResult": "volume-found"
+      "sourceName": "Carlsen Manga",
+      "providerId": "carlsen",
+      "sourceUrl": "https://www.carlsen.de",
+      "releaseDate": null,
+      "sourceResult": "no-edition-found"
     },
     {
       "key": "gushing over magical girls|mangamoon|4",
@@ -1335,33 +1740,19 @@
       "seriesTitle": "Gushing over Magical Girls",
       "publisher": "MangaMoon",
       "volumeNumber": 4,
-      "confidence": "blocked",
-      "reviewStatus": "auto-not-yet-released",
+      "confidence": "low",
+      "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
-        "placeholder-release-date"
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date"
       ],
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/5407",
+      "sourceName": "Carlsen Manga",
+      "providerId": "carlsen",
+      "sourceUrl": "https://www.carlsen.de",
       "releaseDate": null,
-      "sourceResult": "volume-found"
-    },
-    {
-      "key": "kaiju no 8|crunchyroll manga|16",
-      "queueKey": "Kaiju No.8|Crunchyroll Manga|16",
-      "seriesTitle": "Kaiju No.8",
-      "publisher": "Crunchyroll Manga",
-      "volumeNumber": 16,
-      "confidence": "blocked",
-      "reviewStatus": "auto-blocked",
-      "reasonCodes": [
-        "publisher-conflict"
-      ],
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/1966",
-      "releaseDate": "2026-05-01",
-      "sourceResult": "volume-found"
+      "sourceResult": "publisher-not-supported"
     },
     {
       "key": "meine chefin kommt immer zuerst|mangamoon|2",
@@ -1369,16 +1760,19 @@
       "seriesTitle": "Meine Chefin kommt immer zuerst!!",
       "publisher": "MangaMoon",
       "volumeNumber": 2,
-      "confidence": "blocked",
-      "reviewStatus": "auto-not-yet-released",
+      "confidence": "low",
+      "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
-        "placeholder-release-date"
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date"
       ],
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/6135",
+      "sourceName": "Carlsen Manga",
+      "providerId": "carlsen",
+      "sourceUrl": "https://www.carlsen.de",
       "releaseDate": null,
-      "sourceResult": "volume-found"
+      "sourceResult": "publisher-not-supported"
     },
     {
       "key": "mirai nikki new edition|egmont manga|6",
@@ -1386,16 +1780,19 @@
       "seriesTitle": "Mirai Nikki – New Edition",
       "publisher": "Egmont Manga",
       "volumeNumber": 6,
-      "confidence": "blocked",
-      "reviewStatus": "auto-not-yet-released",
+      "confidence": "low",
+      "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
-        "placeholder-release-date"
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date"
       ],
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/5504",
+      "sourceName": "Carlsen Manga",
+      "providerId": "carlsen",
+      "sourceUrl": "https://www.carlsen.de",
       "releaseDate": null,
-      "sourceResult": "volume-found"
+      "sourceResult": "publisher-not-supported"
     },
     {
       "key": "neck mich nicht nagatoro san|dani books|6",
@@ -1403,220 +1800,19 @@
       "seriesTitle": "Neck mich nicht, Nagatoro-san",
       "publisher": "dani books",
       "volumeNumber": 6,
-      "confidence": "blocked",
-      "reviewStatus": "auto-not-yet-released",
+      "confidence": "low",
+      "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
-        "placeholder-release-date"
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date"
       ],
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/1750",
+      "sourceName": "Carlsen Manga",
+      "providerId": "carlsen",
+      "sourceUrl": "https://www.carlsen.de",
       "releaseDate": null,
-      "sourceResult": "volume-found"
-    },
-    {
-      "key": "spy x family|crunchyroll manga|4",
-      "queueKey": "Spy x Family|Crunchyroll Manga|4",
-      "seriesTitle": "Spy x Family",
-      "publisher": "Crunchyroll Manga",
-      "volumeNumber": 4,
-      "confidence": "blocked",
-      "reviewStatus": "auto-blocked",
-      "reasonCodes": [
-        "publisher-conflict"
-      ],
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/364",
-      "releaseDate": "2021-04-01",
-      "sourceResult": "volume-found"
-    },
-    {
-      "key": "spy x family|crunchyroll manga|5",
-      "queueKey": "Spy x Family|Crunchyroll Manga|5",
-      "seriesTitle": "Spy x Family",
-      "publisher": "Crunchyroll Manga",
-      "volumeNumber": 5,
-      "confidence": "blocked",
-      "reviewStatus": "auto-blocked",
-      "reasonCodes": [
-        "publisher-conflict"
-      ],
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/364",
-      "releaseDate": "2021-06-03",
-      "sourceResult": "volume-found"
-    },
-    {
-      "key": "spy x family|crunchyroll manga|6",
-      "queueKey": "Spy x Family|Crunchyroll Manga|6",
-      "seriesTitle": "Spy x Family",
-      "publisher": "Crunchyroll Manga",
-      "volumeNumber": 6,
-      "confidence": "blocked",
-      "reviewStatus": "auto-blocked",
-      "reasonCodes": [
-        "publisher-conflict"
-      ],
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/364",
-      "releaseDate": "2021-08-05",
-      "sourceResult": "volume-found"
-    },
-    {
-      "key": "spy x family|crunchyroll manga|7",
-      "queueKey": "Spy x Family|Crunchyroll Manga|7",
-      "seriesTitle": "Spy x Family",
-      "publisher": "Crunchyroll Manga",
-      "volumeNumber": 7,
-      "confidence": "blocked",
-      "reviewStatus": "auto-blocked",
-      "reasonCodes": [
-        "publisher-conflict"
-      ],
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/364",
-      "releaseDate": "2021-12-02",
-      "sourceResult": "volume-found"
-    },
-    {
-      "key": "spy x family|crunchyroll manga|8",
-      "queueKey": "Spy x Family|Crunchyroll Manga|8",
-      "seriesTitle": "Spy x Family",
-      "publisher": "Crunchyroll Manga",
-      "volumeNumber": 8,
-      "confidence": "blocked",
-      "reviewStatus": "auto-blocked",
-      "reasonCodes": [
-        "publisher-conflict"
-      ],
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/364",
-      "releaseDate": "2022-04-07",
-      "sourceResult": "volume-found"
-    },
-    {
-      "key": "spy x family|crunchyroll manga|9",
-      "queueKey": "Spy x Family|Crunchyroll Manga|9",
-      "seriesTitle": "Spy x Family",
-      "publisher": "Crunchyroll Manga",
-      "volumeNumber": 9,
-      "confidence": "blocked",
-      "reviewStatus": "auto-blocked",
-      "reasonCodes": [
-        "publisher-conflict"
-      ],
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/364",
-      "releaseDate": "2022-10-06",
-      "sourceResult": "volume-found"
-    },
-    {
-      "key": "spy x family|crunchyroll manga|10",
-      "queueKey": "Spy x Family|Crunchyroll Manga|10",
-      "seriesTitle": "Spy x Family",
-      "publisher": "Crunchyroll Manga",
-      "volumeNumber": 10,
-      "confidence": "blocked",
-      "reviewStatus": "auto-blocked",
-      "reasonCodes": [
-        "publisher-conflict"
-      ],
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/364",
-      "releaseDate": "2023-10-06",
-      "sourceResult": "volume-found"
-    },
-    {
-      "key": "spy x family|crunchyroll manga|11",
-      "queueKey": "Spy x Family|Crunchyroll Manga|11",
-      "seriesTitle": "Spy x Family",
-      "publisher": "Crunchyroll Manga",
-      "volumeNumber": 11,
-      "confidence": "blocked",
-      "reviewStatus": "auto-blocked",
-      "reasonCodes": [
-        "publisher-conflict"
-      ],
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/364",
-      "releaseDate": "2024-04-05",
-      "sourceResult": "volume-found"
-    },
-    {
-      "key": "spy x family|crunchyroll manga|12",
-      "queueKey": "Spy x Family|Crunchyroll Manga|12",
-      "seriesTitle": "Spy x Family",
-      "publisher": "Crunchyroll Manga",
-      "volumeNumber": 12,
-      "confidence": "blocked",
-      "reviewStatus": "auto-blocked",
-      "reasonCodes": [
-        "publisher-conflict"
-      ],
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/364",
-      "releaseDate": "2024-10-04",
-      "sourceResult": "volume-found"
-    },
-    {
-      "key": "spy x family|crunchyroll manga|13",
-      "queueKey": "Spy x Family|Crunchyroll Manga|13",
-      "seriesTitle": "Spy x Family",
-      "publisher": "Crunchyroll Manga",
-      "volumeNumber": 13,
-      "confidence": "blocked",
-      "reviewStatus": "auto-blocked",
-      "reasonCodes": [
-        "publisher-conflict"
-      ],
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/364",
-      "releaseDate": "2025-04-04",
-      "sourceResult": "volume-found"
-    },
-    {
-      "key": "spy x family|crunchyroll manga|14",
-      "queueKey": "Spy x Family|Crunchyroll Manga|14",
-      "seriesTitle": "Spy x Family",
-      "publisher": "Crunchyroll Manga",
-      "volumeNumber": 14,
-      "confidence": "blocked",
-      "reviewStatus": "auto-blocked",
-      "reasonCodes": [
-        "publisher-conflict"
-      ],
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/364",
-      "releaseDate": "2025-10-03",
-      "sourceResult": "volume-found"
-    },
-    {
-      "key": "spy x family|crunchyroll manga|15",
-      "queueKey": "Spy x Family|Crunchyroll Manga|15",
-      "seriesTitle": "Spy x Family",
-      "publisher": "Crunchyroll Manga",
-      "volumeNumber": 15,
-      "confidence": "blocked",
-      "reviewStatus": "auto-blocked",
-      "reasonCodes": [
-        "publisher-conflict"
-      ],
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/364",
-      "releaseDate": "2026-04-03",
-      "sourceResult": "volume-found"
+      "sourceResult": "publisher-not-supported"
     },
     {
       "key": "tokyo revengers doppelband edition|carlsen manga|16",
@@ -1637,39 +1833,44 @@
       "sourceResult": "volume-not-found"
     },
     {
-      "key": "vermeil in gold|manga cult|2",
-      "queueKey": "Vermeil in Gold|Manga Cult|2",
+      "key": "vermeil in gold|mangamoon|2",
+      "queueKey": "Vermeil in Gold|MANGAMOON|2",
       "seriesTitle": "Vermeil in Gold",
-      "publisher": "Manga Cult",
+      "publisher": "MANGAMOON",
       "volumeNumber": 2,
-      "confidence": "blocked",
-      "reviewStatus": "auto-not-yet-released",
+      "confidence": "low",
+      "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
-        "placeholder-release-date",
-        "publisher-conflict"
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date"
       ],
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/6137",
+      "sourceName": "Carlsen Manga",
+      "providerId": "carlsen",
+      "sourceUrl": "https://www.carlsen.de",
       "releaseDate": null,
-      "sourceResult": "volume-found"
+      "sourceResult": "publisher-not-supported"
     },
     {
-      "key": "august 9th i will be eaten by you|hayabusa|6",
+      "key": "august 9th i will be eaten by you|carlsen manga|6",
       "queueKey": "August 9th, I will be eaten by you|Hayabusa|6",
       "seriesTitle": "August 9th, I will be eaten by you",
       "publisher": "Hayabusa",
       "volumeNumber": 6,
-      "confidence": "blocked",
-      "reviewStatus": "auto-not-yet-released",
+      "confidence": "low",
+      "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
-        "placeholder-release-date"
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date"
       ],
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/2015",
+      "sourceName": "Carlsen Manga",
+      "providerId": "carlsen",
+      "sourceUrl": "https://www.carlsen.de",
       "releaseDate": null,
-      "sourceResult": "volume-found"
+      "sourceResult": "no-edition-found"
     },
     {
       "key": "die letzte elfe|yomeru|3",
@@ -1677,1731 +1878,22 @@
       "seriesTitle": "Die letzte Elfe",
       "publisher": "Yomeru",
       "volumeNumber": 3,
-      "confidence": "blocked",
-      "reviewStatus": "auto-not-yet-released",
+      "confidence": "low",
+      "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
-        "placeholder-release-date"
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date"
       ],
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/5652",
+      "sourceName": "Carlsen Manga",
+      "providerId": "carlsen",
+      "sourceUrl": "https://www.carlsen.de",
       "releaseDate": null,
-      "sourceResult": "volume-found"
+      "sourceResult": "publisher-not-supported"
     }
   ],
-  "blockedCandidates": [
-    {
-      "key": "berserk master edition|panini manga|7",
-      "queueKey": "Berserk Master Edition|Panini Manga|7",
-      "origin": "watchlist",
-      "seriesTitle": "Berserk Master Edition",
-      "publisher": "Panini Manga",
-      "volumeNumber": 7,
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/5211",
-      "releaseDate": null,
-      "confidence": "blocked",
-      "reviewStatus": "auto-not-yet-released",
-      "reasonCodes": [
-        "placeholder-release-date"
-      ],
-      "sourceResult": "volume-found"
-    },
-    {
-      "key": "berserk master edition|panini manga|8",
-      "queueKey": "Berserk Master Edition|Panini Manga|8",
-      "origin": "watchlist",
-      "seriesTitle": "Berserk Master Edition",
-      "publisher": "Panini Manga",
-      "volumeNumber": 8,
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/5211",
-      "releaseDate": null,
-      "confidence": "blocked",
-      "reviewStatus": "auto-not-yet-released",
-      "reasonCodes": [
-        "placeholder-release-date"
-      ],
-      "sourceResult": "volume-found"
-    },
-    {
-      "key": "berserk master edition|panini manga|9",
-      "queueKey": "Berserk Master Edition|Panini Manga|9",
-      "origin": "watchlist",
-      "seriesTitle": "Berserk Master Edition",
-      "publisher": "Panini Manga",
-      "volumeNumber": 9,
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/5211",
-      "releaseDate": null,
-      "confidence": "blocked",
-      "reviewStatus": "auto-not-yet-released",
-      "reasonCodes": [
-        "placeholder-release-date"
-      ],
-      "sourceResult": "volume-found"
-    },
-    {
-      "key": "berserk master edition|panini manga|10",
-      "queueKey": "Berserk Master Edition|Panini Manga|10",
-      "origin": "watchlist",
-      "seriesTitle": "Berserk Master Edition",
-      "publisher": "Panini Manga",
-      "volumeNumber": 10,
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/5211",
-      "releaseDate": null,
-      "confidence": "blocked",
-      "reviewStatus": "auto-not-yet-released",
-      "reasonCodes": [
-        "placeholder-release-date"
-      ],
-      "sourceResult": "volume-found"
-    },
-    {
-      "key": "berserk master edition|panini manga|11",
-      "queueKey": "Berserk Master Edition|Panini Manga|11",
-      "origin": "watchlist",
-      "seriesTitle": "Berserk Master Edition",
-      "publisher": "Panini Manga",
-      "volumeNumber": 11,
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/5211",
-      "releaseDate": null,
-      "confidence": "blocked",
-      "reviewStatus": "auto-not-yet-released",
-      "reasonCodes": [
-        "placeholder-release-date"
-      ],
-      "sourceResult": "volume-found"
-    },
-    {
-      "key": "berserk master edition|panini manga|12",
-      "queueKey": "Berserk Master Edition|Panini Manga|12",
-      "origin": "watchlist",
-      "seriesTitle": "Berserk Master Edition",
-      "publisher": "Panini Manga",
-      "volumeNumber": 12,
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/5211",
-      "releaseDate": null,
-      "confidence": "blocked",
-      "reviewStatus": "auto-not-yet-released",
-      "reasonCodes": [
-        "placeholder-release-date"
-      ],
-      "sourceResult": "volume-found"
-    },
-    {
-      "key": "berserk master edition|panini manga|13",
-      "queueKey": "Berserk Master Edition|Panini Manga|13",
-      "origin": "watchlist",
-      "seriesTitle": "Berserk Master Edition",
-      "publisher": "Panini Manga",
-      "volumeNumber": 13,
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/5211",
-      "releaseDate": null,
-      "confidence": "blocked",
-      "reviewStatus": "auto-not-yet-released",
-      "reasonCodes": [
-        "placeholder-release-date"
-      ],
-      "sourceResult": "volume-found"
-    },
-    {
-      "key": "berserk master edition|panini manga|14",
-      "queueKey": "Berserk Master Edition|Panini Manga|14",
-      "origin": "watchlist",
-      "seriesTitle": "Berserk Master Edition",
-      "publisher": "Panini Manga",
-      "volumeNumber": 14,
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/5211",
-      "releaseDate": null,
-      "confidence": "blocked",
-      "reviewStatus": "auto-not-yet-released",
-      "reasonCodes": [
-        "placeholder-release-date"
-      ],
-      "sourceResult": "volume-found"
-    },
-    {
-      "key": "vagabond master edition|egmont manga|13",
-      "queueKey": "Vagabond – Master Edition|Egmont Manga|13",
-      "origin": "watchlist",
-      "seriesTitle": "Vagabond – Master Edition",
-      "publisher": "Egmont Manga",
-      "volumeNumber": 13,
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/4636",
-      "releaseDate": null,
-      "confidence": "blocked",
-      "reviewStatus": "auto-not-yet-released",
-      "reasonCodes": [
-        "placeholder-release-date"
-      ],
-      "sourceResult": "volume-found"
-    },
-    {
-      "key": "vagabond master edition|egmont manga|14",
-      "queueKey": "Vagabond – Master Edition|Egmont Manga|14",
-      "origin": "watchlist",
-      "seriesTitle": "Vagabond – Master Edition",
-      "publisher": "Egmont Manga",
-      "volumeNumber": 14,
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/4636",
-      "releaseDate": null,
-      "confidence": "blocked",
-      "reviewStatus": "auto-not-yet-released",
-      "reasonCodes": [
-        "placeholder-release-date"
-      ],
-      "sourceResult": "volume-found"
-    },
-    {
-      "key": "vagabond master edition|egmont manga|15",
-      "queueKey": "Vagabond – Master Edition|Egmont Manga|15",
-      "origin": "watchlist",
-      "seriesTitle": "Vagabond – Master Edition",
-      "publisher": "Egmont Manga",
-      "volumeNumber": 15,
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/4636",
-      "releaseDate": null,
-      "confidence": "blocked",
-      "reviewStatus": "auto-not-yet-released",
-      "reasonCodes": [
-        "placeholder-release-date"
-      ],
-      "sourceResult": "volume-found"
-    },
-    {
-      "key": "vagabond master edition|egmont manga|16",
-      "queueKey": "Vagabond – Master Edition|Egmont Manga|16",
-      "origin": "watchlist",
-      "seriesTitle": "Vagabond – Master Edition",
-      "publisher": "Egmont Manga",
-      "volumeNumber": 16,
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/4636",
-      "releaseDate": null,
-      "confidence": "blocked",
-      "reviewStatus": "auto-not-yet-released",
-      "reasonCodes": [
-        "placeholder-release-date"
-      ],
-      "sourceResult": "volume-found"
-    },
-    {
-      "key": "vagabond master edition|egmont manga|17",
-      "queueKey": "Vagabond – Master Edition|Egmont Manga|17",
-      "origin": "watchlist",
-      "seriesTitle": "Vagabond – Master Edition",
-      "publisher": "Egmont Manga",
-      "volumeNumber": 17,
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/4636",
-      "releaseDate": null,
-      "confidence": "blocked",
-      "reviewStatus": "auto-not-yet-released",
-      "reasonCodes": [
-        "placeholder-release-date"
-      ],
-      "sourceResult": "volume-found"
-    },
-    {
-      "key": "vagabond master edition|egmont manga|18",
-      "queueKey": "Vagabond – Master Edition|Egmont Manga|18",
-      "origin": "watchlist",
-      "seriesTitle": "Vagabond – Master Edition",
-      "publisher": "Egmont Manga",
-      "volumeNumber": 18,
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/4636",
-      "releaseDate": null,
-      "confidence": "blocked",
-      "reviewStatus": "auto-not-yet-released",
-      "reasonCodes": [
-        "placeholder-release-date"
-      ],
-      "sourceResult": "volume-found"
-    },
-    {
-      "key": "vagabond master edition|egmont manga|19",
-      "queueKey": "Vagabond – Master Edition|Egmont Manga|19",
-      "origin": "watchlist",
-      "seriesTitle": "Vagabond – Master Edition",
-      "publisher": "Egmont Manga",
-      "volumeNumber": 19,
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/4636",
-      "releaseDate": null,
-      "confidence": "blocked",
-      "reviewStatus": "auto-not-yet-released",
-      "reasonCodes": [
-        "placeholder-release-date"
-      ],
-      "sourceResult": "volume-found"
-    },
-    {
-      "key": "arifureta der kampf zurueck in meine welt zero|altraverse|4",
-      "queueKey": "Arifureta: Der Kampf zurück in meine Welt – Zero|Altraverse|4",
-      "origin": "watchlist",
-      "seriesTitle": "Arifureta: Der Kampf zurück in meine Welt – Zero",
-      "publisher": "Altraverse",
-      "volumeNumber": 4,
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/5807",
-      "releaseDate": null,
-      "confidence": "blocked",
-      "reviewStatus": "auto-not-yet-released",
-      "reasonCodes": [
-        "placeholder-release-date"
-      ],
-      "sourceResult": "volume-found"
-    },
-    {
-      "key": "arifureta der kampf zurueck in meine welt zero|altraverse|5",
-      "queueKey": "Arifureta: Der Kampf zurück in meine Welt – Zero|Altraverse|5",
-      "origin": "watchlist",
-      "seriesTitle": "Arifureta: Der Kampf zurück in meine Welt – Zero",
-      "publisher": "Altraverse",
-      "volumeNumber": 5,
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/5807",
-      "releaseDate": null,
-      "confidence": "blocked",
-      "reviewStatus": "auto-not-yet-released",
-      "reasonCodes": [
-        "placeholder-release-date"
-      ],
-      "sourceResult": "volume-found"
-    },
-    {
-      "key": "arifureta der kampf zurueck in meine welt zero|altraverse|6",
-      "queueKey": "Arifureta: Der Kampf zurück in meine Welt – Zero|Altraverse|6",
-      "origin": "watchlist",
-      "seriesTitle": "Arifureta: Der Kampf zurück in meine Welt – Zero",
-      "publisher": "Altraverse",
-      "volumeNumber": 6,
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/5807",
-      "releaseDate": null,
-      "confidence": "blocked",
-      "reviewStatus": "auto-not-yet-released",
-      "reasonCodes": [
-        "placeholder-release-date"
-      ],
-      "sourceResult": "volume-found"
-    },
-    {
-      "key": "arifureta der kampf zurueck in meine welt zero|altraverse|7",
-      "queueKey": "Arifureta: Der Kampf zurück in meine Welt – Zero|Altraverse|7",
-      "origin": "watchlist",
-      "seriesTitle": "Arifureta: Der Kampf zurück in meine Welt – Zero",
-      "publisher": "Altraverse",
-      "volumeNumber": 7,
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/5807",
-      "releaseDate": null,
-      "confidence": "blocked",
-      "reviewStatus": "auto-not-yet-released",
-      "reasonCodes": [
-        "placeholder-release-date"
-      ],
-      "sourceResult": "volume-found"
-    },
-    {
-      "key": "arifureta der kampf zurueck in meine welt zero|altraverse|8",
-      "queueKey": "Arifureta: Der Kampf zurück in meine Welt – Zero|Altraverse|8",
-      "origin": "watchlist",
-      "seriesTitle": "Arifureta: Der Kampf zurück in meine Welt – Zero",
-      "publisher": "Altraverse",
-      "volumeNumber": 8,
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/5807",
-      "releaseDate": null,
-      "confidence": "blocked",
-      "reviewStatus": "auto-not-yet-released",
-      "reasonCodes": [
-        "placeholder-release-date"
-      ],
-      "sourceResult": "volume-found"
-    },
-    {
-      "key": "isekai soapland|mangamoon|3",
-      "queueKey": "Isekai Soapland|MANGAMOON|3",
-      "origin": "watchlist",
-      "seriesTitle": "Isekai Soapland",
-      "publisher": "MANGAMOON",
-      "volumeNumber": 3,
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/6069",
-      "releaseDate": null,
-      "confidence": "blocked",
-      "reviewStatus": "auto-not-yet-released",
-      "reasonCodes": [
-        "placeholder-release-date"
-      ],
-      "sourceResult": "volume-found"
-    },
-    {
-      "key": "isekai soapland|mangamoon|4",
-      "queueKey": "Isekai Soapland|MANGAMOON|4",
-      "origin": "watchlist",
-      "seriesTitle": "Isekai Soapland",
-      "publisher": "MANGAMOON",
-      "volumeNumber": 4,
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/6069",
-      "releaseDate": null,
-      "confidence": "blocked",
-      "reviewStatus": "auto-not-yet-released",
-      "reasonCodes": [
-        "placeholder-release-date"
-      ],
-      "sourceResult": "volume-found"
-    },
-    {
-      "key": "isekai soapland|mangamoon|5",
-      "queueKey": "Isekai Soapland|MANGAMOON|5",
-      "origin": "watchlist",
-      "seriesTitle": "Isekai Soapland",
-      "publisher": "MANGAMOON",
-      "volumeNumber": 5,
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/6069",
-      "releaseDate": null,
-      "confidence": "blocked",
-      "reviewStatus": "auto-not-yet-released",
-      "reasonCodes": [
-        "placeholder-release-date"
-      ],
-      "sourceResult": "volume-found"
-    },
-    {
-      "key": "isekai soapland|mangamoon|6",
-      "queueKey": "Isekai Soapland|MANGAMOON|6",
-      "origin": "watchlist",
-      "seriesTitle": "Isekai Soapland",
-      "publisher": "MANGAMOON",
-      "volumeNumber": 6,
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/6069",
-      "releaseDate": null,
-      "confidence": "blocked",
-      "reviewStatus": "auto-not-yet-released",
-      "reasonCodes": [
-        "placeholder-release-date"
-      ],
-      "sourceResult": "volume-found"
-    },
-    {
-      "key": "isekai soapland|mangamoon|7",
-      "queueKey": "Isekai Soapland|MANGAMOON|7",
-      "origin": "watchlist",
-      "seriesTitle": "Isekai Soapland",
-      "publisher": "MANGAMOON",
-      "volumeNumber": 7,
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/6069",
-      "releaseDate": null,
-      "confidence": "blocked",
-      "reviewStatus": "auto-not-yet-released",
-      "reasonCodes": [
-        "placeholder-release-date"
-      ],
-      "sourceResult": "volume-found"
-    },
-    {
-      "key": "isekai soapland|mangamoon|8",
-      "queueKey": "Isekai Soapland|MANGAMOON|8",
-      "origin": "watchlist",
-      "seriesTitle": "Isekai Soapland",
-      "publisher": "MANGAMOON",
-      "volumeNumber": 8,
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/6069",
-      "releaseDate": null,
-      "confidence": "blocked",
-      "reviewStatus": "auto-not-yet-released",
-      "reasonCodes": [
-        "placeholder-release-date"
-      ],
-      "sourceResult": "volume-found"
-    },
-    {
-      "key": "chainsaw man|egmont manga|23",
-      "queueKey": "Chainsaw Man|Egmont Manga|23",
-      "origin": "watchlist",
-      "seriesTitle": "Chainsaw Man",
-      "publisher": "Egmont Manga",
-      "volumeNumber": 23,
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/269",
-      "releaseDate": null,
-      "confidence": "blocked",
-      "reviewStatus": "auto-not-yet-released",
-      "reasonCodes": [
-        "placeholder-release-date"
-      ],
-      "sourceResult": "volume-found"
-    },
-    {
-      "key": "fairy tail|carlsen manga|16",
-      "queueKey": "Fairy Tail|Carlsen Manga|16",
-      "origin": "watchlist",
-      "seriesTitle": "Fairy Tail",
-      "publisher": "Carlsen Manga",
-      "volumeNumber": 16,
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/960",
-      "releaseDate": "2011-11-22",
-      "confidence": "blocked",
-      "reviewStatus": "auto-blocked",
-      "reasonCodes": [
-        "ambiguous-edition"
-      ],
-      "sourceResult": "volume-found"
-    },
-    {
-      "key": "fairy tail|carlsen manga|17",
-      "queueKey": "Fairy Tail|Carlsen Manga|17",
-      "origin": "watchlist",
-      "seriesTitle": "Fairy Tail",
-      "publisher": "Carlsen Manga",
-      "volumeNumber": 17,
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/960",
-      "releaseDate": "2011-12-16",
-      "confidence": "blocked",
-      "reviewStatus": "auto-blocked",
-      "reasonCodes": [
-        "ambiguous-edition"
-      ],
-      "sourceResult": "volume-found"
-    },
-    {
-      "key": "fairy tail|carlsen manga|18",
-      "queueKey": "Fairy Tail|Carlsen Manga|18",
-      "origin": "watchlist",
-      "seriesTitle": "Fairy Tail",
-      "publisher": "Carlsen Manga",
-      "volumeNumber": 18,
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/960",
-      "releaseDate": "2012-01-31",
-      "confidence": "blocked",
-      "reviewStatus": "auto-blocked",
-      "reasonCodes": [
-        "ambiguous-edition"
-      ],
-      "sourceResult": "volume-found"
-    },
-    {
-      "key": "fairy tail|carlsen manga|19",
-      "queueKey": "Fairy Tail|Carlsen Manga|19",
-      "origin": "watchlist",
-      "seriesTitle": "Fairy Tail",
-      "publisher": "Carlsen Manga",
-      "volumeNumber": 19,
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/960",
-      "releaseDate": "2012-02-28",
-      "confidence": "blocked",
-      "reviewStatus": "auto-blocked",
-      "reasonCodes": [
-        "ambiguous-edition"
-      ],
-      "sourceResult": "volume-found"
-    },
-    {
-      "key": "fairy tail|carlsen manga|20",
-      "queueKey": "Fairy Tail|Carlsen Manga|20",
-      "origin": "watchlist",
-      "seriesTitle": "Fairy Tail",
-      "publisher": "Carlsen Manga",
-      "volumeNumber": 20,
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/960",
-      "releaseDate": "2012-03-20",
-      "confidence": "blocked",
-      "reviewStatus": "auto-blocked",
-      "reasonCodes": [
-        "ambiguous-edition"
-      ],
-      "sourceResult": "volume-found"
-    },
-    {
-      "key": "fairy tail|carlsen manga|21",
-      "queueKey": "Fairy Tail|Carlsen Manga|21",
-      "origin": "watchlist",
-      "seriesTitle": "Fairy Tail",
-      "publisher": "Carlsen Manga",
-      "volumeNumber": 21,
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/960",
-      "releaseDate": "2012-05-29",
-      "confidence": "blocked",
-      "reviewStatus": "auto-blocked",
-      "reasonCodes": [
-        "ambiguous-edition"
-      ],
-      "sourceResult": "volume-found"
-    },
-    {
-      "key": "fairy tail|carlsen manga|22",
-      "queueKey": "Fairy Tail|Carlsen Manga|22",
-      "origin": "watchlist",
-      "seriesTitle": "Fairy Tail",
-      "publisher": "Carlsen Manga",
-      "volumeNumber": 22,
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/960",
-      "releaseDate": "2012-07-31",
-      "confidence": "blocked",
-      "reviewStatus": "auto-blocked",
-      "reasonCodes": [
-        "ambiguous-edition"
-      ],
-      "sourceResult": "volume-found"
-    },
-    {
-      "key": "fairy tail|carlsen manga|23",
-      "queueKey": "Fairy Tail|Carlsen Manga|23",
-      "origin": "watchlist",
-      "seriesTitle": "Fairy Tail",
-      "publisher": "Carlsen Manga",
-      "volumeNumber": 23,
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/960",
-      "releaseDate": "2012-10-02",
-      "confidence": "blocked",
-      "reviewStatus": "auto-blocked",
-      "reasonCodes": [
-        "ambiguous-edition"
-      ],
-      "sourceResult": "volume-found"
-    },
-    {
-      "key": "fairy tail|carlsen manga|24",
-      "queueKey": "Fairy Tail|Carlsen Manga|24",
-      "origin": "watchlist",
-      "seriesTitle": "Fairy Tail",
-      "publisher": "Carlsen Manga",
-      "volumeNumber": 24,
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/960",
-      "releaseDate": "2012-12-04",
-      "confidence": "blocked",
-      "reviewStatus": "auto-blocked",
-      "reasonCodes": [
-        "ambiguous-edition"
-      ],
-      "sourceResult": "volume-found"
-    },
-    {
-      "key": "fairy tail|carlsen manga|25",
-      "queueKey": "Fairy Tail|Carlsen Manga|25",
-      "origin": "watchlist",
-      "seriesTitle": "Fairy Tail",
-      "publisher": "Carlsen Manga",
-      "volumeNumber": 25,
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/960",
-      "releaseDate": "2013-01-29",
-      "confidence": "blocked",
-      "reviewStatus": "auto-blocked",
-      "reasonCodes": [
-        "ambiguous-edition"
-      ],
-      "sourceResult": "volume-found"
-    },
-    {
-      "key": "fairy tail|carlsen manga|26",
-      "queueKey": "Fairy Tail|Carlsen Manga|26",
-      "origin": "watchlist",
-      "seriesTitle": "Fairy Tail",
-      "publisher": "Carlsen Manga",
-      "volumeNumber": 26,
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/960",
-      "releaseDate": "2013-03-19",
-      "confidence": "blocked",
-      "reviewStatus": "auto-blocked",
-      "reasonCodes": [
-        "ambiguous-edition"
-      ],
-      "sourceResult": "volume-found"
-    },
-    {
-      "key": "fairy tail|carlsen manga|27",
-      "queueKey": "Fairy Tail|Carlsen Manga|27",
-      "origin": "watchlist",
-      "seriesTitle": "Fairy Tail",
-      "publisher": "Carlsen Manga",
-      "volumeNumber": 27,
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/960",
-      "releaseDate": "2013-05-29",
-      "confidence": "blocked",
-      "reviewStatus": "auto-blocked",
-      "reasonCodes": [
-        "ambiguous-edition"
-      ],
-      "sourceResult": "volume-found"
-    },
-    {
-      "key": "fairy tail|carlsen manga|28",
-      "queueKey": "Fairy Tail|Carlsen Manga|28",
-      "origin": "watchlist",
-      "seriesTitle": "Fairy Tail",
-      "publisher": "Carlsen Manga",
-      "volumeNumber": 28,
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/960",
-      "releaseDate": "2013-07-30",
-      "confidence": "blocked",
-      "reviewStatus": "auto-blocked",
-      "reasonCodes": [
-        "ambiguous-edition"
-      ],
-      "sourceResult": "volume-found"
-    },
-    {
-      "key": "fairy tail|carlsen manga|29",
-      "queueKey": "Fairy Tail|Carlsen Manga|29",
-      "origin": "watchlist",
-      "seriesTitle": "Fairy Tail",
-      "publisher": "Carlsen Manga",
-      "volumeNumber": 29,
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/960",
-      "releaseDate": "2013-10-01",
-      "confidence": "blocked",
-      "reviewStatus": "auto-blocked",
-      "reasonCodes": [
-        "ambiguous-edition"
-      ],
-      "sourceResult": "volume-found"
-    },
-    {
-      "key": "fairy tail|carlsen manga|30",
-      "queueKey": "Fairy Tail|Carlsen Manga|30",
-      "origin": "watchlist",
-      "seriesTitle": "Fairy Tail",
-      "publisher": "Carlsen Manga",
-      "volumeNumber": 30,
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/960",
-      "releaseDate": "2013-12-03",
-      "confidence": "blocked",
-      "reviewStatus": "auto-blocked",
-      "reasonCodes": [
-        "ambiguous-edition"
-      ],
-      "sourceResult": "volume-found"
-    },
-    {
-      "key": "fairy tail|carlsen manga|31",
-      "queueKey": "Fairy Tail|Carlsen Manga|31",
-      "origin": "watchlist",
-      "seriesTitle": "Fairy Tail",
-      "publisher": "Carlsen Manga",
-      "volumeNumber": 31,
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/960",
-      "releaseDate": "2014-01-28",
-      "confidence": "blocked",
-      "reviewStatus": "auto-blocked",
-      "reasonCodes": [
-        "ambiguous-edition"
-      ],
-      "sourceResult": "volume-found"
-    },
-    {
-      "key": "fairy tail|carlsen manga|32",
-      "queueKey": "Fairy Tail|Carlsen Manga|32",
-      "origin": "watchlist",
-      "seriesTitle": "Fairy Tail",
-      "publisher": "Carlsen Manga",
-      "volumeNumber": 32,
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/960",
-      "releaseDate": "2014-03-18",
-      "confidence": "blocked",
-      "reviewStatus": "auto-blocked",
-      "reasonCodes": [
-        "ambiguous-edition"
-      ],
-      "sourceResult": "volume-found"
-    },
-    {
-      "key": "fairy tail|carlsen manga|33",
-      "queueKey": "Fairy Tail|Carlsen Manga|33",
-      "origin": "watchlist",
-      "seriesTitle": "Fairy Tail",
-      "publisher": "Carlsen Manga",
-      "volumeNumber": 33,
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/960",
-      "releaseDate": "2014-05-27",
-      "confidence": "blocked",
-      "reviewStatus": "auto-blocked",
-      "reasonCodes": [
-        "ambiguous-edition"
-      ],
-      "sourceResult": "volume-found"
-    },
-    {
-      "key": "fairy tail|carlsen manga|34",
-      "queueKey": "Fairy Tail|Carlsen Manga|34",
-      "origin": "watchlist",
-      "seriesTitle": "Fairy Tail",
-      "publisher": "Carlsen Manga",
-      "volumeNumber": 34,
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/960",
-      "releaseDate": "2014-07-29",
-      "confidence": "blocked",
-      "reviewStatus": "auto-blocked",
-      "reasonCodes": [
-        "ambiguous-edition"
-      ],
-      "sourceResult": "volume-found"
-    },
-    {
-      "key": "fairy tail|carlsen manga|35",
-      "queueKey": "Fairy Tail|Carlsen Manga|35",
-      "origin": "watchlist",
-      "seriesTitle": "Fairy Tail",
-      "publisher": "Carlsen Manga",
-      "volumeNumber": 35,
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/960",
-      "releaseDate": "2014-09-30",
-      "confidence": "blocked",
-      "reviewStatus": "auto-blocked",
-      "reasonCodes": [
-        "ambiguous-edition"
-      ],
-      "sourceResult": "volume-found"
-    },
-    {
-      "key": "fairy tail|carlsen manga|36",
-      "queueKey": "Fairy Tail|Carlsen Manga|36",
-      "origin": "watchlist",
-      "seriesTitle": "Fairy Tail",
-      "publisher": "Carlsen Manga",
-      "volumeNumber": 36,
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/960",
-      "releaseDate": "2014-11-25",
-      "confidence": "blocked",
-      "reviewStatus": "auto-blocked",
-      "reasonCodes": [
-        "ambiguous-edition"
-      ],
-      "sourceResult": "volume-found"
-    },
-    {
-      "key": "fairy tail|carlsen manga|37",
-      "queueKey": "Fairy Tail|Carlsen Manga|37",
-      "origin": "watchlist",
-      "seriesTitle": "Fairy Tail",
-      "publisher": "Carlsen Manga",
-      "volumeNumber": 37,
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/960",
-      "releaseDate": "2015-01-27",
-      "confidence": "blocked",
-      "reviewStatus": "auto-blocked",
-      "reasonCodes": [
-        "ambiguous-edition"
-      ],
-      "sourceResult": "volume-found"
-    },
-    {
-      "key": "fairy tail|carlsen manga|38",
-      "queueKey": "Fairy Tail|Carlsen Manga|38",
-      "origin": "watchlist",
-      "seriesTitle": "Fairy Tail",
-      "publisher": "Carlsen Manga",
-      "volumeNumber": 38,
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/960",
-      "releaseDate": "2015-04-28",
-      "confidence": "blocked",
-      "reviewStatus": "auto-blocked",
-      "reasonCodes": [
-        "ambiguous-edition"
-      ],
-      "sourceResult": "volume-found"
-    },
-    {
-      "key": "fairy tail|carlsen manga|39",
-      "queueKey": "Fairy Tail|Carlsen Manga|39",
-      "origin": "watchlist",
-      "seriesTitle": "Fairy Tail",
-      "publisher": "Carlsen Manga",
-      "volumeNumber": 39,
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/960",
-      "releaseDate": "2015-06-30",
-      "confidence": "blocked",
-      "reviewStatus": "auto-blocked",
-      "reasonCodes": [
-        "ambiguous-edition"
-      ],
-      "sourceResult": "volume-found"
-    },
-    {
-      "key": "fairy tail|carlsen manga|40",
-      "queueKey": "Fairy Tail|Carlsen Manga|40",
-      "origin": "watchlist",
-      "seriesTitle": "Fairy Tail",
-      "publisher": "Carlsen Manga",
-      "volumeNumber": 40,
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/960",
-      "releaseDate": "2015-08-25",
-      "confidence": "blocked",
-      "reviewStatus": "auto-blocked",
-      "reasonCodes": [
-        "ambiguous-edition"
-      ],
-      "sourceResult": "volume-found"
-    },
-    {
-      "key": "fairy tail|carlsen manga|41",
-      "queueKey": "Fairy Tail|Carlsen Manga|41",
-      "origin": "watchlist",
-      "seriesTitle": "Fairy Tail",
-      "publisher": "Carlsen Manga",
-      "volumeNumber": 41,
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/960",
-      "releaseDate": "2015-10-28",
-      "confidence": "blocked",
-      "reviewStatus": "auto-blocked",
-      "reasonCodes": [
-        "ambiguous-edition"
-      ],
-      "sourceResult": "volume-found"
-    },
-    {
-      "key": "fairy tail|carlsen manga|42",
-      "queueKey": "Fairy Tail|Carlsen Manga|42",
-      "origin": "watchlist",
-      "seriesTitle": "Fairy Tail",
-      "publisher": "Carlsen Manga",
-      "volumeNumber": 42,
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/960",
-      "releaseDate": "2015-12-22",
-      "confidence": "blocked",
-      "reviewStatus": "auto-blocked",
-      "reasonCodes": [
-        "ambiguous-edition"
-      ],
-      "sourceResult": "volume-found"
-    },
-    {
-      "key": "fairy tail|carlsen manga|43",
-      "queueKey": "Fairy Tail|Carlsen Manga|43",
-      "origin": "watchlist",
-      "seriesTitle": "Fairy Tail",
-      "publisher": "Carlsen Manga",
-      "volumeNumber": 43,
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/960",
-      "releaseDate": "2016-03-01",
-      "confidence": "blocked",
-      "reviewStatus": "auto-blocked",
-      "reasonCodes": [
-        "ambiguous-edition"
-      ],
-      "sourceResult": "volume-found"
-    },
-    {
-      "key": "fairy tail|carlsen manga|44",
-      "queueKey": "Fairy Tail|Carlsen Manga|44",
-      "origin": "watchlist",
-      "seriesTitle": "Fairy Tail",
-      "publisher": "Carlsen Manga",
-      "volumeNumber": 44,
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/960",
-      "releaseDate": "2016-04-26",
-      "confidence": "blocked",
-      "reviewStatus": "auto-blocked",
-      "reasonCodes": [
-        "ambiguous-edition"
-      ],
-      "sourceResult": "volume-found"
-    },
-    {
-      "key": "fairy tail|carlsen manga|45",
-      "queueKey": "Fairy Tail|Carlsen Manga|45",
-      "origin": "watchlist",
-      "seriesTitle": "Fairy Tail",
-      "publisher": "Carlsen Manga",
-      "volumeNumber": 45,
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/960",
-      "releaseDate": "2016-06-26",
-      "confidence": "blocked",
-      "reviewStatus": "auto-blocked",
-      "reasonCodes": [
-        "ambiguous-edition"
-      ],
-      "sourceResult": "volume-found"
-    },
-    {
-      "key": "fairy tail|carlsen manga|46",
-      "queueKey": "Fairy Tail|Carlsen Manga|46",
-      "origin": "watchlist",
-      "seriesTitle": "Fairy Tail",
-      "publisher": "Carlsen Manga",
-      "volumeNumber": 46,
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/960",
-      "releaseDate": "2016-08-30",
-      "confidence": "blocked",
-      "reviewStatus": "auto-blocked",
-      "reasonCodes": [
-        "ambiguous-edition"
-      ],
-      "sourceResult": "volume-found"
-    },
-    {
-      "key": "fairy tail|carlsen manga|47",
-      "queueKey": "Fairy Tail|Carlsen Manga|47",
-      "origin": "watchlist",
-      "seriesTitle": "Fairy Tail",
-      "publisher": "Carlsen Manga",
-      "volumeNumber": 47,
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/960",
-      "releaseDate": "2016-10-25",
-      "confidence": "blocked",
-      "reviewStatus": "auto-blocked",
-      "reasonCodes": [
-        "ambiguous-edition"
-      ],
-      "sourceResult": "volume-found"
-    },
-    {
-      "key": "fairy tail|carlsen manga|48",
-      "queueKey": "Fairy Tail|Carlsen Manga|48",
-      "origin": "watchlist",
-      "seriesTitle": "Fairy Tail",
-      "publisher": "Carlsen Manga",
-      "volumeNumber": 48,
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/960",
-      "releaseDate": "2016-12-20",
-      "confidence": "blocked",
-      "reviewStatus": "auto-blocked",
-      "reasonCodes": [
-        "ambiguous-edition"
-      ],
-      "sourceResult": "volume-found"
-    },
-    {
-      "key": "fairy tail|carlsen manga|49",
-      "queueKey": "Fairy Tail|Carlsen Manga|49",
-      "origin": "watchlist",
-      "seriesTitle": "Fairy Tail",
-      "publisher": "Carlsen Manga",
-      "volumeNumber": 49,
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/960",
-      "releaseDate": "2017-02-28",
-      "confidence": "blocked",
-      "reviewStatus": "auto-blocked",
-      "reasonCodes": [
-        "ambiguous-edition"
-      ],
-      "sourceResult": "volume-found"
-    },
-    {
-      "key": "fairy tail|carlsen manga|50",
-      "queueKey": "Fairy Tail|Carlsen Manga|50",
-      "origin": "watchlist",
-      "seriesTitle": "Fairy Tail",
-      "publisher": "Carlsen Manga",
-      "volumeNumber": 50,
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/960",
-      "releaseDate": "2017-03-28",
-      "confidence": "blocked",
-      "reviewStatus": "auto-blocked",
-      "reasonCodes": [
-        "ambiguous-edition"
-      ],
-      "sourceResult": "volume-found"
-    },
-    {
-      "key": "fairy tail|carlsen manga|51",
-      "queueKey": "Fairy Tail|Carlsen Manga|51",
-      "origin": "watchlist",
-      "seriesTitle": "Fairy Tail",
-      "publisher": "Carlsen Manga",
-      "volumeNumber": 51,
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/960",
-      "releaseDate": "2017-05-30",
-      "confidence": "blocked",
-      "reviewStatus": "auto-blocked",
-      "reasonCodes": [
-        "ambiguous-edition"
-      ],
-      "sourceResult": "volume-found"
-    },
-    {
-      "key": "fairy tail|carlsen manga|52",
-      "queueKey": "Fairy Tail|Carlsen Manga|52",
-      "origin": "watchlist",
-      "seriesTitle": "Fairy Tail",
-      "publisher": "Carlsen Manga",
-      "volumeNumber": 52,
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/960",
-      "releaseDate": "2017-08-01",
-      "confidence": "blocked",
-      "reviewStatus": "auto-blocked",
-      "reasonCodes": [
-        "ambiguous-edition"
-      ],
-      "sourceResult": "volume-found"
-    },
-    {
-      "key": "fairy tail|carlsen manga|53",
-      "queueKey": "Fairy Tail|Carlsen Manga|53",
-      "origin": "watchlist",
-      "seriesTitle": "Fairy Tail",
-      "publisher": "Carlsen Manga",
-      "volumeNumber": 53,
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/960",
-      "releaseDate": "2017-10-03",
-      "confidence": "blocked",
-      "reviewStatus": "auto-blocked",
-      "reasonCodes": [
-        "ambiguous-edition"
-      ],
-      "sourceResult": "volume-found"
-    },
-    {
-      "key": "fairy tail|carlsen manga|54",
-      "queueKey": "Fairy Tail|Carlsen Manga|54",
-      "origin": "watchlist",
-      "seriesTitle": "Fairy Tail",
-      "publisher": "Carlsen Manga",
-      "volumeNumber": 54,
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/960",
-      "releaseDate": "2017-11-28",
-      "confidence": "blocked",
-      "reviewStatus": "auto-blocked",
-      "reasonCodes": [
-        "ambiguous-edition"
-      ],
-      "sourceResult": "volume-found"
-    },
-    {
-      "key": "fairy tail|carlsen manga|55",
-      "queueKey": "Fairy Tail|Carlsen Manga|55",
-      "origin": "watchlist",
-      "seriesTitle": "Fairy Tail",
-      "publisher": "Carlsen Manga",
-      "volumeNumber": 55,
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/960",
-      "releaseDate": "2018-01-30",
-      "confidence": "blocked",
-      "reviewStatus": "auto-blocked",
-      "reasonCodes": [
-        "ambiguous-edition"
-      ],
-      "sourceResult": "volume-found"
-    },
-    {
-      "key": "fairy tail|carlsen manga|56",
-      "queueKey": "Fairy Tail|Carlsen Manga|56",
-      "origin": "watchlist",
-      "seriesTitle": "Fairy Tail",
-      "publisher": "Carlsen Manga",
-      "volumeNumber": 56,
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/960",
-      "releaseDate": "2018-04-30",
-      "confidence": "blocked",
-      "reviewStatus": "auto-blocked",
-      "reasonCodes": [
-        "ambiguous-edition"
-      ],
-      "sourceResult": "volume-found"
-    },
-    {
-      "key": "fairy tail|carlsen manga|57",
-      "queueKey": "Fairy Tail|Carlsen Manga|57",
-      "origin": "watchlist",
-      "seriesTitle": "Fairy Tail",
-      "publisher": "Carlsen Manga",
-      "volumeNumber": 57,
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/960",
-      "releaseDate": "2018-06-26",
-      "confidence": "blocked",
-      "reviewStatus": "auto-blocked",
-      "reasonCodes": [
-        "ambiguous-edition"
-      ],
-      "sourceResult": "volume-found"
-    },
-    {
-      "key": "fairy tail|carlsen manga|58",
-      "queueKey": "Fairy Tail|Carlsen Manga|58",
-      "origin": "watchlist",
-      "seriesTitle": "Fairy Tail",
-      "publisher": "Carlsen Manga",
-      "volumeNumber": 58,
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/960",
-      "releaseDate": "2018-08-28",
-      "confidence": "blocked",
-      "reviewStatus": "auto-blocked",
-      "reasonCodes": [
-        "ambiguous-edition"
-      ],
-      "sourceResult": "volume-found"
-    },
-    {
-      "key": "fairy tail|carlsen manga|59",
-      "queueKey": "Fairy Tail|Carlsen Manga|59",
-      "origin": "watchlist",
-      "seriesTitle": "Fairy Tail",
-      "publisher": "Carlsen Manga",
-      "volumeNumber": 59,
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/960",
-      "releaseDate": "2018-10-02",
-      "confidence": "blocked",
-      "reviewStatus": "auto-blocked",
-      "reasonCodes": [
-        "ambiguous-edition"
-      ],
-      "sourceResult": "volume-found"
-    },
-    {
-      "key": "fairy tail|carlsen manga|60",
-      "queueKey": "Fairy Tail|Carlsen Manga|60",
-      "origin": "watchlist",
-      "seriesTitle": "Fairy Tail",
-      "publisher": "Carlsen Manga",
-      "volumeNumber": 60,
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/960",
-      "releaseDate": "2018-10-30",
-      "confidence": "blocked",
-      "reviewStatus": "auto-blocked",
-      "reasonCodes": [
-        "ambiguous-edition"
-      ],
-      "sourceResult": "volume-found"
-    },
-    {
-      "key": "fairy tail|carlsen manga|61",
-      "queueKey": "Fairy Tail|Carlsen Manga|61",
-      "origin": "watchlist",
-      "seriesTitle": "Fairy Tail",
-      "publisher": "Carlsen Manga",
-      "volumeNumber": 61,
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/960",
-      "releaseDate": "2018-12-27",
-      "confidence": "blocked",
-      "reviewStatus": "auto-blocked",
-      "reasonCodes": [
-        "ambiguous-edition"
-      ],
-      "sourceResult": "volume-found"
-    },
-    {
-      "key": "fairy tail|carlsen manga|62",
-      "queueKey": "Fairy Tail|Carlsen Manga|62",
-      "origin": "watchlist",
-      "seriesTitle": "Fairy Tail",
-      "publisher": "Carlsen Manga",
-      "volumeNumber": 62,
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/960",
-      "releaseDate": "2019-02-26",
-      "confidence": "blocked",
-      "reviewStatus": "auto-blocked",
-      "reasonCodes": [
-        "ambiguous-edition"
-      ],
-      "sourceResult": "volume-found"
-    },
-    {
-      "key": "fairy tail|carlsen manga|63",
-      "queueKey": "Fairy Tail|Carlsen Manga|63",
-      "origin": "watchlist",
-      "seriesTitle": "Fairy Tail",
-      "publisher": "Carlsen Manga",
-      "volumeNumber": 63,
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/960",
-      "releaseDate": "2019-03-26",
-      "confidence": "blocked",
-      "reviewStatus": "auto-blocked",
-      "reasonCodes": [
-        "ambiguous-edition"
-      ],
-      "sourceResult": "volume-found"
-    },
-    {
-      "key": "gushing over magical girls|mangamoon|4",
-      "queueKey": "Gushing over Magical Girls|MangaMoon|4",
-      "origin": "watchlist",
-      "seriesTitle": "Gushing over Magical Girls",
-      "publisher": "MangaMoon",
-      "volumeNumber": 4,
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/5407",
-      "releaseDate": null,
-      "confidence": "blocked",
-      "reviewStatus": "auto-not-yet-released",
-      "reasonCodes": [
-        "placeholder-release-date"
-      ],
-      "sourceResult": "volume-found"
-    },
-    {
-      "key": "kaiju no 8|crunchyroll manga|16",
-      "queueKey": "Kaiju No.8|Crunchyroll Manga|16",
-      "origin": "watchlist",
-      "seriesTitle": "Kaiju No.8",
-      "publisher": "Crunchyroll Manga",
-      "volumeNumber": 16,
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/1966",
-      "releaseDate": "2026-05-01",
-      "confidence": "blocked",
-      "reviewStatus": "auto-blocked",
-      "reasonCodes": [
-        "publisher-conflict"
-      ],
-      "sourceResult": "volume-found"
-    },
-    {
-      "key": "meine chefin kommt immer zuerst|mangamoon|2",
-      "queueKey": "Meine Chefin kommt immer zuerst!!|MangaMoon|2",
-      "origin": "watchlist",
-      "seriesTitle": "Meine Chefin kommt immer zuerst!!",
-      "publisher": "MangaMoon",
-      "volumeNumber": 2,
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/6135",
-      "releaseDate": null,
-      "confidence": "blocked",
-      "reviewStatus": "auto-not-yet-released",
-      "reasonCodes": [
-        "placeholder-release-date"
-      ],
-      "sourceResult": "volume-found"
-    },
-    {
-      "key": "mirai nikki new edition|egmont manga|6",
-      "queueKey": "Mirai Nikki – New Edition|Egmont Manga|6",
-      "origin": "watchlist",
-      "seriesTitle": "Mirai Nikki – New Edition",
-      "publisher": "Egmont Manga",
-      "volumeNumber": 6,
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/5504",
-      "releaseDate": null,
-      "confidence": "blocked",
-      "reviewStatus": "auto-not-yet-released",
-      "reasonCodes": [
-        "placeholder-release-date"
-      ],
-      "sourceResult": "volume-found"
-    },
-    {
-      "key": "neck mich nicht nagatoro san|dani books|6",
-      "queueKey": "Neck mich nicht, Nagatoro-san|dani books|6",
-      "origin": "watchlist",
-      "seriesTitle": "Neck mich nicht, Nagatoro-san",
-      "publisher": "dani books",
-      "volumeNumber": 6,
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/1750",
-      "releaseDate": null,
-      "confidence": "blocked",
-      "reviewStatus": "auto-not-yet-released",
-      "reasonCodes": [
-        "placeholder-release-date"
-      ],
-      "sourceResult": "volume-found"
-    },
-    {
-      "key": "spy x family|crunchyroll manga|4",
-      "queueKey": "Spy x Family|Crunchyroll Manga|4",
-      "origin": "watchlist",
-      "seriesTitle": "Spy x Family",
-      "publisher": "Crunchyroll Manga",
-      "volumeNumber": 4,
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/364",
-      "releaseDate": "2021-04-01",
-      "confidence": "blocked",
-      "reviewStatus": "auto-blocked",
-      "reasonCodes": [
-        "publisher-conflict"
-      ],
-      "sourceResult": "volume-found"
-    },
-    {
-      "key": "spy x family|crunchyroll manga|5",
-      "queueKey": "Spy x Family|Crunchyroll Manga|5",
-      "origin": "watchlist",
-      "seriesTitle": "Spy x Family",
-      "publisher": "Crunchyroll Manga",
-      "volumeNumber": 5,
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/364",
-      "releaseDate": "2021-06-03",
-      "confidence": "blocked",
-      "reviewStatus": "auto-blocked",
-      "reasonCodes": [
-        "publisher-conflict"
-      ],
-      "sourceResult": "volume-found"
-    },
-    {
-      "key": "spy x family|crunchyroll manga|6",
-      "queueKey": "Spy x Family|Crunchyroll Manga|6",
-      "origin": "watchlist",
-      "seriesTitle": "Spy x Family",
-      "publisher": "Crunchyroll Manga",
-      "volumeNumber": 6,
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/364",
-      "releaseDate": "2021-08-05",
-      "confidence": "blocked",
-      "reviewStatus": "auto-blocked",
-      "reasonCodes": [
-        "publisher-conflict"
-      ],
-      "sourceResult": "volume-found"
-    },
-    {
-      "key": "spy x family|crunchyroll manga|7",
-      "queueKey": "Spy x Family|Crunchyroll Manga|7",
-      "origin": "watchlist",
-      "seriesTitle": "Spy x Family",
-      "publisher": "Crunchyroll Manga",
-      "volumeNumber": 7,
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/364",
-      "releaseDate": "2021-12-02",
-      "confidence": "blocked",
-      "reviewStatus": "auto-blocked",
-      "reasonCodes": [
-        "publisher-conflict"
-      ],
-      "sourceResult": "volume-found"
-    },
-    {
-      "key": "spy x family|crunchyroll manga|8",
-      "queueKey": "Spy x Family|Crunchyroll Manga|8",
-      "origin": "watchlist",
-      "seriesTitle": "Spy x Family",
-      "publisher": "Crunchyroll Manga",
-      "volumeNumber": 8,
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/364",
-      "releaseDate": "2022-04-07",
-      "confidence": "blocked",
-      "reviewStatus": "auto-blocked",
-      "reasonCodes": [
-        "publisher-conflict"
-      ],
-      "sourceResult": "volume-found"
-    },
-    {
-      "key": "spy x family|crunchyroll manga|9",
-      "queueKey": "Spy x Family|Crunchyroll Manga|9",
-      "origin": "watchlist",
-      "seriesTitle": "Spy x Family",
-      "publisher": "Crunchyroll Manga",
-      "volumeNumber": 9,
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/364",
-      "releaseDate": "2022-10-06",
-      "confidence": "blocked",
-      "reviewStatus": "auto-blocked",
-      "reasonCodes": [
-        "publisher-conflict"
-      ],
-      "sourceResult": "volume-found"
-    },
-    {
-      "key": "spy x family|crunchyroll manga|10",
-      "queueKey": "Spy x Family|Crunchyroll Manga|10",
-      "origin": "watchlist",
-      "seriesTitle": "Spy x Family",
-      "publisher": "Crunchyroll Manga",
-      "volumeNumber": 10,
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/364",
-      "releaseDate": "2023-10-06",
-      "confidence": "blocked",
-      "reviewStatus": "auto-blocked",
-      "reasonCodes": [
-        "publisher-conflict"
-      ],
-      "sourceResult": "volume-found"
-    },
-    {
-      "key": "spy x family|crunchyroll manga|11",
-      "queueKey": "Spy x Family|Crunchyroll Manga|11",
-      "origin": "watchlist",
-      "seriesTitle": "Spy x Family",
-      "publisher": "Crunchyroll Manga",
-      "volumeNumber": 11,
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/364",
-      "releaseDate": "2024-04-05",
-      "confidence": "blocked",
-      "reviewStatus": "auto-blocked",
-      "reasonCodes": [
-        "publisher-conflict"
-      ],
-      "sourceResult": "volume-found"
-    },
-    {
-      "key": "spy x family|crunchyroll manga|12",
-      "queueKey": "Spy x Family|Crunchyroll Manga|12",
-      "origin": "watchlist",
-      "seriesTitle": "Spy x Family",
-      "publisher": "Crunchyroll Manga",
-      "volumeNumber": 12,
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/364",
-      "releaseDate": "2024-10-04",
-      "confidence": "blocked",
-      "reviewStatus": "auto-blocked",
-      "reasonCodes": [
-        "publisher-conflict"
-      ],
-      "sourceResult": "volume-found"
-    },
-    {
-      "key": "spy x family|crunchyroll manga|13",
-      "queueKey": "Spy x Family|Crunchyroll Manga|13",
-      "origin": "watchlist",
-      "seriesTitle": "Spy x Family",
-      "publisher": "Crunchyroll Manga",
-      "volumeNumber": 13,
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/364",
-      "releaseDate": "2025-04-04",
-      "confidence": "blocked",
-      "reviewStatus": "auto-blocked",
-      "reasonCodes": [
-        "publisher-conflict"
-      ],
-      "sourceResult": "volume-found"
-    },
-    {
-      "key": "spy x family|crunchyroll manga|14",
-      "queueKey": "Spy x Family|Crunchyroll Manga|14",
-      "origin": "watchlist",
-      "seriesTitle": "Spy x Family",
-      "publisher": "Crunchyroll Manga",
-      "volumeNumber": 14,
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/364",
-      "releaseDate": "2025-10-03",
-      "confidence": "blocked",
-      "reviewStatus": "auto-blocked",
-      "reasonCodes": [
-        "publisher-conflict"
-      ],
-      "sourceResult": "volume-found"
-    },
-    {
-      "key": "spy x family|crunchyroll manga|15",
-      "queueKey": "Spy x Family|Crunchyroll Manga|15",
-      "origin": "watchlist",
-      "seriesTitle": "Spy x Family",
-      "publisher": "Crunchyroll Manga",
-      "volumeNumber": 15,
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/364",
-      "releaseDate": "2026-04-03",
-      "confidence": "blocked",
-      "reviewStatus": "auto-blocked",
-      "reasonCodes": [
-        "publisher-conflict"
-      ],
-      "sourceResult": "volume-found"
-    },
-    {
-      "key": "vermeil in gold|manga cult|2",
-      "queueKey": "Vermeil in Gold|Manga Cult|2",
-      "origin": "watchlist",
-      "seriesTitle": "Vermeil in Gold",
-      "publisher": "Manga Cult",
-      "volumeNumber": 2,
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/6137",
-      "releaseDate": null,
-      "confidence": "blocked",
-      "reviewStatus": "auto-not-yet-released",
-      "reasonCodes": [
-        "placeholder-release-date",
-        "publisher-conflict"
-      ],
-      "sourceResult": "volume-found"
-    },
-    {
-      "key": "august 9th i will be eaten by you|hayabusa|6",
-      "queueKey": "August 9th, I will be eaten by you|Hayabusa|6",
-      "origin": "app-seed",
-      "seriesTitle": "August 9th, I will be eaten by you",
-      "publisher": "Hayabusa",
-      "volumeNumber": 6,
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/2015",
-      "releaseDate": null,
-      "confidence": "blocked",
-      "reviewStatus": "auto-not-yet-released",
-      "reasonCodes": [
-        "placeholder-release-date"
-      ],
-      "sourceResult": "volume-found"
-    },
-    {
-      "key": "die letzte elfe|yomeru|3",
-      "queueKey": "Die letzte Elfe|Yomeru|3",
-      "origin": "app-seed",
-      "seriesTitle": "Die letzte Elfe",
-      "publisher": "Yomeru",
-      "volumeNumber": 3,
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/5652",
-      "releaseDate": null,
-      "confidence": "blocked",
-      "reviewStatus": "auto-not-yet-released",
-      "reasonCodes": [
-        "placeholder-release-date"
-      ],
-      "sourceResult": "volume-found"
-    }
-  ],
+  "blockedCandidates": [],
   "skippedAlreadyCached": [
     "vagabond master edition|egmont manga|8",
     "vagabond master edition|egmont manga|9",
@@ -3417,9 +1909,9 @@
     "adou|altraverse|9",
     "adou|altraverse|10",
     "adou|altraverse|11",
-    "august 9th i will be eaten by you|hayabusa|5",
+    "august 9th i will be eaten by you|carlsen manga|5",
     "berserk master edition|panini manga|5",
-    "blood blade|hayabusa|4",
+    "blood blade|carlsen manga|4",
     "brynhildr in the darkness|tokyopop|12",
     "brynhildr in the darkness|tokyopop|13",
     "brynhildr in the darkness|tokyopop|14",
@@ -3436,41 +1928,41 @@
     "from the red fog|manga cult|4",
     "from the red fog|manga cult|5",
     "gushing over magical girls|mangamoon|3",
-    "jujutsu kaisen|kaz manga|3",
-    "jujutsu kaisen|kaz manga|4",
-    "jujutsu kaisen|kaz manga|5",
-    "jujutsu kaisen|kaz manga|6",
-    "jujutsu kaisen|kaz manga|7",
-    "jujutsu kaisen|kaz manga|8",
-    "jujutsu kaisen|kaz manga|9",
-    "jujutsu kaisen|kaz manga|10",
-    "jujutsu kaisen|kaz manga|11",
-    "jujutsu kaisen|kaz manga|12",
-    "jujutsu kaisen|kaz manga|13",
-    "jujutsu kaisen|kaz manga|14",
-    "jujutsu kaisen|kaz manga|15",
-    "jujutsu kaisen|kaz manga|16",
-    "jujutsu kaisen|kaz manga|17",
-    "jujutsu kaisen|kaz manga|18",
-    "jujutsu kaisen|kaz manga|19",
-    "jujutsu kaisen|kaz manga|20",
-    "jujutsu kaisen|kaz manga|21",
-    "jujutsu kaisen|kaz manga|22",
-    "jujutsu kaisen|kaz manga|23",
-    "jujutsu kaisen|kaz manga|24",
-    "jujutsu kaisen|kaz manga|25",
-    "jujutsu kaisen|kaz manga|26",
-    "jujutsu kaisen|kaz manga|27",
-    "jujutsu kaisen|kaz manga|28",
-    "jujutsu kaisen|kaz manga|29",
-    "jujutsu kaisen|kaz manga|30",
-    "kijin gentosho daemonenjaeger|panini manga|2",
-    "kijin gentosho daemonenjaeger|panini manga|3",
-    "kijin gentosho daemonenjaeger|panini manga|4",
-    "kijin gentosho daemonenjaeger|panini manga|5",
-    "kijin gentosho daemonenjaeger|panini manga|6",
-    "kijin gentosho daemonenjaeger|panini manga|7",
-    "kijin gentosho daemonenjaeger|panini manga|8",
+    "jujutsu kaisen|crunchyroll manga|3",
+    "jujutsu kaisen|crunchyroll manga|4",
+    "jujutsu kaisen|crunchyroll manga|5",
+    "jujutsu kaisen|crunchyroll manga|6",
+    "jujutsu kaisen|crunchyroll manga|7",
+    "jujutsu kaisen|crunchyroll manga|8",
+    "jujutsu kaisen|crunchyroll manga|9",
+    "jujutsu kaisen|crunchyroll manga|10",
+    "jujutsu kaisen|crunchyroll manga|11",
+    "jujutsu kaisen|crunchyroll manga|12",
+    "jujutsu kaisen|crunchyroll manga|13",
+    "jujutsu kaisen|crunchyroll manga|14",
+    "jujutsu kaisen|crunchyroll manga|15",
+    "jujutsu kaisen|crunchyroll manga|16",
+    "jujutsu kaisen|crunchyroll manga|17",
+    "jujutsu kaisen|crunchyroll manga|18",
+    "jujutsu kaisen|crunchyroll manga|19",
+    "jujutsu kaisen|crunchyroll manga|20",
+    "jujutsu kaisen|crunchyroll manga|21",
+    "jujutsu kaisen|crunchyroll manga|22",
+    "jujutsu kaisen|crunchyroll manga|23",
+    "jujutsu kaisen|crunchyroll manga|24",
+    "jujutsu kaisen|crunchyroll manga|25",
+    "jujutsu kaisen|crunchyroll manga|26",
+    "jujutsu kaisen|crunchyroll manga|27",
+    "jujutsu kaisen|crunchyroll manga|28",
+    "jujutsu kaisen|crunchyroll manga|29",
+    "jujutsu kaisen|crunchyroll manga|30",
+    "kijin gentosho damonenjager|panini manga|2",
+    "kijin gentosho damonenjager|panini manga|3",
+    "kijin gentosho damonenjager|panini manga|4",
+    "kijin gentosho damonenjager|panini manga|5",
+    "kijin gentosho damonenjager|panini manga|6",
+    "kijin gentosho damonenjager|panini manga|7",
+    "kijin gentosho damonenjager|panini manga|8",
     "lili men|egmont manga|6",
     "lili men|egmont manga|7",
     "maria s judgement|egmont manga|6",
@@ -3494,9 +1986,10 @@
     "yakuza reincarnation|manga cult|15",
     "yakuza reincarnation|manga cult|16",
     "yandere dark elf|mangamoon|3",
+    "demon slave|crunchyroll manga|2",
     "the eminence in shadow|tokyopop|9",
     "dai dark|manga cult|9",
-    "arifureta der kampf zurueck in meine welt zero|altraverse|1"
+    "arifureta der kampf zuruck in meine welt zero|altraverse|1"
   ],
   "invalidExistingCache": []
 }
