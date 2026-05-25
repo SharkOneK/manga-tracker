@@ -75,7 +75,7 @@ function cacheContainsVolume(cacheItems, seriesTitle, volumeNumber) {
   const normTitle = normalizeTitle(seriesTitle);
   return cacheItems.some(item => {
     if (!item || typeof item !== 'object') return false;
-    const cacheNorm = item.normalizedSeriesTitle || normalizeTitle(item.seriesTitle || '');
+    const cacheNorm = normalizeTitle(item.seriesTitle || '') || item.normalizedSeriesTitle || '';
     if (!titleMatches(normTitle, cacheNorm)) return false;
     return item.volumeNumber === volumeNumber;
   });
