@@ -4,10 +4,10 @@
   "generatedFrom": "docs/release-cache-source-gap-analysis.md",
   "reviewPolicy": "docs/release-cache-manual-source-review.md",
   "summary": {
-    "knownSourceGaps": 34,
-    "totalGaps": 97,
+    "knownSourceGaps": 38,
+    "totalGaps": 101,
     "safeToPatch": 13,
-    "pendingManualReview": 84,
+    "pendingManualReview": 88,
     "autoReviewed": 76,
     "patched": 13
   },
@@ -3445,6 +3445,110 @@
         "missing-release-date"
       ],
       "providerId": "carlsen"
+    },
+    {
+      "queueKey": "Neck mich nicht, Nagatoro-san|dani books|7",
+      "seriesTitle": "Neck mich nicht, Nagatoro-san",
+      "publisher": "dani books",
+      "volumeNumber": 7,
+      "classification": "source-data-gap",
+      "suspectedCause": "manual-source-required",
+      "priority": "mittel",
+      "recommendedFix": "manual-source-review",
+      "manualSourceReviewNeeded": true,
+      "checkedSources": [
+        {
+          "name": "Release-Intake-Staging / Release-Cache-Audit",
+          "url": "data/release-watchlist.json",
+          "result": "Nach Release-Intake in der Watchlist vorhanden; kein passender Eintrag in data/release-cache.json."
+        }
+      ],
+      "sourceAnalysisEvidence": "Der Band wurde per Release-Intake in die Watchlist uebernommen. Der Release-Cache enthaelt noch kein belegtes Datum; kein Cache-Patch ohne verifizierte Quelle.",
+      "safeToPatch": false,
+      "reviewStatus": "pending",
+      "sourceUrl": "",
+      "releaseDate": null,
+      "checkedAt": null,
+      "evidence": "",
+      "notes": "Automatisch aus aktueller Source-Gap-Analyse ergänzt; manuelle Quellenprüfung erforderlich."
+    },
+    {
+      "queueKey": "Bitte zieh dich an, Takamine!|Egmont Manga|1",
+      "seriesTitle": "Bitte zieh dich an, Takamine!",
+      "publisher": "Egmont Manga",
+      "volumeNumber": 1,
+      "classification": "source-data-gap",
+      "suspectedCause": "manual-source-required",
+      "priority": "mittel",
+      "recommendedFix": "manual-source-review",
+      "manualSourceReviewNeeded": true,
+      "checkedSources": [
+        {
+          "name": "Release-Intake-Staging / Release-Cache-Audit",
+          "url": "data/release-watchlist.json",
+          "result": "Nach Release-Intake in der Watchlist vorhanden; kein passender Eintrag in data/release-cache.json."
+        }
+      ],
+      "sourceAnalysisEvidence": "Der Band wurde per Release-Intake in die Watchlist uebernommen. Der Release-Cache enthaelt noch kein belegtes Datum; kein Cache-Patch ohne verifizierte Quelle.",
+      "safeToPatch": false,
+      "reviewStatus": "pending",
+      "sourceUrl": "",
+      "releaseDate": null,
+      "checkedAt": null,
+      "evidence": "",
+      "notes": "Automatisch aus aktueller Source-Gap-Analyse ergänzt; manuelle Quellenprüfung erforderlich."
+    },
+    {
+      "queueKey": "I Was Reincarnated as the 7th Prince So I Can Take My Time Perfecting My Magical Ability|Dokico|1",
+      "seriesTitle": "I Was Reincarnated as the 7th Prince So I Can Take My Time Perfecting My Magical Ability",
+      "publisher": "Dokico",
+      "volumeNumber": 1,
+      "classification": "source-data-gap",
+      "suspectedCause": "manual-source-required",
+      "priority": "mittel",
+      "recommendedFix": "manual-source-review",
+      "manualSourceReviewNeeded": true,
+      "checkedSources": [
+        {
+          "name": "Release-Intake-Staging / Release-Cache-Audit",
+          "url": "data/release-watchlist.json",
+          "result": "Nach Release-Intake in der Watchlist vorhanden; kein passender Eintrag in data/release-cache.json."
+        }
+      ],
+      "sourceAnalysisEvidence": "Der Band wurde per Release-Intake in die Watchlist uebernommen. Der Release-Cache enthaelt noch kein belegtes Datum; kein Cache-Patch ohne verifizierte Quelle.",
+      "safeToPatch": false,
+      "reviewStatus": "pending",
+      "sourceUrl": "",
+      "releaseDate": null,
+      "checkedAt": null,
+      "evidence": "",
+      "notes": "Automatisch aus aktueller Source-Gap-Analyse ergänzt; manuelle Quellenprüfung erforderlich."
+    },
+    {
+      "queueKey": "Mein Wunsch, von einer Oberschülerin getötet zu werden|Yomeru|1",
+      "seriesTitle": "Mein Wunsch, von einer Oberschülerin getötet zu werden",
+      "publisher": "Yomeru",
+      "volumeNumber": 1,
+      "classification": "source-data-gap",
+      "suspectedCause": "manual-source-required",
+      "priority": "mittel",
+      "recommendedFix": "manual-source-review",
+      "manualSourceReviewNeeded": true,
+      "checkedSources": [
+        {
+          "name": "Release-Intake-Staging / Release-Cache-Audit",
+          "url": "data/release-watchlist.json",
+          "result": "Nach Release-Intake in der Watchlist vorhanden; kein passender Eintrag in data/release-cache.json."
+        }
+      ],
+      "sourceAnalysisEvidence": "Der Band wurde per Release-Intake in die Watchlist uebernommen. Der Release-Cache enthaelt noch kein belegtes Datum; kein Cache-Patch ohne verifizierte Quelle.",
+      "safeToPatch": false,
+      "reviewStatus": "pending",
+      "sourceUrl": "",
+      "releaseDate": null,
+      "checkedAt": null,
+      "evidence": "",
+      "notes": "Automatisch aus aktueller Source-Gap-Analyse ergänzt; manuelle Quellenprüfung erforderlich."
     }
   ]
 }

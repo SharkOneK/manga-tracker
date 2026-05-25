@@ -36,6 +36,11 @@ const BLOCKED_PREFIXES = [
   'docs/',
 ];
 
+const WORKTREE_DIAGNOSTIC_IGNORED_PATHS = [
+  'artifacts',
+  '.tmp.driveupload',
+];
+
 const ALLOWED_REVIEW_STATUS = new Set([
   'pending',
   'in-review',
@@ -228,10 +233,16 @@ function evaluateAutoMergeGate({ changedFiles, pipelineReport, beforeQueue = [],
       });
     }
 
+    const reportOnly =
+      normalizedChangedFiles.length === 1 &&
+      normalizedChangedFiles[0] === 'data/release-cache-pipeline-report.json';
+
     return {
       allowed: true,
-      class: 'report-queue-only',
-      reason: 'Only release cache pipeline report and review queue changed; cachePatches is 0; no new safeToPatch entries.',
+      class: reportOnly ? 'report-only' : 'report-queue-only',
+      reason: reportOnly
+        ? 'Only release cache pipeline report changed; cachePatches is 0.'
+        : 'Only release cache pipeline report and review queue changed; cachePatches is 0; no new safeToPatch entries.',
       ...withCounts,
     };
   } catch (error) {
@@ -252,36 +263,39 @@ function readJsonFromGit(ref, relativePath) {
   return JSON.parse(output);
 }
 
-function getChangedFiles(baseRef = 'main') {
-  const output = execFileSync('git', ['diff', '--name-only', `${baseRef}...HEAD`], {
-    cwd: repoRoot,
+function gitLines(args, cwd = repoRoot) {
+  const output = execFileSync('git', args, {
+    cwd,
     encoding: 'utf8',
     stdio: ['ignore', 'pipe', 'ignore'],
   });
-  const committed = output.split(/\r?\n/).map(normalizePath).filter(Boolean);
+  return output.split(/\r?\n/).map(normalizePath).filter(Boolean);
+}
 
-  const worktreeOutput = execFileSync('git', ['diff', '--name-only'], {
-    cwd: repoRoot,
-    encoding: 'utf8',
-    stdio: ['ignore', 'pipe', 'ignore'],
-  });
-  const worktree = worktreeOutput.split(/\r?\n/).map(normalizePath).filter(Boolean);
+function getChangedFiles(baseRef = 'main', { includeWorktree = false, cwd = repoRoot } = {}) {
+  const committed = gitLines(['diff', '--name-only', `${baseRef}...HEAD`], cwd);
 
-  const stagedOutput = execFileSync('git', ['diff', '--cached', '--name-only'], {
-    cwd: repoRoot,
-    encoding: 'utf8',
-    stdio: ['ignore', 'pipe', 'ignore'],
-  });
-  const staged = stagedOutput.split(/\r?\n/).map(normalizePath).filter(Boolean);
+  if (!includeWorktree) {
+    return [...new Set(committed)];
+  }
 
-  const untrackedOutput = execFileSync('git', ['ls-files', '--others', '--exclude-standard'], {
-    cwd: repoRoot,
-    encoding: 'utf8',
-    stdio: ['ignore', 'pipe', 'ignore'],
-  });
-  const untracked = untrackedOutput.split(/\r?\n/).map(normalizePath).filter(Boolean);
+  const worktree = gitLines(['diff', '--name-only'], cwd);
+  const staged = gitLines(['diff', '--cached', '--name-only'], cwd);
+  const untracked = gitLines(['ls-files', '--others', '--exclude-standard'], cwd);
 
-  return [...new Set([...committed, ...worktree, ...staged, ...untracked])];
+  const ignoredDiagnostics = gitLines(
+    [
+      'ls-files',
+      '--others',
+      '--ignored',
+      '--exclude-standard',
+      '--',
+      ...WORKTREE_DIAGNOSTIC_IGNORED_PATHS,
+    ],
+    cwd,
+  );
+
+  return [...new Set([...committed, ...worktree, ...staged, ...untracked, ...ignoredDiagnostics])];
 }
 
 function parseArgs(argv) {
@@ -289,11 +303,13 @@ function parseArgs(argv) {
     json: false,
     base: process.env.AUTO_MERGE_GATE_BASE || 'main',
     changedFiles: null,
+    includeWorktree: false,
   };
   for (let i = 0; i < argv.length; i += 1) {
     const arg = argv[i];
     if (arg === '--json') args.json = true;
     else if (arg === '--base') args.base = argv[++i];
+    else if (arg === '--include-worktree') args.includeWorktree = true;
     else if (arg === '--changed-file') {
       args.changedFiles = args.changedFiles || [];
       args.changedFiles.push(argv[++i]);
@@ -314,7 +330,7 @@ function formatText(result) {
   lines.push(`PR class: ${result.class}`);
   lines.push(`Reason: ${result.reason}`);
   lines.push('');
-  lines.push('Changed files:');
+  lines.push('PR changed files:');
   for (const file of result.changedFiles || []) lines.push(`- ${file}`);
   if (typeof result.cachePatches === 'number') lines.push(`Cache patches: ${result.cachePatches}`);
   if (typeof result.safeToPatchBefore === 'number') lines.push(`safeToPatch before: ${result.safeToPatchBefore}`);
@@ -327,7 +343,7 @@ function main() {
   let result;
   try {
     args = parseArgs(process.argv.slice(2));
-    const changedFiles = args.changedFiles || getChangedFiles(args.base);
+    const changedFiles = args.changedFiles || getChangedFiles(args.base, { includeWorktree: args.includeWorktree });
     result = evaluateAutoMergeGate({
       changedFiles,
       pipelineReport: readJsonFile('data/release-cache-pipeline-report.json'),
@@ -357,4 +373,5 @@ module.exports = {
   BLOCKED_PREFIXES,
   ALLOWED_REVIEW_STATUS,
   evaluateAutoMergeGate,
+  getChangedFiles,
 };

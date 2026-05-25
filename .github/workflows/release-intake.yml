@@ -38,6 +38,7 @@ jobs:
           node --check scripts/sync-release-coverage-gap-docs.js
           node --check scripts/validate-release-watchlist.js
           node --check scripts/validate-release-cache-coverage-gaps.js
+          node --check scripts/validate-release-source-review-queue.js
           node --check scripts/check-secrets.js
           node --check scripts/security-audit-static.js
           node --check scripts/smoke-test-static.js
@@ -69,6 +70,7 @@ jobs:
         run: |
           node scripts/sync-release-coverage-gap-docs.js
           node scripts/validate-release-cache-coverage-gaps.js
+          node scripts/validate-release-source-review-queue.js
           node scripts/test-stats.js
 
       - name: Security check after intake
@@ -82,6 +84,7 @@ jobs:
         run: |
           MANAGED_PATHS=(
             data/release-watchlist.json
+            data/release-source-review-queue.json
             docs/release-cache-coverage-gaps.md
             docs/release-cache-source-gap-analysis.md
             scripts/validate-release-cache-coverage-gaps.js
@@ -108,7 +111,7 @@ jobs:
           console.log('');
           console.log(`- Watchlist items after intake: ${wl.items ? wl.items.length : '?'}`);
           console.log(`- Generated at: ${wl.generatedAt || new Date().toISOString()}`);
-          console.log('- Coverage-gap docs and expected counts are synchronized from the current audit.');
+          console.log('- Coverage-gap docs, expected counts, and source-review queue placeholders are synchronized from the current audit.');
           console.log('');
           console.log('### Security');
           console.log('');
@@ -135,6 +138,7 @@ jobs:
           labels: release-watchlist, automated
           add-paths: |
             data/release-watchlist.json
+            data/release-source-review-queue.json
             docs/release-cache-coverage-gaps.md
             docs/release-cache-source-gap-analysis.md
             scripts/validate-release-cache-coverage-gaps.js
@@ -149,7 +153,7 @@ jobs:
             if [ "${{ steps.changes.outputs.changed }}" = "true" ]; then
               echo "- PR created: ${{ steps.cpr.outputs.pull-request-url || 'see PR list' }}"
               echo "- Branch: automated/release-intake"
-              echo "- Managed files: watchlist plus synchronized coverage-gap documentation when needed"
+              echo "- Managed files: watchlist plus synchronized coverage-gap documentation and source-review queue placeholders when needed"
             else
               echo "- No changes detected — clean no-op"
             fi

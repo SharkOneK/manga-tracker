@@ -18,6 +18,7 @@ const repoRoot = path.resolve(__dirname, '..');
 const auditScript = path.join(repoRoot, 'scripts', 'audit-release-cache-coverage.js');
 const gapsDocPath = path.join(repoRoot, 'docs', 'release-cache-coverage-gaps.md');
 const sourceGapAnalysisDocPath = path.join(repoRoot, 'docs', 'release-cache-source-gap-analysis.md');
+const sourceReviewQueuePath = path.join(repoRoot, 'data', 'release-source-review-queue.json');
 const validatorPath = path.join(repoRoot, 'scripts', 'validate-release-cache-coverage-gaps.js');
 
 const EXPECTED_CLASSIFICATION = 'source-data-gap';
@@ -36,7 +37,7 @@ function readText(filePath) {
 function writeIfChanged(filePath, content) {
   const normalized = content.endsWith('\n') ? content : content + '\n';
   const current = readText(filePath);
-  if (current === normalized) return false;
+  if (current.replace(/\r\n?/g, '\n') === normalized.replace(/\r\n?/g, '\n')) return false;
   fs.mkdirSync(path.dirname(filePath), { recursive: true });
   fs.writeFileSync(filePath, normalized, 'utf8');
   return true;
@@ -331,6 +332,75 @@ function syncGapAnalysisItems(report, existingParsed) {
   };
 }
 
+function queueKey(item) {
+  return [
+    String(item && item.seriesTitle || '').trim(),
+    String(item && item.publisher || '').trim(),
+    String(item && item.volumeNumber || '').trim(),
+  ].join('|');
+}
+
+function sourceReviewQueueEntry(item) {
+  const publisher = item.publisher || 'Unbekannter Verlag';
+  return {
+    queueKey: `${item.seriesTitle}|${publisher}|${item.volumeNumber}`,
+    seriesTitle: item.seriesTitle,
+    publisher,
+    volumeNumber: item.volumeNumber,
+    classification: EXPECTED_CLASSIFICATION,
+    suspectedCause: item.suspectedCause || DEFAULT_CAUSE,
+    priority: item.priority || 'mittel',
+    recommendedFix: item.recommendedFix || DEFAULT_FIX,
+    manualSourceReviewNeeded: true,
+    checkedSources: Array.isArray(item.checkedSources) ? item.checkedSources : [],
+    sourceAnalysisEvidence: item.evidence || defaultGapAnalysisItem(item).evidence,
+    safeToPatch: false,
+    reviewStatus: 'pending',
+    sourceUrl: '',
+    releaseDate: null,
+    checkedAt: null,
+    evidence: '',
+    notes: 'Automatisch aus aktueller Source-Gap-Analyse ergänzt; manuelle Quellenprüfung erforderlich.',
+  };
+}
+
+function recalculateQueueSummary(queueDoc, expectedSourceGaps) {
+  const queue = Array.isArray(queueDoc.queue) ? queueDoc.queue : [];
+  return {
+    ...(queueDoc.summary && typeof queueDoc.summary === 'object' ? queueDoc.summary : {}),
+    knownSourceGaps: expectedSourceGaps,
+    totalGaps: queue.length,
+    safeToPatch: queue.filter(entry => entry && entry.safeToPatch === true).length,
+    pendingManualReview: queue.filter(entry => !entry || entry.safeToPatch !== true).length,
+    autoReviewed: queue.filter(entry => entry && typeof entry.reviewStatus === 'string' && entry.reviewStatus.startsWith('auto-')).length,
+    patched: queue.filter(entry => entry && entry.reviewStatus === 'patched').length,
+  };
+}
+
+function syncSourceReviewQueue(parsedAnalysis) {
+  const current = readText(sourceReviewQueuePath);
+  if (!current) throw new Error(`${rel(sourceReviewQueuePath)} fehlt`);
+
+  const queueDoc = JSON.parse(current);
+  if (!queueDoc || typeof queueDoc !== 'object' || Array.isArray(queueDoc)) {
+    throw new Error(`${rel(sourceReviewQueuePath)} muss ein JSON-Objekt sein`);
+  }
+  if (!Array.isArray(queueDoc.queue)) {
+    throw new Error(`${rel(sourceReviewQueuePath)} muss queue als Array enthalten`);
+  }
+
+  const analysisItems = Array.isArray(parsedAnalysis.gapAnalysis) ? parsedAnalysis.gapAnalysis : [];
+  const existingKeys = new Set(queueDoc.queue.map(queueKey));
+  const missingEntries = analysisItems
+    .filter(item => !existingKeys.has(queueKey(item)))
+    .map(sourceReviewQueueEntry);
+
+  queueDoc.queue.push(...missingEntries);
+  queueDoc.summary = recalculateQueueSummary(queueDoc, analysisItems.length);
+
+  return writeIfChanged(sourceReviewQueuePath, JSON.stringify(queueDoc, null, 2));
+}
+
 function analysisByGapKey(gapAnalysis) {
   return new Map(gapAnalysis.map(item => [gapKey(item), item]));
 }
@@ -454,10 +524,9 @@ function buildSourceAnalysisFooter(report) {
   return lines.join('\n');
 }
 
-function buildSourceGapAnalysisDoc(report) {
+function buildSourceGapAnalysisDoc(report, parsedOverride = null) {
   const currentDoc = readText(sourceGapAnalysisDocPath);
-  const existingParsed = extractSourceGapAnalysisJson(currentDoc);
-  const parsed = syncGapAnalysisItems(report, existingParsed);
+  const parsed = parsedOverride || syncGapAnalysisItems(report, extractSourceGapAnalysisJson(currentDoc));
   const intro = buildSourceAnalysisIntro(report, parsed);
   const machineSection = buildMachineSection(parsed);
   const re = /## Maschinenlesbare Analyse[\s\S]*?<!-- source-gap-analysis-json:end -->\s*/;
@@ -467,6 +536,12 @@ function buildSourceGapAnalysisDoc(report) {
   const historicalFooter = historicalStart === -1 ? '' : existingFooter.slice(historicalStart).replace(/^\s+/, '');
   const generatedFooter = buildSourceAnalysisFooter(report);
   return `${intro}\n${machineSection}${generatedFooter}${historicalFooter ? `\n${historicalFooter}` : ''}`;
+}
+
+function buildSourceGapAnalysis(report) {
+  const currentDoc = readText(sourceGapAnalysisDocPath);
+  const existingParsed = extractSourceGapAnalysisJson(currentDoc);
+  return syncGapAnalysisItems(report, existingParsed);
 }
 
 function updateValidatorExpected(report) {
@@ -493,10 +568,12 @@ function updateValidatorExpected(report) {
 function main() {
   const report = runAuditJson();
   assertAuditShape(report);
+  const parsedAnalysis = buildSourceGapAnalysis(report);
 
   const changed = [];
   if (writeIfChanged(gapsDocPath, buildCoverageGapsDoc(report))) changed.push(rel(gapsDocPath));
-  if (writeIfChanged(sourceGapAnalysisDocPath, buildSourceGapAnalysisDoc(report))) changed.push(rel(sourceGapAnalysisDocPath));
+  if (writeIfChanged(sourceGapAnalysisDocPath, buildSourceGapAnalysisDoc(report, parsedAnalysis))) changed.push(rel(sourceGapAnalysisDocPath));
+  if (syncSourceReviewQueue(parsedAnalysis)) changed.push(rel(sourceReviewQueuePath));
   if (updateValidatorExpected(report)) changed.push(rel(validatorPath));
 
   if (changed.length) {
