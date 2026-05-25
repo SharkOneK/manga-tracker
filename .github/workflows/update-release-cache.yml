@@ -154,6 +154,12 @@ jobs:
             automated/release-cache-pipeline:refs/remotes/origin/automated/release-cache-pipeline
           git checkout --detach origin/automated/release-cache-pipeline
 
+          echo "PR diff files evaluated by the auto-merge gate (origin/main...HEAD):"
+          git diff --name-only origin/main...HEAD
+          echo ""
+          echo "Workspace status for diagnostics only (not used by the gate):"
+          git status --short
+
           node scripts/validate-release-cache-automerge-gate.js --base origin/main --json > "$RUNNER_TEMP/automerge-gate.json"
           cat "$RUNNER_TEMP/automerge-gate.json"
 
@@ -171,8 +177,10 @@ jobs:
             echo "- PR class: $gate_class"
             echo "- Reason: $reason"
             echo ""
-            echo "### Changed files"
+            echo "### PR diff files evaluated"
             node -e "const fs=require('fs'); const r=JSON.parse(fs.readFileSync(process.argv[1], 'utf8')); for (const file of r.changedFiles || []) console.log('- ' + file)" "$RUNNER_TEMP/automerge-gate.json"
+            echo ""
+            echo "Workspace status is logged for diagnostics only and is not part of this auto-merge decision."
             echo ""
             echo "### Gate metrics"
             node -e "const fs=require('fs'); const r=JSON.parse(fs.readFileSync(process.argv[1], 'utf8')); for (const key of ['cachePatches','safeToPatchBefore','safeToPatchAfter']) if (Object.prototype.hasOwnProperty.call(r, key)) console.log('- ' + key + ': ' + r[key])" "$RUNNER_TEMP/automerge-gate.json"

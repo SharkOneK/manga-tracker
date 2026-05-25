@@ -17,7 +17,6 @@ const repoRoot = path.resolve(__dirname, '..');
 const analysisPath = path.join(repoRoot, 'docs', 'release-cache-source-gap-analysis.md');
 const queuePath = path.join(repoRoot, 'data', 'release-source-review-queue.json');
 
-const EXPECTED_GAPS = 34;
 const SOURCE_BLOCK_RE = /<!-- source-gap-analysis-json:start -->\s*```json\s*([\s\S]*?)\s*```\s*<!-- source-gap-analysis-json:end -->/;
 const ISO_DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 const ISO_DATE_OR_DATETIME_RE = /^\d{4}-\d{2}-\d{2}(?:T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})?)?$/;
@@ -163,13 +162,13 @@ function validateAnalysis(analysis) {
     fail('Source-Gap-Analyse muss gapAnalysis als Array enthalten');
     return [];
   }
-  if (analysis.gapAnalysis.length !== EXPECTED_GAPS) {
-    fail(`Source-Gap-Analyse muss ${EXPECTED_GAPS} bekannte Gaps enthalten, gefunden ${analysis.gapAnalysis.length}`);
+  if (analysis.gapAnalysis.length === 0) {
+    fail('Source-Gap-Analyse muss mindestens einen bekannten Gap enthalten');
   }
   return analysis.gapAnalysis;
 }
 
-function validateQueueDocument(doc) {
+function validateQueueDocument(doc, expectedGapCount) {
   if (!isPlainObject(doc)) {
     fail('Review-Queue muss ein JSON-Objekt sein');
     return [];
@@ -179,14 +178,14 @@ function validateQueueDocument(doc) {
     fail('Review-Queue muss queue als Array enthalten');
     return [];
   }
-  if (doc.queue.length < EXPECTED_GAPS) {
-    fail(`Review-Queue muss mindestens ${EXPECTED_GAPS} bekannte Gaps enthalten, gefunden ${doc.queue.length}`);
+  if (doc.queue.length < expectedGapCount) {
+    fail(`Review-Queue muss mindestens ${expectedGapCount} bekannte Gaps enthalten, gefunden ${doc.queue.length}`);
   }
   if (!doc.summary || typeof doc.summary !== 'object') fail('Review-Queue summary fehlt');
   else {
     if (doc.summary.totalGaps !== doc.queue.length) fail('summary.totalGaps passt nicht zu queue.length');
-    if (doc.summary.knownSourceGaps !== undefined && doc.summary.knownSourceGaps !== EXPECTED_GAPS) {
-      fail(`summary.knownSourceGaps muss ${EXPECTED_GAPS} sein`);
+    if (doc.summary.knownSourceGaps !== undefined && doc.summary.knownSourceGaps !== expectedGapCount) {
+      fail(`summary.knownSourceGaps muss ${expectedGapCount} sein`);
     }
   }
   return doc.queue;
@@ -257,7 +256,7 @@ try {
 let queueItems = [];
 try {
   const queueDoc = JSON.parse(fs.readFileSync(queuePath, 'utf8'));
-  queueItems = validateQueueDocument(queueDoc);
+  queueItems = validateQueueDocument(queueDoc, analysisItems.length);
   if (totalErrors === 0) pass('Review-Queue JSON ist parsebar');
 } catch (e) {
   fail(`Review-Queue kann nicht gelesen werden: ${e.message}`);

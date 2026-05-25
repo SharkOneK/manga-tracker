@@ -445,6 +445,8 @@ runTest('Phase 36b: release-intake.yml erstellt PR, kein push nach main', functi
   const wf = fs2.readFileSync(wfPath, 'utf-8');
   assert.ok(wf.includes('create-pull-request'), 'Workflow must use create-pull-request action');
   assert.ok(wf.includes('automated/release-intake'), 'Workflow must use automated/release-intake branch');
+  assert.ok(wf.includes('data/release-source-review-queue.json'), 'Workflow must include synchronized source-review queue placeholders');
+  assert.ok(wf.includes('node scripts/validate-release-source-review-queue.js'), 'Workflow must validate source-review queue after sync');
   // Must not push to main directly
   assert.ok(!/git push.*main/i.test(wf), 'Workflow must not push directly to main');
 });
