@@ -1,6 +1,6 @@
 # Phase 23a - Release-Cache Source-Gap-Ursachenanalyse
 
-Stand: 2026-05-19, nach Audit von `data/release-watchlist.json` gegen `data/release-cache.json`.
+Stand: automatisch synchronisiert aus aktuellem Audit gegen `data/release-watchlist.json` und `data/release-cache.json`.
 
 Diese Datei dokumentiert die 38 bekannten `source-data-gap`-Luecken aus `docs/release-cache-coverage-gaps.md`. Sie ist bewusst eine Analyse- und Entscheidungsdatei: Es werden keine Release-Daten geraten, keine privaten Sammlungsdaten ergaenzt und `data/release-cache.json` bleibt unangetastet.
 
@@ -8,21 +8,23 @@ Diese Datei dokumentiert die 38 bekannten `source-data-gap`-Luecken aus `docs/re
 
 | Kennzahl | Wert |
 |---|---:|
-| Analysierte Gaps | 34 |
+| Analysierte Gaps | 38 |
 | Betroffene Serien | 15 |
 | Sichere direkte Cache-Patches | 0 |
-| Manuelle Quellenpruefung noetig | 34 |
+| Manuelle Quellenpruefung noetig | 38 |
 
 ## Ursachencluster
 
 | Vermutete Ursache | Gaps |
 |---|---:|
-| not-yet-released | 33 |
+| not-yet-released | 32 |
+| manual-source-required | 4 |
 | source-missing | 1 |
 | volume-numbering-mismatch | 1 |
 
 Interpretation:
 
+- `manual-source-required`: Der Gap wurde aus dem aktuellen Audit uebernommen; vor einem Cache-Patch muss eine belastbare Quelle manuell geprueft werden.
 - `not-yet-released`: Die bekannte Quelle fuehrt den Band gar nicht mit einem validen Datum oder nur mit Platzhalterdatum. Kein Cache-Patch ohne weitere Quelle.
 - `source-missing`: Die bekannte Quelle enthaelt den Band aktuell nicht in der passenden Edition.
 - `publisher-normalization`: Watchlist-/Quellenpublisher weichen fachlich ab; erst Metadaten klaeren, dann patchen.
@@ -32,7 +34,7 @@ Interpretation:
 
 | Empfohlener Fix | Gaps |
 |---|---:|
-| manual-source-review | 34 |
+| manual-source-review | 38 |
 
 Der einzige sichere naechste Schritt ist aktuell `manual-source-review`: offizielle Verlagsseite oder bereits erlaubte vertrauenswuerdige Quelle pruefen und erst danach echte Release-Daten mit Source-URL uebernehmen.
 
@@ -50,8 +52,11 @@ Der einzige sichere naechste Schritt ist aktuell `manual-source-review`: offizie
 | Gushing over Magical Girls | MangaMoon | 4 | 1 | not-yet-released | manual-source-review | nein |
 | Isekai Soapland | MANGAMOON | 3-8 | 6 | not-yet-released | manual-source-review | nein |
 | Mirai Nikki – New Edition | Egmont Manga | 6 | 1 | not-yet-released | manual-source-review | nein |
-| Neck mich nicht, Nagatoro-san | dani books | 6 | 1 | not-yet-released | manual-source-review | nein |
+| Neck mich nicht, Nagatoro-san | dani books | 6-7 | 2 | manual-source-required | manual-source-review | nein |
 | Tokyo Revengers – Doppelband-Edition | Carlsen Manga | 16 | 1 | volume-numbering-mismatch | manual-source-review | nein |
+| Bitte zieh dich an, Takamine! | Egmont Manga | 1 | 1 | manual-source-required | manual-source-review | nein |
+| I Was Reincarnated as the 7th Prince So I Can Take My Time Perfecting My Magical Ability | Dokico | 1 | 1 | manual-source-required | manual-source-review | nein |
+| Mein Wunsch, von einer Oberschülerin getötet zu werden | Yomeru | 1 | 1 | manual-source-required | manual-source-review | nein |
 
 ## Einzelgap-Matrix
 
@@ -91,6 +96,10 @@ Der einzige sichere naechste Schritt ist aktuell `manual-source-review`: offizie
 | Mirai Nikki – New Edition | Egmont Manga | 6 | not-yet-released | manual-source-review | nein | ja |
 | Neck mich nicht, Nagatoro-san | dani books | 6 | not-yet-released | manual-source-review | nein | ja |
 | Tokyo Revengers – Doppelband-Edition | Carlsen Manga | 16 | volume-numbering-mismatch | manual-source-review | nein | ja |
+| Neck mich nicht, Nagatoro-san | dani books | 7 | manual-source-required | manual-source-review | nein | ja |
+| Bitte zieh dich an, Takamine! | Egmont Manga | 1 | manual-source-required | manual-source-review | nein | ja |
+| I Was Reincarnated as the 7th Prince So I Can Take My Time Perfecting My Magical Ability | Dokico | 1 | manual-source-required | manual-source-review | nein | ja |
+| Mein Wunsch, von einer Oberschülerin getötet zu werden | Yomeru | 1 | manual-source-required | manual-source-review | nein | ja |
 
 ## Maschinenlesbare Analyse
 
@@ -826,25 +835,25 @@ Der einzige sichere naechste Schritt ist aktuell `manual-source-review`: offizie
 }
 ```
 <!-- source-gap-analysis-json:end -->
-
 ## Quellenstrategie pro Verlag
 
-| Verlag | Gaps | Strategie |
-|---|---:|---|
-| Egmont Manga | 9 | Edition-Fingerprint ist fuer vorhandene Baende plausibel; fehlende Baende haben keine validen Daten. Offizielle Egmont-Produktseiten vor Cache-Patch pruefen. |
-| Panini Manga | 8 | Berserk Master Edition ist als Edition erkannt, aber Folgebaende haben nur Platzhalterdaten. Panini-Quelle oder andere belastbare Quelle noetig. |
-| Altraverse | 6 | Adou Band 12 fehlt in der Quelle, Arifureta Zero Band 4-8 haben keine validen Daten. Altraverse-Produktseiten pruefen. |
-| MANGAMOON / MangaMoon | 8 | Schreibweise konsolidieren; Normalisierung fuehrt beide Casing-Varianten auf denselben technischen Wert, aber fachliche Publisherfehler wie Vermeil/Manga Cult muessen manuell korrigiert werden. |
-| Carlsen Manga | 1 | Tokyo Revengers Doppelband-Edition Band 16 ist wahrscheinlich Nummerierungs-/Editionsdrift; Carlsen pruefen, bevor Band 16 als echter Doppelband akzeptiert wird. |
-| dani books | 1 | Einzelpruefung fuer Nagatoro Band 6, da Quelle nur Platzhalterdaten liefert. |
+| Verlag | Gaps | Serien | Strategie |
+|---|---:|---:|---|
+| Egmont Manga | 10 | 4 | Offizielle Verlags-/Produktquelle manuell pruefen; kein Cache-Patch ohne belegtes tagesgenaues Release-Datum. |
+| Panini Manga | 8 | 1 | Offizielle Verlags-/Produktquelle manuell pruefen; kein Cache-Patch ohne belegtes tagesgenaues Release-Datum. |
+| MANGAMOON | 7 | 2 | Offizielle Verlags-/Produktquelle manuell pruefen; kein Cache-Patch ohne belegtes tagesgenaues Release-Datum. |
+| Altraverse | 6 | 2 | Offizielle Verlags-/Produktquelle manuell pruefen; kein Cache-Patch ohne belegtes tagesgenaues Release-Datum. |
+| dani books | 2 | 1 | Offizielle Verlags-/Produktquelle manuell pruefen; kein Cache-Patch ohne belegtes tagesgenaues Release-Datum. |
+| MangaMoon | 2 | 2 | Offizielle Verlags-/Produktquelle manuell pruefen; kein Cache-Patch ohne belegtes tagesgenaues Release-Datum. |
+| Carlsen Manga | 1 | 1 | Offizielle Verlags-/Produktquelle manuell pruefen; kein Cache-Patch ohne belegtes tagesgenaues Release-Datum. |
+| Dokico | 1 | 1 | Offizielle Verlags-/Produktquelle manuell pruefen; kein Cache-Patch ohne belegtes tagesgenaues Release-Datum. |
+| Yomeru | 1 | 1 | Offizielle Verlags-/Produktquelle manuell pruefen; kein Cache-Patch ohne belegtes tagesgenaues Release-Datum. |
 
 ## Konkrete naechste Fixes
 
-1. ~~Publisher-Metadaten pruefen: `Vermeil in Gold` steht in der Watchlist als Manga Cult, die gepruefte Quelle nennt MANGAMOON.~~ Erledigt 2026-05-23 (PR #44): Watchlist-Publisher auf MANGAMOON korrigiert. Band 2 bleibt gap da kein valides Release-Datum.
-2. Offizielle Verlagsquellen fuer die vier grossen Bloecke priorisieren: Berserk ME, Vagabond ME, Isekai Soapland, Arifureta Zero.
-3. Tokyo Revengers Doppelband-Edition Band 16 gegen Carlsen pruefen; moeglicherweise ist die Watchlist-Bandnummer fachlich falsch.
-4. Demon Slave Band 2 gegen eine verlaessliche Crunchyroll-/Verlagsquelle pruefen; ohne belegtes Datum bleibt der Gap sichtbar.
-4. Erst wenn ein echtes Datum mit Source-URL vorliegt: Updater/Quelle erweitern oder Watchlist-Metadaten ergaenzen, danach Cache per Skriptprozess aktualisieren.
+1. Neue oder weiterhin offene Audit-Gaps aus der maschinenlesbaren Analyse mit `manual-source-review` triagieren.
+2. Offizielle Verlagsseiten oder bereits erlaubte vertrauenswuerdige Quellen fuer die groessten Gap-Bloecke priorisieren.
+3. Erst wenn ein echtes Datum mit Source-URL vorliegt: Updater/Quelle erweitern oder Watchlist-Metadaten ergaenzen, danach Cache per Skriptprozess aktualisieren.
 
 ## Sicherheitsbestaetigung
 
@@ -852,7 +861,6 @@ Der einzige sichere naechste Schritt ist aktuell `manual-source-review`: offizie
 - Keine geratenen Release-Daten ergaenzt.
 - Keine privaten Sammlungsdaten verwendet.
 - `data/release-cache.json` wurde fuer diese Analyse nicht veraendert.
-
 
 ## Phase 33 Manual Source-Gap Audit (2026-05-20)
 

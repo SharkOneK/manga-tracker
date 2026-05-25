@@ -1,6 +1,6 @@
 # Phase 22c - Klassifizierung verbleibender Release-Cache-Coverage-Luecken
 
-Stand: nach Release-Intake-PR #55 (`d36eb12`) und aktuellem Audit gegen `data/release-cache.json`.
+Stand: automatisch synchronisiert aus aktuellem Audit gegen `data/release-watchlist.json` und `data/release-cache.json`.
 
 ## Zusammenfassung
 

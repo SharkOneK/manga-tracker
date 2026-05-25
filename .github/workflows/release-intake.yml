@@ -35,7 +35,9 @@ jobs:
       - name: Syntax checks
         run: |
           node --check scripts/apply-release-intake-candidates.js
+          node --check scripts/sync-release-coverage-gap-docs.js
           node --check scripts/validate-release-watchlist.js
+          node --check scripts/validate-release-cache-coverage-gaps.js
           node --check scripts/check-secrets.js
           node --check scripts/security-audit-static.js
           node --check scripts/smoke-test-static.js
@@ -63,21 +65,34 @@ jobs:
       - name: Validate watchlist after intake
         run: node scripts/validate-release-watchlist.js
 
+      - name: Sync coverage-gap docs after intake
+        run: |
+          node scripts/sync-release-coverage-gap-docs.js
+          node scripts/validate-release-cache-coverage-gaps.js
+          node scripts/test-stats.js
+
       - name: Security check after intake
         run: |
           node scripts/check-secrets.js
           git diff --check
 
-      - name: Detect watchlist changes
+      - name: Detect intake-managed changes
         id: changes
         shell: bash
         run: |
-          if git diff --quiet -- data/release-watchlist.json; then
+          MANAGED_PATHS=(
+            data/release-watchlist.json
+            docs/release-cache-coverage-gaps.md
+            docs/release-cache-source-gap-analysis.md
+            scripts/validate-release-cache-coverage-gaps.js
+            scripts/test-stats.js
+          )
+          if git diff --quiet -- "${MANAGED_PATHS[@]}"; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
-            echo "No watchlist changes detected — no PR needed."
+            echo "No intake-managed changes detected — no PR needed."
           else
             echo "changed=true" >> "$GITHUB_OUTPUT"
-            git diff --stat -- data/release-watchlist.json
+            git diff --stat -- "${MANAGED_PATHS[@]}"
           fi
 
       - name: Prepare PR body
@@ -93,6 +108,7 @@ jobs:
           console.log('');
           console.log(`- Watchlist items after intake: ${wl.items ? wl.items.length : '?'}`);
           console.log(`- Generated at: ${wl.generatedAt || new Date().toISOString()}`);
+          console.log('- Coverage-gap docs and expected counts are synchronized from the current audit.');
           console.log('');
           console.log('### Security');
           console.log('');
@@ -119,6 +135,10 @@ jobs:
           labels: release-watchlist, automated
           add-paths: |
             data/release-watchlist.json
+            docs/release-cache-coverage-gaps.md
+            docs/release-cache-source-gap-analysis.md
+            scripts/validate-release-cache-coverage-gaps.js
+            scripts/test-stats.js
 
       - name: Summary
         shell: bash
@@ -129,7 +149,7 @@ jobs:
             if [ "${{ steps.changes.outputs.changed }}" = "true" ]; then
               echo "- PR created: ${{ steps.cpr.outputs.pull-request-url || 'see PR list' }}"
               echo "- Branch: automated/release-intake"
-              echo "- Changed file: data/release-watchlist.json"
+              echo "- Managed files: watchlist plus synchronized coverage-gap documentation when needed"
             else
               echo "- No changes detected — clean no-op"
             fi
