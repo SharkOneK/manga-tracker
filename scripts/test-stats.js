@@ -1325,14 +1325,18 @@ test('Phase 22c: Audit bietet maschinenlesbaren JSON-Report-Modus', () => {
 
 test('Phase 22d: Coverage-Gap-Validator und Docs sind vorhanden', () => {
   const validatorPath = _path22.join(_root22, 'scripts', 'validate-release-cache-coverage-gaps.js');
+  const syncPath = _path22.join(_root22, 'scripts', 'sync-release-coverage-gap-docs.js');
   const docsPath = _path22.join(_root22, 'docs', 'release-cache-coverage-gaps.md');
   assert.ok(_fs22.existsSync(validatorPath), 'validate-release-cache-coverage-gaps.js muss existieren');
+  assert.ok(_fs22.existsSync(syncPath), 'sync-release-coverage-gap-docs.js muss existieren');
   assert.ok(_fs22.existsSync(docsPath), 'release-cache-coverage-gaps.md muss existieren');
   const validator = _fs22.readFileSync(validatorPath, 'utf8');
   const docs = _fs22.readFileSync(docsPath, 'utf8');
   assert.ok(validator.includes('source-data-gap'), 'Validator muss source-data-gap pruefen');
   assert.ok(validator.includes('missingCacheCoverage'), 'Validator muss Summary-Zaehler pruefen');
-  assert.ok(docs.includes('38') && docs.includes('15') && docs.includes('9'), 'Docs muessen dokumentierten Stand 38/15/9 enthalten');
+  ['Verbleibende Luecken', 'Betroffene Serien', 'Betroffene Verlage'].forEach(label => {
+    assert.ok(new RegExp(`\\|\\s*${label}\\s*\\|\\s*\\d+\\s*\\|`).test(docs), `Docs muessen Kennzahl "${label}" enthalten`);
+  });
   assert.ok(docs.includes('source-data-gap'), 'Docs muessen source-data-gap dokumentieren');
 });
 
