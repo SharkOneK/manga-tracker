@@ -16,7 +16,6 @@ const repoRoot = path.resolve(__dirname, '..');
 const analysisPath = path.join(repoRoot, 'docs', 'release-cache-source-gap-analysis.md');
 const queuePath = path.join(repoRoot, 'data', 'release-source-review-queue.json');
 
-const EXPECTED_GAPS = 34;
 const SOURCE_BLOCK_RE = /<!-- source-gap-analysis-json:start -->\s*```json\s*([\s\S]*?)\s*```\s*<!-- source-gap-analysis-json:end -->/;
 
 const ANALYSIS_MANAGED_ENTRY_FIELDS = new Set([
@@ -70,6 +69,44 @@ function queueKey(item) {
     String(item.publisher || '').trim(),
     String(item.volumeNumber || '').trim(),
   ].join('|');
+}
+
+function hasText(value) {
+  return typeof value === 'string' && value.trim().length > 0;
+}
+
+function validateGapAnalysis(analysis) {
+  if (!analysis || !Array.isArray(analysis.gapAnalysis)) {
+    throw new Error('Source-gap analysis must contain gapAnalysis array');
+  }
+  if (analysis.gapAnalysis.length === 0) {
+    throw new Error('Source-gap analysis must contain at least one source gap');
+  }
+
+  const seenKeys = new Set();
+  analysis.gapAnalysis.forEach((item, idx) => {
+    const label = `gapAnalysis[${idx}]`;
+    if (!item || typeof item !== 'object' || Array.isArray(item)) {
+      throw new Error(`${label} must be an object`);
+    }
+    if (!hasText(item.seriesTitle)) {
+      throw new Error(`${label}.seriesTitle must be a non-empty string`);
+    }
+    if (!hasText(item.publisher)) {
+      throw new Error(`${label}.publisher must be a non-empty string`);
+    }
+    if (!Number.isInteger(item.volumeNumber) || item.volumeNumber < 1) {
+      throw new Error(`${label}.volumeNumber must be a positive integer`);
+    }
+
+    const key = queueKey(item);
+    if (seenKeys.has(key)) {
+      throw new Error(`Duplicate source gap in analysis: ${key}`);
+    }
+    seenKeys.add(key);
+  });
+
+  return analysis.gapAnalysis;
 }
 
 function sortQueueEntries(a, b) {
@@ -131,16 +168,11 @@ function buildEntryFromAnalysis(item, existingByKey) {
 
 function buildQueue() {
   const analysis = readJsonBlock(analysisPath);
-  if (!analysis || !Array.isArray(analysis.gapAnalysis)) {
-    throw new Error('Source-gap analysis must contain gapAnalysis array');
-  }
-  if (analysis.gapAnalysis.length !== EXPECTED_GAPS) {
-    throw new Error(`Expected ${EXPECTED_GAPS} source gaps, found ${analysis.gapAnalysis.length}`);
-  }
+  const gapAnalysis = validateGapAnalysis(analysis);
 
   const existing = loadExistingQueue();
-  const analysisKeys = new Set(analysis.gapAnalysis.map(queueKey));
-  const analysisEntries = analysis.gapAnalysis
+  const analysisKeys = new Set(gapAnalysis.map(queueKey));
+  const analysisEntries = gapAnalysis
     .map(item => buildEntryFromAnalysis(item, existing.byKey));
   const automatedEntries = existing.entries
     .filter(entry => entry && !analysisKeys.has(queueKey(entry)));
@@ -157,7 +189,7 @@ function buildQueue() {
     generatedFrom: 'docs/release-cache-source-gap-analysis.md',
     reviewPolicy: 'docs/release-cache-manual-source-review.md',
     summary: {
-      knownSourceGaps: analysis.gapAnalysis.length,
+      knownSourceGaps: gapAnalysis.length,
       totalGaps: queue.length,
       safeToPatch: safeToPatchCount,
       pendingManualReview: pendingManualReviewCount,

@@ -641,6 +641,17 @@ runTest('Phase 37: BandCover für gelöschten Band wird korrekt entfernt', funct
 
 // ─── Ergebnis ─────────────────────────────────────────────────────────────
 
+
+// Phase 42b: Source-review queue writer must follow the analysis dynamically.
+runTest('Phase 42b: write-release-source-review-queue.js hat keinen festen Source-Gap-Count', function() {
+  const fs2 = require('fs');
+  const scriptPath = require('path').resolve(__dirname, 'write-release-source-review-queue.js');
+  const src = fs2.readFileSync(scriptPath, 'utf-8');
+  assert.ok(!/\bEXPECTED_GAPS\b/.test(src), 'Writer must not hard-code EXPECTED_GAPS');
+  assert.ok(!/Expected\s+.*source gaps,\s+found/.test(src), 'Writer must not fail on a fixed source-gap count');
+  assert.ok(/gapAnalysis\.length === 0/.test(src), 'Writer should still reject an empty source-gap analysis');
+});
+
 console.log('');
 console.log(`${_passed + _failed} Tests — ${_passed} bestanden, ${_failed} fehlgeschlagen`);
 
