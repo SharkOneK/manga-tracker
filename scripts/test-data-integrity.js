@@ -652,6 +652,38 @@ runTest('Phase 42b: write-release-source-review-queue.js hat keinen festen Sourc
   assert.ok(/gapAnalysis\.length === 0/.test(src), 'Writer should still reject an empty source-gap analysis');
 });
 
+
+// Phase 42c: Update Release Cache must sync generated coverage docs before validation.
+runTest('Phase 42c: update-release-cache.yml synchronisiert Coverage-Gap-Dokumente vor Validierung', function() {
+  const fs2 = require('fs');
+  const path2 = require('path');
+  const wfPath = path2.resolve(__dirname, '../.github/workflows/update-release-cache.yml');
+  const wf = fs2.readFileSync(wfPath, 'utf-8');
+  const syncIdx = wf.indexOf('node scripts/sync-release-coverage-gap-docs.js');
+  const validateIdx = wf.indexOf('node scripts/validate-release-source-review-queue.js');
+  assert.ok(syncIdx >= 0, 'Workflow must run sync-release-coverage-gap-docs.js');
+  assert.ok(validateIdx >= 0 && syncIdx < validateIdx, 'Workflow must sync docs before queue/doc validation');
+  assert.ok(wf.includes('docs/release-cache-source-gap-analysis.md'), 'Workflow must include source-gap analysis doc in managed PR files');
+});
+
+runTest('Phase 42c: Coverage-Gap-Validator hat keine festen Gap-Zahlen', function() {
+  const fs2 = require('fs');
+  const path2 = require('path');
+  const validatorPath = path2.resolve(__dirname, 'validate-release-cache-coverage-gaps.js');
+  const src = fs2.readFileSync(validatorPath, 'utf-8');
+  assert.ok(!/missingCacheCoverage:\s*\d+/.test(src), 'Validator must not hard-code missingCacheCoverage');
+  assert.ok(!/missingSeries:\s*\d+/.test(src), 'Validator must not hard-code missingSeries');
+  assert.ok(!/missingPublishers:\s*\d+/.test(src), 'Validator must not hard-code missingPublishers');
+});
+
+runTest('Phase 42c: write-release-source-review-queue.js entfernt veraltete Source-Gap-Eintraege', function() {
+  const fs2 = require('fs');
+  const path2 = require('path');
+  const writerPath = path2.resolve(__dirname, 'write-release-source-review-queue.js');
+  const src = fs2.readFileSync(writerPath, 'utf-8');
+  assert.ok(src.includes("entry.classification === 'automated-source-check'"), 'Writer must only preserve non-analysis automated-source-check entries');
+});
+
 console.log('');
 console.log(`${_passed + _failed} Tests — ${_passed} bestanden, ${_failed} fehlgeschlagen`);
 
