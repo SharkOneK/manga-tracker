@@ -2,14 +2,14 @@
 
 Stand: 2026-05-19, nach Audit von `data/release-watchlist.json` gegen `data/release-cache.json`.
 
-Diese Datei dokumentiert die 34 bekannten `source-data-gap`-Luecken aus `docs/release-cache-coverage-gaps.md`. Sie ist bewusst eine Analyse- und Entscheidungsdatei: Es werden keine Release-Daten geraten, keine privaten Sammlungsdaten ergaenzt und `data/release-cache.json` bleibt unangetastet.
+Diese Datei dokumentiert die 38 bekannten `source-data-gap`-Luecken aus `docs/release-cache-coverage-gaps.md`. Sie ist bewusst eine Analyse- und Entscheidungsdatei: Es werden keine Release-Daten geraten, keine privaten Sammlungsdaten ergaenzt und `data/release-cache.json` bleibt unangetastet.
 
 ## Ergebnis
 
 | Kennzahl | Wert |
 |---|---:|
 | Analysierte Gaps | 34 |
-| Betroffene Serien | 12 |
+| Betroffene Serien | 15 |
 | Sichere direkte Cache-Patches | 0 |
 | Manuelle Quellenpruefung noetig | 34 |
 
@@ -745,6 +745,82 @@ Der einzige sichere naechste Schritt ist aktuell `manual-source-review`: offizie
       "recommendedFix": "manual-source-review",
       "safeToPatch": false,
       "manualSourceReviewNeeded": true
+    },
+    {
+      "seriesTitle": "Neck mich nicht, Nagatoro-san",
+      "publisher": "dani books",
+      "volumeNumber": 7,
+      "classification": "source-data-gap",
+      "priority": "mittel",
+      "suspectedCause": "manual-source-required",
+      "checkedSources": [
+        {
+          "name": "Release-Intake-Staging / Release-Cache-Audit",
+          "url": "data/release-watchlist.json",
+          "result": "Nach Release-Intake in der Watchlist vorhanden; kein passender Eintrag in data/release-cache.json."
+        }
+      ],
+      "evidence": "Der Band wurde per Release-Intake in die Watchlist uebernommen. Der Release-Cache enthaelt noch kein belegtes Datum; kein Cache-Patch ohne verifizierte Quelle.",
+      "recommendedFix": "manual-source-review",
+      "safeToPatch": false,
+      "manualSourceReviewNeeded": true
+    },
+    {
+      "seriesTitle": "Bitte zieh dich an, Takamine!",
+      "publisher": "Egmont Manga",
+      "volumeNumber": 1,
+      "classification": "source-data-gap",
+      "priority": "mittel",
+      "suspectedCause": "manual-source-required",
+      "checkedSources": [
+        {
+          "name": "Release-Intake-Staging / Release-Cache-Audit",
+          "url": "data/release-watchlist.json",
+          "result": "Nach Release-Intake in der Watchlist vorhanden; kein passender Eintrag in data/release-cache.json."
+        }
+      ],
+      "evidence": "Der Band wurde per Release-Intake in die Watchlist uebernommen. Der Release-Cache enthaelt noch kein belegtes Datum; kein Cache-Patch ohne verifizierte Quelle.",
+      "recommendedFix": "manual-source-review",
+      "safeToPatch": false,
+      "manualSourceReviewNeeded": true
+    },
+    {
+      "seriesTitle": "I Was Reincarnated as the 7th Prince So I Can Take My Time Perfecting My Magical Ability",
+      "publisher": "Dokico",
+      "volumeNumber": 1,
+      "classification": "source-data-gap",
+      "priority": "mittel",
+      "suspectedCause": "manual-source-required",
+      "checkedSources": [
+        {
+          "name": "Release-Intake-Staging / Release-Cache-Audit",
+          "url": "data/release-watchlist.json",
+          "result": "Nach Release-Intake in der Watchlist vorhanden; kein passender Eintrag in data/release-cache.json."
+        }
+      ],
+      "evidence": "Der Band wurde per Release-Intake in die Watchlist uebernommen. Der Release-Cache enthaelt noch kein belegtes Datum; kein Cache-Patch ohne verifizierte Quelle.",
+      "recommendedFix": "manual-source-review",
+      "safeToPatch": false,
+      "manualSourceReviewNeeded": true
+    },
+    {
+      "seriesTitle": "Mein Wunsch, von einer Oberschülerin getötet zu werden",
+      "publisher": "Yomeru",
+      "volumeNumber": 1,
+      "classification": "source-data-gap",
+      "priority": "mittel",
+      "suspectedCause": "manual-source-required",
+      "checkedSources": [
+        {
+          "name": "Release-Intake-Staging / Release-Cache-Audit",
+          "url": "data/release-watchlist.json",
+          "result": "Nach Release-Intake in der Watchlist vorhanden; kein passender Eintrag in data/release-cache.json."
+        }
+      ],
+      "evidence": "Der Band wurde per Release-Intake in die Watchlist uebernommen. Der Release-Cache enthaelt noch kein belegtes Datum; kein Cache-Patch ohne verifizierte Quelle.",
+      "recommendedFix": "manual-source-review",
+      "safeToPatch": false,
+      "manualSourceReviewNeeded": true
     }
   ]
 }
@@ -782,10 +858,10 @@ Der einzige sichere naechste Schritt ist aktuell `manual-source-review`: offizie
 
 ### Queue-Audit
 
-- Queue-Eintraege gesamt: 97
+- Queue-Eintraege gesamt: 38
 - safeToPatch=true: 0
-- safeToPatch=false: 97
-- reviewStatus vor manueller Phase-33-Klassifizierung: auto-not-yet-released 34, auto-low-confidence 2, auto-blocked 61
+- safeToPatch=false: 38
+- reviewStatus vor manueller Phase-33-Klassifizierung: historischer Stand vor PR #55; neue Intake-Gaps wurden als manual-source-required ergaenzt
 - Hauptcluster: not-yet-released 31+, auto-blocked/ambiguous 61, source-missing 1, volume-numbering-mismatch 1, publisher-normalization 1
 
 ### Grosse Serienbloecke
