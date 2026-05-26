@@ -1,11 +1,11 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-05-25T08:00:10.410Z",
+  "generatedAt": "2026-05-26T14:17:36.296Z",
   "source": "run-release-cache-pipeline.js",
   "inputs": {
     "cacheItems": 172,
-    "watchlistCandidates": 187,
-    "reviewQueueCandidates": 97,
+    "watchlistCandidates": 191,
+    "reviewQueueCandidates": 101,
     "appSeedCandidates": 5
   },
   "policy": {
@@ -44,20 +44,117 @@
     ]
   },
   "summary": {
-    "candidatesDiscovered": 192,
-    "candidatesChecked": 84,
+    "candidatesDiscovered": 196,
+    "candidatesChecked": 88,
     "skippedAlreadyCached": 108,
     "skippedDueToLimit": 0,
-    "highConfidence": 0,
+    "highConfidence": 8,
     "mediumConfidence": 0,
-    "lowConfidence": 84,
+    "lowConfidence": 80,
     "blocked": 0,
-    "cachePatches": 0,
-    "reviewQueueWrites": 84,
+    "cachePatches": 8,
+    "reviewQueueWrites": 80,
     "invalidExistingCache": 0
   },
   "autoMergeEligible": false,
-  "cachePatches": [],
+  "cachePatches": [
+    {
+      "action": "add",
+      "key": "vagabond master edition|egmont manga|13",
+      "seriesTitle": "Vagabond – Master Edition",
+      "publisher": "Egmont Manga",
+      "volumeNumber": 13,
+      "releaseDate": "2026-10-06",
+      "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
+      "sourceUrl": "https://www.manga-passion.de/editions/4636",
+      "confidence": "high"
+    },
+    {
+      "action": "add",
+      "key": "vagabond master edition|egmont manga|14",
+      "seriesTitle": "Vagabond – Master Edition",
+      "publisher": "Egmont Manga",
+      "volumeNumber": 14,
+      "releaseDate": "2026-12-08",
+      "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
+      "sourceUrl": "https://www.manga-passion.de/editions/4636",
+      "confidence": "high"
+    },
+    {
+      "action": "add",
+      "key": "vagabond master edition|egmont manga|15",
+      "seriesTitle": "Vagabond – Master Edition",
+      "publisher": "Egmont Manga",
+      "volumeNumber": 15,
+      "releaseDate": "2027-02-09",
+      "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
+      "sourceUrl": "https://www.manga-passion.de/editions/4636",
+      "confidence": "high"
+    },
+    {
+      "action": "add",
+      "key": "bitte zieh dich an takamine|egmont manga|1",
+      "seriesTitle": "Bitte zieh dich an, Takamine!",
+      "publisher": "Egmont Manga",
+      "volumeNumber": 1,
+      "releaseDate": "2026-05-11",
+      "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
+      "sourceUrl": "https://www.manga-passion.de/editions/5858",
+      "confidence": "high"
+    },
+    {
+      "action": "add",
+      "key": "chainsaw man|egmont manga|23",
+      "seriesTitle": "Chainsaw Man",
+      "publisher": "Egmont Manga",
+      "volumeNumber": 23,
+      "releaseDate": "2026-12-08",
+      "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
+      "sourceUrl": "https://www.manga-passion.de/editions/269",
+      "confidence": "high"
+    },
+    {
+      "action": "add",
+      "key": "i was reincarnated as the 7th prince so i can take my time perfecting my magical ability|dokico|1",
+      "seriesTitle": "I Was Reincarnated as the 7th Prince So I Can Take My Time Perfecting My Magical Ability",
+      "publisher": "Dokico",
+      "volumeNumber": 1,
+      "releaseDate": "2026-08-31",
+      "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
+      "sourceUrl": "https://www.manga-passion.de/editions/6021",
+      "confidence": "high"
+    },
+    {
+      "action": "add",
+      "key": "mein wunsch von einer oberschulerin getotet zu werden|yomeru|1",
+      "seriesTitle": "Mein Wunsch, von einer Oberschülerin getötet zu werden",
+      "publisher": "Yomeru",
+      "volumeNumber": 1,
+      "releaseDate": "2025-03-31",
+      "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
+      "sourceUrl": "https://www.manga-passion.de/editions/4972",
+      "confidence": "high"
+    },
+    {
+      "action": "add",
+      "key": "mirai nikki new edition|egmont manga|6",
+      "seriesTitle": "Mirai Nikki – New Edition",
+      "publisher": "Egmont Manga",
+      "volumeNumber": 6,
+      "releaseDate": "2026-10-06",
+      "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
+      "sourceUrl": "https://www.manga-passion.de/editions/5504",
+      "confidence": "high"
+    }
+  ],
   "reviewQueueWrites": [
     {
       "key": "berserk master edition|panini manga|7",
@@ -205,66 +302,6 @@
       "seriesTitle": "Berserk Master Edition",
       "publisher": "Panini Manga",
       "volumeNumber": 14,
-      "confidence": "low",
-      "reviewStatus": "auto-low-confidence",
-      "reasonCodes": [
-        "missing-source-edition-title",
-        "missing-source-publisher",
-        "missing-source-volume-number",
-        "missing-release-date"
-      ],
-      "sourceName": "Carlsen Manga",
-      "providerId": "carlsen",
-      "sourceUrl": "https://www.carlsen.de",
-      "releaseDate": null,
-      "sourceResult": "publisher-not-supported"
-    },
-    {
-      "key": "vagabond master edition|egmont manga|13",
-      "queueKey": "Vagabond – Master Edition|Egmont Manga|13",
-      "seriesTitle": "Vagabond – Master Edition",
-      "publisher": "Egmont Manga",
-      "volumeNumber": 13,
-      "confidence": "low",
-      "reviewStatus": "auto-low-confidence",
-      "reasonCodes": [
-        "missing-source-edition-title",
-        "missing-source-publisher",
-        "missing-source-volume-number",
-        "missing-release-date"
-      ],
-      "sourceName": "Carlsen Manga",
-      "providerId": "carlsen",
-      "sourceUrl": "https://www.carlsen.de",
-      "releaseDate": null,
-      "sourceResult": "publisher-not-supported"
-    },
-    {
-      "key": "vagabond master edition|egmont manga|14",
-      "queueKey": "Vagabond – Master Edition|Egmont Manga|14",
-      "seriesTitle": "Vagabond – Master Edition",
-      "publisher": "Egmont Manga",
-      "volumeNumber": 14,
-      "confidence": "low",
-      "reviewStatus": "auto-low-confidence",
-      "reasonCodes": [
-        "missing-source-edition-title",
-        "missing-source-publisher",
-        "missing-source-volume-number",
-        "missing-release-date"
-      ],
-      "sourceName": "Carlsen Manga",
-      "providerId": "carlsen",
-      "sourceUrl": "https://www.carlsen.de",
-      "releaseDate": null,
-      "sourceResult": "publisher-not-supported"
-    },
-    {
-      "key": "vagabond master edition|egmont manga|15",
-      "queueKey": "Vagabond – Master Edition|Egmont Manga|15",
-      "seriesTitle": "Vagabond – Master Edition",
-      "publisher": "Egmont Manga",
-      "volumeNumber": 15,
       "confidence": "low",
       "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
@@ -596,26 +633,6 @@
       "sourceUrl": "https://www.manga-passion.de/editions/518",
       "releaseDate": null,
       "sourceResult": "volume-not-found"
-    },
-    {
-      "key": "chainsaw man|egmont manga|23",
-      "queueKey": "Chainsaw Man|Egmont Manga|23",
-      "seriesTitle": "Chainsaw Man",
-      "publisher": "Egmont Manga",
-      "volumeNumber": 23,
-      "confidence": "low",
-      "reviewStatus": "auto-low-confidence",
-      "reasonCodes": [
-        "missing-source-edition-title",
-        "missing-source-publisher",
-        "missing-source-volume-number",
-        "missing-release-date"
-      ],
-      "sourceName": "Carlsen Manga",
-      "providerId": "carlsen",
-      "sourceUrl": "https://www.carlsen.de",
-      "releaseDate": null,
-      "sourceResult": "publisher-not-supported"
     },
     {
       "key": "fairy tail|carlsen manga|16",
@@ -1618,10 +1635,10 @@
       "sourceResult": "publisher-not-supported"
     },
     {
-      "key": "mirai nikki new edition|egmont manga|6",
-      "queueKey": "Mirai Nikki – New Edition|Egmont Manga|6",
-      "seriesTitle": "Mirai Nikki – New Edition",
-      "publisher": "Egmont Manga",
+      "key": "neck mich nicht nagatoro san|dani books|6",
+      "queueKey": "Neck mich nicht, Nagatoro-san|dani books|6",
+      "seriesTitle": "Neck mich nicht, Nagatoro-san",
+      "publisher": "dani books",
       "volumeNumber": 6,
       "confidence": "low",
       "reviewStatus": "auto-low-confidence",
@@ -1638,11 +1655,11 @@
       "sourceResult": "publisher-not-supported"
     },
     {
-      "key": "neck mich nicht nagatoro san|dani books|6",
-      "queueKey": "Neck mich nicht, Nagatoro-san|dani books|6",
+      "key": "neck mich nicht nagatoro san|dani books|7",
+      "queueKey": "Neck mich nicht, Nagatoro-san|dani books|7",
       "seriesTitle": "Neck mich nicht, Nagatoro-san",
       "publisher": "dani books",
-      "volumeNumber": 6,
+      "volumeNumber": 7,
       "confidence": "low",
       "reviewStatus": "auto-low-confidence",
       "reasonCodes": [

@@ -8,15 +8,15 @@ Stand: automatisch synchronisiert aus aktuellem Audit gegen `data/release-watchl
 |---|---:|
 | Aktivierte Watchlist-Eintraege | 37 |
 | Expandierte Watchlist-Bandkandidaten | 191 |
-| Release-Cache-Eintraege | 172 |
-| Gefundene Cache-Eintraege | 153 |
-| Verbleibende Luecken | 38 |
-| Betroffene Serien | 15 |
-| Betroffene Verlage | 9 |
+| Release-Cache-Eintraege | 180 |
+| Gefundene Cache-Eintraege | 161 |
+| Verbleibende Luecken | 30 |
+| Betroffene Serien | 10 |
+| Betroffene Verlage | 7 |
 
 ## Klassifikation
 
-Alle 38 verbleibenden Luecken sind als `source-data-gap` klassifiziert.
+Alle 30 verbleibenden Luecken sind als `source-data-gap` klassifiziert.
 
 Bedeutung: Der Watchlist-Band wurde nach dem Cache-Update weiterhin nicht in `data/release-cache.json` gefunden. Diese Faelle sind Quellen-/Datenqualitaetsfaelle und duerfen nicht durch Fake-Daten geschlossen werden.
 
@@ -28,33 +28,26 @@ Empfohlener Umgang: manuell in verlaesslicher Quelle pruefen, erst danach echte 
 |---|---|---:|---:|---|
 | Vermeil in Gold | MANGAMOON | 2 | 1 | source-data-gap |
 | Meine Chefin kommt immer zuerst!! | MangaMoon | 2 | 1 | source-data-gap |
-| Vagabond – Master Edition | Egmont Manga | 13-19 | 7 | source-data-gap |
+| Vagabond – Master Edition | Egmont Manga | 16-19 | 4 | source-data-gap |
 | Adou | Altraverse | 12 | 1 | source-data-gap |
 | Arifureta: Der Kampf zurück in meine Welt – Zero | Altraverse | 4-8 | 5 | source-data-gap |
 | Berserk Master Edition | Panini Manga | 7-14 | 8 | source-data-gap |
-| Chainsaw Man | Egmont Manga | 23 | 1 | source-data-gap |
 | Gushing over Magical Girls | MangaMoon | 4 | 1 | source-data-gap |
 | Isekai Soapland | MANGAMOON | 3-8 | 6 | source-data-gap |
-| Mirai Nikki – New Edition | Egmont Manga | 6 | 1 | source-data-gap |
 | Neck mich nicht, Nagatoro-san | dani books | 6-7 | 2 | source-data-gap |
 | Tokyo Revengers – Doppelband-Edition | Carlsen Manga | 16 | 1 | source-data-gap |
-| Bitte zieh dich an, Takamine! | Egmont Manga | 1 | 1 | source-data-gap |
-| I Was Reincarnated as the 7th Prince So I Can Take My Time Perfecting My Magical Ability | Dokico | 1 | 1 | source-data-gap |
-| Mein Wunsch, von einer Oberschülerin getötet zu werden | Yomeru | 1 | 1 | source-data-gap |
 
 ## Luecken nach Verlag
 
 | Verlag | Luecken | Serien |
 |---|---:|---:|
-| Egmont Manga | 10 | 4 |
 | Panini Manga | 8 | 1 |
 | MANGAMOON | 7 | 2 |
 | Altraverse | 6 | 2 |
+| Egmont Manga | 4 | 1 |
 | dani books | 2 | 1 |
 | MangaMoon | 2 | 2 |
 | Carlsen Manga | 1 | 1 |
-| Dokico | 1 | 1 |
-| Yomeru | 1 | 1 |
 
 ## Maschinenlesbarer Audit
 
@@ -96,7 +89,7 @@ Der normale Workflow scheitert weiterhin nicht an bekannten `source-data-gap`-Lu
 
 ## Phase 23a: Ursachenanalyse
 
-Die 38 `source-data-gap`-Einzelluecken sind in `docs/release-cache-source-gap-analysis.md` strukturiert analysiert.
+Die 30 `source-data-gap`-Einzelluecken sind in `docs/release-cache-source-gap-analysis.md` strukturiert analysiert.
 
 Die Analyse dokumentiert pro Gap:
 

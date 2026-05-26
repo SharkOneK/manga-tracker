@@ -4,11 +4,11 @@
   "generatedFrom": "docs/release-cache-source-gap-analysis.md",
   "reviewPolicy": "docs/release-cache-manual-source-review.md",
   "summary": {
-    "knownSourceGaps": 38,
-    "totalGaps": 101,
+    "knownSourceGaps": 30,
+    "totalGaps": 93,
     "safeToPatch": 13,
-    "pendingManualReview": 88,
-    "autoReviewed": 76,
+    "pendingManualReview": 80,
+    "autoReviewed": 74,
     "patched": 13
   },
   "sortOrder": "priority(sehr hoch, hoch, mittel, niedrig), seriesTitle, publisher, volumeNumber",
@@ -311,126 +311,6 @@
         }
       ],
       "sourceAnalysisEvidence": "Manga-Passion-Edition 5211 fuehrt die Baende 7-14 nur mit Platzhalterdatum 2999-12-31; kein valides Release-Datum im Cache erlaubt.",
-      "safeToPatch": false,
-      "reviewStatus": "auto-low-confidence",
-      "sourceUrl": "https://www.carlsen.de",
-      "releaseDate": null,
-      "checkedAt": "2026-05-25T05:48:59.277Z",
-      "evidence": "Automatische Quellenprüfung: publisher-not-supported. Confidence: low. Gruende: missing-source-edition-title, missing-source-publisher, missing-source-volume-number, missing-release-date.",
-      "notes": "Automatisch geprüft; nicht sicher genug für den öffentlichen Cache.",
-      "sourceConfidence": "low",
-      "sourceName": "Carlsen Manga",
-      "sourceEditionId": null,
-      "sourceEditionTitle": null,
-      "sourcePublisher": null,
-      "sourceVolumeNumber": null,
-      "sourceResult": "publisher-not-supported",
-      "confidenceReasons": [
-        "missing-source-edition-title",
-        "missing-source-publisher",
-        "missing-source-volume-number",
-        "missing-release-date"
-      ],
-      "providerId": "carlsen"
-    },
-    {
-      "queueKey": "Vagabond – Master Edition|Egmont Manga|13",
-      "seriesTitle": "Vagabond – Master Edition",
-      "publisher": "Egmont Manga",
-      "volumeNumber": 13,
-      "classification": "source-data-gap",
-      "suspectedCause": "not-yet-released",
-      "priority": "sehr hoch",
-      "recommendedFix": "manual-source-review",
-      "manualSourceReviewNeeded": true,
-      "checkedSources": [
-        {
-          "name": "Manga Passion API",
-          "url": "https://www.manga-passion.de",
-          "result": "Edition 4636 vorhanden; Band 13-19 ohne valides Release-Datum."
-        }
-      ],
-      "sourceAnalysisEvidence": "Manga-Passion-Edition 4636 fuehrt Band 13-19 nur mit Platzhalterdatum 2999-12-31; Band 8-12 sind bereits bestaetigt.",
-      "safeToPatch": false,
-      "reviewStatus": "auto-low-confidence",
-      "sourceUrl": "https://www.carlsen.de",
-      "releaseDate": null,
-      "checkedAt": "2026-05-25T05:48:59.277Z",
-      "evidence": "Automatische Quellenprüfung: publisher-not-supported. Confidence: low. Gruende: missing-source-edition-title, missing-source-publisher, missing-source-volume-number, missing-release-date.",
-      "notes": "Automatisch geprüft; nicht sicher genug für den öffentlichen Cache.",
-      "sourceConfidence": "low",
-      "sourceName": "Carlsen Manga",
-      "sourceEditionId": null,
-      "sourceEditionTitle": null,
-      "sourcePublisher": null,
-      "sourceVolumeNumber": null,
-      "sourceResult": "publisher-not-supported",
-      "confidenceReasons": [
-        "missing-source-edition-title",
-        "missing-source-publisher",
-        "missing-source-volume-number",
-        "missing-release-date"
-      ],
-      "providerId": "carlsen"
-    },
-    {
-      "queueKey": "Vagabond – Master Edition|Egmont Manga|14",
-      "seriesTitle": "Vagabond – Master Edition",
-      "publisher": "Egmont Manga",
-      "volumeNumber": 14,
-      "classification": "source-data-gap",
-      "suspectedCause": "not-yet-released",
-      "priority": "sehr hoch",
-      "recommendedFix": "manual-source-review",
-      "manualSourceReviewNeeded": true,
-      "checkedSources": [
-        {
-          "name": "Manga Passion API",
-          "url": "https://www.manga-passion.de",
-          "result": "Edition 4636 vorhanden; Band 13-19 ohne valides Release-Datum."
-        }
-      ],
-      "sourceAnalysisEvidence": "Manga-Passion-Edition 4636 fuehrt Band 13-19 nur mit Platzhalterdatum 2999-12-31; Band 8-12 sind bereits bestaetigt.",
-      "safeToPatch": false,
-      "reviewStatus": "auto-low-confidence",
-      "sourceUrl": "https://www.carlsen.de",
-      "releaseDate": null,
-      "checkedAt": "2026-05-25T05:48:59.277Z",
-      "evidence": "Automatische Quellenprüfung: publisher-not-supported. Confidence: low. Gruende: missing-source-edition-title, missing-source-publisher, missing-source-volume-number, missing-release-date.",
-      "notes": "Automatisch geprüft; nicht sicher genug für den öffentlichen Cache.",
-      "sourceConfidence": "low",
-      "sourceName": "Carlsen Manga",
-      "sourceEditionId": null,
-      "sourceEditionTitle": null,
-      "sourcePublisher": null,
-      "sourceVolumeNumber": null,
-      "sourceResult": "publisher-not-supported",
-      "confidenceReasons": [
-        "missing-source-edition-title",
-        "missing-source-publisher",
-        "missing-source-volume-number",
-        "missing-release-date"
-      ],
-      "providerId": "carlsen"
-    },
-    {
-      "queueKey": "Vagabond – Master Edition|Egmont Manga|15",
-      "seriesTitle": "Vagabond – Master Edition",
-      "publisher": "Egmont Manga",
-      "volumeNumber": 15,
-      "classification": "source-data-gap",
-      "suspectedCause": "not-yet-released",
-      "priority": "sehr hoch",
-      "recommendedFix": "manual-source-review",
-      "manualSourceReviewNeeded": true,
-      "checkedSources": [
-        {
-          "name": "Manga Passion API",
-          "url": "https://www.manga-passion.de",
-          "result": "Edition 4636 vorhanden; Band 13-19 ohne valides Release-Datum."
-        }
-      ],
-      "sourceAnalysisEvidence": "Manga-Passion-Edition 4636 fuehrt Band 13-19 nur mit Platzhalterdatum 2999-12-31; Band 8-12 sind bereits bestaetigt.",
       "safeToPatch": false,
       "reviewStatus": "auto-low-confidence",
       "sourceUrl": "https://www.carlsen.de",
@@ -1090,72 +970,6 @@
         "missing-release-date"
       ],
       "providerId": "manga-passion"
-    },
-    {
-      "queueKey": "Bitte zieh dich an, Takamine!|Egmont Manga|1",
-      "seriesTitle": "Bitte zieh dich an, Takamine!",
-      "publisher": "Egmont Manga",
-      "volumeNumber": 1,
-      "classification": "source-data-gap",
-      "suspectedCause": "manual-source-required",
-      "priority": "mittel",
-      "recommendedFix": "manual-source-review",
-      "manualSourceReviewNeeded": true,
-      "checkedSources": [
-        {
-          "name": "Release-Intake-Staging / Release-Cache-Audit",
-          "url": "data/release-watchlist.json",
-          "result": "Nach Release-Intake in der Watchlist vorhanden; kein passender Eintrag in data/release-cache.json."
-        }
-      ],
-      "sourceAnalysisEvidence": "Der Band wurde per Release-Intake in die Watchlist uebernommen. Der Release-Cache enthaelt noch kein belegtes Datum; kein Cache-Patch ohne verifizierte Quelle.",
-      "safeToPatch": false,
-      "reviewStatus": "pending",
-      "sourceUrl": "",
-      "releaseDate": null,
-      "checkedAt": null,
-      "evidence": "",
-      "notes": "Automatisch aus aktueller Source-Gap-Analyse ergänzt; manuelle Quellenprüfung erforderlich."
-    },
-    {
-      "queueKey": "Chainsaw Man|Egmont Manga|23",
-      "seriesTitle": "Chainsaw Man",
-      "publisher": "Egmont Manga",
-      "volumeNumber": 23,
-      "classification": "source-data-gap",
-      "suspectedCause": "not-yet-released",
-      "priority": "mittel",
-      "recommendedFix": "manual-source-review",
-      "manualSourceReviewNeeded": true,
-      "checkedSources": [
-        {
-          "name": "Manga Passion API",
-          "url": "https://www.manga-passion.de",
-          "result": "Edition 269 vorhanden; Band 23 ohne valides Release-Datum."
-        }
-      ],
-      "sourceAnalysisEvidence": "Manga-Passion-Edition 269 fuehrt Band 23 nur mit Platzhalterdatum 2999-12-31; Band 21-22 sind bereits bestaetigt.",
-      "safeToPatch": false,
-      "reviewStatus": "deferred",
-      "sourceUrl": "https://www.manga-passion.de/volumes/31484/chainsaw-man-band-23",
-      "releaseDate": null,
-      "checkedAt": "2026-05-25T05:48:59.277Z",
-      "evidence": "Manga Passion nennt Titel, Band 23 und Egmont Manga, aber Status nicht angekuendigt statt Release-Datum.",
-      "notes": "Phase 33: Manga Passion fuehrt Chainsaw Man Band 23 fuer Egmont Manga als nicht angekuendigt; keine offizielle Egmont-Seite mit validem Datum gefunden. Nicht patchen.",
-      "sourceConfidence": "low",
-      "sourceName": "Carlsen Manga",
-      "sourceEditionId": null,
-      "sourceEditionTitle": null,
-      "sourcePublisher": null,
-      "sourceVolumeNumber": null,
-      "sourceResult": "publisher-not-supported",
-      "confidenceReasons": [
-        "missing-source-edition-title",
-        "missing-source-publisher",
-        "missing-source-volume-number",
-        "missing-release-date"
-      ],
-      "providerId": "carlsen"
     },
     {
       "queueKey": "Fairy Tail|Carlsen Manga|16",
@@ -2830,32 +2644,6 @@
       "providerId": "carlsen"
     },
     {
-      "queueKey": "I Was Reincarnated as the 7th Prince So I Can Take My Time Perfecting My Magical Ability|Dokico|1",
-      "seriesTitle": "I Was Reincarnated as the 7th Prince So I Can Take My Time Perfecting My Magical Ability",
-      "publisher": "Dokico",
-      "volumeNumber": 1,
-      "classification": "source-data-gap",
-      "suspectedCause": "manual-source-required",
-      "priority": "mittel",
-      "recommendedFix": "manual-source-review",
-      "manualSourceReviewNeeded": true,
-      "checkedSources": [
-        {
-          "name": "Release-Intake-Staging / Release-Cache-Audit",
-          "url": "data/release-watchlist.json",
-          "result": "Nach Release-Intake in der Watchlist vorhanden; kein passender Eintrag in data/release-cache.json."
-        }
-      ],
-      "sourceAnalysisEvidence": "Der Band wurde per Release-Intake in die Watchlist uebernommen. Der Release-Cache enthaelt noch kein belegtes Datum; kein Cache-Patch ohne verifizierte Quelle.",
-      "safeToPatch": false,
-      "reviewStatus": "pending",
-      "sourceUrl": "",
-      "releaseDate": null,
-      "checkedAt": null,
-      "evidence": "",
-      "notes": "Automatisch aus aktueller Source-Gap-Analyse ergänzt; manuelle Quellenprüfung erforderlich."
-    },
-    {
       "queueKey": "Kaiju No.8|Crunchyroll Manga|16",
       "seriesTitle": "Kaiju No.8",
       "publisher": "Crunchyroll Manga",
@@ -2885,32 +2673,6 @@
       "providerId": "manga-passion"
     },
     {
-      "queueKey": "Mein Wunsch, von einer Oberschülerin getötet zu werden|Yomeru|1",
-      "seriesTitle": "Mein Wunsch, von einer Oberschülerin getötet zu werden",
-      "publisher": "Yomeru",
-      "volumeNumber": 1,
-      "classification": "source-data-gap",
-      "suspectedCause": "manual-source-required",
-      "priority": "mittel",
-      "recommendedFix": "manual-source-review",
-      "manualSourceReviewNeeded": true,
-      "checkedSources": [
-        {
-          "name": "Release-Intake-Staging / Release-Cache-Audit",
-          "url": "data/release-watchlist.json",
-          "result": "Nach Release-Intake in der Watchlist vorhanden; kein passender Eintrag in data/release-cache.json."
-        }
-      ],
-      "sourceAnalysisEvidence": "Der Band wurde per Release-Intake in die Watchlist uebernommen. Der Release-Cache enthaelt noch kein belegtes Datum; kein Cache-Patch ohne verifizierte Quelle.",
-      "safeToPatch": false,
-      "reviewStatus": "pending",
-      "sourceUrl": "",
-      "releaseDate": null,
-      "checkedAt": null,
-      "evidence": "",
-      "notes": "Automatisch aus aktueller Source-Gap-Analyse ergänzt; manuelle Quellenprüfung erforderlich."
-    },
-    {
       "queueKey": "Meine Chefin kommt immer zuerst!!|MangaMoon|2",
       "seriesTitle": "Meine Chefin kommt immer zuerst!!",
       "publisher": "MangaMoon",
@@ -2935,46 +2697,6 @@
       "checkedAt": "2026-05-25T05:48:59.277Z",
       "evidence": "Phase-33-Pruefung: HTTPS-Quellen stuetzen MangaMoon und Auftakt, aber Band 2 ist nicht mit validem Release-Datum belegt.",
       "notes": "Phase 33: Oeffentliche Quellen nennen den Deutschland-Start/Limitierte Ausgabe zum Auftakt, aber kein belastbares Release-Datum fuer Band 2. Nicht patchen.",
-      "sourceConfidence": "low",
-      "sourceName": "Carlsen Manga",
-      "sourceEditionId": null,
-      "sourceEditionTitle": null,
-      "sourcePublisher": null,
-      "sourceVolumeNumber": null,
-      "sourceResult": "publisher-not-supported",
-      "confidenceReasons": [
-        "missing-source-edition-title",
-        "missing-source-publisher",
-        "missing-source-volume-number",
-        "missing-release-date"
-      ],
-      "providerId": "carlsen"
-    },
-    {
-      "queueKey": "Mirai Nikki – New Edition|Egmont Manga|6",
-      "seriesTitle": "Mirai Nikki – New Edition",
-      "publisher": "Egmont Manga",
-      "volumeNumber": 6,
-      "classification": "source-data-gap",
-      "suspectedCause": "not-yet-released",
-      "priority": "mittel",
-      "recommendedFix": "manual-source-review",
-      "manualSourceReviewNeeded": true,
-      "checkedSources": [
-        {
-          "name": "Manga Passion API",
-          "url": "https://www.manga-passion.de",
-          "result": "Edition 5504 vorhanden; Band 6 ohne valides Release-Datum."
-        }
-      ],
-      "sourceAnalysisEvidence": "Manga-Passion-Edition 5504 fuehrt Band 6 nur mit Platzhalterdatum 2999-12-31; New-Edition-Fingerprint passt fuer Band 3-5 bereits.",
-      "safeToPatch": false,
-      "reviewStatus": "deferred",
-      "sourceUrl": "https://www.manga-passion.de/editions/5504",
-      "releaseDate": null,
-      "checkedAt": "2026-05-25T05:48:59.277Z",
-      "evidence": "Phase-33-Pruefung: vorhandene Quelle liefert kein reales Release-Datum fuer Band 6.",
-      "notes": "Phase 33: New-Edition/Bandnummer geprueft; keine belastbare HTTPS-Quelle mit validem Release-Datum fuer Band 6 gefunden. Nicht patchen.",
       "sourceConfidence": "low",
       "sourceName": "Carlsen Manga",
       "sourceEditionId": null,
@@ -3049,12 +2771,26 @@
       ],
       "sourceAnalysisEvidence": "Der Band wurde per Release-Intake in die Watchlist uebernommen. Der Release-Cache enthaelt noch kein belegtes Datum; kein Cache-Patch ohne verifizierte Quelle.",
       "safeToPatch": false,
-      "reviewStatus": "pending",
-      "sourceUrl": "",
+      "reviewStatus": "auto-low-confidence",
+      "sourceUrl": "https://www.carlsen.de",
       "releaseDate": null,
-      "checkedAt": null,
-      "evidence": "",
-      "notes": "Automatisch aus aktueller Source-Gap-Analyse ergänzt; manuelle Quellenprüfung erforderlich."
+      "checkedAt": "2026-05-26T14:17:36.296Z",
+      "evidence": "Automatische Quellenprüfung: publisher-not-supported. Confidence: low. Gruende: missing-source-edition-title, missing-source-publisher, missing-source-volume-number, missing-release-date.",
+      "notes": "Automatisch geprüft; nicht sicher genug für den öffentlichen Cache.",
+      "sourceConfidence": "low",
+      "sourceName": "Carlsen Manga",
+      "providerId": "carlsen",
+      "sourceEditionId": null,
+      "sourceEditionTitle": null,
+      "sourcePublisher": null,
+      "sourceVolumeNumber": null,
+      "sourceResult": "publisher-not-supported",
+      "confidenceReasons": [
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date"
+      ]
     },
     {
       "queueKey": "Spy x Family|Crunchyroll Manga|4",
