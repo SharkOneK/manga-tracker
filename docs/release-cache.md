@@ -35,16 +35,17 @@ Phase 22 führte einen sammlungsweiten Coverage-Report ein. Seit Phase 25/26 ist
 ### Flow
 
 ```
-App-Dashboard
-  → "Cache-Coverage prüfen" → lokale Diagnose der fehlenden Bände
+Watchlist / Review-Queue (data/release-watchlist.json, data/release-source-review-queue.json)
       ↓
-  bekannte Watchlist-/Review-Queue-Fälle werden durch GitHub Action verarbeitet
+  GitHub Action „Update Release Cache"
       ↓
   node scripts/run-release-cache-pipeline.js
   node scripts/validate-release-cache-pipeline-report.js
       ↓
   PR mit sicheren Cache-Patches und Review-Queue-Diagnose
 ```
+
+Phase-44a-followup-Hinweis: Der lokale Dashboard-Button „Cache-Coverage prüfen" und die zugehörigen Helfer (`buildReleaseCacheCoverageReport`, `copyReleaseCacheCoverageBatch`, `renderReleaseCacheCoveragePreview`) wurden entfernt. Source-Gaps werden ausschließlich über die Pipeline (Phase 25/32/42) und `data/release-watchlist.json` / `data/release-source-review-queue.json` gepflegt. Die lokale App zeigt seit Phase 43/44b nur noch Read-only-Werte aus dem zentralen Cache an.
 
 ## Phase 22a: Sanitierter Coverage-Batch
 

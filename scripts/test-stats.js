@@ -190,184 +190,8 @@ function releasePubsMatch(a, b) {
   if (!a || !b) return true;
   return a === b;
 }
-
-function findReleaseMatchesForSeriesForTest(m, cache) {
-  if (!cache || !Array.isArray(cache.items)) return [];
-  const normT = normalizeReleaseTitle(m.title);
-  const normP = normalizeReleasePublisher(m.pub || '');
-  const firstMiss = mFirstMissingBand(m);
-  if (firstMiss === null && m.ongoing === 'false') return [];
-  const nextVol = firstMiss ?? mNextBand(m);
-
-  return cache.items.filter(item => {
-    if (!item || typeof item !== 'object') return false;
-    const cacheT = item.normalizedSeriesTitle || normalizeReleaseTitle(item.seriesTitle || '');
-    const titleMatch = normT === cacheT
-      || (cacheT.length >= 3 && normT.includes(cacheT))
-      || (normT.length >= 3 && cacheT.includes(normT));
-    if (!titleMatch) return false;
-    const rawCacheP = item.normalizedPublisher || normalizeReleasePublisher(item.publisher || '');
-    const cacheP = _PUB_ALIAS_MAP[rawCacheP] || rawCacheP;
-    if (!releasePubsMatch(normP, cacheP)) return false;
-    return item.volumeNumber === nextVol;
-  });
-}
-
-function buildDashboardReleaseCheckPreviewForTest(mangaList, cache, status) {
-  const before = JSON.stringify(mangaList);
-  const cacheLoaded = status === 'loaded' && cache && Array.isArray(cache.items);
-  const checkedSeries = Array.isArray(mangaList) ? mangaList.length : 0;
-  const candidates = [];
-  if (cacheLoaded) {
-    mangaList.forEach(m => {
-      const targetVolume = mFirstMissingBand(m) ?? mNextBand(m);
-      const matches = findReleaseMatchesForSeriesForTest(m, cache)
-        .filter(item => item && item.releaseDate && item.releaseDate !== m.nextDate);
-      if (!matches.length) return;
-      const best = matches[0];
-      candidates.push({
-        seriesId: m.id,
-        id: `${m.id}:${best.volumeNumber || targetVolume}:${best.releaseDate}`,
-        title: m.title || '',
-        targetVolume,
-        volumeNumber: best.volumeNumber || targetVolume,
-        currentDate: m.nextDate || '',
-        releaseDate: best.releaseDate,
-      });
-    });
-  }
-  assert.strictEqual(JSON.stringify(mangaList), before, 'Preview darf Manga-Daten nicht mutieren');
-  return {
-    cacheLoaded,
-    checkedSeries,
-    checkedVolumes: checkedSeries,
-    releaseDateHits: candidates.length,
-    noHits: Math.max(0, checkedSeries - candidates.length),
-    candidates,
-  };
-}
-
-// Phase 18e: Dashboard-Serienstatus-Prüfung (Preview-only)
-function inspectSeriesStatusForTest(m) {
-  const total = Number(m.total);
-  const totalKnown = !isNaN(total) && total > 0;
-  const owned = mOwned(m);
-  const firstMissing = mFirstMissingBand(m);
-  const missingCount = totalKnown ? Math.max(0, total - owned) : 0;
-  const collectionStatus = mCollectionStatus(m);
-  const seriesStatus = mSeriesStatus(m);
-  const bandValues = Object.values(m.bands || {});
-  const allKnownVolumesCollected = totalKnown && firstMissing === null;
-  const allKnownVolumesRead = allKnownVolumesCollected && bandValues.length >= total && bandValues.every(v => v === 'completed');
-  const reasons = [];
-
-  if (m.ongoing === 'false' && firstMissing !== null) {
-    reasons.push({ code: 'finished_missing_volumes', text: `abgeschlossen mit ${missingCount} fehlenden Baenden` });
-  }
-  if (m.ongoing === 'false' && m.nextDate) {
-    reasons.push({ code: 'finished_has_next_date', text: 'abgeschlossen mit nextDate' });
-  }
-  if (m.ongoing === 'true' && allKnownVolumesRead && !m.nextDate) {
-    reasons.push({ code: 'ongoing_complete_read_no_next_date', text: 'laufend, vollstaendig gelesen, ohne nextDate' });
-  } else if (m.ongoing === 'true' && allKnownVolumesCollected && !m.nextDate) {
-    reasons.push({ code: 'ongoing_complete_no_next_date', text: 'laufend, vollstaendig gesammelt, ohne nextDate' });
-  }
-  if (seriesStatus === 'completed' && firstMissing !== null) {
-    reasons.push({ code: 'completed_display_missing_volumes', text: 'completed Anzeige mit fehlenden Baenden' });
-  }
-
-  return {
-    title: m.title || '',
-    status: m.ongoing === 'true' || m.ongoing === 'false' ? m.ongoing : 'unknown',
-    collectionStatus,
-    seriesStatus,
-    owned,
-    total: totalKnown ? total : null,
-    firstMissing,
-    nextDate: m.nextDate || '',
-    reasons,
-  };
-}
-
-function buildDashboardSeriesStatusPreviewForTest(mangaList, hooks = {}) {
-  const before = JSON.stringify(mangaList);
-  const checked = (Array.isArray(mangaList) ? mangaList : []).map(inspectSeriesStatusForTest);
-  const flagged = checked.filter(item => item.reasons.length > 0);
-  assert.strictEqual(JSON.stringify(mangaList), before, 'Serienstatus-Preview darf Manga-Daten nicht mutieren');
-  assert.deepStrictEqual(hooks.events || [], [], 'Serienstatus-Preview darf kein persist/localStorage ausloesen');
-  return {
-    checkedSeries: checked.length,
-    okSeries: checked.length - flagged.length,
-    flaggedSeries: flagged.length,
-    checked,
-    flagged,
-  };
-}
-// ─── Test-Runner ──────────────────────────────────────────────────────────
-
-function renderDashboardReleaseCheckPreviewForTest(result) {
-  if (!result) return 'Noch keine Pruefung ausgefuehrt';
-  return (result.candidates || []).map((item, idx) =>
-    `<label class="dashboard-release-candidate"><input type="checkbox" class="dashboard-release-apply-check" data-candidate-idx="${idx}">` +
-    `<strong>${item.title}</strong><span>Band ${item.volumeNumber}</span><span>${item.currentDate || 'leer'} -> ${item.releaseDate}</span></label>`
-  ).join('') +
-    ((result.candidates || []).length
-      ? '<button type="button" onclick="applySelectedDashboardReleaseDates()">Ausgewaehlte Release-Daten uebernehmen</button>'
-      : '');
-}
-
-function applySelectedDashboardReleaseDatesForTest(mangaList, preview, selectedIndexes, options = {}) {
-  const events = [];
-  const selected = selectedIndexes.map(idx => preview.candidates[idx]).filter(Boolean);
-  if (!selected.length) return { changed: 0, backupCreated: false, events };
-
-  const valid = selected.filter(item => {
-    const m = mangaList.find(x => x.id === item.seriesId);
-    if (!m) return false;
-    const currentTargetVolume = mFirstMissingBand(m) ?? mNextBand(m);
-    return currentTargetVolume === item.targetVolume
-      && item.volumeNumber === item.targetVolume
-      && item.releaseDate
-      && item.releaseDate !== m.nextDate;
-  });
-  if (!valid.length) return { changed: 0, backupCreated: false, events };
-
-  events.push('confirm');
-  if (options.confirm === false) return { changed: 0, backupCreated: false, events };
-
-  events.push('backup');
-  if (options.backupFails) return { changed: 0, backupCreated: false, events };
-
-  let changed = 0;
-  valid.forEach(item => {
-    const m = mangaList.find(x => x.id === item.seriesId);
-    if (!m) return;
-    const protectedBefore = {
-      owned: m.owned,
-      read: m.read,
-      boughtAt: m.boughtAt,
-      readAt: m.readAt,
-      coverUrl: m.coverUrl,
-      isbn13: m.isbn13,
-      collectionStatus: m.collectionStatus,
-      ongoing: m.ongoing,
-    };
-    m.nextDate = item.releaseDate;
-    changed++;
-    assert.deepStrictEqual({
-      owned: m.owned,
-      read: m.read,
-      boughtAt: m.boughtAt,
-      readAt: m.readAt,
-      coverUrl: m.coverUrl,
-      isbn13: m.isbn13,
-      collectionStatus: m.collectionStatus,
-      ongoing: m.ongoing,
-    }, protectedBefore, 'Nur nextDate darf geaendert werden');
-  });
-  events.push('persist');
-  return { changed, backupCreated: true, events };
-}
+// Phase 44a-followup: Dashboard-Preview-/Apply-Test-Helpers entfernt
+// (Buttons Alle Release-Daten/Alle Serien-Status/Cache-Coverage wurden weggekürzt).
 
 let passed = 0;
 let failed = 0;
@@ -683,189 +507,6 @@ test('Release-Cache-Stats: zaehlt Serien mit ISBN-13 oder Manga-Passion-ID', () 
   assert.strictEqual(result.seriesWithReleaseIds, 2);
 });
 
-// Phase 18c Tests ----------------------------------------------------------
-
-console.log('\nPhase 18c — Dashboard Release-Daten-Prüfung Tests\n');
-
-test('Dashboard-Action: Button und Preview-Container sind in app.js vorhanden', () => {
-  const appJs = require('fs').readFileSync('src/app.js', 'utf8');
-  assert.ok(appJs.includes('Aktionszentrale: Prüfen &amp; Automatisieren'), 'Dashboard-Aktionszentrale fehlt');
-  assert.ok(appJs.includes('Alle Release-Daten prüfen'), 'Button fehlt');
-  assert.ok(appJs.includes('dashboard-release-check-result'), 'Preview-Container fehlt');
-});
-
-test('Dashboard-Release-Check: robuster Preview bei leerem/nicht geladenem Cache', () => {
-  const list = [{ title: 'Solo Leveling', pub: 'Altraverse', bands: { '1': 'owned' }, total: 2, nextDate: null }];
-  const result = buildDashboardReleaseCheckPreviewForTest(list, null, 'missing');
-  assert.strictEqual(result.cacheLoaded, false);
-  assert.strictEqual(result.checkedSeries, 1);
-  assert.strictEqual(result.releaseDateHits, 0);
-  assert.strictEqual(result.noHits, 1);
-  assert.deepStrictEqual(result.candidates, []);
-});
-
-test('Dashboard-Release-Check: findet Release-Datum-Treffer aus geladenem Cache', () => {
-  const list = [{ title: 'Solo Leveling', pub: 'Altraverse', bands: { '1': 'owned' }, total: 3, nextDate: null }];
-  const cache = { items: [{ seriesTitle: 'Solo Leveling', publisher: 'Altraverse', volumeNumber: 2, releaseDate: '2026-06-01' }] };
-  const result = buildDashboardReleaseCheckPreviewForTest(list, cache, 'loaded');
-  assert.strictEqual(result.cacheLoaded, true);
-  assert.strictEqual(result.releaseDateHits, 1);
-  assert.strictEqual(result.noHits, 0);
-  assert.strictEqual(result.candidates[0].releaseDate, '2026-06-01');
-  assert.strictEqual(result.candidates[0].volumeNumber, 2);
-});
-
-test('Dashboard-Release-Check: ignoriert Cache-Treffer ohne neues/abweichendes Datum', () => {
-  const list = [{ title: 'Manga A', pub: 'Egmont Manga', bands: { '1': 'owned' }, total: 2, nextDate: '2026-07-01' }];
-  const cache = { items: [{ seriesTitle: 'Manga A', publisher: 'Egmont', volumeNumber: 2, releaseDate: '2026-07-01' }] };
-  const result = buildDashboardReleaseCheckPreviewForTest(list, cache, 'loaded');
-  assert.strictEqual(result.releaseDateHits, 0);
-  assert.strictEqual(result.noHits, 1);
-});
-
-test('Dashboard-Release-Check: Preview mutiert keine Manga-Daten', () => {
-  const list = [{ title: 'Manga B', pub: 'Tokyopop', bands: { '1': 'owned' }, total: 2, nextDate: null }];
-  const before = JSON.stringify(list);
-  const cache = { items: [{ seriesTitle: 'Manga B', publisher: 'Tokyopop', volumeNumber: 2, releaseDate: '2026-08-15' }] };
-  const result = buildDashboardReleaseCheckPreviewForTest(list, cache, 'loaded');
-  assert.strictEqual(result.releaseDateHits, 1);
-  assert.strictEqual(JSON.stringify(list), before, 'nextDate darf nicht automatisch gesetzt werden');
-});
-
-// Phase 18d Tests ----------------------------------------------------------
-
-console.log('\nPhase 18d - Explizite Dashboard-Release-Daten-Uebernahme Tests\n');
-
-test('Dashboard-Release-Uebernahme: Kandidaten haben Checkboxen und Apply-Button', () => {
-  const list = [{ id: 'm1', title: 'Manga C', pub: 'Tokyopop', bands: { '1': 'owned' }, total: 2, nextDate: null }];
-  const cache = { items: [{ seriesTitle: 'Manga C', publisher: 'Tokyopop', volumeNumber: 2, releaseDate: '2026-09-01' }] };
-  const preview = buildDashboardReleaseCheckPreviewForTest(list, cache, 'loaded');
-  const html = renderDashboardReleaseCheckPreviewForTest(preview);
-  assert.ok(html.includes('type="checkbox"'), 'Checkbox fehlt');
-  assert.ok(html.includes('dashboard-release-apply-check'), 'Auswahl-Klasse fehlt');
-  assert.ok(html.includes('Ausgewaehlte Release-Daten uebernehmen'), 'Apply-Button fehlt');
-  assert.ok(!html.includes('checked'), 'Checkboxen duerfen standardmaessig nicht aktiv sein');
-});
-
-test('Dashboard-Release-Uebernahme: ohne Auswahl keine Mutation', () => {
-  const list = [{ id: 'm1', title: 'Manga D', pub: 'Tokyopop', bands: { '1': 'owned' }, total: 2, nextDate: null }];
-  const cache = { items: [{ seriesTitle: 'Manga D', publisher: 'Tokyopop', volumeNumber: 2, releaseDate: '2026-09-02' }] };
-  const preview = buildDashboardReleaseCheckPreviewForTest(list, cache, 'loaded');
-  const before = JSON.stringify(list);
-  const result = applySelectedDashboardReleaseDatesForTest(list, preview, []);
-  assert.strictEqual(result.changed, 0);
-  assert.strictEqual(result.backupCreated, false);
-  assert.strictEqual(JSON.stringify(list), before);
-});
-
-test('Dashboard-Release-Uebernahme: Abbruch im Bestaetigungsdialog mutiert nichts', () => {
-  const list = [{ id: 'm1', title: 'Manga E', pub: 'Tokyopop', bands: { '1': 'owned' }, total: 2, nextDate: null }];
-  const cache = { items: [{ seriesTitle: 'Manga E', publisher: 'Tokyopop', volumeNumber: 2, releaseDate: '2026-09-03' }] };
-  const preview = buildDashboardReleaseCheckPreviewForTest(list, cache, 'loaded');
-  const before = JSON.stringify(list);
-  const result = applySelectedDashboardReleaseDatesForTest(list, preview, [0], { confirm: false });
-  assert.deepStrictEqual(result.events, ['confirm']);
-  assert.strictEqual(result.changed, 0);
-  assert.strictEqual(JSON.stringify(list), before);
-});
-
-test('Dashboard-Release-Uebernahme: schreibt nur erlaubtes Release-Datum', () => {
-  const list = [{
-    id: 'm1', title: 'Manga F', pub: 'Tokyopop', bands: { '1': 'owned' }, total: 2, nextDate: null,
-    owned: 1, read: 0, boughtAt: '2026-01-01', readAt: '2026-01-02',
-    coverUrl: 'cover.jpg', isbn13: '9781234567890', collectionStatus: 'owned', ongoing: 'true',
-  }];
-  const cache = { items: [{
-    seriesTitle: 'Manga F', publisher: 'Tokyopop', volumeNumber: 2, releaseDate: '2026-09-04',
-    isbn13: '9789999999999', coverUrl: 'new-cover.jpg',
-  }] };
-  const preview = buildDashboardReleaseCheckPreviewForTest(list, cache, 'loaded');
-  const result = applySelectedDashboardReleaseDatesForTest(list, preview, [0]);
-  assert.strictEqual(result.changed, 1);
-  assert.strictEqual(list[0].nextDate, '2026-09-04');
-  assert.strictEqual(list[0].isbn13, '9781234567890');
-  assert.strictEqual(list[0].coverUrl, 'cover.jpg');
-  assert.strictEqual(list[0].collectionStatus, 'owned');
-  assert.strictEqual(list[0].ongoing, 'true');
-});
-
-test('Dashboard-Release-Uebernahme: Backup wird vor Mutation erstellt', () => {
-  const list = [{ id: 'm1', title: 'Manga G', pub: 'Tokyopop', bands: { '1': 'owned' }, total: 2, nextDate: null }];
-  const cache = { items: [{ seriesTitle: 'Manga G', publisher: 'Tokyopop', volumeNumber: 2, releaseDate: '2026-09-05' }] };
-  const preview = buildDashboardReleaseCheckPreviewForTest(list, cache, 'loaded');
-  const result = applySelectedDashboardReleaseDatesForTest(list, preview, [0]);
-  assert.deepStrictEqual(result.events, ['confirm', 'backup', 'persist']);
-  assert.strictEqual(result.backupCreated, true);
-  assert.strictEqual(list[0].nextDate, '2026-09-05');
-});
-
-test('Dashboard-Release-Uebernahme: fehlgeschlagenes Backup verhindert Mutation', () => {
-  const list = [{ id: 'm1', title: 'Manga H', pub: 'Tokyopop', bands: { '1': 'owned' }, total: 2, nextDate: null }];
-  const cache = { items: [{ seriesTitle: 'Manga H', publisher: 'Tokyopop', volumeNumber: 2, releaseDate: '2026-09-06' }] };
-  const preview = buildDashboardReleaseCheckPreviewForTest(list, cache, 'loaded');
-  const result = applySelectedDashboardReleaseDatesForTest(list, preview, [0], { backupFails: true });
-  assert.deepStrictEqual(result.events, ['confirm', 'backup']);
-  assert.strictEqual(result.changed, 0);
-  assert.strictEqual(list[0].nextDate, null);
-});
-// ─── Ergebnis ─────────────────────────────────────────────────────────────
-
-
-// Phase 18e Tests ----------------------------------------------------------
-
-console.log('\nPhase 18e - Dashboard Serien-Status-Pruefung Preview Tests\n');
-
-test('Dashboard-Serienstatus-Check: Button und Preview-Container sind in app.js vorhanden', () => {
-  const appJs = require('fs').readFileSync('src/app.js', 'utf8');
-  assert.ok(appJs.includes('Alle Serien-Status'), 'Button fehlt');
-  assert.ok(appJs.includes('dashboard-series-status-check-result'), 'Preview-Container fehlt');
-  assert.ok(appJs.includes('runDashboardSeriesStatusCheck'), 'Run-Funktion fehlt');
-});
-
-test('Dashboard-Serienstatus-Check: robuster Preview bei leerer Datenbank', () => {
-  const result = buildDashboardSeriesStatusPreviewForTest([]);
-  assert.strictEqual(result.checkedSeries, 0);
-  assert.strictEqual(result.okSeries, 0);
-  assert.strictEqual(result.flaggedSeries, 0);
-  assert.deepStrictEqual(result.flagged, []);
-});
-
-test('Dashboard-Serienstatus-Check: erkennt auffaellige Status-Kombinationen', () => {
-  const list = [
-    { title: 'Abgeschlossen mit Luecke', ongoing: 'false', bands: { '1': 'owned' }, total: 3, nextDate: null },
-    { title: 'Abgeschlossen mit Datum', ongoing: 'false', bands: { '1': 'completed' }, total: 1, nextDate: '2026-10-01' },
-    { title: 'Laufend fertig gelesen', ongoing: 'true', bands: { '1': 'completed', '2': 'completed' }, total: 2, nextDate: null },
-  ];
-  const result = buildDashboardSeriesStatusPreviewForTest(list);
-  const codes = result.flagged.flatMap(item => item.reasons.map(r => r.code));
-  assert.strictEqual(result.checkedSeries, 3);
-  assert.strictEqual(result.flaggedSeries, 3);
-  assert.ok(codes.includes('finished_missing_volumes'));
-  assert.ok(codes.includes('finished_has_next_date'));
-  assert.ok(codes.includes('ongoing_complete_read_no_next_date'));
-});
-
-test('Dashboard-Serienstatus-Check: unauffaellige Serien werden nicht falsch markiert', () => {
-  const list = [
-    { title: 'Laufend mit fehlendem Band und Datum', ongoing: 'true', bands: { '1': 'owned' }, total: 2, nextDate: '2026-10-01' },
-    { title: 'Abgeschlossen komplett', ongoing: 'false', bands: { '1': 'completed', '2': 'completed' }, total: 2, nextDate: null },
-    { title: 'Unbekannt kleine DB', ongoing: 'unknown', bands: {}, total: null, nextDate: null },
-  ];
-  const result = buildDashboardSeriesStatusPreviewForTest(list);
-  assert.strictEqual(result.checkedSeries, 3);
-  assert.strictEqual(result.okSeries, 3);
-  assert.strictEqual(result.flaggedSeries, 0);
-});
-
-test('Dashboard-Serienstatus-Check: Preview mutiert keine Daten und schreibt nicht', () => {
-  const events = [];
-  const list = [{ title: 'Manga I', ongoing: 'false', bands: { '1': 'owned' }, total: 2, nextDate: null }];
-  const before = JSON.stringify(list);
-  const result = buildDashboardSeriesStatusPreviewForTest(list, { events });
-  assert.strictEqual(result.flaggedSeries, 1);
-  assert.strictEqual(JSON.stringify(list), before);
-  assert.deepStrictEqual(events, [], 'kein persist/localStorage-Write durch reine Pruefung');
-});
 
 // ─── Phase 18f: Helfer ───────────────────────────────────────────────────────
 
@@ -1181,27 +822,12 @@ test('Phase 19: Watchlist-Eintrag hat keine privaten Felder', () => {
   });
 });
 
-// ─── Hotfix: completed_display_missing_volumes Text ────────────────────────
-
-console.log('\nHotfix — completed_display_missing_volumes Textkorrektur Tests\n');
-
-test('Hotfix: completed_display_missing_volumes enthält keinen irreführenden Text', () => {
-  const appJs = require('fs').readFileSync(require('path').join(__dirname, '..', 'src', 'app.js'), 'utf8');
-  assert.ok(!appJs.includes('wirkt abgeschlossen'), 'Irreführender Text "wirkt abgeschlossen" darf nicht mehr enthalten sein');
-  assert.ok(!appJs.includes('Nicht als vollständig interpretieren'), 'Irreführende Suggestion darf nicht mehr enthalten sein');
-});
-
-test('Hotfix: completed_display_missing_volumes enthält neuen präzisen Text', () => {
-  const appJs = require('fs').readFileSync(require('path').join(__dirname, '..', 'src', 'app.js'), 'utf8');
-  assert.ok(appJs.includes('Abgeschlossene Serie'), 'Neuer Text "Abgeschlossene Serie" muss vorhanden sein');
-  assert.ok(appJs.includes('Kein Fehler'), 'Neue Suggestion "Kein Fehler" muss vorhanden sein');
-  assert.ok(appJs.includes('Kaufen-Tab'), 'Handlungsempfehlung "Kaufen-Tab" muss vorhanden sein');
-});
-
-test('Hotfix: completed_display_missing_volumes-Code ist noch vorhanden (keine Logikänderung)', () => {
-  const appJs = require('fs').readFileSync(require('path').join(__dirname, '..', 'src', 'app.js'), 'utf8');
-  assert.ok(appJs.includes('completed_display_missing_volumes'), 'Code "completed_display_missing_volumes" muss weiterhin vorhanden sein');
-});
+// ─── Hotfix completed_display_missing_volumes (Phase 19-Hotfix) ────────────
+// Phase 44a-followup: Die ursprüngliche Anzeige des Hotfix-Texts lebte in
+// `inspectSeriesStatus`, das mit den entfernten Dashboard-Buttons "Alle
+// Serien-Status prüfen" weggefallen ist. Die zugrundeliegende Logik
+// (`mFirstMissingBand`, `mSeriesStatus`, Buy-Tab-Anzeige) bleibt unverändert.
+// Die textspezifischen Smoke-Tests sind damit obsolet.
 
 // ─── Phase 22 Tests ───────────────────────────────────────────────────────
 
@@ -1397,14 +1023,19 @@ test('Phase 22f: Validator prueft die GitHub-Actions-Summary', () => {
   assert.ok(validator.includes('Keine Fake-Daten'), 'Validator muss No-Fake-Daten-Hinweis in Summary pruefen');
 });
 
-test('Phase 22: buildReleaseCacheCoverageReport-Marker in app.js vorhanden', () => {
+test('Phase 44a-followup: lokale Cache-Coverage-Helfer aus app.js entfernt', () => {
   const appJs = _fs22.readFileSync(_path22.join(_root22, 'src', 'app.js'), 'utf8');
-  assert.ok(appJs.includes('buildReleaseCacheCoverageReport'), 'buildReleaseCacheCoverageReport muss in app.js vorhanden sein');
+  assert.ok(!appJs.includes('buildReleaseCacheCoverageReport'), 'buildReleaseCacheCoverageReport sollte entfernt sein');
+  assert.ok(!appJs.includes('copyReleaseCacheCoverageBatch'), 'copyReleaseCacheCoverageBatch sollte entfernt sein');
+  assert.ok(!appJs.includes('renderReleaseCacheCoveragePreview'), 'renderReleaseCacheCoveragePreview sollte entfernt sein');
 });
 
-test('Phase 22: copyReleaseCacheCoverageBatch-Marker in app.js vorhanden', () => {
+test('Phase 44a-followup: entfernte Dashboard-Aktionen nicht mehr in app.js', () => {
   const appJs = _fs22.readFileSync(_path22.join(_root22, 'src', 'app.js'), 'utf8');
-  assert.ok(appJs.includes('copyReleaseCacheCoverageBatch'), 'copyReleaseCacheCoverageBatch muss in app.js vorhanden sein');
+  assert.ok(!appJs.includes('data-action="check-release-coverage"'), 'check-release-coverage darf nicht mehr existieren');
+  assert.ok(!appJs.includes('data-action="run-dashboard-release-date-check"'), 'run-dashboard-release-date-check darf nicht mehr existieren');
+  assert.ok(!appJs.includes('data-action="run-dashboard-series-status-check"'), 'run-dashboard-series-status-check darf nicht mehr existieren');
+  assert.ok(!appJs.includes('data-action="apply-dashboard-release-dates"'), 'apply-dashboard-release-dates darf nicht mehr existieren');
 });
 
 test('Phase 22: Vagabond-Master-Edition volumeNumbers-Eintrag in release-watchlist.json', () => {
