@@ -173,13 +173,13 @@ jobs:
       - name: Check Phase 43 mail configuration
         id: mail_config
         env:
-          STATUS_MAIL_HOST: ${{ secrets.STATUS_MAIL_HOST }}
-          STATUS_MAIL_USERNAME: ${{ secrets.STATUS_MAIL_USERNAME }}
-          STATUS_MAIL_PASSWORD: ${{ secrets.STATUS_MAIL_PASSWORD }}
-          STATUS_MAIL_TO: ${{ secrets.STATUS_MAIL_TO }}
-          STATUS_MAIL_FROM: ${{ secrets.STATUS_MAIL_FROM }}
+          MAIL_HOST: ${{ secrets.MAIL_HOST }}
+          MAIL_USERNAME: ${{ secrets.MAIL_USERNAME }}
+          MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
+          MAIL_TO: ${{ secrets.MAIL_TO }}
+          MAIL_FROM: ${{ secrets.MAIL_FROM }}
         run: |
-          if [ -n "$STATUS_MAIL_HOST" ] && [ -n "$STATUS_MAIL_USERNAME" ] && [ -n "$STATUS_MAIL_PASSWORD" ] && [ -n "$STATUS_MAIL_TO" ] && [ -n "$STATUS_MAIL_FROM" ]; then
+          if [ -n "$MAIL_HOST" ] && [ -n "$MAIL_USERNAME" ] && [ -n "$MAIL_PASSWORD" ] && [ -n "$MAIL_TO" ] && [ -n "$MAIL_FROM" ]; then
             echo "enabled=true" >> "$GITHUB_OUTPUT"
           else
             echo "enabled=false" >> "$GITHUB_OUTPUT"
@@ -202,11 +202,11 @@ jobs:
         continue-on-error: true
         uses: dawidd6/action-send-mail@v17
         with:
-          server_address: ${{ secrets.STATUS_MAIL_HOST }}
-          server_port: ${{ secrets.STATUS_MAIL_PORT }}
-          username: ${{ secrets.STATUS_MAIL_USERNAME }}
-          password: ${{ secrets.STATUS_MAIL_PASSWORD }}
+          server_address: ${{ secrets.MAIL_HOST }}
+          server_port: ${{ vars.MAIL_PORT }}
+          username: ${{ secrets.MAIL_USERNAME }}
+          password: ${{ secrets.MAIL_PASSWORD }}
           subject: "Manga Tracker Phase 43: ${{ needs.update-release-volume-counts.result }}"
-          to: ${{ secrets.STATUS_MAIL_TO }}
-          from: ${{ secrets.STATUS_MAIL_FROM }}
+          to: ${{ secrets.MAIL_TO }}
+          from: ${{ secrets.MAIL_FROM }}
           body: file://artifacts/release-volume-counts-status-mail.txt
