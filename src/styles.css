@@ -784,34 +784,29 @@ body.dark .stat-big-card { background: #1a1a2e; }
 .stats-buy-date { font-size: 0.72rem; color: var(--warning); font-weight: 600; }
 .stats-buy-item.avail .stats-buy-date { color: var(--success); }
 
-/* ── AniList Suche ── */
-.db-search-wrap { position: relative; margin-bottom: 14px; }
-.db-search-input {
-  width: 100%; padding: 10px 36px 10px 13px;
-  border: 2px solid var(--primary); border-radius: 10px;
-  font-size: 0.875rem; background: var(--bg); color: var(--text);
-  outline: none; font-family: inherit;
+/* ── Phase 44b: Read-only Automationsanzeige ── */
+.automation-readout {
+  background: var(--bg);
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  padding: 8px 12px;
+  font-size: 0.875rem;
+  color: var(--text);
+  min-height: 38px;
 }
-.db-search-spinner { position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
-  font-size: 1rem; display: none; }
-.db-results {
-  background: var(--card-bg); border: 1.5px solid var(--border);
-  border-radius: 10px; max-height: 260px; overflow-y: auto;
-  margin-top: 4px; box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+.automation-readout-value {
+  font-weight: 700;
 }
-.db-no-results { padding: 12px; color: var(--text-muted); font-size: 0.8rem; text-align: center; }
-.db-result-item {
-  display: flex; align-items: center; gap: 10px; padding: 9px 12px;
-  cursor: pointer; border-bottom: 1px solid var(--border); transition: background 0.1s;
+.automation-readout-meta {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  margin-top: 2px;
 }
-.db-result-item:last-child { border-bottom: none; }
-.db-result-item:hover { background: var(--primary-light); }
-.db-result-cover { width: 32px; height: 46px; border-radius: 4px; object-fit: cover; flex-shrink: 0; background: var(--bg); }
-.db-result-info { flex: 1; min-width: 0; }
-.db-result-title { font-weight: 700; font-size: 0.82rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.db-result-sub { font-size: 0.7rem; color: var(--text-muted); margin-top: 1px; }
-body.dark .db-results { background: #1a1a2e; }
-body.dark .db-result-item:hover { background: #2d1b69; }
+.automation-readout-empty {
+  color: var(--text-muted);
+  font-style: italic;
+  font-size: 0.82rem;
+}
 
 /* ── Öffentliches Profil ── */
 .readonly-banner {

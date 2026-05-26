@@ -78,11 +78,6 @@
       <button class="close-btn" data-action="close-modal">✕</button>
     </div>
     <div class="modal-body">
-      <div class="db-search-wrap">
-        <input class="db-search-input" id="db-search" type="search" placeholder="🔍 Manga in Datenbank suchen…" autocomplete="off">
-        <span class="db-search-spinner" id="db-spinner">⏳</span>
-        <div class="db-results hidden" id="db-results"></div>
-      </div>
       <div class="form-group">
         <label>Titel *</label>
         <input id="f-title" type="text" placeholder="z.B. Fullmetal Alchemist">
@@ -112,7 +107,7 @@
           </select>
         </div>
         <div class="form-group">
-          <label>Deutschsprachige Veröffentlichung <span class="form-label-hint small">– bezieht sich nur auf die DE-Ausgabe, nicht auf Japan</span></label>
+          <label>Deutschsprachige Veröffentlichung</label>
           <select id="f-ongoing" title="Status der deutschsprachigen Veröffentlichung. Nicht des japanischen Originals.">
             <option value="true" title="Im deutschsprachigen Raum erscheinen voraussichtlich noch weitere reguläre Bände.">Laufend 🔄 – weitere DE-Bände erwartet</option>
             <option value="false" title="Die deutschsprachige Ausgabe ist vollständig erschienen oder offiziell beendet.">Abgeschlossen ✓ – DE-Ausgabe komplett</option>
@@ -122,8 +117,11 @@
       </div>
       <div class="row2">
         <div class="form-group">
-          <label>Bände erschienen (DE)</label>
-          <input id="f-total" type="number" min="0" placeholder="z.B. 27">
+          <label>Bände erschienen (DE) <span class="form-label-hint small">– automatisch</span></label>
+          <div id="f-total-auto" class="automation-readout" data-empty="Noch kein belastbarer Automationswert vorhanden.">
+            <span class="automation-readout-empty">Noch kein belastbarer Automationswert vorhanden.</span>
+          </div>
+          <input id="f-total" type="hidden" value="">
         </div>
       </div>
       <div class="form-group">
@@ -136,8 +134,11 @@
         </div>
       </div>
       <div class="form-group">
-        <label>Nächster Band erscheint (DE) <span class="form-label-hint">– Erscheinungsdatum</span></label>
-        <input id="f-nextdate" type="date">
+        <label>Nächster Band erscheint (DE) <span class="form-label-hint small">– automatisch</span></label>
+        <div id="f-nextdate-auto" class="automation-readout" data-empty="Noch kein belastbares Datum vorhanden.">
+          <span class="automation-readout-empty">Noch kein belastbares Datum vorhanden.</span>
+        </div>
+        <input id="f-nextdate" type="hidden" value="">
         <button type="button" id="btn-release-check" class="form-wide-action hidden" data-action="open-release-preview" title="Release-Cache-Vorschau anzeigen">📅 Release-Cache-Vorschau anzeigen</button>
       </div>
       <div class="form-group">
