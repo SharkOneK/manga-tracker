@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-05-26T17:33:38.118Z",
+  "generatedAt": "2026-05-26T17:47:44.862Z",
   "items": [
     {
       "seriesTitle": "Adou",
@@ -104,11 +104,11 @@
     {
       "seriesTitle": "Demon Slave",
       "publisher": "KAZÉ Manga",
-      "publishedVolumesDE": 3,
+      "publishedVolumesDE": 4,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/509",
       "confidence": "high",
-      "checkedAt": "2026-05-26T17:33:38.118Z"
+      "checkedAt": "2026-05-26T17:47:44.862Z"
     },
     {
       "seriesTitle": "Die letzte Elfe",
@@ -203,11 +203,11 @@
     {
       "seriesTitle": "Real Account",
       "publisher": "TOKYOPOP",
-      "publishedVolumesDE": 7,
+      "publishedVolumesDE": 8,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/819",
       "confidence": "high",
-      "checkedAt": "2026-05-26T17:33:38.118Z"
+      "checkedAt": "2026-05-26T17:47:44.862Z"
     },
     {
       "seriesTitle": "Reincarnated as a Sword: Another Wish",

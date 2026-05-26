@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-05-26T17:33:38.118Z",
+  "generatedAt": "2026-05-26T17:47:44.862Z",
   "source": "run-release-volume-counts.js",
   "providerMode": "enabled",
   "policy": {
@@ -25,45 +25,27 @@
   },
   "summary": {
     "seriesInVolumeCounts": 29,
-    "probeCandidates": 44,
-    "checkedCandidates": 44,
-    "detectedChanges": 4,
-    "appliedHighConfidenceChanges": 4,
-    "blockedOrUnsafe": 117
+    "probeCandidates": 45,
+    "checkedCandidates": 45,
+    "detectedChanges": 2,
+    "appliedHighConfidenceChanges": 2,
+    "blockedOrUnsafe": 120
   },
   "changes": [
     {
-      "seriesTitle": "Arifureta: Der Kampf zurück in meine Welt – Zero",
-      "publisher": "altraverse",
-      "oldPublishedVolumesDE": 1,
-      "newPublishedVolumesDE": 2,
-      "source": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/5807",
-      "confidence": "high"
-    },
-    {
       "seriesTitle": "Demon Slave",
       "publisher": "KAZÉ Manga",
-      "oldPublishedVolumesDE": 2,
-      "newPublishedVolumesDE": 3,
+      "oldPublishedVolumesDE": 3,
+      "newPublishedVolumesDE": 4,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/509",
       "confidence": "high"
     },
     {
-      "seriesTitle": "Mein Wunsch, von einer Oberschülerin getötet zu werden",
-      "publisher": "Yomeru",
-      "oldPublishedVolumesDE": 1,
-      "newPublishedVolumesDE": 2,
-      "source": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/4972",
-      "confidence": "high"
-    },
-    {
       "seriesTitle": "Real Account",
       "publisher": "TOKYOPOP",
-      "oldPublishedVolumesDE": 6,
-      "newPublishedVolumesDE": 7,
+      "oldPublishedVolumesDE": 7,
+      "newPublishedVolumesDE": 8,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/819",
       "confidence": "high"
@@ -763,6 +745,18 @@
       ]
     },
     {
+      "seriesTitle": "Arifureta: Der Kampf zurück in meine Welt – Zero",
+      "publisher": "Altraverse",
+      "volumeNumber": 5,
+      "reasonCodes": [
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date",
+        "not-yet-released"
+      ]
+    },
+    {
       "seriesTitle": "Berserk Master Edition",
       "publisher": "Panini Manga",
       "volumeNumber": 7,
@@ -876,6 +870,14 @@
       "seriesTitle": "I Was Reincarnated as the 7th Prince So I Can Take My Time Perfecting My Magical Ability",
       "publisher": "Dokico",
       "volumeNumber": 1,
+      "reasonCodes": [
+        "not-yet-released"
+      ]
+    },
+    {
+      "seriesTitle": "Arifureta: Der Kampf zurück in meine Welt – Zero",
+      "publisher": "altraverse",
+      "volumeNumber": 3,
       "reasonCodes": [
         "not-yet-released"
       ]
@@ -1029,6 +1031,16 @@
       ]
     },
     {
+      "seriesTitle": "Mein Wunsch, von einer Oberschülerin getötet zu werden",
+      "publisher": "Yomeru",
+      "volumeNumber": 3,
+      "reasonCodes": [
+        "missing-source-volume-number",
+        "missing-release-date",
+        "not-yet-released"
+      ]
+    },
+    {
       "seriesTitle": "Mirai Nikki – New Edition",
       "publisher": "Egmont Manga",
       "volumeNumber": 4,
@@ -1135,6 +1147,21 @@
       "seriesTitle": "Arifureta: Der Kampf zurück in meine Welt – Zero",
       "publisher": "Altraverse",
       "volumeNumber": 4,
+      "source": "carlsen",
+      "sourceUrl": "https://www.carlsen.de",
+      "confidence": "low",
+      "released": false,
+      "reasonCodes": [
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date"
+      ]
+    },
+    {
+      "seriesTitle": "Arifureta: Der Kampf zurück in meine Welt – Zero",
+      "publisher": "Altraverse",
+      "volumeNumber": 5,
       "source": "carlsen",
       "sourceUrl": "https://www.carlsen.de",
       "confidence": "low",
@@ -1297,11 +1324,11 @@
     {
       "seriesTitle": "Arifureta: Der Kampf zurück in meine Welt – Zero",
       "publisher": "altraverse",
-      "volumeNumber": 2,
+      "volumeNumber": 3,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/5807",
       "confidence": "high",
-      "released": true,
+      "released": false,
       "reasonCodes": []
     },
     {
@@ -1411,7 +1438,7 @@
     {
       "seriesTitle": "Demon Slave",
       "publisher": "KAZÉ Manga",
-      "volumeNumber": 3,
+      "volumeNumber": 4,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/509",
       "confidence": "high",
@@ -1505,12 +1532,15 @@
     {
       "seriesTitle": "Mein Wunsch, von einer Oberschülerin getötet zu werden",
       "publisher": "Yomeru",
-      "volumeNumber": 2,
+      "volumeNumber": 3,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/4972",
-      "confidence": "high",
-      "released": true,
-      "reasonCodes": []
+      "confidence": "low",
+      "released": false,
+      "reasonCodes": [
+        "missing-source-volume-number",
+        "missing-release-date"
+      ]
     },
     {
       "seriesTitle": "Mirai Nikki – New Edition",
@@ -1540,7 +1570,7 @@
     {
       "seriesTitle": "Real Account",
       "publisher": "TOKYOPOP",
-      "volumeNumber": 7,
+      "volumeNumber": 8,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/819",
       "confidence": "high",
