@@ -206,7 +206,7 @@ jobs:
           server_port: ${{ vars.MAIL_PORT }}
           username: ${{ secrets.MAIL_USERNAME }}
           password: ${{ secrets.MAIL_PASSWORD }}
-          subject: "Manga Tracker Phase 43: ${{ needs.update-release-volume-counts.result }}"
+          subject: "Manga Tracker Volume Count: ${{ needs.update-release-volume-counts.result }}"
           to: ${{ secrets.MAIL_TO }}
           from: ${{ secrets.MAIL_FROM }}
           body: file://artifacts/release-volume-counts-status-mail.txt
