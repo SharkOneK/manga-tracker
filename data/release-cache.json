@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-05-25T05:48:59.277Z",
+  "generatedAt": "2026-05-26T14:17:36.296Z",
   "source": "run-release-cache-pipeline.js",
-  "itemCount": 172,
+  "itemCount": 180,
   "items": [
     {
       "seriesTitle": "Adou",
@@ -230,6 +230,23 @@
       "checkedAt": "2026-05-17T10:56:39.041Z"
     },
     {
+      "seriesTitle": "Bitte zieh dich an, Takamine!",
+      "normalizedSeriesTitle": "bitte zieh dich an takamine",
+      "publisher": "Egmont Manga",
+      "normalizedPublisher": "egmont manga",
+      "volumeNumber": 1,
+      "releaseDate": "2026-05-11",
+      "isbn13": null,
+      "coverUrl": "https://media.manga-passion.de/volume/cover/2026/0509/1333/e277d6c331937e4ee8d7f062cd920e6b.jpg",
+      "sourceUrl": "https://www.manga-passion.de/editions/5858",
+      "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
+      "evidence": "Manga Passion Edition, Verlag und Bandnummer wurden gegen die Bandliste abgeglichen.",
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 5858, Band 1). Ursprung: watchlist.",
+      "checkedAt": "2026-05-26T14:17:36.296Z"
+    },
+    {
       "seriesTitle": "Blood Blade",
       "normalizedSeriesTitle": "blood blade",
       "publisher": "Hayabusa",
@@ -393,6 +410,23 @@
       "confidence": "high",
       "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 269, Band 22, Score 100). Ursprung: app-seed.",
       "checkedAt": "2026-05-17T10:56:39.041Z"
+    },
+    {
+      "seriesTitle": "Chainsaw Man",
+      "normalizedSeriesTitle": "chainsaw man",
+      "publisher": "Egmont Manga",
+      "normalizedPublisher": "egmont manga",
+      "volumeNumber": 23,
+      "releaseDate": "2026-12-08",
+      "isbn13": null,
+      "coverUrl": "https://media.manga-passion.de/volume/cover/2026/0226/1159/7b4cbd6416f8f20e76642335979babbf.jpg",
+      "sourceUrl": "https://www.manga-passion.de/editions/269",
+      "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
+      "evidence": "Manga Passion Edition, Verlag und Bandnummer wurden gegen die Bandliste abgeglichen.",
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 269, Band 23). Ursprung: watchlist.",
+      "checkedAt": "2026-05-26T14:17:36.296Z"
     },
     {
       "seriesTitle": "Colorless",
@@ -1372,6 +1406,23 @@
       "checkedAt": "2026-05-19T15:26:34.180Z"
     },
     {
+      "seriesTitle": "I Was Reincarnated as the 7th Prince So I Can Take My Time Perfecting My Magical Ability",
+      "normalizedSeriesTitle": "i was reincarnated as the 7th prince so i can take my time perfecting my magical ability",
+      "publisher": "Dokico",
+      "normalizedPublisher": "dokico",
+      "volumeNumber": 1,
+      "releaseDate": "2026-08-31",
+      "isbn13": null,
+      "coverUrl": "https://media.manga-passion.de/volume/cover/2026/0227/1316/6dcd8e772c4421157a43bd91c2c2aa2b.png",
+      "sourceUrl": "https://www.manga-passion.de/editions/6021",
+      "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
+      "evidence": "Manga Passion Edition, Verlag und Bandnummer wurden gegen die Bandliste abgeglichen.",
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 6021, Band 1). Ursprung: watchlist.",
+      "checkedAt": "2026-05-26T14:17:36.296Z"
+    },
+    {
       "seriesTitle": "Isekai Soapland",
       "normalizedSeriesTitle": "isekai soapland",
       "publisher": "MANGAMOON",
@@ -2004,6 +2055,23 @@
       "checkedAt": "2026-05-19T15:26:34.180Z"
     },
     {
+      "seriesTitle": "Mein Wunsch, von einer Oberschülerin getötet zu werden",
+      "normalizedSeriesTitle": "mein wunsch von einer oberschulerin getotet zu werden",
+      "publisher": "Yomeru",
+      "normalizedPublisher": "yomeru",
+      "volumeNumber": 1,
+      "releaseDate": "2025-03-31",
+      "isbn13": null,
+      "coverUrl": "https://media.manga-passion.de/volume/cover/2025/0127/1149/75883f07d5a4d31afad93c3581a2a011.jpg",
+      "sourceUrl": "https://www.manga-passion.de/editions/4972",
+      "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
+      "evidence": "Manga Passion Edition, Verlag und Bandnummer wurden gegen die Bandliste abgeglichen.",
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 4972, Band 1). Ursprung: watchlist.",
+      "checkedAt": "2026-05-26T14:17:36.296Z"
+    },
+    {
       "seriesTitle": "Mirai Nikki – New Edition",
       "normalizedSeriesTitle": "mirai nikki new edition",
       "publisher": "Egmont Manga",
@@ -2047,6 +2115,23 @@
       "confidence": "high",
       "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 5504, Band 5). Ursprung: watchlist.",
       "checkedAt": "2026-05-19T15:26:34.180Z"
+    },
+    {
+      "seriesTitle": "Mirai Nikki – New Edition",
+      "normalizedSeriesTitle": "mirai nikki new edition",
+      "publisher": "Egmont Manga",
+      "normalizedPublisher": "egmont manga",
+      "volumeNumber": 6,
+      "releaseDate": "2026-10-06",
+      "isbn13": null,
+      "coverUrl": "https://media.manga-passion.de/volume/cover/2026/0525/1706/63337727f3a5b3edaef8fdd332e2ece1.jpg",
+      "sourceUrl": "https://www.manga-passion.de/editions/5504",
+      "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
+      "evidence": "Manga Passion Edition, Verlag und Bandnummer wurden gegen die Bandliste abgeglichen.",
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 5504, Band 6). Ursprung: watchlist.",
+      "checkedAt": "2026-05-26T14:17:36.296Z"
     },
     {
       "seriesTitle": "Mujina into the Deep",
@@ -2536,6 +2621,57 @@
       "confidence": "high",
       "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 4636, Band 12). Ursprung: watchlist.",
       "checkedAt": "2026-05-19T15:26:34.180Z"
+    },
+    {
+      "seriesTitle": "Vagabond – Master Edition",
+      "normalizedSeriesTitle": "vagabond master edition",
+      "publisher": "Egmont Manga",
+      "normalizedPublisher": "egmont manga",
+      "volumeNumber": 13,
+      "releaseDate": "2026-10-06",
+      "isbn13": null,
+      "coverUrl": "https://media.manga-passion.de/volume/cover/2026/0525/1344/315ca407ceb083ab60ab9763b03e0dbd.jpg",
+      "sourceUrl": "https://www.manga-passion.de/editions/4636",
+      "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
+      "evidence": "Manga Passion Edition, Verlag und Bandnummer wurden gegen die Bandliste abgeglichen.",
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 4636, Band 13). Ursprung: watchlist.",
+      "checkedAt": "2026-05-26T14:17:36.296Z"
+    },
+    {
+      "seriesTitle": "Vagabond – Master Edition",
+      "normalizedSeriesTitle": "vagabond master edition",
+      "publisher": "Egmont Manga",
+      "normalizedPublisher": "egmont manga",
+      "volumeNumber": 14,
+      "releaseDate": "2026-12-08",
+      "isbn13": null,
+      "coverUrl": "https://media.manga-passion.de/volume/cover/2026/0525/1344/850b72f6690cca7377e720278a0573f8.jpg",
+      "sourceUrl": "https://www.manga-passion.de/editions/4636",
+      "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
+      "evidence": "Manga Passion Edition, Verlag und Bandnummer wurden gegen die Bandliste abgeglichen.",
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 4636, Band 14). Ursprung: watchlist.",
+      "checkedAt": "2026-05-26T14:17:36.296Z"
+    },
+    {
+      "seriesTitle": "Vagabond – Master Edition",
+      "normalizedSeriesTitle": "vagabond master edition",
+      "publisher": "Egmont Manga",
+      "normalizedPublisher": "egmont manga",
+      "volumeNumber": 15,
+      "releaseDate": "2027-02-09",
+      "isbn13": null,
+      "coverUrl": "https://media.manga-passion.de/volume/cover/2026/0525/1345/e93d89da789164a7ee2189db9dd8e48f.jpg",
+      "sourceUrl": "https://www.manga-passion.de/editions/4636",
+      "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
+      "evidence": "Manga Passion Edition, Verlag und Bandnummer wurden gegen die Bandliste abgeglichen.",
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 4636, Band 15). Ursprung: watchlist.",
+      "checkedAt": "2026-05-26T14:17:36.296Z"
     },
     {
       "seriesTitle": "Witch and Hound",

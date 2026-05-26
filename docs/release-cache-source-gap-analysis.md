@@ -2,23 +2,23 @@
 
 Stand: automatisch synchronisiert aus aktuellem Audit gegen `data/release-watchlist.json` und `data/release-cache.json`.
 
-Diese Datei dokumentiert die 38 bekannten `source-data-gap`-Luecken aus `docs/release-cache-coverage-gaps.md`. Sie ist bewusst eine Analyse- und Entscheidungsdatei: Es werden keine Release-Daten geraten, keine privaten Sammlungsdaten ergaenzt und `data/release-cache.json` bleibt unangetastet.
+Diese Datei dokumentiert die 30 bekannten `source-data-gap`-Luecken aus `docs/release-cache-coverage-gaps.md`. Sie ist bewusst eine Analyse- und Entscheidungsdatei: Es werden keine Release-Daten geraten, keine privaten Sammlungsdaten ergaenzt und `data/release-cache.json` bleibt unangetastet.
 
 ## Ergebnis
 
 | Kennzahl | Wert |
 |---|---:|
-| Analysierte Gaps | 38 |
-| Betroffene Serien | 15 |
+| Analysierte Gaps | 30 |
+| Betroffene Serien | 10 |
 | Sichere direkte Cache-Patches | 0 |
-| Manuelle Quellenpruefung noetig | 38 |
+| Manuelle Quellenpruefung noetig | 30 |
 
 ## Ursachencluster
 
 | Vermutete Ursache | Gaps |
 |---|---:|
-| not-yet-released | 32 |
-| manual-source-required | 4 |
+| not-yet-released | 27 |
+| manual-source-required | 1 |
 | source-missing | 1 |
 | volume-numbering-mismatch | 1 |
 
@@ -34,7 +34,7 @@ Interpretation:
 
 | Empfohlener Fix | Gaps |
 |---|---:|
-| manual-source-review | 38 |
+| manual-source-review | 30 |
 
 Der einzige sichere naechste Schritt ist aktuell `manual-source-review`: offizielle Verlagsseite oder bereits erlaubte vertrauenswuerdige Quelle pruefen und erst danach echte Release-Daten mit Source-URL uebernehmen.
 
@@ -44,19 +44,14 @@ Der einzige sichere naechste Schritt ist aktuell `manual-source-review`: offizie
 |---|---|---:|---:|---|---|---|
 | Vermeil in Gold | MANGAMOON | 2 | 1 | not-yet-released | manual-source-review | nein |
 | Meine Chefin kommt immer zuerst!! | MangaMoon | 2 | 1 | not-yet-released | manual-source-review | nein |
-| Vagabond – Master Edition | Egmont Manga | 13-19 | 7 | not-yet-released | manual-source-review | nein |
+| Vagabond – Master Edition | Egmont Manga | 16-19 | 4 | not-yet-released | manual-source-review | nein |
 | Adou | Altraverse | 12 | 1 | source-missing | manual-source-review | nein |
 | Arifureta: Der Kampf zurück in meine Welt – Zero | Altraverse | 4-8 | 5 | not-yet-released | manual-source-review | nein |
 | Berserk Master Edition | Panini Manga | 7-14 | 8 | not-yet-released | manual-source-review | nein |
-| Chainsaw Man | Egmont Manga | 23 | 1 | not-yet-released | manual-source-review | nein |
 | Gushing over Magical Girls | MangaMoon | 4 | 1 | not-yet-released | manual-source-review | nein |
 | Isekai Soapland | MANGAMOON | 3-8 | 6 | not-yet-released | manual-source-review | nein |
-| Mirai Nikki – New Edition | Egmont Manga | 6 | 1 | not-yet-released | manual-source-review | nein |
 | Neck mich nicht, Nagatoro-san | dani books | 6-7 | 2 | manual-source-required | manual-source-review | nein |
 | Tokyo Revengers – Doppelband-Edition | Carlsen Manga | 16 | 1 | volume-numbering-mismatch | manual-source-review | nein |
-| Bitte zieh dich an, Takamine! | Egmont Manga | 1 | 1 | manual-source-required | manual-source-review | nein |
-| I Was Reincarnated as the 7th Prince So I Can Take My Time Perfecting My Magical Ability | Dokico | 1 | 1 | manual-source-required | manual-source-review | nein |
-| Mein Wunsch, von einer Oberschülerin getötet zu werden | Yomeru | 1 | 1 | manual-source-required | manual-source-review | nein |
 
 ## Einzelgap-Matrix
 
@@ -64,9 +59,6 @@ Der einzige sichere naechste Schritt ist aktuell `manual-source-review`: offizie
 |---|---|---:|---|---|---|---|
 | Vermeil in Gold | MANGAMOON | 2 | not-yet-released | manual-source-review | nein | ja |
 | Meine Chefin kommt immer zuerst!! | MangaMoon | 2 | not-yet-released | manual-source-review | nein | ja |
-| Vagabond – Master Edition | Egmont Manga | 13 | not-yet-released | manual-source-review | nein | ja |
-| Vagabond – Master Edition | Egmont Manga | 14 | not-yet-released | manual-source-review | nein | ja |
-| Vagabond – Master Edition | Egmont Manga | 15 | not-yet-released | manual-source-review | nein | ja |
 | Vagabond – Master Edition | Egmont Manga | 16 | not-yet-released | manual-source-review | nein | ja |
 | Vagabond – Master Edition | Egmont Manga | 17 | not-yet-released | manual-source-review | nein | ja |
 | Vagabond – Master Edition | Egmont Manga | 18 | not-yet-released | manual-source-review | nein | ja |
@@ -85,7 +77,6 @@ Der einzige sichere naechste Schritt ist aktuell `manual-source-review`: offizie
 | Berserk Master Edition | Panini Manga | 12 | not-yet-released | manual-source-review | nein | ja |
 | Berserk Master Edition | Panini Manga | 13 | not-yet-released | manual-source-review | nein | ja |
 | Berserk Master Edition | Panini Manga | 14 | not-yet-released | manual-source-review | nein | ja |
-| Chainsaw Man | Egmont Manga | 23 | not-yet-released | manual-source-review | nein | ja |
 | Gushing over Magical Girls | MangaMoon | 4 | not-yet-released | manual-source-review | nein | ja |
 | Isekai Soapland | MANGAMOON | 3 | not-yet-released | manual-source-review | nein | ja |
 | Isekai Soapland | MANGAMOON | 4 | not-yet-released | manual-source-review | nein | ja |
@@ -93,13 +84,9 @@ Der einzige sichere naechste Schritt ist aktuell `manual-source-review`: offizie
 | Isekai Soapland | MANGAMOON | 6 | not-yet-released | manual-source-review | nein | ja |
 | Isekai Soapland | MANGAMOON | 7 | not-yet-released | manual-source-review | nein | ja |
 | Isekai Soapland | MANGAMOON | 8 | not-yet-released | manual-source-review | nein | ja |
-| Mirai Nikki – New Edition | Egmont Manga | 6 | not-yet-released | manual-source-review | nein | ja |
 | Neck mich nicht, Nagatoro-san | dani books | 6 | not-yet-released | manual-source-review | nein | ja |
 | Tokyo Revengers – Doppelband-Edition | Carlsen Manga | 16 | volume-numbering-mismatch | manual-source-review | nein | ja |
 | Neck mich nicht, Nagatoro-san | dani books | 7 | manual-source-required | manual-source-review | nein | ja |
-| Bitte zieh dich an, Takamine! | Egmont Manga | 1 | manual-source-required | manual-source-review | nein | ja |
-| I Was Reincarnated as the 7th Prince So I Can Take My Time Perfecting My Magical Ability | Dokico | 1 | manual-source-required | manual-source-review | nein | ja |
-| Mein Wunsch, von einer Oberschülerin getötet zu werden | Yomeru | 1 | manual-source-required | manual-source-review | nein | ja |
 
 ## Maschinenlesbare Analyse
 
@@ -143,63 +130,6 @@ Der einzige sichere naechste Schritt ist aktuell `manual-source-review`: offizie
         }
       ],
       "evidence": "Manga-Passion-Edition 6135 fuehrt Band 2 nur mit Platzhalterdatum 2999-12-31; Schreibweise MangaMoon/MANGAMOON sollte konsolidiert bleiben.",
-      "recommendedFix": "manual-source-review",
-      "safeToPatch": false,
-      "manualSourceReviewNeeded": true
-    },
-    {
-      "seriesTitle": "Vagabond – Master Edition",
-      "publisher": "Egmont Manga",
-      "volumeNumber": 13,
-      "classification": "source-data-gap",
-      "priority": "sehr hoch",
-      "suspectedCause": "not-yet-released",
-      "checkedSources": [
-        {
-          "name": "Manga Passion API",
-          "url": "https://www.manga-passion.de",
-          "result": "Edition 4636 vorhanden; Band 13-19 ohne valides Release-Datum."
-        }
-      ],
-      "evidence": "Manga-Passion-Edition 4636 fuehrt Band 13-19 nur mit Platzhalterdatum 2999-12-31; Band 8-12 sind bereits bestaetigt.",
-      "recommendedFix": "manual-source-review",
-      "safeToPatch": false,
-      "manualSourceReviewNeeded": true
-    },
-    {
-      "seriesTitle": "Vagabond – Master Edition",
-      "publisher": "Egmont Manga",
-      "volumeNumber": 14,
-      "classification": "source-data-gap",
-      "priority": "sehr hoch",
-      "suspectedCause": "not-yet-released",
-      "checkedSources": [
-        {
-          "name": "Manga Passion API",
-          "url": "https://www.manga-passion.de",
-          "result": "Edition 4636 vorhanden; Band 13-19 ohne valides Release-Datum."
-        }
-      ],
-      "evidence": "Manga-Passion-Edition 4636 fuehrt Band 13-19 nur mit Platzhalterdatum 2999-12-31; Band 8-12 sind bereits bestaetigt.",
-      "recommendedFix": "manual-source-review",
-      "safeToPatch": false,
-      "manualSourceReviewNeeded": true
-    },
-    {
-      "seriesTitle": "Vagabond – Master Edition",
-      "publisher": "Egmont Manga",
-      "volumeNumber": 15,
-      "classification": "source-data-gap",
-      "priority": "sehr hoch",
-      "suspectedCause": "not-yet-released",
-      "checkedSources": [
-        {
-          "name": "Manga Passion API",
-          "url": "https://www.manga-passion.de",
-          "result": "Edition 4636 vorhanden; Band 13-19 ohne valides Release-Datum."
-        }
-      ],
-      "evidence": "Manga-Passion-Edition 4636 fuehrt Band 13-19 nur mit Platzhalterdatum 2999-12-31; Band 8-12 sind bereits bestaetigt.",
       "recommendedFix": "manual-source-review",
       "safeToPatch": false,
       "manualSourceReviewNeeded": true
@@ -547,25 +477,6 @@ Der einzige sichere naechste Schritt ist aktuell `manual-source-review`: offizie
       "manualSourceReviewNeeded": true
     },
     {
-      "seriesTitle": "Chainsaw Man",
-      "publisher": "Egmont Manga",
-      "volumeNumber": 23,
-      "classification": "source-data-gap",
-      "priority": "mittel",
-      "suspectedCause": "not-yet-released",
-      "checkedSources": [
-        {
-          "name": "Manga Passion API",
-          "url": "https://www.manga-passion.de",
-          "result": "Edition 269 vorhanden; Band 23 ohne valides Release-Datum."
-        }
-      ],
-      "evidence": "Manga-Passion-Edition 269 fuehrt Band 23 nur mit Platzhalterdatum 2999-12-31; Band 21-22 sind bereits bestaetigt.",
-      "recommendedFix": "manual-source-review",
-      "safeToPatch": false,
-      "manualSourceReviewNeeded": true
-    },
-    {
       "seriesTitle": "Gushing over Magical Girls",
       "publisher": "MangaMoon",
       "volumeNumber": 4,
@@ -699,25 +610,6 @@ Der einzige sichere naechste Schritt ist aktuell `manual-source-review`: offizie
       "manualSourceReviewNeeded": true
     },
     {
-      "seriesTitle": "Mirai Nikki – New Edition",
-      "publisher": "Egmont Manga",
-      "volumeNumber": 6,
-      "classification": "source-data-gap",
-      "priority": "mittel",
-      "suspectedCause": "not-yet-released",
-      "checkedSources": [
-        {
-          "name": "Manga Passion API",
-          "url": "https://www.manga-passion.de",
-          "result": "Edition 5504 vorhanden; Band 6 ohne valides Release-Datum."
-        }
-      ],
-      "evidence": "Manga-Passion-Edition 5504 fuehrt Band 6 nur mit Platzhalterdatum 2999-12-31; New-Edition-Fingerprint passt fuer Band 3-5 bereits.",
-      "recommendedFix": "manual-source-review",
-      "safeToPatch": false,
-      "manualSourceReviewNeeded": true
-    },
-    {
       "seriesTitle": "Neck mich nicht, Nagatoro-san",
       "publisher": "dani books",
       "volumeNumber": 6,
@@ -773,63 +665,6 @@ Der einzige sichere naechste Schritt ist aktuell `manual-source-review`: offizie
       "recommendedFix": "manual-source-review",
       "safeToPatch": false,
       "manualSourceReviewNeeded": true
-    },
-    {
-      "seriesTitle": "Bitte zieh dich an, Takamine!",
-      "publisher": "Egmont Manga",
-      "volumeNumber": 1,
-      "classification": "source-data-gap",
-      "priority": "mittel",
-      "suspectedCause": "manual-source-required",
-      "checkedSources": [
-        {
-          "name": "Release-Intake-Staging / Release-Cache-Audit",
-          "url": "data/release-watchlist.json",
-          "result": "Nach Release-Intake in der Watchlist vorhanden; kein passender Eintrag in data/release-cache.json."
-        }
-      ],
-      "evidence": "Der Band wurde per Release-Intake in die Watchlist uebernommen. Der Release-Cache enthaelt noch kein belegtes Datum; kein Cache-Patch ohne verifizierte Quelle.",
-      "recommendedFix": "manual-source-review",
-      "safeToPatch": false,
-      "manualSourceReviewNeeded": true
-    },
-    {
-      "seriesTitle": "I Was Reincarnated as the 7th Prince So I Can Take My Time Perfecting My Magical Ability",
-      "publisher": "Dokico",
-      "volumeNumber": 1,
-      "classification": "source-data-gap",
-      "priority": "mittel",
-      "suspectedCause": "manual-source-required",
-      "checkedSources": [
-        {
-          "name": "Release-Intake-Staging / Release-Cache-Audit",
-          "url": "data/release-watchlist.json",
-          "result": "Nach Release-Intake in der Watchlist vorhanden; kein passender Eintrag in data/release-cache.json."
-        }
-      ],
-      "evidence": "Der Band wurde per Release-Intake in die Watchlist uebernommen. Der Release-Cache enthaelt noch kein belegtes Datum; kein Cache-Patch ohne verifizierte Quelle.",
-      "recommendedFix": "manual-source-review",
-      "safeToPatch": false,
-      "manualSourceReviewNeeded": true
-    },
-    {
-      "seriesTitle": "Mein Wunsch, von einer Oberschülerin getötet zu werden",
-      "publisher": "Yomeru",
-      "volumeNumber": 1,
-      "classification": "source-data-gap",
-      "priority": "mittel",
-      "suspectedCause": "manual-source-required",
-      "checkedSources": [
-        {
-          "name": "Release-Intake-Staging / Release-Cache-Audit",
-          "url": "data/release-watchlist.json",
-          "result": "Nach Release-Intake in der Watchlist vorhanden; kein passender Eintrag in data/release-cache.json."
-        }
-      ],
-      "evidence": "Der Band wurde per Release-Intake in die Watchlist uebernommen. Der Release-Cache enthaelt noch kein belegtes Datum; kein Cache-Patch ohne verifizierte Quelle.",
-      "recommendedFix": "manual-source-review",
-      "safeToPatch": false,
-      "manualSourceReviewNeeded": true
     }
   ]
 }
@@ -839,15 +674,13 @@ Der einzige sichere naechste Schritt ist aktuell `manual-source-review`: offizie
 
 | Verlag | Gaps | Serien | Strategie |
 |---|---:|---:|---|
-| Egmont Manga | 10 | 4 | Offizielle Verlags-/Produktquelle manuell pruefen; kein Cache-Patch ohne belegtes tagesgenaues Release-Datum. |
 | Panini Manga | 8 | 1 | Offizielle Verlags-/Produktquelle manuell pruefen; kein Cache-Patch ohne belegtes tagesgenaues Release-Datum. |
 | MANGAMOON | 7 | 2 | Offizielle Verlags-/Produktquelle manuell pruefen; kein Cache-Patch ohne belegtes tagesgenaues Release-Datum. |
 | Altraverse | 6 | 2 | Offizielle Verlags-/Produktquelle manuell pruefen; kein Cache-Patch ohne belegtes tagesgenaues Release-Datum. |
+| Egmont Manga | 4 | 1 | Offizielle Verlags-/Produktquelle manuell pruefen; kein Cache-Patch ohne belegtes tagesgenaues Release-Datum. |
 | dani books | 2 | 1 | Offizielle Verlags-/Produktquelle manuell pruefen; kein Cache-Patch ohne belegtes tagesgenaues Release-Datum. |
 | MangaMoon | 2 | 2 | Offizielle Verlags-/Produktquelle manuell pruefen; kein Cache-Patch ohne belegtes tagesgenaues Release-Datum. |
 | Carlsen Manga | 1 | 1 | Offizielle Verlags-/Produktquelle manuell pruefen; kein Cache-Patch ohne belegtes tagesgenaues Release-Datum. |
-| Dokico | 1 | 1 | Offizielle Verlags-/Produktquelle manuell pruefen; kein Cache-Patch ohne belegtes tagesgenaues Release-Datum. |
-| Yomeru | 1 | 1 | Offizielle Verlags-/Produktquelle manuell pruefen; kein Cache-Patch ohne belegtes tagesgenaues Release-Datum. |
 
 ## Konkrete naechste Fixes
 
