@@ -444,7 +444,7 @@ if (!appJs) {
   fail('Check 30: src/app.js nicht gefunden (Phase-34-Pending nicht prüfbar)');
 } else {
   const pendingStart = appJs.indexOf('LOCAL_RELEASE_COVERAGE_PENDING_KEY');
-  const pendingEnd = appJs.indexOf('// Findet passende Cache-Einträge', pendingStart);
+  const pendingEnd = appJs.indexOf('async function loadJsonReadOnly', pendingStart);
   const pendingCode = pendingStart >= 0 && pendingEnd > pendingStart ? appJs.slice(pendingStart, pendingEnd) : '';
   const privatePendingFields = ['owned', 'reading', 'completed', 'collectionStatus', 'boughtAt', 'readAt', 'startedAt', 'finishedAt', 'seriesId', 'owner_token', 'view_token', 'supabase'];
   const leaked = privatePendingFields.filter(field => pendingCode.includes(field));
@@ -462,7 +462,7 @@ if (!appJs) {
   fail('Check 31: src/app.js nicht gefunden (Phase-34-Write-Guards nicht prüfbar)');
 } else {
   const pendingStart = appJs.indexOf('LOCAL_RELEASE_COVERAGE_PENDING_KEY');
-  const pendingEnd = appJs.indexOf('// Findet passende Cache-Einträge', pendingStart);
+  const pendingEnd = appJs.indexOf('async function loadJsonReadOnly', pendingStart);
   const pendingCode = pendingStart >= 0 && pendingEnd > pendingStart ? appJs.slice(pendingStart, pendingEnd) : '';
   if (/pushCloud\s*\(|persist\s*\(|patchCollectionPayload|api\.github\.com|repos\/[^/]+\/[^/]+\/contents/i.test(pendingCode)) {
     fail('Check 31: Phase-34-Pending-Code enthält Cloud-/Repo-Write-Pfad');
@@ -691,6 +691,56 @@ if (!statusMailJs) {
   pass('Check 38b: write-release-cache-status-mail.js enthält keinen process.env-Dump');
 }
 
+
+// ── Check 39: Phase 43 public release-volume-counts are public-only and read-only in app ──
+const releaseVolumeValidator = readFile('scripts/validate-release-volume-counts.js');
+const releaseVolumeRunner = readFile('scripts/run-release-volume-counts.js');
+const releaseVolumeMail = readFile('scripts/write-release-volume-counts-status-mail.js');
+const releaseVolumeWorkflow = readFile('.github/workflows/update-release-volume-counts.yml');
+if (!fileExists('data/release-volume-counts.json') || !releaseVolumeValidator || !releaseVolumeRunner) {
+  fail('Check 39a: Phase-43 release-volume-counts data/runner/validator missing');
+} else {
+  pass('Check 39a: Phase-43 release-volume-counts data/runner/validator vorhanden');
+}
+
+if (!appJs) {
+  fail('Check 39b: src/app.js nicht gefunden (Phase-43 Read-only-Block nicht prüfbar)');
+} else {
+  const phase43Start = appJs.indexOf('async function loadReleaseVolumeCounts');
+  const phase43End = appJs.indexOf('async function loadReleaseCoverageKnownData', phase43Start);
+  const phase43Code = phase43Start >= 0 && phase43End > phase43Start ? appJs.slice(phase43Start, phase43End) : '';
+  if (!phase43Code || !phase43Code.includes('release-volume-counts.json')) {
+    fail('Check 39b: Phase-43 App-Read-only-Integration fehlt');
+  } else if (/pushCloud\s*\(|persist\s*\(|patchCollectionPayload|localStorage\.setItem|supabase\.(from|rpc)|api\.github\.com/i.test(phase43Code)) {
+    fail('Check 39b: Phase-43 App-Block enthält mutierenden Schreibpfad');
+  } else {
+    pass('Check 39b: Phase-43 App-Integration lädt release-volume-counts read-only');
+  }
+}
+
+if (!releaseVolumeValidator) {
+  fail('Check 39c: Phase-43 Validator nicht prüfbar');
+} else if (!releaseVolumeValidator.includes('ALLOWED_ITEM_KEYS') || !releaseVolumeValidator.includes('FORBIDDEN_KEYS')) {
+  fail('Check 39c: Phase-43 Validator enthält keine Allowlist/Forbidden-Key-Prüfung');
+} else {
+  pass('Check 39c: Phase-43 Validator nutzt öffentliche Feld-Allowlist und private Forbidden-Keys');
+}
+
+if (!releaseVolumeWorkflow) {
+  fail('Check 39d: update-release-volume-counts.yml nicht gefunden');
+} else if (!releaseVolumeWorkflow.includes('node scripts/test-public-private-diff.js') || !releaseVolumeWorkflow.includes('node scripts/validate-release-volume-counts-automerge-gate.js')) {
+  fail('Check 39d: Phase-43 Workflow enthält Privacy-Gate oder Auto-Merge-Gate nicht');
+} else {
+  pass('Check 39d: Phase-43 Workflow enthält Privacy-Gate und Auto-Merge-Gate');
+}
+
+if (!releaseVolumeMail) {
+  fail('Check 39e: Phase-43 Status-Mail-Writer fehlt');
+} else if (/JSON\.stringify\s*\(\s*process\.env\b|Object\.(entries|keys)\s*\(\s*process\.env\b|for\s*\([^)]*\bin\s+process\.env\b/.test(releaseVolumeMail)) {
+  fail('Check 39e: Phase-43 Status-Mail-Writer enthält process.env-Dump-Pattern');
+} else {
+  pass('Check 39e: Phase-43 Status-Mail-Writer enthält keinen Env-Dump');
+}
 const passed = totalChecks - totalFailed - totalWarns;
 console.log('');
 if (totalWarns > 0) {
