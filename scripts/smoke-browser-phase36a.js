@@ -104,8 +104,8 @@ async function saveModal(page) {
   await openAddModal(page);
   await page.fill('#f-title', 'DS-Smoke-Test');
   await page.selectOption('#f-publisher', 'Crunchyroll Manga');
-  const totalField = page.locator('#f-total');
-  if (await totalField.count()) await totalField.fill('5');
+  // Phase 44b: 'Bände erschienen (DE)' wird nicht mehr manuell gesetzt; Feld ist hidden.
+  // Der Release-Intake-Test benötigt total nicht — er prüft nur Band-1-Pending aus Publisher.
   const ongoingSelect = page.locator('#f-ongoing');
   if (await ongoingSelect.count()) await ongoingSelect.selectOption('true');
   // Kein Band eingetragen → Zielband = Band 1

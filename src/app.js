@@ -759,85 +759,6 @@ function buyCard(m, isAvail) {
   </div>`;
 }
 
-// ─── AniList Datenbank-Suche ──────────────────────────────────────────────
-const GENRE_MAP = {
-  'Action':'Action','Adventure':'Action','Comedy':'Comedy','Drama':'Drama',
-  'Fantasy':'Fantasy','Horror':'Horror','Mystery':'Mystery','Romance':'Romance',
-  'Sci-Fi':'Sci-Fi','Science Fiction':'Sci-Fi','Slice of Life':'Slice of Life',
-  'Sports':'Sports','Supernatural':'Supernatural','Thriller':'Thriller','Mecha':'Mecha',
-  'Psychological':'Thriller','Ecchi':'Shōnen','Shounen':'Shōnen','Shoujo':'Shōjo',
-  'Seinen':'Seinen','Josei':'Josei',
-};
-let _dbTimer = null;
-let _dbResults = [];
-
-function onDbSearch(val) {
-  clearTimeout(_dbTimer);
-  const q = val.trim();
-  const res = document.getElementById('db-results');
-  if (q.length < 2) { res.style.display = 'none'; return; }
-  _dbTimer = setTimeout(() => fetchAniList(q), 400);
-}
-
-async function fetchAniList(query) {
-  document.getElementById('db-spinner').style.display = 'block';
-  const gql = `query($s:String){Page(perPage:6){media(search:$s,type:MANGA,isAdult:false){id title{romaji english native}coverImage{medium}genres status volumes}}}`;
-  try {
-    const r = await fetch('https://graphql.anilist.co', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ query: gql, variables: { s: query } })
-    });
-    const j = await r.json();
-    _dbResults = j.data?.Page?.media || [];
-    renderDbResults();
-  } catch {
-    _dbResults = [];
-    renderDbResults();
-  } finally {
-    document.getElementById('db-spinner').style.display = 'none';
-  }
-}
-
-function renderDbResults() {
-  const el = document.getElementById('db-results');
-  if (!_dbResults.length) {
-    el.innerHTML = '<div class="db-no-results">Keine Ergebnisse</div>';
-    el.style.display = 'block'; return;
-  }
-  el.style.display = 'block';
-  el.innerHTML = _dbResults.map((m,i) => {
-    const title = m.title.english || m.title.romaji || m.title.native || '';
-    const vols = m.volumes ? `${m.volumes} Bde.` : (m.status === 'RELEASING' ? 'laufend' : '');
-    const genres = (m.genres||[]).slice(0,2).join(', ');
-    return `<div class="db-result-item" data-action="apply-db-result" data-result-index="${i}">
-      ${m.coverImage?.medium ? `<img class="db-result-cover" src="${m.coverImage.medium}" loading="lazy">` : '<div class="db-result-cover"></div>'}
-      <div class="db-result-info">
-        <div class="db-result-title">${title}</div>
-        <div class="db-result-sub">${[vols,genres].filter(Boolean).join(' · ')}</div>
-      </div>
-    </div>`;
-  }).join('');
-}
-
-function applyDbResult(i) {
-  const m = _dbResults[i];
-  if (!m) return;
-  const title = m.title.english || m.title.romaji || m.title.native || '';
-  document.getElementById('f-title').value = title;
-  if (m.volumes) document.getElementById('f-total').value = m.volumes;
-  document.getElementById('f-ongoing').value = m.status === 'RELEASING' ? 'true' : 'false';
-  if (m.coverImage?.medium) document.getElementById('f-cover').value = m.coverImage.medium;
-  // Genres mappen
-  const mapped = [...new Set((m.genres||[]).map(g => GENRE_MAP[g]).filter(Boolean))];
-  modalGenres = mapped.filter(g => ALL_GENRES.includes(g));
-  renderGenrePicker();
-  // Suche schließen
-  document.getElementById('db-results').style.display = 'none';
-  document.getElementById('db-search').value = '';
-  toast(`✅ „${title}" aus Datenbank übernommen`);
-}
-
 // ─── Öffentliches Profil ──────────────────────────────────────────────────
 const _viewColl = new URLSearchParams(window.location.search).get('view');
 
@@ -2171,6 +2092,61 @@ function setTab(t) {
 }
 
 // ─── Modal ────────────────────────────────────────────────────────────────
+
+// Phase 44b: Read-only Anzeige der Automationsfelder
+// "Bände erschienen (DE)" und "Nächster Band erscheint (DE)" werden nicht mehr
+// manuell editiert. Anzeige aus Phase-43-Daten (release-volume-counts.json,
+// release-cache.json) oder Legacy-Werten als Fallback.
+function renderAutomationReadout(m) {
+  const totalEl = document.getElementById('f-total-auto');
+  const dateEl  = document.getElementById('f-nextdate-auto');
+  if (!totalEl || !dateEl) return;
+  // Bände erschienen (DE)
+  let totalHtml = `<span class="automation-readout-empty">Noch kein belastbarer Automationswert vorhanden.</span>`;
+  if (m) {
+    const count = (typeof findReleaseVolumeCountForSeries === 'function')
+      ? findReleaseVolumeCountForSeries(m) : null;
+    if (count && Number.isInteger(Number(count.publishedVolumesDE))) {
+      const checked = count.checkedAt ? String(count.checkedAt).slice(0, 10) : '';
+      totalHtml = `<div class="automation-readout-value">${escapeHtml(count.publishedVolumesDE)}</div>`
+        + `<div class="automation-readout-meta">Quelle: ${escapeHtml(count.source || 'Release-Bandstand-Routine')}`
+        + (checked ? ` · zuletzt geprüft ${escapeHtml(checked)}` : '')
+        + `</div>`;
+    } else if (m.total != null && Number.isFinite(Number(m.total)) && Number(m.total) > 0) {
+      totalHtml = `<div class="automation-readout-value">${escapeHtml(m.total)}</div>`
+        + `<div class="automation-readout-meta">Legacy-Wert (vor Phase 43). Wird beim Speichern erhalten, aber nicht mehr manuell aktualisiert.</div>`;
+    }
+  }
+  totalEl.innerHTML = totalHtml;
+  // Nächster Band erscheint (DE)
+  let dateHtml = `<span class="automation-readout-empty">Noch kein belastbares Datum vorhanden.</span>`;
+  if (m) {
+    let displayDate = null;
+    let source = '';
+    if (typeof getReleaseTargetVolume === 'function'
+        && typeof findReleaseCacheItemForVolume === 'function') {
+      const target = getReleaseTargetVolume(m);
+      if (target != null) {
+        const cacheItem = findReleaseCacheItemForVolume(m, target);
+        if (cacheItem && cacheItem.releaseDate) {
+          displayDate = cacheItem.releaseDate;
+          source = 'Release-Cache';
+        }
+      }
+    }
+    if (!displayDate && m.nextDate) {
+      displayDate = m.nextDate;
+      source = 'Legacy-Wert (vor Phase 43). Wird beim Speichern erhalten, aber nicht mehr manuell gesetzt.';
+    }
+    if (displayDate) {
+      const human = (typeof formatGermanDate === 'function') ? formatGermanDate(displayDate) : displayDate;
+      dateHtml = `<div class="automation-readout-value">${escapeHtml(human || displayDate)}</div>`
+        + `<div class="automation-readout-meta">${escapeHtml(source || 'Release-Cache')}</div>`;
+    }
+  }
+  dateEl.innerHTML = dateHtml;
+}
+
 function openAdd() {
   editId = null;
   modalBands = {};
@@ -2182,6 +2158,7 @@ function openAdd() {
   document.getElementById('f-total').value = '';
   document.getElementById('f-ongoing').value = 'true';
   document.getElementById('f-nextdate').value = '';
+  renderAutomationReadout(null);
   document.getElementById('f-cover').value = '';
   document.getElementById('f-notes').value = '';
   document.getElementById('f-started').value = '';
@@ -2208,9 +2185,10 @@ function openEdit(id, e) {
   document.getElementById('modal-title').textContent = 'Manga bearbeiten';
   document.getElementById('f-title').value = m.title||'';
   document.getElementById('f-publisher').value = m.pub||'';
-  document.getElementById('f-total').value = m.total??'';
+  document.getElementById('f-total').value = (m.total ?? '') === null ? '' : (m.total ?? '');
   document.getElementById('f-ongoing').value = m.ongoing??'true';
   document.getElementById('f-nextdate').value = m.nextDate??'';
+  renderAutomationReadout(m);
   document.getElementById('f-cover').value = m.cover??'';
   document.getElementById('f-notes').value = m.notes??'';
   document.getElementById('f-started').value = m.startedAt || '';
@@ -2227,8 +2205,6 @@ function openEdit(id, e) {
 
 function closeModal() {
   document.getElementById('overlay').style.display = 'none';
-  document.getElementById('db-results').style.display = 'none';
-  document.getElementById('db-search').value = '';
   editId = null;
 }
 
@@ -2341,13 +2317,23 @@ function doSave() {
     }
   }
   const bands = { ...modalBands };
-  const _rawTotal = parseInt(document.getElementById('f-total').value);
-  const total = (!isNaN(_rawTotal) && _rawTotal > 0) ? _rawTotal : null;
   const ongoing = document.getElementById('f-ongoing').value;
 
   // ── Auto-Setting für startedAt / finishedAt ─────────────────────────────
   // Nicht überschreiben was der User manuell eingegeben hat oder was schon im Eintrag steht
   const existing = editId ? db.m.find(x => x.id === editId) : null;
+
+  // Phase 44b: "Bände erschienen (DE)" (total) und "Nächster Band erscheint (DE)" (nextDate)
+  // werden nicht mehr aus normalen Formularfeldern gesetzt. Legacy-Werte aus dem
+  // bestehenden Eintrag bleiben erhalten, dürfen aber durch das Speichern nicht
+  // versehentlich überschrieben werden. Die öffentliche Automationsanzeige (Phase 43)
+  // ist die fachliche Quelle für diese Werte.
+  const total = (existing && existing.total != null && Number.isFinite(Number(existing.total)) && Number(existing.total) > 0)
+    ? Number(existing.total)
+    : null;
+  const nextDate = (existing && typeof existing.nextDate === 'string' && existing.nextDate)
+    ? existing.nextDate
+    : null;
   const manualStarted  = document.getElementById('f-started').value || null;
   const manualFinished = document.getElementById('f-finished').value || null;
   const today = new Date().toISOString().slice(0, 10);
@@ -2397,7 +2383,7 @@ function doSave() {
     current: mCurrent({ bands }),                // abgeleitet
     total,
     ongoing,
-    nextDate: document.getElementById('f-nextdate').value || null,
+    nextDate,
     cover,
     notes: document.getElementById('f-notes').value.trim(),
     genres: [...modalGenres],
@@ -4537,10 +4523,6 @@ function bindStaticEvents() {
   document.getElementById('search-input')?.addEventListener('input', function(event) {
     onSearch(event.target.value);
   });
-  document.getElementById('db-search')?.addEventListener('input', function(event) {
-    onDbSearch(event.target.value);
-  });
-
   // Filters
   document.getElementById('pub-filter')?.addEventListener('change', function(event) {
     setPubFilter(event.target.value);
@@ -4666,9 +4648,6 @@ function bindDelegatedEvents() {
         break;
       case 'set-band-status':
         setBandStatus(target.dataset.mangaId, target.dataset.bandNr, target.dataset.status, event);
-        break;
-      case 'apply-db-result':
-        applyDbResult(Number(target.dataset.resultIndex));
         break;
       case 'toggle-genre':
         toggleGenre(target.dataset.genre);
