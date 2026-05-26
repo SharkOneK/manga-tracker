@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-05-26T17:04:04.373Z",
+  "generatedAt": "2026-05-26T17:33:38.118Z",
   "items": [
     {
       "seriesTitle": "Adou",
@@ -14,11 +14,11 @@
     {
       "seriesTitle": "Arifureta: Der Kampf zurück in meine Welt – Zero",
       "publisher": "altraverse",
-      "publishedVolumesDE": 1,
+      "publishedVolumesDE": 2,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/5807",
       "confidence": "high",
-      "checkedAt": "2026-05-19T15:26:34.180Z"
+      "checkedAt": "2026-05-26T17:33:38.118Z"
     },
     {
       "seriesTitle": "August 9th, I will be eaten by you",
@@ -37,6 +37,15 @@
       "sourceUrl": "https://www.manga-passion.de/editions/5211",
       "confidence": "high",
       "checkedAt": "2026-05-19T15:26:34.180Z"
+    },
+    {
+      "seriesTitle": "Bitte zieh dich an, Takamine!",
+      "publisher": "Egmont Manga",
+      "publishedVolumesDE": 1,
+      "source": "manga-passion",
+      "sourceUrl": "https://www.manga-passion.de/editions/5858",
+      "confidence": "high",
+      "checkedAt": "2026-05-26T14:17:36.296Z"
     },
     {
       "seriesTitle": "Blood Blade",
@@ -95,11 +104,11 @@
     {
       "seriesTitle": "Demon Slave",
       "publisher": "KAZÉ Manga",
-      "publishedVolumesDE": 2,
+      "publishedVolumesDE": 3,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/509",
       "confidence": "high",
-      "checkedAt": "2026-05-24T06:25:50.318Z"
+      "checkedAt": "2026-05-26T17:33:38.118Z"
     },
     {
       "seriesTitle": "Die letzte Elfe",
@@ -165,6 +174,15 @@
       "checkedAt": "2026-05-19T15:26:34.180Z"
     },
     {
+      "seriesTitle": "Mein Wunsch, von einer Oberschülerin getötet zu werden",
+      "publisher": "Yomeru",
+      "publishedVolumesDE": 2,
+      "source": "manga-passion",
+      "sourceUrl": "https://www.manga-passion.de/editions/4972",
+      "confidence": "high",
+      "checkedAt": "2026-05-26T17:33:38.118Z"
+    },
+    {
       "seriesTitle": "Mirai Nikki – New Edition",
       "publisher": "Egmont Manga",
       "publishedVolumesDE": 3,
@@ -185,11 +203,11 @@
     {
       "seriesTitle": "Real Account",
       "publisher": "TOKYOPOP",
-      "publishedVolumesDE": 6,
+      "publishedVolumesDE": 7,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/819",
       "confidence": "high",
-      "checkedAt": "2026-05-19T15:26:34.180Z"
+      "checkedAt": "2026-05-26T17:33:38.118Z"
     },
     {
       "seriesTitle": "Reincarnated as a Sword: Another Wish",
