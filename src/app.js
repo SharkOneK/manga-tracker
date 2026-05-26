@@ -480,8 +480,10 @@ let releaseReviewQueueStatus = 'not-loaded';
 let releaseVolumeCounts = null;       // Phase 43: read-only public DE volume counts
 let releaseVolumeCountsStatus = 'not-loaded';
 let _currentReleaseMatches = [];        // Zwischenspeicher für aktuelle Vorschau (Phase 15c)
-let _dashboardReleasePreview = null;     // Phase 18c: Dashboard-Preview für Release-Daten-Prüfung
-let _dashboardSeriesStatusPreview = null; // Phase 18e: Dashboard-Preview für Serienstatus-Prüfung
+// Phase 44a-followup: Dashboard-Buttons "Alle Release-Daten prüfen",
+// "Alle Serien-Status prüfen" und "Cache-Coverage prüfen" entfernt.
+// Release-Daten und DE-Bandstand laufen vollautomatisch über Phase 25/32/42/43.
+// Preview-State-Variablen entfallen entsprechend.
 
 function setView(mode) {
   viewMode = mode;
@@ -869,289 +871,6 @@ function collectionStatusLabel(value) {
   }[value] || value;
 }
 
-function inspectSeriesStatus(m) {
-  const total = Number(m.total);
-  const totalKnown = !isNaN(total) && total > 0;
-  const owned = mOwned(m);
-  const firstMissing = mFirstMissingBand(m);
-  const missingCount = totalKnown ? Math.max(0, total - owned) : 0;
-  const collectionStatus = mCollectionStatus(m);
-  const seriesStatus = mSeriesStatus(m);
-  const bandValues = Object.values(m.bands || {});
-  const allKnownVolumesCollected = totalKnown && firstMissing === null;
-  const allKnownVolumesRead = allKnownVolumesCollected && bandValues.length >= total && bandValues.every(v => v === 'completed');
-  const reasons = [];
-
-  if (m.ongoing === 'false' && firstMissing !== null) {
-    reasons.push({
-      code: 'finished_missing_volumes',
-      text: `Als abgeschlossen markiert, aber ${missingCount} bekannte(r) Band/Bände fehlt/fehlen (nächster fehlender Band: ${firstMissing}).`,
-      suggestion: 'Publikationsstatus kann abgeschlossen bleiben; Sammlung/Fehlbände sollten aber sichtbar als unvollständig behandelt werden.',
-    });
-  }
-
-  if (m.ongoing === 'false' && m.nextDate) {
-    reasons.push({
-      code: 'finished_has_next_date',
-      text: `Als abgeschlossen markiert, hat aber ein nächstes Release-Datum (${m.nextDate}).`,
-      suggestion: 'Wahrscheinlich laufend/geplant oder nextDate ist veraltet und sollte später manuell geprüft werden.',
-    });
-  }
-
-  if (m.ongoing === 'true' && allKnownVolumesRead && !m.nextDate) {
-    reasons.push({
-      code: 'ongoing_complete_read_no_next_date',
-      text: 'Als laufend markiert, aber alle bekannten Bände sind gesammelt und gelesen; kein nächstes Release-Datum ist gesetzt.',
-      suggestion: 'Möglicherweise abgeschlossen oder aktuell ohne angekündigten Folgeband.',
-    });
-  } else if (m.ongoing === 'true' && allKnownVolumesCollected && !m.nextDate) {
-    reasons.push({
-      code: 'ongoing_complete_no_next_date',
-      text: 'Als laufend markiert, aber alle bekannten Bände sind gesammelt; kein nächstes Release-Datum ist gesetzt.',
-      suggestion: 'Möglicherweise abgeschlossen oder es fehlt ein kommendes Release-Datum.',
-    });
-  }
-
-  if (seriesStatus === 'completed' && firstMissing !== null) {
-    reasons.push({
-      code: 'completed_display_missing_volumes',
-      text: `Abgeschlossene Serie, Sammlung noch unvollständig (${owned ?? '?'}/${totalKnown ? total : '?'} Bände) — nächster fehlender Band: ${firstMissing}.`,
-      suggestion: 'Kein Fehler: die Serie ist fertig veröffentlicht. Fehlende Bände im Kaufen-Tab nachkaufen.',
-    });
-  }
-
-  return {
-    seriesId: m.id || '',
-    title: m.title || '',
-    publisher: m.pub || '',
-    status: m.ongoing === 'true' || m.ongoing === 'false' ? m.ongoing : 'unknown',
-    statusLabel: seriesStatusLabel(m.ongoing),
-    collectionStatus,
-    collectionStatusLabel: collectionStatusLabel(collectionStatus),
-    seriesStatus,
-    owned,
-    total: totalKnown ? total : null,
-    firstMissing,
-    nextDate: m.nextDate || '',
-    reasons,
-  };
-}
-
-function buildDashboardSeriesStatusPreview() {
-  const list = Array.isArray(db.m) ? db.m : [];
-  const checked = list.map(inspectSeriesStatus);
-  const flagged = checked.filter(item => item.reasons.length > 0);
-  return {
-    checkedSeries: checked.length,
-    okSeries: checked.length - flagged.length,
-    flaggedSeries: flagged.length,
-    checked,
-    flagged,
-  };
-}
-
-function renderDashboardSeriesStatusPreview(result) {
-  if (!result) {
-    return `<p class="stats-empty-note" id="dashboard-series-status-check-result">Noch keine Serienstatus-Prüfung ausgeführt. Diese Prüfung ist nur eine Preview und ändert keine Daten.</p>`;
-  }
-  const flaggedHtml = result.flaggedSeries === 0
-    ? `<p class="stats-empty-note success">✅ Keine auffälligen Serienstatus-Kombinationen gefunden.</p>`
-    : `<div class="dashboard-series-status-candidates">
-      ${result.flagged.map(item => `<div class="dashboard-series-status-candidate">
-        <div class="dashboard-release-candidate-main">
-          <strong>${escapeHtml(item.title)}</strong>
-          <span>${escapeHtml(item.publisher || 'Unbekannter Verlag')}</span>
-        </div>
-        <div class="dashboard-release-candidate-meta">
-          <span>Serienstatus: <strong>${escapeHtml(item.statusLabel)}</strong></span>
-          <span>Sammlung: ${escapeHtml(item.collectionStatusLabel)}</span>
-          <span>Bände: ${escapeHtml(item.owned)}${item.total !== null ? ` / ${escapeHtml(item.total)}` : ''}</span>
-          ${item.nextDate ? `<span>nextDate: ${escapeHtml(item.nextDate)}</span>` : ''}
-        </div>
-        <ul class="dashboard-series-status-reasons">
-          ${item.reasons.map(reason => `<li><strong>${escapeHtml(reason.text)}</strong><br><span>${escapeHtml(reason.suggestion)}</span></li>`).join('')}
-        </ul>
-      </div>`).join('')}
-    </div>`;
-  return `<div id="dashboard-series-status-check-result" class="dashboard-series-status-preview">
-    <div class="stat-big-grid cols-3 dashboard-action-stats">
-      <div class="stat-big-card"><div class="stat-big-n">${result.checkedSeries}</div><div class="stat-big-l">Serien geprüft</div></div>
-      <div class="stat-big-card"><div class="stat-big-n">${result.okSeries}</div><div class="stat-big-l">Unauffällig</div></div>
-      <div class="stat-big-card"><div class="stat-big-n">${result.flaggedSeries}</div><div class="stat-big-l">Auffällig</div></div>
-    </div>
-    <p class="stats-empty-note">Nur Vorschau — keine automatische Korrektur, kein Speichern, keine Supabase-Änderung.</p>
-    ${flaggedHtml}
-  </div>`;
-}
-
-function runDashboardSeriesStatusCheck() {
-  _dashboardSeriesStatusPreview = buildDashboardSeriesStatusPreview();
-  const el = document.getElementById('dashboard-series-status-check-result');
-  if (el) el.outerHTML = renderDashboardSeriesStatusPreview(_dashboardSeriesStatusPreview);
-  toast(`🔎 Serienstatus geprüft: ${_dashboardSeriesStatusPreview.flaggedSeries} auffällig, ${_dashboardSeriesStatusPreview.okSeries} unauffällig`);
-}
-
-function buildDashboardReleaseCheckPreview() {
-  const cacheLoaded = releaseCacheStatus === 'loaded' && releaseCache && Array.isArray(releaseCache.items);
-  const checkedSeries = Array.isArray(db.m) ? db.m.length : 0;
-  const candidates = [];
-
-  if (cacheLoaded) {
-    db.m.forEach(m => {
-      const targetVolume = getReleaseTargetVolume(m);
-      if (targetVolume === null) return; // abgeschlossene vollständige Serie
-      const matches = findReleaseMatchesForSeries(m)
-        .filter(item => item && item.releaseDate && item.releaseDate !== m.nextDate);
-      if (!matches.length) return;
-      const best = matches[0];
-      candidates.push({
-        id: `${m.id}:${best.volumeNumber || targetVolume}:${best.releaseDate}`,
-        seriesId: m.id,
-        title: m.title || '',
-        publisher: m.pub || '',
-        targetVolume,
-        volumeNumber: best.volumeNumber || targetVolume,
-        currentDate: m.nextDate || '',
-        releaseDate: best.releaseDate,
-        sourceName: best.sourceName || '',
-        confidence: best.confidence || '',
-      });
-    });
-  }
-
-  return {
-    cacheLoaded,
-    cacheStatus: releaseCacheStatus,
-    cacheItems: cacheLoaded ? releaseCache.items.length : 0,
-    checkedSeries,
-    checkedVolumes: checkedSeries,
-    releaseDateHits: candidates.length,
-    noHits: Math.max(0, checkedSeries - candidates.length),
-    candidates,
-  };
-}
-
-function renderDashboardReleaseCheckPreview(result) {
-  if (!result) {
-    return `<p class="stats-empty-note" id="dashboard-release-check-result">Noch keine Prüfung ausgeführt. Es werden keine Daten automatisch geändert.</p>`;
-  }
-  const statusLabel = {
-    'not-loaded': 'noch nicht geladen',
-    'missing':    'nicht gefunden',
-    'invalid':    'ungültig',
-    'loaded':     'geladen',
-  };
-  const cacheNote = result.cacheLoaded
-    ? `Release-Cache geladen (${result.cacheItems} Einträge).`
-    : `Release-Cache ${statusLabel[result.cacheStatus] || result.cacheStatus}; Prüfung ohne Treffer.`;
-  return `<div id="dashboard-release-check-result" class="dashboard-release-preview">
-    <div class="stat-big-grid cols-3 dashboard-action-stats">
-      <div class="stat-big-card"><div class="stat-big-n">${result.checkedSeries}</div><div class="stat-big-l">Serien/Ziel-Bände geprüft</div></div>
-      <div class="stat-big-card"><div class="stat-big-n">${result.releaseDateHits}</div><div class="stat-big-l">Release-Datum-Treffer</div></div>
-      <div class="stat-big-card"><div class="stat-big-n">${result.noHits}</div><div class="stat-big-l">Ohne Treffer</div></div>
-    </div>
-    <p class="stats-empty-note">${cacheNote} Nur Vorschau — es werden keine Daten überschrieben.</p>
-    ${result.candidates.length ? `<div class="dashboard-release-candidates">
-      ${result.candidates.map((item, idx) => {
-        const current = item.currentDate ? escapeHtml(item.currentDate) : 'leer';
-        const src = [item.sourceName, item.confidence].filter(Boolean).join(' · ');
-        return `<label class="dashboard-release-candidate">
-          <input type="checkbox" class="dashboard-release-apply-check" data-candidate-idx="${idx}">
-          <div class="dashboard-release-candidate-main">
-            <strong>${escapeHtml(item.title)}</strong>
-            <span>Band ${escapeHtml(item.volumeNumber)}</span>
-          </div>
-          <div class="dashboard-release-candidate-meta">
-            ${item.publisher ? `<span>${escapeHtml(item.publisher)}</span>` : ''}
-            <span>${current} → <strong>${escapeHtml(item.releaseDate)}</strong></span>
-            ${src ? `<span>${escapeHtml(src)}</span>` : ''}
-          </div>
-        </label>`;
-      }).join('')}
-      <button type="button" class="add-btn dashboard-action-btn dashboard-release-apply-btn" data-action="apply-dashboard-release-dates">Ausgewählte Release-Daten übernehmen</button>
-      <p class="stats-empty-note">Standardmäßig ist nichts ausgewählt. Übernommen wird nur das Release-Datum des angezeigten Ziel-Bandes.</p>
-    </div>` : ''}
-  </div>`;
-}
-
-function runDashboardReleaseDateCheck() {
-  _dashboardReleasePreview = buildDashboardReleaseCheckPreview();
-  const el = document.getElementById('dashboard-release-check-result');
-  if (el) el.outerHTML = renderDashboardReleaseCheckPreview(_dashboardReleasePreview);
-  toast(`📅 Release-Daten geprüft: ${_dashboardReleasePreview.releaseDateHits} Treffer, ${_dashboardReleasePreview.noHits} ohne Treffer`);
-}
-
-function getSelectedDashboardReleaseCandidates() {
-  if (!_dashboardReleasePreview || !Array.isArray(_dashboardReleasePreview.candidates)) return [];
-  return Array.from(document.querySelectorAll('.dashboard-release-apply-check:checked'))
-    .map(el => _dashboardReleasePreview.candidates[parseInt(el.dataset.candidateIdx, 10)])
-    .filter(Boolean);
-}
-
-function applySelectedDashboardReleaseDates() {
-  if (!canEditLocal()) {
-    toast('🔒 Öffentliche Ansicht – Änderungen sind deaktiviert.');
-    return;
-  }
-  const selected = getSelectedDashboardReleaseCandidates();
-  if (!selected.length) {
-    toast('ℹ️ Keine Release-Daten ausgewählt');
-    return;
-  }
-
-  const valid = selected.filter(item => {
-    const m = db.m.find(x => x.id === item.seriesId);
-    if (!m) return false;
-    const currentTargetVolume = getReleaseTargetVolume(m);
-    if (currentTargetVolume === null) return false;
-    return currentTargetVolume === item.targetVolume
-      && item.volumeNumber === item.targetVolume
-      && item.releaseDate
-      && item.releaseDate !== m.nextDate;
-  });
-
-  if (!valid.length) {
-    toast('ℹ️ Keine gültigen Release-Daten mehr ausgewählt');
-    return;
-  }
-
-  const summary = valid.slice(0, 8).map(item =>
-    `• ${item.title} Band ${item.volumeNumber}: ${item.currentDate || 'leer'} → ${item.releaseDate}`
-  ).join('\n');
-  const more = valid.length > 8 ? `\n… und ${valid.length - 8} weitere` : '';
-  const ok = confirm(`Ausgewählte Release-Daten übernehmen?\n\n${summary}${more}\n\nEs wird vorher ein lokales Backup erstellt. Es wird ausschließlich nextDate geändert.`);
-  if (!ok) {
-    toast('ℹ️ Übernahme abgebrochen');
-    return;
-  }
-
-  const backupKey = createReleaseUpdateBackup('dashboard-release-date-apply');
-  if (!backupKey) {
-    toast('⚠️ Backup konnte nicht erstellt werden — keine Daten geändert');
-    return;
-  }
-
-  let changed = 0;
-  valid.forEach(item => {
-    const m = db.m.find(x => x.id === item.seriesId);
-    if (!m) return;
-    const currentTargetVolume = getReleaseTargetVolume(m);
-    if (currentTargetVolume === null || currentTargetVolume !== item.targetVolume || item.volumeNumber !== item.targetVolume) return;
-    if (!item.releaseDate || item.releaseDate === m.nextDate) return;
-    m.nextDate = item.releaseDate;
-    changed++;
-  });
-
-  if (!changed) {
-    toast('ℹ️ Keine Änderungen übernommen');
-    return;
-  }
-
-  persist();
-  _dashboardReleasePreview = buildDashboardReleaseCheckPreview();
-  render();
-  toast(`✅ ${changed} Release-Datum${changed === 1 ? '' : 'en'} übernommen`);
-}
 function renderDashboard() {
   reconcileLocalReleaseCoveragePending();
   const year = new Date().getFullYear();
@@ -1269,17 +988,11 @@ function renderDashboard() {
     <div class="stats-section">
       <h3>Aktionszentrale: Prüfen &amp; Automatisieren</h3>
       <div class="dashboard-actions">
-        <button type="button" class="add-btn dashboard-action-btn" data-action="run-dashboard-release-date-check">Alle Release-Daten prüfen</button>
-        <button type="button" class="add-btn dashboard-action-btn" data-action="run-dashboard-series-status-check">Alle Serien-Status prüfen</button>
-        <button type="button" class="add-btn dashboard-action-btn" data-action="check-release-coverage">Cache-Coverage prüfen</button>
         <button type="button" class="add-btn dashboard-action-btn" data-action="mp-sync-all"${coverSyncDisabledAttr}>Alle Band-Cover laden</button>
-        <p class="stats-empty-note">Release-Cache und Review-Queue werden per GitHub-Action/Pipeline gepflegt. Dashboard-Prüfungen sind lokale Vorschau oder Diagnose und schreiben keine privaten Sammlungsdaten ins Repository.</p>
+        <p class="stats-empty-note">Release-Cache, Review-Queue und DE-Bandstand werden vollautomatisch per GitHub-Action/Pipeline (Phase 25/32/42/43) gepflegt. Lokale Bearbeiten-Maske zeigt Automationswerte read-only an (Phase 44b).</p>
         <p class="stats-empty-note">${coverSyncNote}</p>
       </div>
       ${renderLocalReleaseCoveragePendingSummary()}
-      ${renderDashboardReleaseCheckPreview(_dashboardReleasePreview)}
-      ${renderDashboardSeriesStatusPreview(_dashboardSeriesStatusPreview)}
-      <div id="release-coverage-preview"></div>
     </div>
 
     <div class="stats-section">
@@ -4411,102 +4124,12 @@ upsertManga('isekai soapland', {
 _seeding = false;
 if (seedDirty || bootDataBefore !== JSON.stringify(db)) saveLoc();
 
-// ─── Phase 22: sammlungsweiter Release-Cache-Coverage-Report ─────────────
-function buildReleaseCacheCoverageReport() {
-  const mangas = db.m || [];
-  const cache = (releaseCache && Array.isArray(releaseCache.items)) ? releaseCache.items : [];
-  const candidates = [];
-
-  for (const m of mangas) {
-    const total = m.total || 0;
-    if (total <= 0) continue;
-
-    const owned = Object.keys(m.bands || {}).map(Number).filter(n => n > 0);
-    const missing = [];
-    for (let v = 1; v <= total; v++) {
-      if (!owned.includes(v)) missing.push(v);
-    }
-    if (missing.length === 0) continue;
-
-    const title = m.title || '';
-    const pub = m.pub || '';
-    const normalTitle = title.toLowerCase()
-      .replace(/ä/g, 'ae').replace(/ö/g, 'oe').replace(/ü/g, 'ue').replace(/ß/g, 'ss')
-      .replace(/&/g, ' und ')
-      .replace(/[^a-z0-9\s]/g, ' ')
-      .replace(/\s+/g, ' ')
-      .trim();
-
-    // Filter volumes already in cache
-    const uncovered = missing.filter(v => {
-      return !cache.some(entry => {
-        const entryTitle = (entry.normalizedSeriesTitle || '').toLowerCase();
-        const titleMatch = entryTitle === normalTitle ||
-          (normalTitle.length >= 3 && entryTitle.includes(normalTitle)) ||
-          (entryTitle.length >= 3 && normalTitle.includes(entryTitle));
-        return titleMatch && entry.volumeNumber === v;
-      });
-    });
-
-    if (uncovered.length === 0) continue;
-
-    candidates.push({
-      seriesTitle: title,
-      publisher: pub,
-      volumeNumbers: uncovered,
-      sourceUrl: null,
-      notes: 'Aus App-Coverage-Report ergänzt.',
-      enabled: true
-    });
-  }
-
-  return candidates;
-}
-
-function renderReleaseCacheCoveragePreview() {
-  const candidates = buildReleaseCacheCoverageReport();
-  const el = document.getElementById('release-coverage-preview');
-  if (!el) return;
-  if (candidates.length === 0) {
-    el.innerHTML = '<p class="stats-empty-note">Keine Cache-Lücken gefunden – Sammlung vollständig abgedeckt.</p>';
-    return;
-  }
-  const rows = candidates.map(c => {
-    const vols = c.volumeNumbers.join(', ');
-    return `<div class="dashboard-release-candidate">
-      <div class="dashboard-release-candidate-main">
-        <strong>${escapeHtml(c.seriesTitle)}</strong>
-        <span>Bände: ${escapeHtml(vols)}</span>
-      </div>
-      <div class="dashboard-release-candidate-meta">
-        ${c.publisher ? `<span>${escapeHtml(c.publisher)}</span>` : ''}
-        <span>${escapeHtml(c.notes)}</span>
-      </div>
-    </div>`;
-  }).join('');
-  el.innerHTML = `<div class="dashboard-release-candidates">${rows}
-    <p class="stats-empty-note">${candidates.length} Serie(n) mit fehlender Cache-Abdeckung. Lokale Diagnose: Die automatische Pipeline verarbeitet bekannte Watchlist- und Review-Queue-Fälle im Repository; diese Ansicht schreibt keine privaten Daten.</p>
-  </div>`;
-  toast(`🔍 Coverage-Report: ${candidates.length} Serie(n) mit Cache-Lücken`);
-}
-
-function copyReleaseCacheCoverageBatch() {
-  const candidates = buildReleaseCacheCoverageReport();
-  if (candidates.length === 0) {
-    toast('✅ Keine Cache-Lücken gefunden – Sammlung vollständig abgedeckt.');
-    return;
-  }
-  const json = JSON.stringify(candidates, null, 2);
-  if (navigator.clipboard && navigator.clipboard.writeText) {
-    navigator.clipboard.writeText(json).then(() => {
-      toast(`📋 Coverage-Diagnose (${candidates.length} Serien) in Zwischenablage kopiert.`);
-    }).catch(() => {
-      toast('⚠️ Diagnose-Kopieren fehlgeschlagen – Browser ohne Clipboard-Zugriff.');
-    });
-  } else {
-    toast('⚠️ Diagnose-Kopieren fehlgeschlagen – Browser ohne Clipboard-Zugriff.');
-  }
-}
+// ─── Phase 22 → Phase 44a-followup ─────────────────────────────────────────
+// Der lokale Dashboard-Button für Cache-Coverage-Diagnose und seine
+// Hilfsfunktionen sind weggefallen. Source-Gaps werden ausschließlich über
+// data/release-watchlist.json und data/release-source-review-queue.json
+// sowie die GitHub-Action-Pipelines (Phase 25/32/42) verwaltet — eine lokale
+// Coverage-Diagnose ist nicht mehr nötig.
 
 // ─── Event-Bindings (Phase 21c: keine Inline-Script-Handler) ──────────────
 function bindStaticEvents() {
@@ -4603,18 +4226,6 @@ function bindDelegatedEvents() {
         break;
       case 'apply-release-updates':
         applySelectedReleaseUpdates();
-        break;
-      case 'apply-dashboard-release-dates':
-        applySelectedDashboardReleaseDates();
-        break;
-      case 'run-dashboard-release-date-check':
-        runDashboardReleaseDateCheck();
-        break;
-      case 'run-dashboard-series-status-check':
-        runDashboardSeriesStatusCheck();
-        break;
-      case 'check-release-coverage':
-        renderReleaseCacheCoveragePreview();
         break;
       case 'copy-local-release-coverage-watchlist-batch':
         copyLocalReleaseCoverageWatchlistBatch();

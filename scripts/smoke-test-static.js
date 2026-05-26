@@ -448,34 +448,33 @@ console.log('\nPrüfe: Phase 22 — Sammlungsweite Release-Cache-Coverage\n');
 if (fs.existsSync(appJsPath)) {
   const appJs22 = fs.readFileSync(appJsPath, 'utf-8');
 
-  if (!appJs22.includes('buildReleaseCacheCoverageReport')) {
-    fail('src/app.js: buildReleaseCacheCoverageReport fehlt');
+  // Phase 44a-followup: Dashboard-Button "Cache-Coverage prüfen" sowie die
+  // Helfer `buildReleaseCacheCoverageReport`, `copyReleaseCacheCoverageBatch`,
+  // `renderReleaseCacheCoveragePreview` sind weg. Source-Gaps werden zentral
+  // ueber Watchlist/Review-Queue und die GitHub-Action-Pipeline gepflegt.
+  if (appJs22.includes('buildReleaseCacheCoverageReport')
+      || appJs22.includes('copyReleaseCacheCoverageBatch')
+      || appJs22.includes('renderReleaseCacheCoveragePreview')) {
+    fail('src/app.js: lokale Cache-Coverage-Helfer dürfen nach Phase 44a-followup nicht mehr vorhanden sein');
   } else {
-    pass('src/app.js: buildReleaseCacheCoverageReport vorhanden');
+    pass('src/app.js: lokale Cache-Coverage-Helfer nach Phase 44a-followup entfernt');
   }
 
-  if (!appJs22.includes('copyReleaseCacheCoverageBatch')) {
-    fail('src/app.js: copyReleaseCacheCoverageBatch fehlt');
+  if (appJs22.includes('data-action="check-release-coverage"')
+      || appJs22.includes('data-action="copy-coverage-batch"')
+      || appJs22.includes('data-action="run-dashboard-release-date-check"')
+      || appJs22.includes('data-action="run-dashboard-series-status-check"')
+      || appJs22.includes('data-action="apply-dashboard-release-dates"')) {
+    fail('src/app.js: entfernte Dashboard-Aktionen dürfen nach Phase 44a-followup nicht mehr referenziert sein');
   } else {
-    pass('src/app.js: copyReleaseCacheCoverageBatch vorhanden');
+    pass('src/app.js: entfernte Dashboard-Aktionen ("Alle Release-Daten prüfen", "Alle Serien-Status prüfen", "Cache-Coverage prüfen") aus UI entfernt');
   }
 
-  if (!appJs22.includes('data-action="check-release-coverage"')) {
-    fail('src/app.js: data-action="check-release-coverage" fehlt');
+  if (appJs22.includes('id="release-coverage-preview"')
+      || appJs22.includes("id='release-coverage-preview'")) {
+    fail('src/app.js: release-coverage-preview id sollte nach Phase 44a-followup nicht mehr vorhanden sein');
   } else {
-    pass('src/app.js: data-action="check-release-coverage" vorhanden');
-  }
-
-  if (appJs22.includes('data-action="copy-coverage-batch"')) {
-    fail('src/app.js: data-action="copy-coverage-batch" darf nach Phase 26 nicht mehr als normale UI-Aktion erscheinen');
-  } else {
-    pass('src/app.js: copy-coverage-batch aus normaler UI entfernt');
-  }
-
-  if (!appJs22.includes('release-coverage-preview')) {
-    fail('src/app.js: release-coverage-preview id fehlt');
-  } else {
-    pass('src/app.js: release-coverage-preview id vorhanden');
+    pass('src/app.js: release-coverage-preview id nach Phase 44a-followup entfernt');
   }
 
   // CSP Phase 21c bleibt erhalten (bereits oben geprüft, nochmals bestätigen)
