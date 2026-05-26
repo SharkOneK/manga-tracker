@@ -166,6 +166,12 @@ header h1 .jp { color: #e8405a; }
 }
 .card-pub { font-size: 0.7rem; color: var(--text-muted); margin-bottom: 5px; }
 .card-vols { font-size: 0.78rem; font-weight: 600; color: var(--secondary); }
+.card-release-volume-summary {
+  margin-top: 5px;
+  font-size: 0.68rem;
+  line-height: 1.35;
+  color: var(--text-muted);
+}
 .progress {
   height: 3px;
   background: var(--border);

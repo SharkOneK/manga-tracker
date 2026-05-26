@@ -477,6 +477,8 @@ let releaseWatchlistData = null;        // Phase 34: read-only release-watchlist
 let releaseWatchlistStatus = 'not-loaded';
 let releaseReviewQueueData = null;      // Phase 34: read-only release-source-review-queue.json
 let releaseReviewQueueStatus = 'not-loaded';
+let releaseVolumeCounts = null;       // Phase 43: read-only public DE volume counts
+let releaseVolumeCountsStatus = 'not-loaded';
 let _currentReleaseMatches = [];        // Zwischenspeicher für aktuelle Vorschau (Phase 15c)
 let _dashboardReleasePreview = null;     // Phase 18c: Dashboard-Preview für Release-Daten-Prüfung
 let _dashboardSeriesStatusPreview = null; // Phase 18e: Dashboard-Preview für Serienstatus-Prüfung
@@ -694,6 +696,7 @@ function mangaCard(m) {
   const owned = mOwned(m);
   const cur   = mCurrent(m);
   const hasProg = !isNaN(total) && total > 0;
+  const publicVolumeSummary = buildPersonalReleaseVolumeSummary(m);
   const prog = hasProg ? Math.min(100, Math.round(owned / total * 100)) : 0;
   const volText = hasProg ? `${owned} / ${total} Bände` : `${owned} Bände`;
   // Phase 38: Statusbedeutung bezieht sich auf die deutschsprachige Veröffentlichung.
@@ -715,6 +718,7 @@ function mangaCard(m) {
       <div class="card-title">${m.title}</div>
       <div class="card-pub">${m.pub || 'Unbekannt'} ${statusPill}</div>
       <div class="card-vols">${volText}</div>
+      ${publicVolumeSummary ? `<div class="card-release-volume-summary">${publicVolumeSummary}</div>` : ''}
       ${hasProg ? `<div class="progress"><div class="progress-fill" data-style-width="${prog}%"></div></div>` : ''}
       ${(m.genres||[]).length ? `<div class="card-genres">${(m.genres).map(g=>`<span class="card-genre">${g}</span>`).join('')}</div>` : ''}
       ${(m.startedAt||m.finishedAt) ? `<div class="card-dates">${m.startedAt?'📖 '+new Date(m.startedAt+'T00:00:00').toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit',year:'numeric'}):''}${m.startedAt&&m.finishedAt?' – ':''}${m.finishedAt?'✅ '+new Date(m.finishedAt+'T00:00:00').toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit',year:'numeric'}):''}</div>`:''}
@@ -3322,6 +3326,95 @@ async function loadJsonReadOnly(url) {
   return res.json();
 }
 
+function validateReleaseVolumeCountsClient(doc) {
+  if (!doc || typeof doc !== 'object' || doc.schemaVersion !== 1 || !Array.isArray(doc.items)) return false;
+  return doc.items.every(item => item && typeof item === 'object'
+    && typeof item.seriesTitle === 'string' && item.seriesTitle.trim()
+    && typeof item.publisher === 'string' && item.publisher.trim()
+    && Number.isInteger(item.publishedVolumesDE) && item.publishedVolumesDE >= 0
+    && typeof item.source === 'string' && item.source.trim()
+    && typeof item.sourceUrl === 'string' && item.sourceUrl.startsWith('https://')
+    && item.confidence === 'high'
+    && typeof item.checkedAt === 'string');
+}
+
+async function loadReleaseVolumeCounts() {
+  try {
+    const data = await loadJsonReadOnly('./data/release-volume-counts.json');
+    if (!validateReleaseVolumeCountsClient(data)) throw new Error('invalid schema');
+    releaseVolumeCounts = data;
+    releaseVolumeCountsStatus = 'loaded';
+    console.info(`[Phase 43] release-volume-counts.json geladen: ${data.items.length} Serie(n), Stand: ${data.generatedAt || 'unbekannt'}`);
+  } catch (e) {
+    releaseVolumeCounts = null;
+    releaseVolumeCountsStatus = 'missing';
+    console.warn('[Phase 43] release-volume-counts.json nicht als Read-only-Index ladbar:', e.message);
+  }
+  if (tab === 'dashboard') renderDashboard();
+}
+
+function findReleaseVolumeCountForSeries(m) {
+  if (!releaseVolumeCounts || !Array.isArray(releaseVolumeCounts.items)) return null;
+  const normT = normalizeReleaseTitle(m.title);
+  const normP = normalizeReleasePublisher(m.pub || '');
+  const matches = releaseVolumeCounts.items.filter(item => {
+    const itemT = normalizeReleaseTitle(item.seriesTitle || '');
+    const itemP = normalizeReleasePublisher(item.publisher || '');
+    return normT === itemT && _releasePubsMatch(normP, itemP);
+  });
+  if (matches.length !== 1) return null;
+  return matches[0];
+}
+
+function findReleaseCacheItemForVolume(m, volumeNumber) {
+  if (!releaseCache || !Array.isArray(releaseCache.items)) return null;
+  const normT = normalizeReleaseTitle(m.title);
+  const normP = normalizeReleasePublisher(m.pub || '');
+  return releaseCache.items.find(item => {
+    const itemT = item.normalizedSeriesTitle || normalizeReleaseTitle(item.seriesTitle || '');
+    const rawP = item.normalizedPublisher || normalizeReleasePublisher(item.publisher || '');
+    const itemP = _PUB_ALIAS_MAP[rawP] || rawP;
+    return Number(item.volumeNumber) === Number(volumeNumber)
+      && normT === itemT
+      && _releasePubsMatch(normP, itemP);
+  }) || null;
+}
+
+function formatGermanDate(value) {
+  if (!value) return '';
+  const d = new Date(value + 'T00:00:00');
+  if (Number.isNaN(d.getTime())) return '';
+  return d.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
+}
+
+function buildPersonalReleaseVolumeFacts(m) {
+  const count = findReleaseVolumeCountForSeries(m);
+  if (!count) return null;
+  const published = Number(count.publishedVolumesDE);
+  const owned = mOwned(m);
+  const firstMissing = mFirstMissingBand(m);
+  const nextVolume = firstMissing !== null ? firstMissing : mNextBand(m);
+  const cacheItem = findReleaseCacheItemForVolume(m, nextVolume);
+  let status = 'noch kein belastbares Datum';
+  if (nextVolume <= published) {
+    status = 'bereits erschienen';
+  } else if (cacheItem && cacheItem.releaseDate) {
+    const d = new Date(cacheItem.releaseDate + 'T00:00:00');
+    const today = new Date(); today.setHours(0, 0, 0, 0);
+    status = d <= today ? 'bereits erschienen' : `erscheint am ${formatGermanDate(cacheItem.releaseDate)}`;
+  }
+  return { owned, published, nextVolume, status, source: count.source, checkedAt: count.checkedAt };
+}
+
+function buildPersonalReleaseVolumeSummary(m) {
+  const facts = buildPersonalReleaseVolumeFacts(m);
+  if (!facts) return '';
+  return [
+    `Besitze: ${escapeHtml(facts.owned)} / ${escapeHtml(facts.published)} auf Deutsch erschienen`,
+    `Nächster Band für dich: Band ${escapeHtml(facts.nextVolume)}`,
+    `Status: ${escapeHtml(facts.status)}`,
+  ].join('<br>');
+}
 async function loadReleaseCoverageKnownData() {
   try {
     releaseWatchlistData = await loadJsonReadOnly('./data/release-watchlist.json');
@@ -4622,6 +4715,7 @@ applyReadOnly();
 // Phase 15b: Release-Cache laden (non-blocking; Fehler dürfen App-Start nicht blockieren)
 loadReleaseCache().catch(e => console.warn('[Phase 15] Unerwarteter Ladefehler:', e));
 loadReleaseCoverageKnownData().catch(e => console.warn('[Phase 34] Release-System-Index nicht vollständig ladbar:', e));
+loadReleaseVolumeCounts().catch(e => console.warn('[Phase 43] Release-Volume-Counts nicht ladbar:', e));
 if (_viewColl) {
   // Öffentliche Ansicht: fremde Sammlung laden (immer read-only)
   loadViewCollection();

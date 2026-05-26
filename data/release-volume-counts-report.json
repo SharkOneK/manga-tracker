@@ -1,0 +1,603 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-05-26T17:13:30.891Z",
+  "source": "run-release-volume-counts.js",
+  "providerMode": "from-cache-only",
+  "policy": {
+    "maxItemsPerSource": 200,
+    "minDelayMs": 1200,
+    "timeoutMs": 12000,
+    "activeProviderIds": []
+  },
+  "summary": {
+    "seriesInVolumeCounts": 27,
+    "probeCandidates": 0,
+    "checkedCandidates": 0,
+    "detectedChanges": 0,
+    "appliedHighConfidenceChanges": 0,
+    "blockedOrUnsafe": 71
+  },
+  "changes": [],
+  "blockedCandidates": [
+    {
+      "seriesTitle": "Arifureta: Der Kampf zurück in meine Welt – Zero",
+      "publisher": "Altraverse",
+      "volumeNumber": 3,
+      "reasonCodes": [
+        "not-high-confidence",
+        "source-url-not-allowed",
+        "not-yet-released-or-invalid-date"
+      ]
+    },
+    {
+      "seriesTitle": "August 9th, I will be eaten by you",
+      "publisher": "Hayabusa",
+      "volumeNumber": 6,
+      "reasonCodes": [
+        "not-high-confidence",
+        "source-url-not-allowed",
+        "not-yet-released-or-invalid-date"
+      ]
+    },
+    {
+      "seriesTitle": "Berserk Master Edition",
+      "publisher": "Panini Manga",
+      "volumeNumber": 6,
+      "reasonCodes": [
+        "not-yet-released-or-invalid-date"
+      ]
+    },
+    {
+      "seriesTitle": "Blood Blade",
+      "publisher": "Hayabusa",
+      "volumeNumber": 5,
+      "reasonCodes": [
+        "not-yet-released-or-invalid-date"
+      ]
+    },
+    {
+      "seriesTitle": "Chainsaw Man",
+      "publisher": "Egmont Manga",
+      "volumeNumber": 22,
+      "reasonCodes": [
+        "not-yet-released-or-invalid-date"
+      ]
+    },
+    {
+      "seriesTitle": "Dai Dark",
+      "publisher": "Manga Cult",
+      "volumeNumber": 9,
+      "reasonCodes": [
+        "not-yet-released-or-invalid-date"
+      ]
+    },
+    {
+      "seriesTitle": "Dandadan",
+      "publisher": "KAZÉ Manga",
+      "volumeNumber": 21,
+      "reasonCodes": [
+        "not-yet-released-or-invalid-date"
+      ]
+    },
+    {
+      "seriesTitle": "Die letzte Elfe",
+      "publisher": "Yomeru",
+      "volumeNumber": 3,
+      "reasonCodes": [
+        "not-high-confidence",
+        "source-url-not-allowed",
+        "not-yet-released-or-invalid-date"
+      ]
+    },
+    {
+      "seriesTitle": "Fairy Tail",
+      "publisher": "Carlsen Manga!",
+      "volumeNumber": 16,
+      "reasonCodes": [
+        "not-high-confidence"
+      ]
+    },
+    {
+      "seriesTitle": "Fairy Tail",
+      "publisher": "Carlsen Manga!",
+      "volumeNumber": 17,
+      "reasonCodes": [
+        "not-high-confidence"
+      ]
+    },
+    {
+      "seriesTitle": "Fairy Tail",
+      "publisher": "Carlsen Manga!",
+      "volumeNumber": 18,
+      "reasonCodes": [
+        "not-high-confidence"
+      ]
+    },
+    {
+      "seriesTitle": "Fairy Tail",
+      "publisher": "Carlsen Manga!",
+      "volumeNumber": 19,
+      "reasonCodes": [
+        "not-high-confidence"
+      ]
+    },
+    {
+      "seriesTitle": "Fairy Tail",
+      "publisher": "Carlsen Manga!",
+      "volumeNumber": 20,
+      "reasonCodes": [
+        "not-high-confidence"
+      ]
+    },
+    {
+      "seriesTitle": "Fairy Tail",
+      "publisher": "Carlsen Manga!",
+      "volumeNumber": 21,
+      "reasonCodes": [
+        "not-high-confidence"
+      ]
+    },
+    {
+      "seriesTitle": "Fairy Tail",
+      "publisher": "Carlsen Manga!",
+      "volumeNumber": 22,
+      "reasonCodes": [
+        "not-high-confidence"
+      ]
+    },
+    {
+      "seriesTitle": "Fairy Tail",
+      "publisher": "Carlsen Manga!",
+      "volumeNumber": 23,
+      "reasonCodes": [
+        "not-high-confidence"
+      ]
+    },
+    {
+      "seriesTitle": "Fairy Tail",
+      "publisher": "Carlsen Manga!",
+      "volumeNumber": 24,
+      "reasonCodes": [
+        "not-high-confidence"
+      ]
+    },
+    {
+      "seriesTitle": "Fairy Tail",
+      "publisher": "Carlsen Manga!",
+      "volumeNumber": 25,
+      "reasonCodes": [
+        "not-high-confidence"
+      ]
+    },
+    {
+      "seriesTitle": "Fairy Tail",
+      "publisher": "Carlsen Manga!",
+      "volumeNumber": 26,
+      "reasonCodes": [
+        "not-high-confidence"
+      ]
+    },
+    {
+      "seriesTitle": "Fairy Tail",
+      "publisher": "Carlsen Manga!",
+      "volumeNumber": 27,
+      "reasonCodes": [
+        "not-high-confidence"
+      ]
+    },
+    {
+      "seriesTitle": "Fairy Tail",
+      "publisher": "Carlsen Manga!",
+      "volumeNumber": 28,
+      "reasonCodes": [
+        "not-high-confidence"
+      ]
+    },
+    {
+      "seriesTitle": "Fairy Tail",
+      "publisher": "Carlsen Manga!",
+      "volumeNumber": 29,
+      "reasonCodes": [
+        "not-high-confidence"
+      ]
+    },
+    {
+      "seriesTitle": "Fairy Tail",
+      "publisher": "Carlsen Manga!",
+      "volumeNumber": 30,
+      "reasonCodes": [
+        "not-high-confidence"
+      ]
+    },
+    {
+      "seriesTitle": "Fairy Tail",
+      "publisher": "Carlsen Manga!",
+      "volumeNumber": 31,
+      "reasonCodes": [
+        "not-high-confidence"
+      ]
+    },
+    {
+      "seriesTitle": "Fairy Tail",
+      "publisher": "Carlsen Manga!",
+      "volumeNumber": 32,
+      "reasonCodes": [
+        "not-high-confidence"
+      ]
+    },
+    {
+      "seriesTitle": "Fairy Tail",
+      "publisher": "Carlsen Manga!",
+      "volumeNumber": 33,
+      "reasonCodes": [
+        "not-high-confidence"
+      ]
+    },
+    {
+      "seriesTitle": "Fairy Tail",
+      "publisher": "Carlsen Manga!",
+      "volumeNumber": 34,
+      "reasonCodes": [
+        "not-high-confidence"
+      ]
+    },
+    {
+      "seriesTitle": "Fairy Tail",
+      "publisher": "Carlsen Manga!",
+      "volumeNumber": 35,
+      "reasonCodes": [
+        "not-high-confidence"
+      ]
+    },
+    {
+      "seriesTitle": "Fairy Tail",
+      "publisher": "Carlsen Manga!",
+      "volumeNumber": 36,
+      "reasonCodes": [
+        "not-high-confidence"
+      ]
+    },
+    {
+      "seriesTitle": "Fairy Tail",
+      "publisher": "Carlsen Manga!",
+      "volumeNumber": 37,
+      "reasonCodes": [
+        "not-high-confidence"
+      ]
+    },
+    {
+      "seriesTitle": "Fairy Tail",
+      "publisher": "Carlsen Manga!",
+      "volumeNumber": 38,
+      "reasonCodes": [
+        "not-high-confidence"
+      ]
+    },
+    {
+      "seriesTitle": "Fairy Tail",
+      "publisher": "Carlsen Manga!",
+      "volumeNumber": 39,
+      "reasonCodes": [
+        "not-high-confidence"
+      ]
+    },
+    {
+      "seriesTitle": "Fairy Tail",
+      "publisher": "Carlsen Manga!",
+      "volumeNumber": 40,
+      "reasonCodes": [
+        "not-high-confidence"
+      ]
+    },
+    {
+      "seriesTitle": "Fairy Tail",
+      "publisher": "Carlsen Manga!",
+      "volumeNumber": 41,
+      "reasonCodes": [
+        "not-high-confidence"
+      ]
+    },
+    {
+      "seriesTitle": "Fairy Tail",
+      "publisher": "Carlsen Manga!",
+      "volumeNumber": 42,
+      "reasonCodes": [
+        "not-high-confidence"
+      ]
+    },
+    {
+      "seriesTitle": "Fairy Tail",
+      "publisher": "Carlsen Manga!",
+      "volumeNumber": 43,
+      "reasonCodes": [
+        "not-high-confidence"
+      ]
+    },
+    {
+      "seriesTitle": "Fairy Tail",
+      "publisher": "Carlsen Manga!",
+      "volumeNumber": 44,
+      "reasonCodes": [
+        "not-high-confidence"
+      ]
+    },
+    {
+      "seriesTitle": "Fairy Tail",
+      "publisher": "Carlsen Manga!",
+      "volumeNumber": 45,
+      "reasonCodes": [
+        "not-high-confidence"
+      ]
+    },
+    {
+      "seriesTitle": "Fairy Tail",
+      "publisher": "Carlsen Manga!",
+      "volumeNumber": 46,
+      "reasonCodes": [
+        "not-high-confidence"
+      ]
+    },
+    {
+      "seriesTitle": "Fairy Tail",
+      "publisher": "Carlsen Manga!",
+      "volumeNumber": 47,
+      "reasonCodes": [
+        "not-high-confidence"
+      ]
+    },
+    {
+      "seriesTitle": "Fairy Tail",
+      "publisher": "Carlsen Manga!",
+      "volumeNumber": 48,
+      "reasonCodes": [
+        "not-high-confidence"
+      ]
+    },
+    {
+      "seriesTitle": "Fairy Tail",
+      "publisher": "Carlsen Manga!",
+      "volumeNumber": 49,
+      "reasonCodes": [
+        "not-high-confidence"
+      ]
+    },
+    {
+      "seriesTitle": "Fairy Tail",
+      "publisher": "Carlsen Manga!",
+      "volumeNumber": 50,
+      "reasonCodes": [
+        "not-high-confidence"
+      ]
+    },
+    {
+      "seriesTitle": "Fairy Tail",
+      "publisher": "Carlsen Manga!",
+      "volumeNumber": 51,
+      "reasonCodes": [
+        "not-high-confidence"
+      ]
+    },
+    {
+      "seriesTitle": "Fairy Tail",
+      "publisher": "Carlsen Manga!",
+      "volumeNumber": 52,
+      "reasonCodes": [
+        "not-high-confidence"
+      ]
+    },
+    {
+      "seriesTitle": "Fairy Tail",
+      "publisher": "Carlsen Manga!",
+      "volumeNumber": 53,
+      "reasonCodes": [
+        "not-high-confidence"
+      ]
+    },
+    {
+      "seriesTitle": "Fairy Tail",
+      "publisher": "Carlsen Manga!",
+      "volumeNumber": 54,
+      "reasonCodes": [
+        "not-high-confidence"
+      ]
+    },
+    {
+      "seriesTitle": "Fairy Tail",
+      "publisher": "Carlsen Manga!",
+      "volumeNumber": 55,
+      "reasonCodes": [
+        "not-high-confidence"
+      ]
+    },
+    {
+      "seriesTitle": "Fairy Tail",
+      "publisher": "Carlsen Manga!",
+      "volumeNumber": 56,
+      "reasonCodes": [
+        "not-high-confidence"
+      ]
+    },
+    {
+      "seriesTitle": "Fairy Tail",
+      "publisher": "Carlsen Manga!",
+      "volumeNumber": 57,
+      "reasonCodes": [
+        "not-high-confidence"
+      ]
+    },
+    {
+      "seriesTitle": "Fairy Tail",
+      "publisher": "Carlsen Manga!",
+      "volumeNumber": 58,
+      "reasonCodes": [
+        "not-high-confidence"
+      ]
+    },
+    {
+      "seriesTitle": "Fairy Tail",
+      "publisher": "Carlsen Manga!",
+      "volumeNumber": 59,
+      "reasonCodes": [
+        "not-high-confidence"
+      ]
+    },
+    {
+      "seriesTitle": "Fairy Tail",
+      "publisher": "Carlsen Manga!",
+      "volumeNumber": 60,
+      "reasonCodes": [
+        "not-high-confidence"
+      ]
+    },
+    {
+      "seriesTitle": "Fairy Tail",
+      "publisher": "Carlsen Manga!",
+      "volumeNumber": 61,
+      "reasonCodes": [
+        "not-high-confidence"
+      ]
+    },
+    {
+      "seriesTitle": "Fairy Tail",
+      "publisher": "Carlsen Manga!",
+      "volumeNumber": 62,
+      "reasonCodes": [
+        "not-high-confidence"
+      ]
+    },
+    {
+      "seriesTitle": "Fairy Tail",
+      "publisher": "Carlsen Manga!",
+      "volumeNumber": 63,
+      "reasonCodes": [
+        "not-high-confidence"
+      ]
+    },
+    {
+      "seriesTitle": "Gushing over Magical Girls",
+      "publisher": "MANGAMOON",
+      "volumeNumber": 3,
+      "reasonCodes": [
+        "not-yet-released-or-invalid-date"
+      ]
+    },
+    {
+      "seriesTitle": "Isekai Soapland",
+      "publisher": "MANGAMOON",
+      "volumeNumber": 2,
+      "reasonCodes": [
+        "not-yet-released-or-invalid-date"
+      ]
+    },
+    {
+      "seriesTitle": "Lili-Men",
+      "publisher": "Egmont Manga",
+      "volumeNumber": 8,
+      "reasonCodes": [
+        "not-yet-released-or-invalid-date"
+      ]
+    },
+    {
+      "seriesTitle": "Maria's Judgement",
+      "publisher": "Egmont Manga",
+      "volumeNumber": 6,
+      "reasonCodes": [
+        "not-yet-released-or-invalid-date"
+      ]
+    },
+    {
+      "seriesTitle": "Mirai Nikki – New Edition",
+      "publisher": "Egmont Manga",
+      "volumeNumber": 4,
+      "reasonCodes": [
+        "not-yet-released-or-invalid-date"
+      ]
+    },
+    {
+      "seriesTitle": "Mirai Nikki – New Edition",
+      "publisher": "Egmont Manga",
+      "volumeNumber": 5,
+      "reasonCodes": [
+        "not-yet-released-or-invalid-date"
+      ]
+    },
+    {
+      "seriesTitle": "Neck mich nicht, Nagatoro-san",
+      "publisher": "dani books",
+      "volumeNumber": 5,
+      "reasonCodes": [
+        "not-yet-released-or-invalid-date"
+      ]
+    },
+    {
+      "seriesTitle": "Reincarnated as a Sword: Another Wish",
+      "publisher": "Dokico",
+      "volumeNumber": 3,
+      "reasonCodes": [
+        "not-yet-released-or-invalid-date"
+      ]
+    },
+    {
+      "seriesTitle": "Reincarnated as a Sword: Another Wish",
+      "publisher": "Dokico",
+      "volumeNumber": 4,
+      "reasonCodes": [
+        "not-yet-released-or-invalid-date"
+      ]
+    },
+    {
+      "seriesTitle": "The Eminence in Shadow",
+      "publisher": "TOKYOPOP",
+      "volumeNumber": 9,
+      "reasonCodes": [
+        "not-yet-released-or-invalid-date"
+      ]
+    },
+    {
+      "seriesTitle": "Vagabond – Master Edition",
+      "publisher": "Egmont Manga",
+      "volumeNumber": 11,
+      "reasonCodes": [
+        "not-yet-released-or-invalid-date"
+      ]
+    },
+    {
+      "seriesTitle": "Vagabond – Master Edition",
+      "publisher": "Egmont Manga",
+      "volumeNumber": 12,
+      "reasonCodes": [
+        "not-yet-released-or-invalid-date"
+      ]
+    },
+    {
+      "seriesTitle": "Witch and Hound",
+      "publisher": "Egmont Manga",
+      "volumeNumber": 4,
+      "reasonCodes": [
+        "not-yet-released-or-invalid-date"
+      ]
+    },
+    {
+      "seriesTitle": "Yakuza Reincarnation",
+      "publisher": "Manga Cult",
+      "volumeNumber": 16,
+      "reasonCodes": [
+        "not-yet-released-or-invalid-date"
+      ]
+    },
+    {
+      "seriesTitle": "Yandere Dark Elf",
+      "publisher": "MANGAMOON",
+      "volumeNumber": 3,
+      "reasonCodes": [
+        "not-yet-released-or-invalid-date"
+      ]
+    }
+  ],
+  "checkedCandidates": [],
+  "changedFilesAllowlist": [
+    "data/release-volume-counts.json",
+    "data/release-volume-counts-report.json"
+  ],
+  "privacyGateRequired": true
+}

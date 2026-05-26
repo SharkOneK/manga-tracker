@@ -1,0 +1,212 @@
+name: Update Release Volume Counts
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '27 4 * * *'
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: update-release-volume-counts
+  cancel-in-progress: false
+
+jobs:
+  update-release-volume-counts:
+    runs-on: ubuntu-latest
+    outputs:
+      pr_number: ${{ steps.cpr.outputs.pull-request-number }}
+      pr_url: ${{ steps.cpr.outputs.pull-request-url }}
+      auto_merge_triggered: ${{ steps.auto_merge.outputs.triggered }}
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+
+      - name: Check Phase 43 syntax
+        run: |
+          node --check scripts/run-release-volume-counts.js
+          node --check scripts/validate-release-volume-counts.js
+          node --check scripts/validate-release-volume-counts-automerge-gate.js
+          node --check scripts/test-release-volume-counts.js
+          node --check scripts/test-public-private-diff.js
+          node --check scripts/write-release-volume-counts-status-mail.js
+
+      - name: Run release volume count pipeline
+        run: node scripts/run-release-volume-counts.js
+
+      - name: Validate Phase 43 artifacts and gates
+        run: |
+          node scripts/validate-release-volume-counts.js
+          node scripts/test-release-volume-counts.js
+          node scripts/test-public-private-diff.js
+          node scripts/check-secrets.js
+          node scripts/security-audit-static.js
+          git diff --check
+
+      - name: Prepare Phase 43 PR body
+        shell: bash
+        run: |
+          node <<'NODE' > "$RUNNER_TEMP/release-volume-counts-pr-body.md"
+          const fs = require('fs');
+          const report = JSON.parse(fs.readFileSync('data/release-volume-counts-report.json', 'utf8'));
+          const s = report.summary || {};
+          console.log('## Phase 43 Release Volume Counts Summary');
+          console.log('');
+          console.log(`- Generated at: ${report.generatedAt}`);
+          console.log(`- Series in volume counts: ${s.seriesInVolumeCounts || 0}`);
+          console.log(`- Probe candidates: ${s.probeCandidates || 0}`);
+          console.log(`- Checked candidates: ${s.checkedCandidates || 0}`);
+          console.log(`- Applied high-confidence changes: ${s.appliedHighConfidenceChanges || 0}`);
+          console.log(`- Blocked/unsafe: ${s.blockedOrUnsafe || 0}`);
+          console.log('');
+          console.log('Only public technical metadata is written. Private owner data, notes, read status and possession details are not part of this PR.');
+          NODE
+
+      - name: Detect release volume count changes
+        id: changes
+        shell: bash
+        run: |
+          if git diff --quiet -- data/release-volume-counts.json data/release-volume-counts-report.json; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "No release-volume-count changes detected."
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            git diff --stat -- data/release-volume-counts.json data/release-volume-counts-report.json
+          fi
+
+      - name: Create release volume count PR
+        if: steps.changes.outputs.changed == 'true'
+        id: cpr
+        uses: peter-evans/create-pull-request@v8
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "chore: update release volume counts"
+          branch: automated/release-volume-counts
+          delete-branch: true
+          title: "chore: update release volume counts"
+          body-path: ${{ runner.temp }}/release-volume-counts-pr-body.md
+          labels: phase-43, release-volume-counts, automated
+          add-paths: |
+            data/release-volume-counts.json
+            data/release-volume-counts-report.json
+
+      - name: Validate Phase 43 auto-merge gate
+        if: steps.cpr.outputs.pull-request-number != ''
+        id: automerge_gate
+        shell: bash
+        run: |
+          git fetch --no-tags origin \
+            main:refs/remotes/origin/main \
+            automated/release-volume-counts:refs/remotes/origin/automated/release-volume-counts
+          git checkout --detach origin/automated/release-volume-counts
+
+          node scripts/validate-release-volume-counts-automerge-gate.js --base origin/main --json > "$RUNNER_TEMP/release-volume-counts-gate.json" || true
+          cat "$RUNNER_TEMP/release-volume-counts-gate.json"
+
+          allowed=$(node -e "const fs=require('fs'); const r=JSON.parse(fs.readFileSync(process.argv[1], 'utf8')); console.log(r.allowed ? 'true' : 'false')" "$RUNNER_TEMP/release-volume-counts-gate.json")
+          gate_class=$(node -e "const fs=require('fs'); const r=JSON.parse(fs.readFileSync(process.argv[1], 'utf8')); console.log(r.class)" "$RUNNER_TEMP/release-volume-counts-gate.json")
+          reason=$(node -e "const fs=require('fs'); const r=JSON.parse(fs.readFileSync(process.argv[1], 'utf8')); console.log(r.reason)" "$RUNNER_TEMP/release-volume-counts-gate.json")
+
+          echo "allowed=$allowed" >> "$GITHUB_OUTPUT"
+          echo "class=$gate_class" >> "$GITHUB_OUTPUT"
+
+          {
+            echo "## Phase 43 Release Volume Count Auto-Merge Gate"
+            echo ""
+            echo "- Decision: $([ "$allowed" = "true" ] && echo "allowed" || echo "blocked")"
+            echo "- PR class: $gate_class"
+            echo "- Reason: $reason"
+            echo ""
+            echo "### PR diff files evaluated"
+            node -e "const fs=require('fs'); const r=JSON.parse(fs.readFileSync(process.argv[1], 'utf8')); for (const file of r.changedFiles || []) console.log('- ' + file)" "$RUNNER_TEMP/release-volume-counts-gate.json"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Enable auto-merge for safe Phase 43 PRs
+        if: steps.automerge_gate.outputs.allowed == 'true'
+        id: auto_merge
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh pr merge ${{ steps.cpr.outputs.pull-request-number }} --squash --auto
+          echo "triggered=true" >> "$GITHUB_OUTPUT"
+
+      - name: Upload Phase 43 report artifact
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: release-volume-counts-report
+          path: data/release-volume-counts-report.json
+          if-no-files-found: ignore
+
+  notify:
+    name: Send Phase 43 status mail
+    needs: update-release-volume-counts
+    if: always()
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+
+      - name: Download Phase 43 report artifact
+        continue-on-error: true
+        uses: actions/download-artifact@v8
+        with:
+          name: release-volume-counts-report
+          path: artifacts/
+
+      - name: Check Phase 43 mail configuration
+        id: mail_config
+        env:
+          STATUS_MAIL_HOST: ${{ secrets.STATUS_MAIL_HOST }}
+          STATUS_MAIL_USERNAME: ${{ secrets.STATUS_MAIL_USERNAME }}
+          STATUS_MAIL_PASSWORD: ${{ secrets.STATUS_MAIL_PASSWORD }}
+          STATUS_MAIL_TO: ${{ secrets.STATUS_MAIL_TO }}
+          STATUS_MAIL_FROM: ${{ secrets.STATUS_MAIL_FROM }}
+        run: |
+          if [ -n "$STATUS_MAIL_HOST" ] && [ -n "$STATUS_MAIL_USERNAME" ] && [ -n "$STATUS_MAIL_PASSWORD" ] && [ -n "$STATUS_MAIL_TO" ] && [ -n "$STATUS_MAIL_FROM" ]; then
+            echo "enabled=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Write Phase 43 status mail body
+        if: always()
+        env:
+          JOB_RESULT: ${{ needs.update-release-volume-counts.result }}
+          PR_URL: ${{ needs.update-release-volume-counts.outputs.pr_url }}
+          AUTO_MERGE_TRIGGERED: ${{ needs.update-release-volume-counts.outputs.auto_merge_triggered }}
+        run: |
+          mkdir -p artifacts
+          node scripts/write-release-volume-counts-status-mail.js \
+            --report artifacts/release-volume-counts-report.json \
+            --out artifacts/release-volume-counts-status-mail.txt
+
+      - name: Send Phase 43 status mail
+        if: always() && steps.mail_config.outputs.enabled == 'true'
+        continue-on-error: true
+        uses: dawidd6/action-send-mail@v17
+        with:
+          server_address: ${{ secrets.STATUS_MAIL_HOST }}
+          server_port: ${{ secrets.STATUS_MAIL_PORT }}
+          username: ${{ secrets.STATUS_MAIL_USERNAME }}
+          password: ${{ secrets.STATUS_MAIL_PASSWORD }}
+          subject: "Manga Tracker Phase 43: ${{ needs.update-release-volume-counts.result }}"
+          to: ${{ secrets.STATUS_MAIL_TO }}
+          from: ${{ secrets.STATUS_MAIL_FROM }}
+          body: file://artifacts/release-volume-counts-status-mail.txt

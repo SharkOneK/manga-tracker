@@ -72,6 +72,14 @@ jobs:
         run: node --check scripts/validate-release-cache-coverage-gaps.js
 
       # ── Validierung ────────────────────────────────────────────────────────
+      - name: Check Phase 43 release-volume-count scripts syntax
+        run: |
+          node --check scripts/run-release-volume-counts.js
+          node --check scripts/validate-release-volume-counts.js
+          node --check scripts/validate-release-volume-counts-automerge-gate.js
+          node --check scripts/test-release-volume-counts.js
+          node --check scripts/test-public-private-diff.js
+          node --check scripts/write-release-volume-counts-status-mail.js
       - name: Validate release cache
         run: node scripts/validate-release-cache.js
 
@@ -107,5 +115,10 @@ jobs:
       - name: Public projection tests
         run: node scripts/test-public-projection.js
 
+      - name: Validate Phase 43 release volume counts
+        run: |
+          node scripts/validate-release-volume-counts.js
+          node scripts/test-release-volume-counts.js
+          node scripts/test-public-private-diff.js
       - name: Security audit
         run: node scripts/security-audit-static.js
