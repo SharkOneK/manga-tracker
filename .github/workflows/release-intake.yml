@@ -3,6 +3,11 @@ name: Release Intake
 # Runs at 04:05 UTC — before Update Release Cache (04:17 UTC).
 # This ordering ensures that newly adopted watchlist entries are picked up
 # by the same day's cache pipeline run.
+#
+# Phase 46g: the auto-merge-eligible PR is cut as a data/doc "generated bundle"
+# (watchlist + review-queue + the two deterministic coverage docs). Any script
+# drift is split into a separate, manually reviewed PR. A conservative
+# default-deny gate decides whether the bundle PR may auto-merge.
 
 on:
   workflow_dispatch:
@@ -20,6 +25,16 @@ concurrency:
 jobs:
   release-intake:
     runs-on: ubuntu-latest
+    outputs:
+      bundle_changed: ${{ steps.changes.outputs.bundle_changed }}
+      drift_changed: ${{ steps.changes.outputs.drift_changed }}
+      bundle_pr_number: ${{ steps.bundle_pr.outputs.pull-request-number }}
+      bundle_pr_url: ${{ steps.bundle_pr.outputs.pull-request-url }}
+      drift_pr_url: ${{ steps.drift_pr.outputs.pull-request-url }}
+      gate_allowed: ${{ steps.automerge_gate.outputs.allowed }}
+      gate_class: ${{ steps.automerge_gate.outputs.class }}
+      gate_reason: ${{ steps.automerge_gate.outputs.reason }}
+      auto_merge_triggered: ${{ steps.auto_merge.outputs.triggered }}
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
@@ -39,6 +54,8 @@ jobs:
           node --check scripts/validate-release-watchlist.js
           node --check scripts/validate-release-cache-coverage-gaps.js
           node --check scripts/validate-release-source-review-queue.js
+          node --check scripts/validate-release-intake-automerge-gate.js
+          node --check scripts/test-intake-automerge-gate.js
           node --check scripts/check-secrets.js
           node --check scripts/security-audit-static.js
           node --check scripts/smoke-test-static.js
@@ -55,6 +72,7 @@ jobs:
           node scripts/smoke-test-static.js
           node scripts/test-stats.js
           node scripts/test-data-integrity.js
+          node scripts/test-intake-automerge-gate.js
           git diff --check
 
       - name: Run release intake
@@ -76,57 +94,103 @@ jobs:
       - name: Security check after intake
         run: |
           node scripts/check-secrets.js
+          node scripts/test-public-private-diff.js
           git diff --check
 
       - name: Detect intake-managed changes
         id: changes
         shell: bash
         run: |
-          MANAGED_PATHS=(
+          BUNDLE_PATHS=(
             data/release-watchlist.json
             data/release-source-review-queue.json
             docs/release-cache-coverage-gaps.md
             docs/release-cache-source-gap-analysis.md
+          )
+          DRIFT_PATHS=(
             scripts/validate-release-cache-coverage-gaps.js
             scripts/test-stats.js
           )
-          if git diff --quiet -- "${MANAGED_PATHS[@]}"; then
-            echo "changed=false" >> "$GITHUB_OUTPUT"
-            echo "No intake-managed changes detected — no PR needed."
+
+          if git diff --quiet -- "${BUNDLE_PATHS[@]}"; then
+            echo "bundle_changed=false" >> "$GITHUB_OUTPUT"
+            echo "No auto-merge bundle changes detected."
           else
-            echo "changed=true" >> "$GITHUB_OUTPUT"
-            git diff --stat -- "${MANAGED_PATHS[@]}"
+            echo "bundle_changed=true" >> "$GITHUB_OUTPUT"
+            echo "Auto-merge bundle changes:"
+            git diff --stat -- "${BUNDLE_PATHS[@]}"
           fi
 
-      - name: Prepare PR body
-        if: steps.changes.outputs.changed == 'true'
+          if git diff --quiet -- "${DRIFT_PATHS[@]}"; then
+            echo "drift_changed=false" >> "$GITHUB_OUTPUT"
+            echo "No script-drift changes detected."
+          else
+            echo "drift_changed=true" >> "$GITHUB_OUTPUT"
+            echo "Script-drift changes (manual review PR):"
+            git diff --stat -- "${DRIFT_PATHS[@]}"
+          fi
+
+      # ── Manual review PR for any embedded-count script drift (never auto-merge) ──
+      - name: Create script-drift review PR
+        if: steps.changes.outputs.drift_changed == 'true'
+        id: drift_pr
+        uses: peter-evans/create-pull-request@v8
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "chore: sync release coverage expected counts (manual review)"
+          branch: automated/release-intake-script-drift
+          delete-branch: true
+          title: "chore: release intake — script count drift (manual review)"
+          body: |
+            ## Release Intake — script drift (manual review required)
+
+            This PR isolates **script** changes (embedded expected counts) that
+            drifted during the latest release intake. It is intentionally **not**
+            auto-merge-eligible and must be reviewed manually.
+
+            Touched files:
+            - `scripts/validate-release-cache-coverage-gaps.js`
+            - `scripts/test-stats.js`
+          labels: release-watchlist, automated, manual-review
+          add-paths: |
+            scripts/validate-release-cache-coverage-gaps.js
+            scripts/test-stats.js
+
+      - name: Prepare bundle PR body
+        if: steps.changes.outputs.bundle_changed == 'true'
         shell: bash
         run: |
           node <<'NODE' > "$RUNNER_TEMP/release-intake-pr-body.md"
           const fs = require('fs');
           const wl = JSON.parse(fs.readFileSync('data/release-watchlist.json', 'utf8'));
-          console.log('## Release Intake Summary');
+          console.log('## Release Intake Summary (auto-merge bundle)');
           console.log('');
-          console.log('Automated intake of Supabase staging candidates into `data/release-watchlist.json`.');
+          console.log('Automated intake of Supabase staging candidates into `data/release-watchlist.json`,');
+          console.log('with the deterministically regenerated coverage docs and source-review queue.');
           console.log('');
           console.log(`- Watchlist items after intake: ${wl.items ? wl.items.length : '?'}`);
           console.log(`- Generated at: ${wl.generatedAt || new Date().toISOString()}`);
-          console.log('- Coverage-gap docs, expected counts, and source-review queue placeholders are synchronized from the current audit.');
+          console.log('');
+          console.log('### Auto-merge bundle (Phase 46g)');
+          console.log('');
+          console.log('- `data/release-watchlist.json`');
+          console.log('- `data/release-source-review-queue.json`');
+          console.log('- `docs/release-cache-coverage-gaps.md`');
+          console.log('- `docs/release-cache-source-gap-analysis.md`');
           console.log('');
           console.log('### Security');
           console.log('');
           console.log('- No browser GitHub token used');
           console.log('- No direct push to main');
-          console.log('- Only allowlist fields (seriesTitle, publisher, volumeNumber, sourceUrl, notes, enabled)');
+          console.log('- Only allowlist fields (seriesTitle, publisher, volumeNumber/volumeNumbers, sourceUrl, notes, enabled)');
           console.log('- No private collection data in staging, PR, or logs');
           console.log('- The release cache artifact is not modified by this PR');
-          console.log('');
-          console.log('Merge this PR to let the next `Update Release Cache` pipeline pick up the new entries.');
+          console.log('- A conservative default-deny gate decides auto-merge eligibility');
           NODE
 
-      - name: Create watchlist intake PR
-        if: steps.changes.outputs.changed == 'true'
-        id: cpr
+      - name: Create watchlist intake bundle PR
+        if: steps.changes.outputs.bundle_changed == 'true'
+        id: bundle_pr
         uses: peter-evans/create-pull-request@v8
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -141,30 +205,89 @@ jobs:
             data/release-source-review-queue.json
             docs/release-cache-coverage-gaps.md
             docs/release-cache-source-gap-analysis.md
-            scripts/validate-release-cache-coverage-gaps.js
-            scripts/test-stats.js
+
+      - name: Block auto-merge if bundle PR number is missing
+        if: steps.changes.outputs.bundle_changed == 'true' && steps.bundle_pr.outputs.pull-request-number == ''
+        run: |
+          {
+            echo "## Release-Intake Phase 46g Auto-Merge Gate"
+            echo ""
+            echo "- Decision: blocked"
+            echo "- Reason: bundle PR number is missing; default deny."
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Evaluate Phase 46g intake auto-merge gate
+        if: steps.bundle_pr.outputs.pull-request-number != ''
+        id: automerge_gate
+        shell: bash
+        run: |
+          git fetch --no-tags origin \
+            main:refs/remotes/origin/main \
+            automated/release-intake:refs/remotes/origin/automated/release-intake
+          git checkout --detach origin/automated/release-intake
+
+          echo "PR diff files evaluated by the auto-merge gate (origin/main...HEAD):"
+          git diff --name-only origin/main...HEAD
+
+          node scripts/validate-release-intake-automerge-gate.js --base origin/main --json > "$RUNNER_TEMP/intake-gate.json"
+          cat "$RUNNER_TEMP/intake-gate.json"
+
+          allowed=$(node -e "const fs=require('fs'); const r=JSON.parse(fs.readFileSync(process.argv[1],'utf8')); console.log(r.allowed ? 'true' : 'false')" "$RUNNER_TEMP/intake-gate.json")
+          gate_class=$(node -e "const fs=require('fs'); const r=JSON.parse(fs.readFileSync(process.argv[1],'utf8')); console.log(r.class)" "$RUNNER_TEMP/intake-gate.json")
+          reason=$(node -e "const fs=require('fs'); const r=JSON.parse(fs.readFileSync(process.argv[1],'utf8')); console.log(r.reason)" "$RUNNER_TEMP/intake-gate.json")
+
+          echo "allowed=$allowed" >> "$GITHUB_OUTPUT"
+          echo "class=$gate_class" >> "$GITHUB_OUTPUT"
+          echo "reason=$reason" >> "$GITHUB_OUTPUT"
+
+          {
+            echo "## Release-Intake Phase 46g Auto-Merge Gate"
+            echo ""
+            echo "- Decision: $([ "$allowed" = "true" ] && echo "allowed" || echo "blocked")"
+            echo "- PR class: $gate_class"
+            echo "- Reason: $reason"
+            echo ""
+            echo "### PR diff files evaluated"
+            node -e "const fs=require('fs'); const r=JSON.parse(fs.readFileSync(process.argv[1],'utf8')); for (const f of r.changedFiles||[]) console.log('- '+f)" "$RUNNER_TEMP/intake-gate.json"
+            echo ""
+            echo "### Gate metrics"
+            node -e "const fs=require('fs'); const r=JSON.parse(fs.readFileSync(process.argv[1],'utf8')); for (const k of ['addedWatchlistEntries','addedQueueEntries']) if (Object.prototype.hasOwnProperty.call(r,k)) console.log('- '+k+': '+r[k]); if (Array.isArray(r.affectedSeries)&&r.affectedSeries.length) console.log('- affectedSeries: '+r.affectedSeries.join(', '))" "$RUNNER_TEMP/intake-gate.json"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Enable auto-merge for safe Phase 46g intake bundle PRs
+        if: steps.automerge_gate.outputs.allowed == 'true'
+        id: auto_merge
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh pr merge ${{ steps.bundle_pr.outputs.pull-request-number }} --squash --auto
+          echo "triggered=true" >> "$GITHUB_OUTPUT"
 
       - name: Summary
+        if: always()
         shell: bash
         run: |
           {
             echo "## Release Intake Result"
             echo ""
-            if [ "${{ steps.changes.outputs.changed }}" = "true" ]; then
-              echo "- PR created: ${{ steps.cpr.outputs.pull-request-url || 'see PR list' }}"
-              echo "- Branch: automated/release-intake"
-              echo "- Managed files: watchlist plus synchronized coverage-gap documentation and source-review queue placeholders when needed"
+            if [ "${{ steps.changes.outputs.bundle_changed }}" = "true" ]; then
+              echo "- Bundle PR: ${{ steps.bundle_pr.outputs.pull-request-url || 'see PR list' }}"
+              echo "- Gate decision: ${{ steps.automerge_gate.outputs.allowed || 'n/a' }} (${{ steps.automerge_gate.outputs.class || 'n/a' }})"
+              echo "- Auto-merge enabled: ${{ steps.auto_merge.outputs.triggered || 'no' }}"
             else
-              echo "- No changes detected — clean no-op"
+              echo "- No bundle changes — clean no-op"
+            fi
+            if [ "${{ steps.changes.outputs.drift_changed }}" = "true" ]; then
+              echo "- Script-drift review PR (manual): ${{ steps.drift_pr.outputs.pull-request-url || 'see PR list' }}"
             fi
             echo ""
-            echo "Next: **Update Release Cache** runs at 04:17 UTC and will process the updated watchlist once the PR is merged."
+            echo "Next: **Update Release Cache** runs at 04:17 UTC and will process the updated watchlist once the bundle PR is merged."
           } >> "$GITHUB_STEP_SUMMARY"
 
   notify:
-    name: Send failure status mail
+    name: Send status mail
     needs: release-intake
-    if: always() && needs.release-intake.result == 'failure'
+    if: always()
     runs-on: ubuntu-latest
 
     steps:
@@ -181,28 +304,72 @@ jobs:
             echo "enabled=true" >> "$GITHUB_OUTPUT"
           else
             echo "enabled=false" >> "$GITHUB_OUTPUT"
-            echo "MAIL_* secrets incomplete; skipping Release Intake failure mail."
+            echo "MAIL_* secrets incomplete; skipping Release Intake status mail."
           fi
 
-      - name: Write failure mail body
+      - name: Decide whether to send a mail
+        id: should_send
+        env:
+          JOB_RESULT: ${{ needs.release-intake.result }}
+          BUNDLE_CHANGED: ${{ needs.release-intake.outputs.bundle_changed }}
+          DRIFT_CHANGED: ${{ needs.release-intake.outputs.drift_changed }}
+        run: |
+          # Mail only on failure, when a PR was created, or when a gate decision
+          # exists. Clean no-op runs stay silent (no mail noise).
+          if [ "$JOB_RESULT" = "failure" ] || [ "$BUNDLE_CHANGED" = "true" ] || [ "$DRIFT_CHANGED" = "true" ]; then
+            echo "send=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "send=false" >> "$GITHUB_OUTPUT"
+            echo "Clean no-op intake run — no status mail."
+          fi
+
+      - name: Write status mail body
+        if: steps.should_send.outputs.send == 'true'
+        env:
+          JOB_RESULT: ${{ needs.release-intake.result }}
+          BUNDLE_CHANGED: ${{ needs.release-intake.outputs.bundle_changed }}
+          DRIFT_CHANGED: ${{ needs.release-intake.outputs.drift_changed }}
+          BUNDLE_PR_URL: ${{ needs.release-intake.outputs.bundle_pr_url }}
+          DRIFT_PR_URL: ${{ needs.release-intake.outputs.drift_pr_url }}
+          GATE_ALLOWED: ${{ needs.release-intake.outputs.gate_allowed }}
+          GATE_CLASS: ${{ needs.release-intake.outputs.gate_class }}
+          GATE_REASON: ${{ needs.release-intake.outputs.gate_reason }}
+          AUTO_MERGE_TRIGGERED: ${{ needs.release-intake.outputs.auto_merge_triggered }}
         run: |
           mkdir -p artifacts
           {
             echo "Manga Tracker Release Intake Status"
             echo ""
             echo "Workflow: ${GITHUB_WORKFLOW}"
-            echo "Result: ${{ needs.release-intake.result }}"
+            echo "Result: ${JOB_RESULT}"
             echo "Trigger: ${GITHUB_EVENT_NAME}"
             echo "Branch: ${GITHUB_REF_NAME:-unknown}"
             echo "Commit: ${GITHUB_SHA:0:7}"
             echo "Run: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
             echo ""
-            echo "Manual review required: Release Intake failed before a safe no-op/PR result."
-            echo "This mail contains only workflow metadata and no secrets or private data."
-          } > artifacts/release-intake-failure-status-mail.txt
+            if [ "$JOB_RESULT" = "failure" ]; then
+              echo "Result: failed — manual review required."
+            elif [ "$BUNDLE_CHANGED" = "true" ]; then
+              echo "Bundle PR created: ${BUNDLE_PR_URL:-see PR list}"
+              echo "Gate decision: ${GATE_ALLOWED:-n/a} (class: ${GATE_CLASS:-n/a})"
+              echo "Gate reason: ${GATE_REASON:-n/a}"
+              echo "Auto-merge enabled: ${AUTO_MERGE_TRIGGERED:-no}"
+              if [ "$GATE_ALLOWED" != "true" ]; then
+                echo "Manual review required: gate did not allow auto-merge."
+              fi
+            else
+              echo "No auto-merge bundle changes."
+            fi
+            if [ "$DRIFT_CHANGED" = "true" ]; then
+              echo ""
+              echo "Script-drift review PR (manual): ${DRIFT_PR_URL:-see PR list}"
+            fi
+            echo ""
+            echo "This mail contains only workflow metadata and a gate decision; no secrets and no private data."
+          } > artifacts/release-intake-status-mail.txt
 
-      - name: Send failure mail
-        if: steps.mail_config.outputs.enabled == 'true'
+      - name: Send status mail
+        if: steps.should_send.outputs.send == 'true' && steps.mail_config.outputs.enabled == 'true'
         continue-on-error: true
         uses: dawidd6/action-send-mail@v17
         with:
@@ -213,4 +380,4 @@ jobs:
           subject: "Manga Tracker Release Intake: ${{ needs.release-intake.result }}"
           to: ${{ secrets.MAIL_TO }}
           from: ${{ secrets.MAIL_FROM }}
-          body: file://artifacts/release-intake-failure-status-mail.txt
+          body: file://artifacts/release-intake-status-mail.txt
