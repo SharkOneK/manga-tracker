@@ -97,3 +97,57 @@ jobs:
           labels: supabase-snapshot, automated
           add-paths: |
             data/release-cache-supabase-snapshot.json
+
+  notify:
+    name: Send failure status mail
+    needs: snapshot
+    if: always() && needs.snapshot.result == 'failure'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check mail configuration
+        id: mail_config
+        env:
+          MAIL_HOST: ${{ secrets.MAIL_HOST }}
+          MAIL_USERNAME: ${{ secrets.MAIL_USERNAME }}
+          MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
+          MAIL_TO: ${{ secrets.MAIL_TO }}
+          MAIL_FROM: ${{ secrets.MAIL_FROM }}
+        run: |
+          if [ -n "$MAIL_HOST" ] && [ -n "$MAIL_USERNAME" ] && [ -n "$MAIL_PASSWORD" ] && [ -n "$MAIL_TO" ] && [ -n "$MAIL_FROM" ]; then
+            echo "enabled=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+            echo "MAIL_* secrets incomplete; skipping Snapshot failure mail."
+          fi
+
+      - name: Write failure mail body
+        run: |
+          mkdir -p artifacts
+          {
+            echo "Manga Tracker Snapshot Supabase Catalog Status"
+            echo ""
+            echo "Workflow: ${GITHUB_WORKFLOW}"
+            echo "Result: ${{ needs.snapshot.result }}"
+            echo "Trigger: ${GITHUB_EVENT_NAME}"
+            echo "Branch: ${GITHUB_REF_NAME:-unknown}"
+            echo "Commit: ${GITHUB_SHA:0:7}"
+            echo "Run: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+            echo ""
+            echo "Manual review required: Supabase catalog snapshot failed before a safe no-op/PR result."
+            echo "This mail contains only workflow metadata and no secrets or private data."
+          } > artifacts/snapshot-supabase-catalog-failure-status-mail.txt
+
+      - name: Send failure mail
+        if: steps.mail_config.outputs.enabled == 'true'
+        continue-on-error: true
+        uses: dawidd6/action-send-mail@v17
+        with:
+          server_address: ${{ secrets.MAIL_HOST }}
+          server_port: ${{ vars.MAIL_PORT }}
+          username: ${{ secrets.MAIL_USERNAME }}
+          password: ${{ secrets.MAIL_PASSWORD }}
+          subject: "Manga Tracker Snapshot Supabase Catalog: ${{ needs.snapshot.result }}"
+          to: ${{ secrets.MAIL_TO }}
+          from: ${{ secrets.MAIL_FROM }}
+          body: file://artifacts/snapshot-supabase-catalog-failure-status-mail.txt
