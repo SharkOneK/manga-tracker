@@ -1149,24 +1149,42 @@ function renderDashboard() {
 }
 
 // ─── Genre / Tags ─────────────────────────────────────────────────────────
-const ALL_GENRES = ['Shōnen','Shōjo','Seinen','Josei','Isekai','Fantasy','Action',
-  'Romance','Horror','Sci-Fi','Comedy','Slice of Life','Sports','Mecha','Thriller',
-  'Mystery','Drama','Supernatural'];
-
-let modalGenres = [];
 let filterGenre = '';
 
-function renderGenrePicker() {
-  const el = document.getElementById('genre-picker');
-  el.innerHTML = ALL_GENRES.map(g =>
-    `<span class="genre-chip${modalGenres.includes(g)?' on':''}" data-action="toggle-genre" data-genre="${escapeHtml(g)}">${g}</span>`
-  ).join('');
+function resolveProtectedGenres(existing) {
+  return Array.isArray(existing?.genres) ? [...existing.genres] : [];
 }
 
-function toggleGenre(g) {
-  if (modalGenres.includes(g)) modalGenres = modalGenres.filter(x => x !== g);
-  else modalGenres.push(g);
-  renderGenrePicker();
+function resolveProtectedCover(existing) {
+  return existing?.cover || null;
+}
+
+function renderGenreReadout(m) {
+  const el = document.getElementById('genre-readout');
+  if (!el) return;
+  const genres = resolveProtectedGenres(m).filter(Boolean);
+  if (!genres.length) {
+    el.innerHTML = `<span class="genre-readout-empty">${escapeHtml(el.dataset.empty || 'Keine Genres vorhanden.')}</span>`;
+    return;
+  }
+  el.innerHTML = genres
+    .map(g => `<span class="genre-chip readonly">${escapeHtml(g)}</span>`)
+    .join('');
+}
+
+function renderCoverReadout(m) {
+  const el = document.getElementById('f-cover-auto');
+  if (!el) return;
+  const cover = safeHttpsUrl(resolveProtectedCover(m));
+  const bandCoverCount = Object.keys(m?.bandCovers || {}).filter(k => !!m.bandCovers[k]).length;
+  if (!cover && !bandCoverCount) {
+    el.innerHTML = `<span class="automation-readout-empty">${escapeHtml(el.dataset.empty || 'Kein Cover vorhanden.')}</span>`;
+    return;
+  }
+  const parts = [];
+  if (cover) parts.push('Serien-Cover-Fallback vorhanden');
+  if (bandCoverCount) parts.push(`${bandCoverCount} Band-Cover vorhanden`);
+  el.innerHTML = `<strong>${escapeHtml(parts.join(' · '))}</strong><span>Geschützt: wird nicht mehr manuell per URL-Feld überschrieben.</span>`;
 }
 
 function updateGenreFilter() {
@@ -1864,7 +1882,6 @@ function openAdd() {
   editId = null;
   modalBands = {};
   modalBandCovers = {};
-  modalGenres = [];
   document.getElementById('modal-title').textContent = 'Manga hinzufügen';
   document.getElementById('f-title').value = '';
   document.getElementById('f-publisher').value = '';
@@ -1872,14 +1889,14 @@ function openAdd() {
   document.getElementById('f-ongoing').value = 'true';
   document.getElementById('f-nextdate').value = '';
   renderAutomationReadout(null);
-  document.getElementById('f-cover').value = '';
+  renderCoverReadout(null);
   document.getElementById('f-notes').value = '';
   document.getElementById('f-started').value = '';
   document.getElementById('f-finished').value = '';
   document.getElementById('f-wishlist').checked = (tab === 'wishlist');
   document.getElementById('btn-del').style.display = 'none';
   renderBandMgr();
-  renderGenrePicker();
+  renderGenreReadout(null);
   // Phase 15c: Release-Check-Button im Hinzufügen-Dialog ausblenden (nur bei Bearbeitung sinnvoll)
   const _btnRcAdd = document.getElementById('btn-release-check');
   if (_btnRcAdd) _btnRcAdd.style.display = 'none';
@@ -1894,7 +1911,6 @@ function openEdit(id, e) {
   editId = id;
   modalBands = { ...(m.bands || {}) };
   modalBandCovers = { ...(m.bandCovers || {}) };
-  modalGenres = [...(m.genres || [])];
   document.getElementById('modal-title').textContent = 'Manga bearbeiten';
   document.getElementById('f-title').value = m.title||'';
   document.getElementById('f-publisher').value = m.pub||'';
@@ -1902,14 +1918,14 @@ function openEdit(id, e) {
   document.getElementById('f-ongoing').value = m.ongoing??'true';
   document.getElementById('f-nextdate').value = m.nextDate??'';
   renderAutomationReadout(m);
-  document.getElementById('f-cover').value = m.cover??'';
+  renderCoverReadout(m);
   document.getElementById('f-notes').value = m.notes??'';
   document.getElementById('f-started').value = m.startedAt || '';
   document.getElementById('f-finished').value = m.finishedAt || '';
   document.getElementById('f-wishlist').checked = (m.status === 'wishlist');
   document.getElementById('btn-del').style.display = 'block';
   renderBandMgr();
-  renderGenrePicker();
+  renderGenreReadout(m);
   // Phase 15c: Release-Check-Button einblenden und Status aktualisieren
   const _btnRcEdit = document.getElementById('btn-release-check');
   if (_btnRcEdit) { _btnRcEdit.style.display = 'block'; updateReleaseCacheButton(); }
@@ -2066,11 +2082,15 @@ function doSave() {
   // Wenn Serie nicht mehr „komplett gelesen" ist (z.B. Band rückgängig), finishedAt nicht löschen — manuelle Korrektur möglich
   // ────────────────────────────────────────────────────────────────────────
 
-  // Phase 37: Cover-URL aus bestehendem Eintrag erhalten, wenn Formularfeld leer ist.
-  // Ein leeres Formularfeld darf eine vorhandene Cover-URL nicht stillschweigend löschen.
-  // Explizites Entfernen ist nur durch eine dedizierte Entfernen-Aktion möglich (nicht in dieser Phase).
-  const formCoverUrl = document.getElementById('f-cover').value.trim();
-  const cover = formCoverUrl || existing?.cover || null;
+  // Phase 44c: Der technische Serien-Cover-URL-Fallback ist kein Formularfeld mehr.
+  // Speichern erhält bestehende Cover, setzt aber keinen neuen Serien-Fallback aus der Maske.
+  // Band-Cover können weiterhin über dedizierte Cover-/Release-Flows gepflegt werden.
+  const cover = resolveProtectedCover(existing);
+
+  // Phase 44c: Genre/Tags sind in der Maske read-only. Bestehende kuratierte/Seed-Werte
+  // bleiben erhalten; ohne stabile automatische Quelle werden keine leeren Auto-Genres
+  // erfunden und keine vorhandenen Tags überschrieben.
+  const genres = resolveProtectedGenres(existing);
 
   // bandCovers: Einträge behalten, deren Band existiert.
   // Phase 37: Zusätzlich Covers erhalten, für die kein Band-Eintrag in bands[] vorhanden war
@@ -2099,7 +2119,7 @@ function doSave() {
     nextDate,
     cover,
     notes: document.getElementById('f-notes').value.trim(),
-    genres: [...modalGenres],
+    genres,
     startedAt,
     finishedAt,
     at: existing?.at || Date.now(),
@@ -4259,9 +4279,6 @@ function bindDelegatedEvents() {
         break;
       case 'set-band-status':
         setBandStatus(target.dataset.mangaId, target.dataset.bandNr, target.dataset.status, event);
-        break;
-      case 'toggle-genre':
-        toggleGenre(target.dataset.genre);
         break;
       case 'set-genre-filter':
         setGenreFilter(target.dataset.genre || '');

@@ -712,7 +712,8 @@ body.dark .vol-status-pill.st-completed { background: #1e3a5f; color: #93c5fd; }
 .shop-link:hover { background: var(--primary); color: white; border-color: var(--primary); }
 
 /* ── Genre Chips ── */
-.genre-picker { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+.genre-readout { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+.genre-readout-empty { color: var(--text-muted); font-size: 0.78rem; line-height: 1.35; }
 .genre-chip {
   padding: 4px 10px; border-radius: 99px; font-size: 0.72rem; font-weight: 700;
   border: 1.5px solid var(--border); background: var(--bg); color: var(--text-muted);
@@ -720,6 +721,8 @@ body.dark .vol-status-pill.st-completed { background: #1e3a5f; color: #93c5fd; }
 }
 .genre-chip.on { background: var(--primary); color: white; border-color: var(--primary); }
 .genre-chip:hover:not(.on) { border-color: var(--primary); color: var(--primary); }
+.genre-chip.readonly { cursor: default; background: var(--primary-light); color: var(--primary); border-color: transparent; }
+.genre-chip.readonly:hover { border-color: transparent; color: var(--primary); }
 .card-genres { display: flex; flex-wrap: wrap; gap: 3px; margin-top: 3px; }
 .card-genre { padding: 2px 7px; border-radius: 99px; font-size: 0.62rem; font-weight: 700;
   background: var(--primary-light); color: var(--primary); }

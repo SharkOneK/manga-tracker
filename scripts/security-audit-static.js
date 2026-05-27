@@ -625,11 +625,11 @@ if (!appJs) {
 if (!appJs) {
   fail('Check 37: src/app.js nicht gefunden (Phase-37 Checks nicht prüfbar)');
 } else {
-  // 37a: Cover-Preserve-Logik vorhanden (kein stummes Überschreiben durch leeres Formularfeld)
-  if (!appJs.includes('formCoverUrl || existing?.cover || null')) {
-    fail('Check 37a: Cover-Preserve-Logik (formCoverUrl || existing?.cover || null) fehlt in app.js');
+  // 37a/44c: Cover-Preserve-Logik vorhanden (kein manuelles URL-Feld überschreibt bestehende Cover)
+  if (!appJs.includes('const cover = resolveProtectedCover(existing);')) {
+    fail('Check 37a: Cover-Preserve-Logik (resolveProtectedCover(existing)) fehlt in app.js');
   } else {
-    pass('Check 37a: Cover-Preserve-Logik vorhanden — leeres Formularfeld löscht Cover nicht');
+    pass('Check 37a: Cover-Preserve-Logik vorhanden — geschütztes Cover-Feld löscht/überschreibt Cover nicht');
   }
 
   // 37b: Wishlist-Ausschluss entfernt (buildLocalReleaseCoverageCandidate schließt wishlist nicht mehr aus)

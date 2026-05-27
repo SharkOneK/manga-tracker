@@ -453,10 +453,15 @@ runTest('Phase 36b: release-intake.yml erstellt PR, kein push nach main', functi
 
 // ─── Phase 37: Cover-Preserve und Wishlist-Coverage ──────────────────────────
 
-// Spiegelt die Phase-37-Cover-Preserve-Logik aus doSave()
-function resolveDoSaveCover(formCoverUrl, existingCover) {
-  const val = (formCoverUrl || '').trim();
-  return val || existingCover || null;
+// Spiegelt die Phase-44c-Cover-Preserve-Logik aus doSave():
+// Der Serien-Cover-URL-Fallback ist kein Formularfeld mehr.
+function resolveDoSaveCover(existingCover) {
+  return existingCover || null;
+}
+
+// Spiegelt die Phase-44c-Genre-Preserve-Logik aus doSave()
+function resolveDoSaveGenres(existingGenres) {
+  return Array.isArray(existingGenres) ? [...existingGenres] : [];
 }
 
 // Spiegelt buildLocalReleaseCoverageCandidate (ohne Wishlist-Ausschluss, Phase 37)
@@ -490,32 +495,31 @@ function buildIntakeSubmit37(candidate) {
 
 console.log('\nPhase 37 — Cover-Preserve und Wishlist-Coverage Tests\n');
 
-// 32. Cover-Preserve: leeres Formularfeld erhält bestehende Cover-URL
-runTest('Phase 37: Cover-Preserve — leeres Formularfeld erhält bestehende Cover-URL', function() {
+// 32. Cover-Preserve: bestehende Cover-URL bleibt ohne Formularfeld erhalten
+runTest('Phase 44c: Cover-Preserve — bestehende Cover-URL bleibt ohne Formularfeld erhalten', function() {
   const existingCover = 'https://covers.openlibrary.org/b/isbn/9783551762405-L.jpg';
-  const result = resolveDoSaveCover('', existingCover);
+  const result = resolveDoSaveCover(existingCover);
   assert.strictEqual(result, existingCover, 'Bestehende Cover-URL muss erhalten bleiben');
 });
 
-// 33. Cover-Preserve: neue URL ersetzt bestehende korrekt
-runTest('Phase 37: Cover-Preserve — neue gültige URL ersetzt bestehende Cover-URL', function() {
-  const existingCover = 'https://example.com/old-cover.jpg';
-  const newCover = 'https://example.com/new-cover.jpg';
-  const result = resolveDoSaveCover(newCover, existingCover);
-  assert.strictEqual(result, newCover, 'Neue Cover-URL muss die bestehende ersetzen');
+// 33. Cover-Preserve: ohne bestehenden Fallback wird kein Cover erfunden
+runTest('Phase 44c: Cover-Preserve — ohne bestehenden Fallback wird kein Cover erfunden', function() {
+  const result = resolveDoSaveCover(null);
+  assert.strictEqual(result, null, 'Kein bestehendes Cover → null erwartet');
 });
 
-// 34. Cover-Preserve: leeres Formular ohne bestehende Cover → null
-runTest('Phase 37: Cover-Preserve — leeres Formular ohne bestehende Cover gibt null', function() {
-  const result = resolveDoSaveCover('', null);
-  assert.strictEqual(result, null, 'Kein Cover → null erwartet');
+// 34. Genre-Preserve: bestehende Genres bleiben erhalten
+runTest('Phase 44c: Genre-Preserve — bestehende Genres bleiben erhalten', function() {
+  const existingGenres = ['Drama', 'Thriller'];
+  const result = resolveDoSaveGenres(existingGenres);
+  assert.deepStrictEqual(result, existingGenres, 'Bestehende Genres müssen erhalten bleiben');
+  assert.notStrictEqual(result, existingGenres, 'Genres sollen als Kopie übernommen werden');
 });
 
-// 35. Cover-Preserve: Whitespace-only Formularfeld gilt als leer
-runTest('Phase 37: Cover-Preserve — Whitespace-only Formularfeld gilt als leer', function() {
-  const existingCover = 'https://example.com/cover.jpg';
-  const result = resolveDoSaveCover('   ', existingCover);
-  assert.strictEqual(result, existingCover, 'Whitespace muss wie leer behandelt werden');
+// 35. Genre-Preserve: ohne bestehende Genres wird keine leere Automatik erfunden
+runTest('Phase 44c: Genre-Preserve — ohne bestehende Genres wird keine Automatik erfunden', function() {
+  const result = resolveDoSaveGenres(null);
+  assert.deepStrictEqual(result, [], 'Ohne stabile Quelle keine Auto-Genres erfinden');
 });
 
 // 36. Wishlist-Serie mit Publisher und ohne Bände → Kandidat Band 1
