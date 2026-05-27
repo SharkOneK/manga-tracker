@@ -4,95 +4,15 @@
   "generatedFrom": "docs/release-cache-source-gap-analysis.md",
   "reviewPolicy": "docs/release-cache-manual-source-review.md",
   "summary": {
-    "knownSourceGaps": 30,
-    "totalGaps": 93,
+    "knownSourceGaps": 28,
+    "totalGaps": 91,
     "safeToPatch": 13,
-    "pendingManualReview": 80,
-    "autoReviewed": 74,
+    "pendingManualReview": 78,
+    "autoReviewed": 72,
     "patched": 13
   },
   "sortOrder": "priority(sehr hoch, hoch, mittel, niedrig), seriesTitle, publisher, volumeNumber",
   "queue": [
-    {
-      "queueKey": "Berserk Master Edition|Panini Manga|7",
-      "seriesTitle": "Berserk Master Edition",
-      "publisher": "Panini Manga",
-      "volumeNumber": 7,
-      "classification": "source-data-gap",
-      "suspectedCause": "not-yet-released",
-      "priority": "sehr hoch",
-      "recommendedFix": "manual-source-review",
-      "manualSourceReviewNeeded": true,
-      "checkedSources": [
-        {
-          "name": "Manga Passion API",
-          "url": "https://www.manga-passion.de",
-          "result": "Edition 5211 vorhanden; betroffene Baende ohne valides Release-Datum."
-        }
-      ],
-      "sourceAnalysisEvidence": "Manga-Passion-Edition 5211 fuehrt die Baende 7-14 nur mit Platzhalterdatum 2999-12-31; kein valides Release-Datum im Cache erlaubt.",
-      "safeToPatch": false,
-      "reviewStatus": "auto-low-confidence",
-      "sourceUrl": "https://www.carlsen.de",
-      "releaseDate": null,
-      "checkedAt": "2026-05-25T05:48:59.277Z",
-      "evidence": "Automatische Quellenprüfung: publisher-not-supported. Confidence: low. Gruende: missing-source-edition-title, missing-source-publisher, missing-source-volume-number, missing-release-date.",
-      "notes": "Automatisch geprüft; nicht sicher genug für den öffentlichen Cache.",
-      "sourceConfidence": "low",
-      "sourceName": "Carlsen Manga",
-      "sourceEditionId": null,
-      "sourceEditionTitle": null,
-      "sourcePublisher": null,
-      "sourceVolumeNumber": null,
-      "sourceResult": "publisher-not-supported",
-      "confidenceReasons": [
-        "missing-source-edition-title",
-        "missing-source-publisher",
-        "missing-source-volume-number",
-        "missing-release-date"
-      ],
-      "providerId": "carlsen"
-    },
-    {
-      "queueKey": "Berserk Master Edition|Panini Manga|8",
-      "seriesTitle": "Berserk Master Edition",
-      "publisher": "Panini Manga",
-      "volumeNumber": 8,
-      "classification": "source-data-gap",
-      "suspectedCause": "not-yet-released",
-      "priority": "sehr hoch",
-      "recommendedFix": "manual-source-review",
-      "manualSourceReviewNeeded": true,
-      "checkedSources": [
-        {
-          "name": "Manga Passion API",
-          "url": "https://www.manga-passion.de",
-          "result": "Edition 5211 vorhanden; betroffene Baende ohne valides Release-Datum."
-        }
-      ],
-      "sourceAnalysisEvidence": "Manga-Passion-Edition 5211 fuehrt die Baende 7-14 nur mit Platzhalterdatum 2999-12-31; kein valides Release-Datum im Cache erlaubt.",
-      "safeToPatch": false,
-      "reviewStatus": "auto-low-confidence",
-      "sourceUrl": "https://www.carlsen.de",
-      "releaseDate": null,
-      "checkedAt": "2026-05-25T05:48:59.277Z",
-      "evidence": "Automatische Quellenprüfung: publisher-not-supported. Confidence: low. Gruende: missing-source-edition-title, missing-source-publisher, missing-source-volume-number, missing-release-date.",
-      "notes": "Automatisch geprüft; nicht sicher genug für den öffentlichen Cache.",
-      "sourceConfidence": "low",
-      "sourceName": "Carlsen Manga",
-      "sourceEditionId": null,
-      "sourceEditionTitle": null,
-      "sourcePublisher": null,
-      "sourceVolumeNumber": null,
-      "sourceResult": "publisher-not-supported",
-      "confidenceReasons": [
-        "missing-source-edition-title",
-        "missing-source-publisher",
-        "missing-source-volume-number",
-        "missing-release-date"
-      ],
-      "providerId": "carlsen"
-    },
     {
       "queueKey": "Berserk Master Edition|Panini Manga|9",
       "seriesTitle": "Berserk Master Edition",

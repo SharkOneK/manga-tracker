@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-05-26T14:17:36.296Z",
+  "generatedAt": "2026-05-27T05:59:56.937Z",
   "source": "run-release-cache-pipeline.js",
-  "itemCount": 180,
+  "itemCount": 182,
   "items": [
     {
       "seriesTitle": "Adou",
@@ -228,6 +228,40 @@
       "confidence": "high",
       "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 5211, Band 6, Score 100). Ursprung: app-seed.",
       "checkedAt": "2026-05-17T10:56:39.041Z"
+    },
+    {
+      "seriesTitle": "Berserk Master Edition",
+      "normalizedSeriesTitle": "berserk master edition",
+      "publisher": "Panini Manga",
+      "normalizedPublisher": "panini manga",
+      "volumeNumber": 7,
+      "releaseDate": "2026-09-22",
+      "isbn13": null,
+      "coverUrl": "https://media.manga-passion.de/volume/cover/2025/0805/0012/bf0f9f9ad1bc5b2425b128610277d075.jpg",
+      "sourceUrl": "https://www.manga-passion.de/editions/5211",
+      "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
+      "evidence": "Manga Passion Edition, Verlag und Bandnummer wurden gegen die Bandliste abgeglichen.",
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 5211, Band 7). Ursprung: watchlist.",
+      "checkedAt": "2026-05-27T05:59:56.937Z"
+    },
+    {
+      "seriesTitle": "Berserk Master Edition",
+      "normalizedSeriesTitle": "berserk master edition",
+      "publisher": "Panini Manga",
+      "normalizedPublisher": "panini manga",
+      "volumeNumber": 8,
+      "releaseDate": "2026-12-15",
+      "isbn13": null,
+      "coverUrl": "https://media.manga-passion.de/volume/cover/2025/0805/0012/5ec044e704d84d84968984c06d45978e.jpg",
+      "sourceUrl": "https://www.manga-passion.de/editions/5211",
+      "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
+      "evidence": "Manga Passion Edition, Verlag und Bandnummer wurden gegen die Bandliste abgeglichen.",
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 5211, Band 8). Ursprung: watchlist.",
+      "checkedAt": "2026-05-27T05:59:56.937Z"
     },
     {
       "seriesTitle": "Bitte zieh dich an, Takamine!",
