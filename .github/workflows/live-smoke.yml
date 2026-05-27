@@ -1,0 +1,90 @@
+name: Live Smoke
+
+on:
+  workflow_dispatch:
+    inputs:
+      base_url:
+        description: 'Optional base URL to smoke-test'
+        required: false
+        default: 'https://sharkonek.github.io/manga-tracker/'
+  schedule:
+    - cron: '17 6 * * *'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: live-smoke
+  cancel-in-progress: false
+
+jobs:
+  live-smoke:
+    runs-on: ubuntu-latest
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+      LIVE_SMOKE_BASE_URL: ${{ inputs.base_url || 'https://sharkonek.github.io/manga-tracker/' }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+
+      - name: Syntax check live-smoke script
+        run: node --check scripts/live-smoke-pages.js
+
+      - name: Run GitHub Pages live smoke
+        run: node scripts/live-smoke-pages.js
+
+      - name: Check failure mail configuration
+        id: mail_config
+        if: failure()
+        env:
+          MAIL_HOST: ${{ secrets.MAIL_HOST }}
+          MAIL_USERNAME: ${{ secrets.MAIL_USERNAME }}
+          MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
+          MAIL_TO: ${{ secrets.MAIL_TO }}
+          MAIL_FROM: ${{ secrets.MAIL_FROM }}
+        run: |
+          if [ -n "$MAIL_HOST" ] && [ -n "$MAIL_USERNAME" ] && [ -n "$MAIL_PASSWORD" ] && [ -n "$MAIL_TO" ] && [ -n "$MAIL_FROM" ]; then
+            echo "enabled=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+            echo "MAIL_* secrets incomplete; skipping Live Smoke failure mail."
+          fi
+
+      - name: Write failure mail body
+        if: failure()
+        run: |
+          mkdir -p artifacts
+          {
+            echo "Manga Tracker Live Smoke Status"
+            echo ""
+            echo "Workflow: ${GITHUB_WORKFLOW}"
+            echo "Result: failure"
+            echo "Trigger: ${GITHUB_EVENT_NAME}"
+            echo "Base URL: ${LIVE_SMOKE_BASE_URL}"
+            echo "Branch: ${GITHUB_REF_NAME:-unknown}"
+            echo "Commit: ${GITHUB_SHA:0:7}"
+            echo "Run: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+            echo ""
+            echo "Manual review required: the published Pages site failed a read-only live smoke check."
+            echo "This mail contains only workflow metadata and no secrets or private data."
+          } > artifacts/live-smoke-failure-status-mail.txt
+
+      - name: Send failure mail
+        if: failure() && steps.mail_config.outputs.enabled == 'true'
+        continue-on-error: true
+        uses: dawidd6/action-send-mail@v17
+        with:
+          server_address: ${{ secrets.MAIL_HOST }}
+          server_port: ${{ vars.MAIL_PORT }}
+          username: ${{ secrets.MAIL_USERNAME }}
+          password: ${{ secrets.MAIL_PASSWORD }}
+          subject: "Manga Tracker Live Smoke: failure"
+          to: ${{ secrets.MAIL_TO }}
+          from: ${{ secrets.MAIL_FROM }}
+          body: file://artifacts/live-smoke-failure-status-mail.txt

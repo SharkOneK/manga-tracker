@@ -16,7 +16,7 @@
  *
  * Bewusst NICHT ausgeführt (nur Syntax-geprüft), weil sie Argumente, Netzwerk
  * oder Secrets benötigen: die Auto-Merge-Gates, die Pipeline-/Intake-/Snapshot-
- * Runner und die Status-Mail-Writer.
+ * Runner, der Live-Smoke und die Status-Mail-Writer.
  *
  * Nutzung (kanonisch, funktioniert auf Windows, macOS, Linux/CI):
  *   node scripts/run-all-checks.js        # alles
@@ -62,6 +62,7 @@ const SYNTAX_FILES = [
   'scripts/test-public-private-diff.js',
   'scripts/test-automerge-gate.js',
   'scripts/test-release-volume-counts.js',
+  'scripts/live-smoke-pages.js',
   'scripts/write-release-cache-coverage-report.js',
   'scripts/write-release-cache-coverage-summary.js',
   'scripts/write-release-cache-status-mail.js',
