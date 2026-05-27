@@ -643,7 +643,7 @@ console.log('\nPruefe: Phase 35 - Pending-Intake aus lokaler Queue\n');
   ['lokaler/sanitisierter Export-Hinweis', 'Lokaler, sanitisierter Export'],
   ['keine automatische Veroeffentlichung', 'keine automatische Veröffentlichung'],
   ['Phase-37-Wishlist-Coverage-Marker', 'Phase 37: Wishlist-Serien sind jetzt gültige Coverage-Kandidaten'],
-  ['Phase-37-Cover-Preserve-Marker', 'Phase 37: Cover-URL aus bestehendem Eintrag erhalten'],
+  ['Phase-44c-Cover-Preserve-Marker', 'Phase 44c: Der technische Serien-Cover-URL-Fallback ist kein Formularfeld mehr.'],
 ].forEach(([label, marker]) => {
   if (!appJs26.includes(marker)) fail('src/app.js: Phase-35-Marker fehlt: ' + label);
   else pass('src/app.js: Phase-35-Marker vorhanden: ' + label);
@@ -659,6 +659,38 @@ if (/fetch\([^)]*release-cache\.json[^)]*\)[\s\S]{0,160}\b(PUT|POST|PATCH|DELETE
   fail('src/app.js: direkter Browser-Schreibpfad auf data/release-cache.json gefunden');
 } else {
   pass('src/app.js: kein direkter Browser-Schreibpfad auf data/release-cache.json');
+}
+
+console.log('\nPruefe: Phase 44c - Genre/Tags und Cover-Fallback geschuetzt\n');
+
+if (html.includes('id="f-cover"') || html.includes('Cover-Bild URL')) {
+  fail('index.html: manuelles Cover-URL-Fallback-Feld ist noch in der Bearbeiten-Maske vorhanden');
+} else {
+  pass('index.html: manuelles Cover-URL-Fallback-Feld entfernt');
+}
+
+if (!html.includes('id="f-cover-auto"')) {
+  fail('index.html: Read-only-Cover-Anzeige f-cover-auto fehlt');
+} else {
+  pass('index.html: Read-only-Cover-Anzeige vorhanden');
+}
+
+if (html.includes('id="genre-picker"') || appJs26.includes('data-action="toggle-genre"') || appJs26.includes('function toggleGenre(')) {
+  fail('Genre/Tags sind noch als manuelle Picker-Aktion verdrahtet');
+} else {
+  pass('Genre/Tags-Picker ist aus der Bearbeiten-Maske entfernt');
+}
+
+if (!html.includes('id="genre-readout"')) {
+  fail('index.html: Read-only-Genre-Anzeige genre-readout fehlt');
+} else {
+  pass('index.html: Read-only-Genre-Anzeige vorhanden');
+}
+
+if (!appJs26.includes('resolveProtectedGenres(existing)') || !appJs26.includes('resolveProtectedCover(existing)')) {
+  fail('src/app.js: Phase-44c Preserve-Logik fuer Genres/Cover fehlt');
+} else {
+  pass('src/app.js: Phase-44c Preserve-Logik fuer Genres/Cover vorhanden');
 }
 
 console.log('\nPruefe: Phase 36a - Automatisierter Release-Datum-Intake fuer neue Manga\n');

@@ -142,13 +142,17 @@
         <button type="button" id="btn-release-check" class="form-wide-action hidden" data-action="open-release-preview" title="Release-Cache-Vorschau anzeigen">📅 Release-Cache-Vorschau anzeigen</button>
       </div>
       <div class="form-group">
-        <label>Cover-Bild URL <span class="form-label-hint">optional · Serien-Fallback wenn kein Band-1-Cover vorhanden ist</span></label>
-        <input id="f-cover" type="url" placeholder="https://...">
+        <label>Cover <span class="form-label-hint small">– automatisch / geschützt</span></label>
+        <div id="f-cover-auto" class="automation-readout" data-empty="Kein Serien-Cover-Fallback gesetzt. Band-Cover bleiben möglich.">
+          <span class="automation-readout-empty">Kein Serien-Cover-Fallback gesetzt. Band-Cover bleiben möglich.</span>
+        </div>
         <button type="button" class="form-wide-action" data-action="mp-sync-one" title="Band-Cover für diese Serie von Manga Passion laden">📥 Cover für diese Serie laden</button>
       </div>
       <div class="form-group">
-        <label>Genre / Tags</label>
-        <div class="genre-picker" id="genre-picker"></div>
+        <label>Genre / Tags <span class="form-label-hint small">– automatisch / geschützt</span></label>
+        <div class="genre-readout" id="genre-readout" data-empty="Noch keine automatische Genre-Quelle hinterlegt. Bestehende Tags bleiben erhalten.">
+          <span class="genre-readout-empty">Noch keine automatische Genre-Quelle hinterlegt. Bestehende Tags bleiben erhalten.</span>
+        </div>
       </div>
       <div class="form-group">
         <label>Notizen</label>
