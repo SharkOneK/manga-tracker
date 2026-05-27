@@ -7,7 +7,10 @@
     "doc": "docs"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "validate": "node scripts/run-all-checks.js",
+    "validate:syntax": "node scripts/run-all-checks.js --syntax-only",
+    "validate:run": "node scripts/run-all-checks.js --run-only",
+    "test": "node scripts/run-all-checks.js"
   },
   "repository": {
     "type": "git",
