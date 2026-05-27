@@ -99,6 +99,27 @@ Bekannte Restschuld: Die Owner-RPC-Funktion ist ein bewusst eng begrenzter `secu
 weil der statische GitHub-Pages-Client ohne Supabase Auth weiterhin private Owner-Daten mit
 `x-owner-token` laden können muss. Die Funktion gibt keine Token-Spalten zurück und nutzt
 `set search_path = ''`.
+
+## Phase 46d — CodeQL / GitHub Code Scanning
+
+Phase 46d aktiviert native GitHub-Code-Scanning-Analyse mit CodeQL als eigenen Workflow:
+
+- Workflow: `.github/workflows/codeql.yml`
+- Trigger: `push` auf `main`, `pull_request`, wöchentlicher Schedule montags um `05:23 UTC`
+- Sprache: `javascript-typescript`
+- Build-Modus: `none` (statische JavaScript-/TypeScript-Analyse ohne Build-Schritt)
+- Konfiguration: `.github/codeql/codeql-config.yml`
+- Berechtigungen: `contents: read`, `actions: read`, `security-events: write`
+
+CodeQL schreibt Findings in GitHub unter **Security → Code scanning**. Der Workflow ergänzt die
+bestehenden lokalen Prüfungen; er ersetzt ausdrücklich nicht `node scripts/security-audit-static.js`
+oder den Gesamt-Runner `node scripts/run-all-checks.js`.
+
+`vendor/**` ist in der CodeQL-Konfiguration ausgeschlossen, damit die lokal vendored JSZip-Datei
+nicht als First-Party-Quellcode bewertet wird. Die Supply-Chain-Absicherung für JSZip bleibt im
+statischen Audit erhalten: Existenz der lokalen Datei und lokale Einbindung statt CDN werden dort
+weiterhin geprüft.
+
 ## CSP-Status
 
 Phase 21 hat eine pragmatische CSP eingeführt.

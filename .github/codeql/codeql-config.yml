@@ -1,0 +1,7 @@
+name: "Manga Tracker CodeQL config"
+
+# Analyze first-party app and automation code. The vendored JSZip file
+# remains covered by security-audit-static.js for local supply-chain checks,
+# but is not scanned as first-party source code.
+paths-ignore:
+  - vendor/**
