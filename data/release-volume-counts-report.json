@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-05-26T17:47:44.862Z",
+  "generatedAt": "2026-05-27T16:50:10.268Z",
   "source": "run-release-volume-counts.js",
   "providerMode": "enabled",
   "policy": {
@@ -29,14 +29,14 @@
     "checkedCandidates": 45,
     "detectedChanges": 2,
     "appliedHighConfidenceChanges": 2,
-    "blockedOrUnsafe": 120
+    "blockedOrUnsafe": 122
   },
   "changes": [
     {
       "seriesTitle": "Demon Slave",
       "publisher": "KAZÉ Manga",
-      "oldPublishedVolumesDE": 3,
-      "newPublishedVolumesDE": 4,
+      "oldPublishedVolumesDE": 4,
+      "newPublishedVolumesDE": 5,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/509",
       "confidence": "high"
@@ -44,8 +44,8 @@
     {
       "seriesTitle": "Real Account",
       "publisher": "TOKYOPOP",
-      "oldPublishedVolumesDE": 7,
-      "newPublishedVolumesDE": 8,
+      "oldPublishedVolumesDE": 8,
+      "newPublishedVolumesDE": 9,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/819",
       "confidence": "high"
@@ -76,6 +76,22 @@
       "seriesTitle": "Berserk Master Edition",
       "publisher": "Panini Manga",
       "volumeNumber": 6,
+      "reasonCodes": [
+        "not-yet-released-or-invalid-date"
+      ]
+    },
+    {
+      "seriesTitle": "Berserk Master Edition",
+      "publisher": "Panini Manga",
+      "volumeNumber": 7,
+      "reasonCodes": [
+        "not-yet-released-or-invalid-date"
+      ]
+    },
+    {
+      "seriesTitle": "Berserk Master Edition",
+      "publisher": "Panini Manga",
+      "volumeNumber": 8,
       "reasonCodes": [
         "not-yet-released-or-invalid-date"
       ]
@@ -1438,7 +1454,7 @@
     {
       "seriesTitle": "Demon Slave",
       "publisher": "KAZÉ Manga",
-      "volumeNumber": 4,
+      "volumeNumber": 5,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/509",
       "confidence": "high",
@@ -1570,7 +1586,7 @@
     {
       "seriesTitle": "Real Account",
       "publisher": "TOKYOPOP",
-      "volumeNumber": 8,
+      "volumeNumber": 9,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/819",
       "confidence": "high",
