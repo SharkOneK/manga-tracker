@@ -61,6 +61,7 @@ const SYNTAX_FILES = [
   'scripts/test-public-projection.js',
   'scripts/test-public-private-diff.js',
   'scripts/test-automerge-gate.js',
+  'scripts/test-intake-automerge-gate.js',
   'scripts/test-release-volume-counts.js',
   'scripts/live-smoke-pages.js',
   'scripts/write-release-cache-coverage-report.js',
@@ -72,6 +73,7 @@ const SYNTAX_FILES = [
   'scripts/validate-release-source-review-queue.js',
   'scripts/validate-release-cache-pipeline-report.js',
   'scripts/validate-release-cache-automerge-gate.js',
+  'scripts/validate-release-intake-automerge-gate.js',
   'scripts/run-release-volume-counts.js',
   'scripts/validate-release-volume-counts.js',
   'scripts/validate-release-volume-counts-automerge-gate.js',
@@ -98,6 +100,7 @@ const RUN_CHECKS = [
   { label: 'Public/Private diff tests',             cmd: 'node', cmdArgs: ['scripts/test-public-private-diff.js'] },
   { label: 'Release volume count tests',            cmd: 'node', cmdArgs: ['scripts/test-release-volume-counts.js'] },
   { label: 'Auto-merge gate tests',                 cmd: 'node', cmdArgs: ['scripts/test-automerge-gate.js'] },
+  { label: 'Intake auto-merge gate tests',          cmd: 'node', cmdArgs: ['scripts/test-intake-automerge-gate.js'] },
   { label: 'Security audit (static)',               cmd: 'node', cmdArgs: ['scripts/security-audit-static.js'] },
   { label: 'git diff --check (whitespace/conflict)',cmd: 'git',  cmdArgs: ['diff', '--check'] },
 ];
