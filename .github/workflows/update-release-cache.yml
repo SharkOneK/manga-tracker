@@ -20,6 +20,9 @@ jobs:
       pr_number: ${{ steps.cpr.outputs.pull-request-number }}
       pr_url: ${{ steps.cpr.outputs.pull-request-url }}
       auto_merge_triggered: ${{ steps.auto_merge.outputs.triggered }}
+      auto_merge_gate_allowed: ${{ steps.automerge_gate.outputs.allowed }}
+      auto_merge_gate_class: ${{ steps.automerge_gate.outputs.class }}
+      auto_merge_gate_reason: ${{ steps.automerge_gate.outputs.reason }}
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
@@ -105,19 +108,15 @@ jobs:
           if git diff --quiet -- \
             data/release-cache.json \
             data/release-source-review-queue.json \
-            data/release-cache-pipeline-report.json \
-            docs/release-cache-coverage-gaps.md \
-            docs/release-cache-source-gap-analysis.md; then
+            data/release-cache-pipeline-report.json; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
-            echo "No release-cache pipeline changes detected."
+            echo "No release-cache data changes detected."
           else
             echo "changed=true" >> "$GITHUB_OUTPUT"
             git diff --stat -- \
               data/release-cache.json \
               data/release-source-review-queue.json \
-              data/release-cache-pipeline-report.json \
-              docs/release-cache-coverage-gaps.md \
-              docs/release-cache-source-gap-analysis.md
+              data/release-cache-pipeline-report.json
           fi
 
       - name: Create release-cache update PR
@@ -136,20 +135,18 @@ jobs:
             data/release-cache.json
             data/release-source-review-queue.json
             data/release-cache-pipeline-report.json
-            docs/release-cache-coverage-gaps.md
-            docs/release-cache-source-gap-analysis.md
 
       - name: Block auto-merge if PR number is missing
         if: steps.changes.outputs.changed == 'true' && steps.cpr.outputs.pull-request-number == ''
         run: |
           {
-            echo "## Release-Cache Auto-Merge Gate"
+            echo "## Release-Cache Phase 45 Auto-Merge Gate"
             echo ""
             echo "- Decision: blocked"
             echo "- Reason: PR number is missing; default deny."
           } >> "$GITHUB_STEP_SUMMARY"
 
-      - name: Validate report/queue-only auto-merge gate
+      - name: Validate Phase 45 release-cache auto-merge gate
         if: steps.cpr.outputs.pull-request-number != ''
         id: automerge_gate
         shell: bash
@@ -174,9 +171,10 @@ jobs:
 
           echo "allowed=$allowed" >> "$GITHUB_OUTPUT"
           echo "class=$gate_class" >> "$GITHUB_OUTPUT"
+          echo "reason=$reason" >> "$GITHUB_OUTPUT"
 
           {
-            echo "## Release-Cache Auto-Merge Gate"
+            echo "## Release-Cache Phase 45 Auto-Merge Gate"
             echo ""
             echo "- Decision: $([ "$allowed" = "true" ] && echo "allowed" || echo "blocked")"
             echo "- PR class: $gate_class"
@@ -188,10 +186,10 @@ jobs:
             echo "Workspace status is logged for diagnostics only and is not part of this auto-merge decision."
             echo ""
             echo "### Gate metrics"
-            node -e "const fs=require('fs'); const r=JSON.parse(fs.readFileSync(process.argv[1], 'utf8')); for (const key of ['cachePatches','safeToPatchBefore','safeToPatchAfter']) if (Object.prototype.hasOwnProperty.call(r, key)) console.log('- ' + key + ': ' + r[key])" "$RUNNER_TEMP/automerge-gate.json"
+            node -e "const fs=require('fs'); const r=JSON.parse(fs.readFileSync(process.argv[1], 'utf8')); for (const key of ['cachePatches','changedCacheItems','deletedCacheItems','safeToPatchBefore','safeToPatchAfter']) if (Object.prototype.hasOwnProperty.call(r, key)) console.log('- ' + key + ': ' + r[key])" "$RUNNER_TEMP/automerge-gate.json"
           } >> "$GITHUB_STEP_SUMMARY"
 
-      - name: Enable auto-merge for safe report/queue-only PRs
+      - name: Enable auto-merge for safe Phase 45 release-cache PRs
         if: steps.automerge_gate.outputs.allowed == 'true'
         id: auto_merge
         env:
@@ -253,6 +251,9 @@ jobs:
           PR_NUMBER: ${{ needs.update-release-cache.outputs.pr_number }}
           PR_URL: ${{ needs.update-release-cache.outputs.pr_url }}
           AUTO_MERGE_TRIGGERED: ${{ needs.update-release-cache.outputs.auto_merge_triggered }}
+          AUTO_MERGE_GATE_ALLOWED: ${{ needs.update-release-cache.outputs.auto_merge_gate_allowed }}
+          AUTO_MERGE_GATE_CLASS: ${{ needs.update-release-cache.outputs.auto_merge_gate_class }}
+          AUTO_MERGE_GATE_REASON: ${{ needs.update-release-cache.outputs.auto_merge_gate_reason }}
         run: |
           mkdir -p artifacts
           node scripts/write-release-cache-status-mail.js \

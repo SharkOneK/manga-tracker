@@ -657,8 +657,9 @@ runTest('Phase 42b: write-release-source-review-queue.js hat keinen festen Sourc
 });
 
 
-// Phase 42c: Update Release Cache must sync generated coverage docs before validation.
-runTest('Phase 42c: update-release-cache.yml synchronisiert Coverage-Gap-Dokumente vor Validierung', function() {
+// Phase 45: Update Release Cache still syncs generated coverage docs before validation,
+// but bot PRs manage only data files so the release-cache auto-merge allowlist stays narrow.
+runTest('Phase 45: update-release-cache.yml synchronisiert Coverage-Dokumente, PR bleibt data-only', function() {
   const fs2 = require('fs');
   const path2 = require('path');
   const wfPath = path2.resolve(__dirname, '../.github/workflows/update-release-cache.yml');
@@ -667,7 +668,12 @@ runTest('Phase 42c: update-release-cache.yml synchronisiert Coverage-Gap-Dokumen
   const validateIdx = wf.indexOf('node scripts/validate-release-source-review-queue.js');
   assert.ok(syncIdx >= 0, 'Workflow must run sync-release-coverage-gap-docs.js');
   assert.ok(validateIdx >= 0 && syncIdx < validateIdx, 'Workflow must sync docs before queue/doc validation');
-  assert.ok(wf.includes('docs/release-cache-source-gap-analysis.md'), 'Workflow must include source-gap analysis doc in managed PR files');
+  const addPaths = (wf.match(/add-paths:\s*\|([\s\S]*?)\n\s*\n\s*- name:/) || [null, ''])[1];
+  assert.ok(addPaths.includes('data/release-cache.json'), 'Managed PR files must include release-cache data');
+  assert.ok(addPaths.includes('data/release-source-review-queue.json'), 'Managed PR files must include review queue data');
+  assert.ok(addPaths.includes('data/release-cache-pipeline-report.json'), 'Managed PR files must include pipeline report data');
+  assert.ok(!addPaths.includes('docs/release-cache-source-gap-analysis.md'), 'Managed PR files must not include source-gap analysis docs in Phase 45 auto-merge PRs');
+  assert.ok(!addPaths.includes('docs/release-cache-coverage-gaps.md'), 'Managed PR files must not include coverage docs in Phase 45 auto-merge PRs');
 });
 
 runTest('Phase 42c: Coverage-Gap-Validator hat keine festen Gap-Zahlen', function() {

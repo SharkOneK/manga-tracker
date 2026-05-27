@@ -55,6 +55,9 @@ const JOB_RESULT           = process.env.JOB_RESULT            || 'unknown';
 const PR_NUMBER            = process.env.PR_NUMBER             || '';  // eslint-disable-line no-unused-vars
 const PR_URL               = process.env.PR_URL                || '';
 const AUTO_MERGE_TRIGGERED = process.env.AUTO_MERGE_TRIGGERED === 'true';
+const AUTO_MERGE_GATE_ALLOWED = process.env.AUTO_MERGE_GATE_ALLOWED || '';
+const AUTO_MERGE_GATE_CLASS = process.env.AUTO_MERGE_GATE_CLASS || '';
+const AUTO_MERGE_GATE_REASON = process.env.AUTO_MERGE_GATE_REASON || '';
 
 // ── Run-Link ────────────────────────────────────────────────────────────────
 const RUN_URL = RUN_ID
@@ -150,6 +153,10 @@ const bodyParts = [
   'Commit: '     + SHORT_SHA,
   'Run: '        + (RUN_URL || '(kein Run-Link verfügbar)'),
   reportSection,
+  '',
+  'Gate: ' + (AUTO_MERGE_GATE_ALLOWED ? (AUTO_MERGE_GATE_ALLOWED === 'true' ? 'allowed' : 'blocked') : '(nicht ausgefuehrt)'),
+  'Gate-Klasse: ' + (AUTO_MERGE_GATE_CLASS || '(unbekannt)'),
+  'Gate-Grund: ' + (AUTO_MERGE_GATE_REASON || '(unbekannt)'),
   '',
   prLine(),
 ];
