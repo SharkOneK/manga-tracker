@@ -76,6 +76,7 @@ const SYNTAX_FILES = [
   'scripts/validate-release-volume-counts.js',
   'scripts/validate-release-volume-counts-automerge-gate.js',
   'scripts/apply-release-intake-candidates.js',
+  'scripts/update-vault-frontmatter.js',
 ];
 
 // ── Phase 2: Ausgeführte Checks (deckt CI ab + ergänzt fehlende Validatoren) ──
