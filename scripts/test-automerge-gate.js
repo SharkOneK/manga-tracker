@@ -8,18 +8,46 @@ const path = require('path');
 const { execFileSync } = require('child_process');
 const { evaluateAutoMergeGate, getChangedFiles } = require('./validate-release-cache-automerge-gate');
 
-const allowedFiles = [
+const allowedReportQueueFiles = [
   'data/release-cache-pipeline-report.json',
   'data/release-source-review-queue.json',
 ];
 
+const sourcesDoc = {
+  schemaVersion: 1,
+  sources: [
+    {
+      id: 'manga-passion',
+      name: 'Manga Passion',
+      publisherAliases: [],
+      baseUrl: 'https://www.manga-passion.de',
+      allowedUrls: ['https://www.manga-passion.de'],
+      enabled: true,
+    },
+    {
+      id: 'egmont',
+      name: 'Egmont Manga',
+      publisherAliases: ['Egmont', 'Egmont Manga'],
+      baseUrl: 'https://www.egmont-manga.de',
+      allowedUrls: ['https://www.egmont-manga.de'],
+      enabled: true,
+    },
+  ],
+};
+
 function report(overrides = {}) {
   return {
     schemaVersion: 1,
+    source: 'run-release-cache-pipeline.js',
     summary: {
       cachePatches: 0,
+      reviewQueueWrites: 0,
+      invalidExistingCache: 0,
       ...overrides.summary,
     },
+    cachePatches: [],
+    reviewQueueWrites: [],
+    blockedCandidates: [],
     autoMergeEligible: false,
     ...overrides,
   };
@@ -41,18 +69,75 @@ function queueEntry(overrides = {}) {
   };
 }
 
+function cacheItem(overrides = {}) {
+  return {
+    seriesTitle: 'Example Series',
+    normalizedSeriesTitle: 'example series',
+    publisher: 'Egmont Manga',
+    normalizedPublisher: 'egmont manga',
+    volumeNumber: 1,
+    releaseDate: '2026-06-01',
+    isbn13: null,
+    coverUrl: null,
+    sourceUrl: 'https://www.manga-passion.de/editions/1234',
+    sourceName: 'Manga Passion',
+    providerId: 'manga-passion',
+    evidence: 'Manga Passion Edition, Verlag und Bandnummer wurden gegen die Bandliste abgeglichen.',
+    confidence: 'high',
+    notes: 'Automatisch per Release-Cache-Pipeline bestaetigt.',
+    checkedAt: '2026-05-27T00:00:00.000Z',
+    ...overrides,
+  };
+}
+
+function cacheDoc(items = []) {
+  return {
+    schemaVersion: 1,
+    generatedAt: '2026-05-27T00:00:00.000Z',
+    source: 'run-release-cache-pipeline.js',
+    itemCount: items.length,
+    items,
+  };
+}
+
+function releaseCacheReportFor(item, overrides = {}) {
+  return report({
+    summary: { cachePatches: 1, reviewQueueWrites: 0, invalidExistingCache: 0 },
+    autoMergeEligible: true,
+    cachePatches: [
+      {
+        action: 'add',
+        key: `${item.normalizedSeriesTitle}|${item.normalizedPublisher}|${item.volumeNumber}`,
+        seriesTitle: item.seriesTitle,
+        publisher: item.publisher,
+        volumeNumber: item.volumeNumber,
+        releaseDate: item.releaseDate,
+        sourceName: item.sourceName,
+        providerId: item.providerId,
+        sourceUrl: item.sourceUrl,
+        confidence: item.confidence,
+        ...overrides.patch,
+      },
+    ],
+    ...overrides.report,
+  });
+}
+
 function evaluate(overrides = {}) {
   return evaluateAutoMergeGate({
-    changedFiles: allowedFiles,
+    changedFiles: allowedReportQueueFiles,
     pipelineReport: report(),
     beforeQueue: [queueEntry()],
     afterQueue: [queueEntry()],
+    beforeCache: cacheDoc([]),
+    afterCache: cacheDoc([]),
+    sources: sourcesDoc,
     ...overrides,
   });
 }
 
 function assertAllowed(name, result) {
-  assert.strictEqual(result.allowed, true, `${name}: expected allowed, got ${result.reason}`);
+  assert.strictEqual(result.allowed, true, `${name}: expected allowed, got ${result.reason}${result.errors ? ` (${result.errors.join('; ')})` : ''}`);
 }
 
 function assertBlocked(name, result, reasonIncludes) {
@@ -111,6 +196,34 @@ const tests = [
     },
   ],
   [
+    'safe high-confidence release-cache add is allowed by Phase 45 data gate',
+    () => {
+      const item = cacheItem();
+      const result = evaluate({
+        changedFiles: ['data/release-cache.json', 'data/release-cache-pipeline-report.json'],
+        pipelineReport: releaseCacheReportFor(item),
+        beforeCache: cacheDoc([]),
+        afterCache: cacheDoc([item]),
+      });
+      assertAllowed('safe release-cache add', result);
+      assert.strictEqual(result.class, 'release-cache-high-confidence-only');
+    },
+  ],
+  [
+    'safe high-confidence release-cache update is allowed by Phase 45 data gate',
+    () => {
+      const before = cacheItem({ releaseDate: '2026-05-01', checkedAt: '2026-05-20T00:00:00.000Z' });
+      const after = cacheItem({ releaseDate: '2026-06-01', checkedAt: '2026-05-27T00:00:00.000Z' });
+      const result = evaluate({
+        changedFiles: ['data/release-cache.json', 'data/release-cache-pipeline-report.json'],
+        pipelineReport: releaseCacheReportFor(after),
+        beforeCache: cacheDoc([before]),
+        afterCache: cacheDoc([after]),
+      });
+      assertAllowed('safe release-cache update', result);
+    },
+  ],
+  [
     'standard changed-file discovery ignores untracked artifacts',
     () =>
       withTempGitRepo((repo) => {
@@ -132,7 +245,7 @@ const tests = [
       assertBlocked(
         'committed artifact path',
         evaluate({ changedFiles: ['data/release-cache-pipeline-report.json', 'artifacts/release-cache-coverage-report.json'] }),
-        /artifacts\/release-cache-coverage-report\.json is not in the Phase 32a allowlist/,
+        /artifacts\/release-cache-coverage-report\.json is not in the Phase 45 allowlist/,
       ),
   ],
   [
@@ -144,15 +257,6 @@ const tests = [
           afterQueue: [queueEntry({ safeToPatch: true, reviewStatus: 'ready-to-patch', sourceUrl: 'https://example.com', releaseDate: '2026-06-01', evidence: 'source', checkedAt: '2026-05-20T00:00:00.000Z' })],
         }),
         /safeToPatch=true count increased/,
-      ),
-  ],
-  [
-    'release-cache change blocks',
-    () =>
-      assertBlocked(
-        'release-cache changed',
-        evaluate({ changedFiles: ['data/release-cache.json', 'data/release-cache-pipeline-report.json'] }),
-        /data\/release-cache\.json changed/,
       ),
   ],
   [
@@ -180,6 +284,10 @@ const tests = [
     () => assertBlocked('supabase changed', evaluate({ changedFiles: ['supabase/migrations/foo.sql'] }), /supabase\//),
   ],
   [
+    'docs change blocks',
+    () => assertBlocked('docs changed', evaluate({ changedFiles: ['docs/release-cache-coverage-gaps.md'] }), /docs\//),
+  ],
+  [
     'missing pipeline report blocks',
     () => assertBlocked('missing report', evaluate({ pipelineReport: null }), /Pipeline report fehlt/),
   ],
@@ -188,11 +296,133 @@ const tests = [
     () => assertBlocked('invalid report', evaluate({ pipelineReport: '{' }), /could not evaluate safely/),
   ],
   [
-    'cachePatches > 0 blocks',
+    'cachePatches > 0 blocks report/queue-only class',
     () => assertBlocked('cache patches', evaluate({ pipelineReport: report({ summary: { cachePatches: 1 } }) }), /cachePatches is 1/),
   ],
   [
-    'new releaseDate without sourceUrl blocks',
+    'release-cache change without report blocks',
+    () => assertBlocked('cache without report', evaluate({ changedFiles: ['data/release-cache.json'] }), /require data\/release-cache-pipeline-report\.json/),
+  ],
+  [
+    'release-cache delete blocks',
+    () => {
+      const item = cacheItem();
+      const result = evaluate({
+        changedFiles: ['data/release-cache.json', 'data/release-cache-pipeline-report.json'],
+        pipelineReport: releaseCacheReportFor(item),
+        beforeCache: cacheDoc([item]),
+        afterCache: cacheDoc([]),
+      });
+      assertBlocked('cache delete', result, /data gate failed/);
+      assert.ok(result.errors.some(error => /deletions/.test(error)));
+    },
+  ],
+  [
+    'release-cache low confidence blocks',
+    () => {
+      const item = cacheItem({ confidence: 'medium' });
+      const result = evaluate({
+        changedFiles: ['data/release-cache.json', 'data/release-cache-pipeline-report.json'],
+        pipelineReport: releaseCacheReportFor(item, { patch: { confidence: 'medium' } }),
+        beforeCache: cacheDoc([]),
+        afterCache: cacheDoc([item]),
+      });
+      assertBlocked('low confidence cache item', result, /data gate failed/);
+      assert.ok(result.errors.some(error => /confidence/.test(error)));
+    },
+  ],
+  [
+    'release-cache item without providerId blocks',
+    () => {
+      const item = cacheItem({ providerId: null });
+      const result = evaluate({
+        changedFiles: ['data/release-cache.json', 'data/release-cache-pipeline-report.json'],
+        pipelineReport: releaseCacheReportFor(item, { patch: { providerId: null } }),
+        beforeCache: cacheDoc([]),
+        afterCache: cacheDoc([item]),
+      });
+      assertBlocked('missing providerId', result, /data gate failed/);
+      assert.ok(result.errors.some(error => /providerId/.test(error)));
+    },
+  ],
+  [
+    'release-cache item with private field blocks',
+    () => {
+      const item = cacheItem({ ownerId: 'private-user' });
+      const result = evaluate({
+        changedFiles: ['data/release-cache.json', 'data/release-cache-pipeline-report.json'],
+        pipelineReport: releaseCacheReportFor(item),
+        beforeCache: cacheDoc([]),
+        afterCache: cacheDoc([item]),
+      });
+      assertBlocked('private field', result, /data gate failed/);
+      assert.ok(result.errors.some(error => /private field/.test(error)));
+    },
+  ],
+  [
+    'release-cache item with empty publisher blocks',
+    () => {
+      const item = cacheItem({ publisher: '', normalizedPublisher: '' });
+      const result = evaluate({
+        changedFiles: ['data/release-cache.json', 'data/release-cache-pipeline-report.json'],
+        pipelineReport: releaseCacheReportFor(item),
+        beforeCache: cacheDoc([]),
+        afterCache: cacheDoc([item]),
+      });
+      assertBlocked('empty publisher', result, /data gate failed/);
+      assert.ok(result.errors.some(error => /publisher/.test(error)));
+    },
+  ],
+  [
+    'release-cache item with disallowed source URL blocks',
+    () => {
+      const item = cacheItem({ sourceUrl: 'https://example.invalid/editions/1' });
+      const result = evaluate({
+        changedFiles: ['data/release-cache.json', 'data/release-cache-pipeline-report.json'],
+        pipelineReport: releaseCacheReportFor(item),
+        beforeCache: cacheDoc([]),
+        afterCache: cacheDoc([item]),
+      });
+      assertBlocked('disallowed source', result, /data gate failed/);
+      assert.ok(result.errors.some(error => /sourceUrl/.test(error)));
+    },
+  ],
+  [
+    'release-cache item for special edition blocks',
+    () => {
+      const item = cacheItem({ seriesTitle: 'Example Master Edition', normalizedSeriesTitle: 'example master edition' });
+      const result = evaluate({
+        changedFiles: ['data/release-cache.json', 'data/release-cache-pipeline-report.json'],
+        pipelineReport: releaseCacheReportFor(item),
+        beforeCache: cacheDoc([]),
+        afterCache: cacheDoc([item]),
+      });
+      assertBlocked('special edition', result, /data gate failed/);
+      assert.ok(result.errors.some(error => /special edition/.test(error)));
+    },
+  ],
+  [
+    'release-cache report with reviewQueueWrites blocks',
+    () => {
+      const item = cacheItem();
+      const result = evaluate({
+        changedFiles: ['data/release-cache.json', 'data/release-cache-pipeline-report.json'],
+        pipelineReport: releaseCacheReportFor(item, {
+          report: {
+            autoMergeEligible: false,
+            summary: { cachePatches: 1, reviewQueueWrites: 1, invalidExistingCache: 0 },
+            reviewQueueWrites: [{ key: 'other', confidence: 'low' }],
+          },
+        }),
+        beforeCache: cacheDoc([]),
+        afterCache: cacheDoc([item]),
+      });
+      assertBlocked('reviewQueueWrites', result, /data gate failed/);
+      assert.ok(result.errors.some(error => /reviewQueueWrites|autoMergeEligible/.test(error)));
+    },
+  ],
+  [
+    'new releaseDate in queue without sourceUrl blocks',
     () =>
       assertBlocked(
         'releaseDate without sourceUrl',
@@ -201,7 +431,7 @@ const tests = [
       ),
   ],
   [
-    'new releaseDate without evidence blocks',
+    'new releaseDate in queue without evidence blocks',
     () =>
       assertBlocked(
         'releaseDate without evidence',
