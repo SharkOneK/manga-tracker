@@ -160,3 +160,57 @@ jobs:
             echo ""
             echo "Next: **Update Release Cache** runs at 04:17 UTC and will process the updated watchlist once the PR is merged."
           } >> "$GITHUB_STEP_SUMMARY"
+
+  notify:
+    name: Send failure status mail
+    needs: release-intake
+    if: always() && needs.release-intake.result == 'failure'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check mail configuration
+        id: mail_config
+        env:
+          MAIL_HOST: ${{ secrets.MAIL_HOST }}
+          MAIL_USERNAME: ${{ secrets.MAIL_USERNAME }}
+          MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
+          MAIL_TO: ${{ secrets.MAIL_TO }}
+          MAIL_FROM: ${{ secrets.MAIL_FROM }}
+        run: |
+          if [ -n "$MAIL_HOST" ] && [ -n "$MAIL_USERNAME" ] && [ -n "$MAIL_PASSWORD" ] && [ -n "$MAIL_TO" ] && [ -n "$MAIL_FROM" ]; then
+            echo "enabled=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+            echo "MAIL_* secrets incomplete; skipping Release Intake failure mail."
+          fi
+
+      - name: Write failure mail body
+        run: |
+          mkdir -p artifacts
+          {
+            echo "Manga Tracker Release Intake Status"
+            echo ""
+            echo "Workflow: ${GITHUB_WORKFLOW}"
+            echo "Result: ${{ needs.release-intake.result }}"
+            echo "Trigger: ${GITHUB_EVENT_NAME}"
+            echo "Branch: ${GITHUB_REF_NAME:-unknown}"
+            echo "Commit: ${GITHUB_SHA:0:7}"
+            echo "Run: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+            echo ""
+            echo "Manual review required: Release Intake failed before a safe no-op/PR result."
+            echo "This mail contains only workflow metadata and no secrets or private data."
+          } > artifacts/release-intake-failure-status-mail.txt
+
+      - name: Send failure mail
+        if: steps.mail_config.outputs.enabled == 'true'
+        continue-on-error: true
+        uses: dawidd6/action-send-mail@v17
+        with:
+          server_address: ${{ secrets.MAIL_HOST }}
+          server_port: ${{ vars.MAIL_PORT }}
+          username: ${{ secrets.MAIL_USERNAME }}
+          password: ${{ secrets.MAIL_PASSWORD }}
+          subject: "Manga Tracker Release Intake: ${{ needs.release-intake.result }}"
+          to: ${{ secrets.MAIL_TO }}
+          from: ${{ secrets.MAIL_FROM }}
+          body: file://artifacts/release-intake-failure-status-mail.txt
