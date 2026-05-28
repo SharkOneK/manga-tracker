@@ -6,10 +6,10 @@
   "summary": {
     "knownSourceGaps": 28,
     "totalGaps": 91,
-    "safeToPatch": 13,
-    "pendingManualReview": 78,
-    "autoReviewed": 72,
-    "patched": 13
+    "safeToPatch": 14,
+    "pendingManualReview": 77,
+    "autoReviewed": 71,
+    "patched": 14
   },
   "sortOrder": "priority(sehr hoch, hoch, mittel, niedrig), seriesTitle, publisher, volumeNumber",
   "queue": [
@@ -3150,27 +3150,22 @@
       "manualSourceReviewNeeded": true,
       "checkedSources": [],
       "sourceAnalysisEvidence": "",
-      "safeToPatch": false,
-      "reviewStatus": "auto-low-confidence",
-      "sourceUrl": "https://www.carlsen.de",
-      "releaseDate": null,
-      "checkedAt": "2026-05-25T05:48:59.277Z",
-      "evidence": "Automatische Quellenprüfung: no-edition-found. Confidence: low. Gruende: missing-source-edition-title, missing-source-publisher, missing-source-volume-number, missing-release-date.",
-      "notes": "Automatisch geprüft; nicht sicher genug für den öffentlichen Cache.",
-      "sourceConfidence": "low",
-      "sourceName": "Carlsen Manga",
-      "sourceEditionId": null,
-      "sourceEditionTitle": null,
-      "sourcePublisher": null,
-      "sourceVolumeNumber": null,
-      "sourceResult": "no-edition-found",
-      "confidenceReasons": [
-        "missing-source-edition-title",
-        "missing-source-publisher",
-        "missing-source-volume-number",
-        "missing-release-date"
-      ],
-      "providerId": "carlsen"
+      "safeToPatch": true,
+      "reviewStatus": "patched",
+      "sourceUrl": "https://www.manga-passion.de/editions/2015",
+      "releaseDate": "2026-12-01",
+      "checkedAt": "2026-05-28T17:45:41.655Z",
+      "evidence": "Automatische Quellenprüfung: volume-found. Confidence: high. Alle High-Confidence-Regeln erfüllt. Edition: 2015. Score: 100.",
+      "notes": "Automatisch in data/release-cache.json übernommen.",
+      "sourceConfidence": "high",
+      "sourceName": "Manga Passion",
+      "sourceEditionId": 2015,
+      "sourceEditionTitle": "August 9th, I will be eaten by you",
+      "sourcePublisher": "Hayabusa",
+      "sourceVolumeNumber": 6,
+      "sourceResult": "volume-found",
+      "confidenceReasons": [],
+      "providerId": "manga-passion"
     },
     {
       "queueKey": "Die letzte Elfe|Yomeru|3",
