@@ -78,6 +78,7 @@ const SYNTAX_FILES = [
   'scripts/validate-release-volume-counts.js',
   'scripts/validate-release-volume-counts-automerge-gate.js',
   'scripts/apply-release-intake-candidates.js',
+  'scripts/report-catalog-lifecycle.js',
   'scripts/update-vault-frontmatter.js',
 ];
 

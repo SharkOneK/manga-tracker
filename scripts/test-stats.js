@@ -1630,5 +1630,35 @@ test('Phase 36a: Keine Browser-Write-Pfade auf data/*.json in neuen Phase-36a-Fu
   assert.ok(!forbidden.test(fnCode), 'resolveEmptyPublisherPendingCandidates darf keinen externen Schreibpfad enthalten');
 });
 
+test('Phase 47: Katalog-Seed-Funktionen und Backfill-Aktion existieren', () => {
+  const fs = require('fs');
+  const appJs = fs.readFileSync('src/app.js', 'utf8');
+  assert.ok(appJs.includes('function collectCatalogSeedCandidates'), 'collectCatalogSeedCandidates muss existieren');
+  assert.ok(appJs.includes('function maybeSeedCatalogFromCollection'), 'maybeSeedCatalogFromCollection muss existieren');
+  assert.ok(appJs.includes('function seedCatalogBackfill'), 'seedCatalogBackfill muss existieren');
+  assert.ok(appJs.includes('data-action="seed-catalog-backfill"'), 'Dashboard muss Backfill-Aktion anbieten');
+});
+
+test('Phase 47: doSave, markBought und setBandStatus triggern Katalog-Seed', () => {
+  const fs = require('fs');
+  const appJs = fs.readFileSync('src/app.js', 'utf8');
+  ['doSave', 'markBought', 'setBandStatus'].forEach(name => {
+    const start = appJs.indexOf(`function ${name}(`);
+    const end = appJs.indexOf('\nfunction ', start + 1);
+    const fnCode = start >= 0 && end > start ? appJs.slice(start, end) : '';
+    assert.ok(fnCode.includes('maybeSeedCatalogFromCollection('), `${name} muss maybeSeedCatalogFromCollection aufrufen`);
+  });
+});
+
+test('Phase 47: Katalog-Seed nutzt nur bestehenden Supabase-RPC und keine data/*.json Writes', () => {
+  const fs = require('fs');
+  const appJs = fs.readFileSync('src/app.js', 'utf8');
+  const start = appJs.indexOf('function collectCatalogSeedCandidates(');
+  const end = appJs.indexOf('\nfunction validateReleaseVolumeCountsClient', start + 1);
+  const fnCode = start >= 0 && end > start ? appJs.slice(start, end) : '';
+  assert.ok(fnCode.includes('submitMangaCatalogCandidate('), 'Katalog-Seed muss bestehende Supabase-RPC-Huelle verwenden');
+  assert.ok(!/release-watchlist\.json|release-cache\.json|api\.github\.com|pushCloud\s*\(|writeFile/.test(fnCode), 'Katalog-Seed darf nicht auf Repo-Dateien/GitHub schreiben');
+});
+
 console.log(`\n${passed + failed} Tests — ${passed} bestanden, ${failed} fehlgeschlagen\n`);
 if (failed > 0) process.exit(1);

@@ -991,6 +991,7 @@ function renderDashboard() {
         <button type="button" class="add-btn dashboard-action-btn" data-action="mp-sync-all"${coverSyncDisabledAttr}>Alle Band-Cover laden</button>
         <p class="stats-empty-note">Release-Cache, Review-Queue und DE-Bandstand werden vollautomatisch per GitHub-Action/Pipeline (Phase 25/32/42/43) gepflegt. Lokale Bearbeiten-Maske zeigt Automationswerte read-only an (Phase 44b).</p>
         <p class="stats-empty-note">${coverSyncNote}</p>
+        ${canWriteCloud() ? renderAutoReleaseIntakeToggle() + renderCatalogSeedBackfillAction() : ''}
       </div>
       ${renderLocalReleaseCoveragePendingSummary()}
     </div>
@@ -2000,8 +2001,12 @@ function mergePreservedFields(existing, entry) {
 
 // Bestimmt den Zielband für Release-Abgleich — kapselt inline-Ausdruck
 function getReleaseTargetVolume(m) {
-  if (m.ongoing === 'false' && mFirstMissingBand(m) === null) return null;
-  return mFirstMissingBand(m) !== null ? mFirstMissingBand(m) : mNextBand(m);
+  const firstMissing = mFirstMissingBand(m);
+  const total = Number(m.total);
+  const totalKnown = !isNaN(total) && total > 0;
+  if (m.ongoing === 'false') return totalKnown && firstMissing !== null ? firstMissing : null;
+  if (m.ongoing === 'true') return firstMissing !== null ? firstMissing : mNextBand(m);
+  return totalKnown && firstMissing !== null ? firstMissing : null;
 }
 
 // ─── Duplikaterkennung ────────────────────────────────────────────────────
@@ -2134,6 +2139,7 @@ function doSave() {
   }
   persist();
   maybeRunLocalReleaseCoverageCheck(entry);
+  maybeSeedCatalogFromCollection(entry);
   closeModal();
   render();
   toast(editId ? '✅ Manga aktualisiert' : `✅ „${title}" hinzugefügt`);
@@ -2178,6 +2184,7 @@ function markBought(id, e) {
   persist();
   // Phase 36a: nach Bandkauf nächsten Zielband automatisch in Coverage-Pending aufnehmen
   maybeRunLocalReleaseCoverageCheck(m);
+  maybeSeedCatalogFromCollection(m);
   render();
   toast(`✅ Band ${nextBand} von „${m.title}" zu „Zu lesen" hinzugefügt`);
 }
@@ -2199,6 +2206,7 @@ function setBandStatus(id, bandNr, status, e) {
   m.current = mCurrent(m);   // Rückwärtskompatibilität
   if (m.status !== 'wishlist') m.status = mSeriesStatus(m);
   persist();
+  maybeSeedCatalogFromCollection(m);
   render();
   toast(`✅ Band ${nr} von „${m.title}" ist jetzt „${ST_LABEL[status] || status}"`);
 }
@@ -2960,7 +2968,6 @@ function renderLocalReleaseCoveragePendingSummary() {
       <button type="button" class="add-btn dashboard-action-btn" data-action="delete-local-release-coverage-pending">Pending-Kandidaten löschen</button>
     </div>
     <p class="stats-empty-note">Copy mutiert nichts. Löschen/Mark-reviewed ändert ausschließlich localStorage.mtReleaseCoveragePending.</p>
-    ${canWriteCloud() ? renderAutoReleaseIntakeToggle() : ''}
   </div>`;
 }
 
@@ -3043,6 +3050,188 @@ async function loadJsonReadOnly(url) {
   const res = await fetch(url, { cache: 'no-store' });
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   return res.json();
+}
+
+// Phase 47: Seed real volume rows into the shared Supabase catalog candidate queue.
+// This is separate from the release target check, so complete short series are not skipped.
+const CATALOG_SEED_ALLOWED_RESULTS = new Set([
+  'submitted', 'updated', 'already_verified', 'already_rejected',
+]);
+const CATALOG_SEED_BACKFILL_BATCH_SIZE = 25;
+const CATALOG_SEED_BACKFILL_DELAY_MS = 400;
+let _catalogBackfillRunning = false;
+
+function catalogSeedKey(candidate) {
+  return [
+    normalizeReleaseTitle(candidate && candidate.seriesTitle || ''),
+    normalizeReleasePublisher(candidate && candidate.publisher || ''),
+    Number(candidate && candidate.volumeNumber),
+  ].join('|');
+}
+
+function isCatalogSeedSendAllowed() {
+  if (isPublicReadOnly()) return false;
+  if (!canWriteCloud()) return false;
+  if (!getAutoReleaseIntakeSetting()) return false;
+  return !!(window.MangaTrackerSupabase && typeof window.MangaTrackerSupabase.submitMangaCatalogCandidate === 'function');
+}
+
+function collectCatalogSeedCandidates(manga) {
+  if (!manga || typeof manga !== 'object') return [];
+  const seriesTitle = String(manga.title || '').trim();
+  const publisher = String(manga.pub || '').trim();
+  if (!seriesTitle || !publisher) return [];
+  if (isPendingCoverageDummyTitle(seriesTitle)) return [];
+
+  const bands = manga.bands && typeof manga.bands === 'object' ? manga.bands : {};
+  const volumes = Object.keys(bands)
+    .map(Number)
+    .filter(volume => Number.isInteger(volume) && volume >= 1)
+    .sort((a, b) => a - b);
+
+  return Array.from(new Set(volumes)).map(volumeNumber => ({
+    seriesTitle,
+    publisher,
+    volumeNumber,
+    sourceUrl: null,
+    origin: 'browser',
+  }));
+}
+
+function collectCatalogSeedBackfillCandidates(mangaList = db.m) {
+  const byKey = new Map();
+  (Array.isArray(mangaList) ? mangaList : []).forEach(manga => {
+    collectCatalogSeedCandidates(manga).forEach(candidate => {
+      const key = catalogSeedKey(candidate);
+      if (!byKey.has(key)) byKey.set(key, candidate);
+    });
+  });
+  return Array.from(byKey.values()).sort((a, b) =>
+    normalizeReleaseTitle(a.seriesTitle).localeCompare(normalizeReleaseTitle(b.seriesTitle), 'de') ||
+    normalizeReleasePublisher(a.publisher).localeCompare(normalizeReleasePublisher(b.publisher), 'de') ||
+    Number(a.volumeNumber) - Number(b.volumeNumber)
+  );
+}
+
+function buildCatalogSeedSubmission(candidate) {
+  if (!candidate || typeof candidate !== 'object') return null;
+  const seriesTitle = String(candidate.seriesTitle || '').trim();
+  const publisher = String(candidate.publisher || '').trim();
+  const volumeNumber = Number(candidate.volumeNumber);
+  if (!seriesTitle || !publisher) return null;
+  if (isPendingCoverageDummyTitle(seriesTitle)) return null;
+  if (!Number.isInteger(volumeNumber) || volumeNumber < 1) return null;
+  return {
+    seriesTitle,
+    publisher,
+    volumeNumber,
+    sourceUrl: null,
+    origin: 'browser',
+  };
+}
+
+async function submitCatalogSeedCandidate(candidate, ownerToken) {
+  const submission = buildCatalogSeedSubmission(candidate);
+  if (!submission || !ownerToken) return { result: 'blocked' };
+  try {
+    const result = await window.MangaTrackerSupabase.submitMangaCatalogCandidate(submission, ownerToken);
+    return result && result.result ? result : { result: 'blocked' };
+  } catch (e) {
+    return { result: 'error', message: String(e && e.message || e).slice(0, 200) };
+  }
+}
+
+function maybeSeedCatalogFromCollection(manga) {
+  if (!isCatalogSeedSendAllowed()) return false;
+  const ownerState = window.MangaTrackerSupabase.getOwnerState ? window.MangaTrackerSupabase.getOwnerState() : {};
+  const ownerToken = ownerState && ownerState.ownerToken;
+  if (!ownerToken) return false;
+
+  const candidates = collectCatalogSeedCandidates(manga);
+  if (!candidates.length) return false;
+
+  Promise.resolve().then(async function () {
+    for (const candidate of candidates) {
+      const result = await submitCatalogSeedCandidate(candidate, ownerToken);
+      const resultCode = result && result.result ? result.result : 'blocked';
+      if (resultCode === 'error') {
+        console.warn('[Phase 47] Catalog seed failed (non-blocking):', result.message || '', candidate.seriesTitle, 'Bd.', candidate.volumeNumber);
+      } else if (!CATALOG_SEED_ALLOWED_RESULTS.has(resultCode)) {
+        console.info('[Phase 47] Catalog seed:', resultCode, candidate.seriesTitle, 'Bd.', candidate.volumeNumber);
+      }
+    }
+  });
+
+  return true;
+}
+
+function sleepCatalogSeed(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+function renderCatalogSeedBackfillAction() {
+  if (!canWriteCloud()) return '';
+  const enabled = getAutoReleaseIntakeSetting();
+  const candidates = collectCatalogSeedBackfillCandidates();
+  const disabled = (!enabled || _catalogBackfillRunning || candidates.length === 0)
+    ? ' disabled'
+    : '';
+  const title = !enabled
+    ? ' title="Auto-Intake zuerst aktivieren"'
+    : (_catalogBackfillRunning ? ' title="Backfill läuft bereits"' : '');
+  const status = enabled
+    ? `${candidates.length} seedbare Bände gefunden`
+    : 'Auto-Intake inaktiv';
+  return `<div class="catalog-seed-backfill stats-empty-note">
+    <strong>Katalog-Seed:</strong> ${escapeHtml(status)}
+    <button type="button" class="add-btn dashboard-action-btn" data-action="seed-catalog-backfill"${disabled}${title}>Sammlung in globalen Katalog spülen</button>
+    <span class="intake-toggle-hint">Sendet nur Titel, Verlag und Bandnummer echter Band-Einträge an den Supabase-Katalog-Intake. Server-Dedup verhindert Duplikate.</span>
+  </div>`;
+}
+
+async function seedCatalogBackfill() {
+  if (!isCatalogSeedSendAllowed()) {
+    toast('🔒 Katalog-Backfill nur im Cloud-Owner-Modus mit aktivem Auto-Intake verfügbar.');
+    return;
+  }
+  if (_catalogBackfillRunning) {
+    toast('ℹ️ Katalog-Backfill läuft bereits.');
+    return;
+  }
+  const ownerState = window.MangaTrackerSupabase.getOwnerState ? window.MangaTrackerSupabase.getOwnerState() : {};
+  const ownerToken = ownerState && ownerState.ownerToken;
+  if (!ownerToken) {
+    toast('🔒 Owner-Zugang fehlt.');
+    return;
+  }
+
+  const candidates = collectCatalogSeedBackfillCandidates();
+  if (!candidates.length) {
+    toast('ℹ️ Keine seedbaren Bände gefunden.');
+    return;
+  }
+  if (!confirm(`${candidates.length} Band-Einträge in den globalen Katalog-Intake senden?`)) return;
+
+  _catalogBackfillRunning = true;
+  renderDashboard();
+  const counts = { submitted: 0, updated: 0, already_verified: 0, already_rejected: 0, blocked: 0, error: 0, other: 0 };
+  try {
+    for (let i = 0; i < candidates.length; i++) {
+      const result = await submitCatalogSeedCandidate(candidates[i], ownerToken);
+      const code = result && result.result ? result.result : 'blocked';
+      if (Object.prototype.hasOwnProperty.call(counts, code)) counts[code]++;
+      else counts.other++;
+      if ((i + 1) % CATALOG_SEED_BACKFILL_BATCH_SIZE === 0 && i + 1 < candidates.length) {
+        await sleepCatalogSeed(CATALOG_SEED_BACKFILL_DELAY_MS);
+      }
+    }
+  } finally {
+    _catalogBackfillRunning = false;
+    renderDashboard();
+  }
+
+  const ok = counts.submitted + counts.updated + counts.already_verified;
+  toast(`✅ Katalog-Backfill fertig: ${ok} übernommen/aktualisiert, ${counts.already_rejected} abgelehnt bekannt, ${counts.blocked + counts.error + counts.other} prüfen.`);
 }
 
 function validateReleaseVolumeCountsClient(doc) {
@@ -4264,6 +4453,9 @@ function bindDelegatedEvents() {
         break;
       case 'toggle-auto-release-intake':
         toggleAutoReleaseIntake();
+        break;
+      case 'seed-catalog-backfill':
+        seedCatalogBackfill();
         break;
       case 'set-tab':
         setTab(target.dataset.tab);

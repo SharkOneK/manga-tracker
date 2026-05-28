@@ -98,8 +98,11 @@ function mNextBand(m) {
 // getReleaseTargetVolume
 function getReleaseTargetVolume(m) {
   const firstMiss = mFirstMissingBand(m);
-  if (m.ongoing === 'false' && firstMiss === null) return null;
-  return firstMiss !== null ? firstMiss : mNextBand(m);
+  const total = Number(m.total);
+  const totalKnown = !isNaN(total) && total > 0;
+  if (m.ongoing === 'false') return totalKnown && firstMiss !== null ? firstMiss : null;
+  if (m.ongoing === 'true') return firstMiss !== null ? firstMiss : mNextBand(m);
+  return totalKnown && firstMiss !== null ? firstMiss : null;
 }
 
 // ─── Tests ────────────────────────────────────────────────────────────────
@@ -239,6 +242,24 @@ runTest('getReleaseTargetVolume gibt nextBand für laufende vollständige Serien
   };
   // Keine Lücke, laufend → nächster Band = 4
   assert.strictEqual(getReleaseTargetVolume(m), 4);
+});
+
+runTest('Phase 47: getReleaseTargetVolume raet keinen Phantom-Band bei unklarem Status', function() {
+  const m = {
+    ongoing: 'unknown',
+    total: null,
+    bands: { '1': 'owned', '2': 'completed' },
+  };
+  assert.strictEqual(getReleaseTargetVolume(m), null);
+});
+
+runTest('Phase 47: abgeschlossener vollstaendiger Zweiteiler liefert null', function() {
+  const m = {
+    ongoing: 'false',
+    total: 2,
+    bands: { '1': 'owned', '2': 'completed' },
+  };
+  assert.strictEqual(getReleaseTargetVolume(m), null);
 });
 
 // 20. getAppMode: liefert korrekten Modus
@@ -645,6 +666,66 @@ runTest('Phase 37: BandCover für gelöschten Band wird korrekt entfernt', funct
 
 // ─── Ergebnis ─────────────────────────────────────────────────────────────
 
+
+function collectCatalogSeedCandidates47(manga) {
+  if (!manga || typeof manga !== 'object') return [];
+  const seriesTitle = String(manga.title || '').trim();
+  const publisher = String(manga.pub || '').trim();
+  if (!seriesTitle || !publisher) return [];
+  if (isDummyTitle36b(seriesTitle)) return [];
+  const bands = manga.bands && typeof manga.bands === 'object' ? manga.bands : {};
+  const volumes = Object.keys(bands)
+    .map(Number)
+    .filter(volume => Number.isInteger(volume) && volume >= 1)
+    .sort((a, b) => a - b);
+  return Array.from(new Set(volumes)).map(volumeNumber => ({
+    seriesTitle,
+    publisher,
+    volumeNumber,
+    sourceUrl: null,
+    origin: 'browser',
+  }));
+}
+
+function collectCatalogSeedBackfillCandidates47(mangaList) {
+  const byKey = new Map();
+  mangaList.forEach(manga => {
+    collectCatalogSeedCandidates47(manga).forEach(candidate => {
+      const key = intakeDedupKey36b(candidate.seriesTitle, candidate.publisher, candidate.volumeNumber);
+      if (!byKey.has(key)) byKey.set(key, candidate);
+    });
+  });
+  return Array.from(byKey.values());
+}
+
+runTest('Phase 47: Katalog-Seed sammelt echte Baende abgeschlossener Zweiteiler', function() {
+  const candidates = collectCatalogSeedCandidates47({
+    title: 'Mein Wunsch, von einer Oberschuelerin getoetet zu werden',
+    pub: 'Yomeru',
+    ongoing: 'false',
+    total: 2,
+    bands: { '1': 'owned', '2': 'completed' },
+  });
+  assert.deepStrictEqual(candidates.map(c => c.volumeNumber), [1, 2]);
+  candidates.forEach(candidate => {
+    assert.deepStrictEqual(Object.keys(candidate).sort(), ['origin', 'publisher', 'seriesTitle', 'sourceUrl', 'volumeNumber'].sort());
+  });
+});
+
+runTest('Phase 47: Katalog-Backfill dedupliziert run-intern', function() {
+  const candidates = collectCatalogSeedBackfillCandidates47([
+    { title: 'Dedupe', pub: 'Egmont Manga', bands: { '1': 'owned' } },
+    { title: 'DEDUPE', pub: 'Egmont Manga', bands: { '1': 'completed' } },
+  ]);
+  assert.strictEqual(candidates.length, 1);
+  assert.strictEqual(candidates[0].volumeNumber, 1);
+});
+
+runTest('Phase 47: Katalog-Seed ueberspringt Dummy, leeren Publisher und ungueltige Baende', function() {
+  assert.strictEqual(collectCatalogSeedCandidates47({ title: 'ZZZ-TEST-SERIE', pub: 'Test', bands: { '1': 'owned' } }).length, 0);
+  assert.strictEqual(collectCatalogSeedCandidates47({ title: 'Ohne Verlag', pub: '', bands: { '1': 'owned' } }).length, 0);
+  assert.strictEqual(collectCatalogSeedCandidates47({ title: 'Bad Band', pub: 'Yomeru', bands: { '0': 'owned', x: 'owned' } }).length, 0);
+});
 
 // Phase 42b: Source-review queue writer must follow the analysis dynamically.
 runTest('Phase 42b: write-release-source-review-queue.js hat keinen festen Source-Gap-Count', function() {
