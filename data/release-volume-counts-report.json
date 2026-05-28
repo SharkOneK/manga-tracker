@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-05-27T16:50:10.268Z",
+  "generatedAt": "2026-05-28T17:46:28.051Z",
   "source": "run-release-volume-counts.js",
   "providerMode": "enabled",
   "policy": {
@@ -35,8 +35,8 @@
     {
       "seriesTitle": "Demon Slave",
       "publisher": "KAZÉ Manga",
-      "oldPublishedVolumesDE": 4,
-      "newPublishedVolumesDE": 5,
+      "oldPublishedVolumesDE": 5,
+      "newPublishedVolumesDE": 6,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/509",
       "confidence": "high"
@@ -44,8 +44,8 @@
     {
       "seriesTitle": "Real Account",
       "publisher": "TOKYOPOP",
-      "oldPublishedVolumesDE": 8,
-      "newPublishedVolumesDE": 9,
+      "oldPublishedVolumesDE": 9,
+      "newPublishedVolumesDE": 10,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/819",
       "confidence": "high"
@@ -903,10 +903,6 @@
       "publisher": "Hayabusa",
       "volumeNumber": 6,
       "reasonCodes": [
-        "missing-source-edition-title",
-        "missing-source-publisher",
-        "missing-source-volume-number",
-        "missing-release-date",
         "not-yet-released"
       ]
     },
@@ -1351,16 +1347,11 @@
       "seriesTitle": "August 9th, I will be eaten by you",
       "publisher": "Hayabusa",
       "volumeNumber": 6,
-      "source": "carlsen",
-      "sourceUrl": "https://www.carlsen.de",
-      "confidence": "low",
+      "source": "manga-passion",
+      "sourceUrl": "https://www.manga-passion.de/editions/2015",
+      "confidence": "high",
       "released": false,
-      "reasonCodes": [
-        "missing-source-edition-title",
-        "missing-source-publisher",
-        "missing-source-volume-number",
-        "missing-release-date"
-      ]
+      "reasonCodes": []
     },
     {
       "seriesTitle": "Berserk Master Edition",
@@ -1454,7 +1445,7 @@
     {
       "seriesTitle": "Demon Slave",
       "publisher": "KAZÉ Manga",
-      "volumeNumber": 5,
+      "volumeNumber": 6,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/509",
       "confidence": "high",
@@ -1586,7 +1577,7 @@
     {
       "seriesTitle": "Real Account",
       "publisher": "TOKYOPOP",
-      "volumeNumber": 9,
+      "volumeNumber": 10,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/819",
       "confidence": "high",
