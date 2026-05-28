@@ -5,7 +5,7 @@ const {
   normalizeTitle,
 } = require('../release-confidence');
 const {
-  fetchJson,
+  fetchJson: defaultFetchJson,
   normalizeIsbn13,
   normalizeProviderResult,
   safeHttpsUrl,
@@ -14,6 +14,12 @@ const {
 
 const MP_API = 'https://api.manga-passion.de';
 const MP_SOURCE_URL = 'https://www.manga-passion.de';
+
+function buildEditionSourceUrl(editionId) {
+  const idNumber = Number(editionId);
+  if (!Number.isInteger(idNumber) || idNumber < 1) return null;
+  return `${MP_SOURCE_URL}/editions/${idNumber}`;
+}
 
 function publisherNames(edition) {
   return Array.isArray(edition && edition.publishers)
@@ -59,6 +65,7 @@ const mangaPassionProvider = {
   async findRelease(candidate, context = {}) {
     const aliasMap = context.aliasMap;
     const policy = context.policy || {};
+    const fetchJson = typeof context.fetchJson === 'function' ? context.fetchJson : defaultFetchJson;
     const base = {
       ...candidate,
       providerId: this.id,
@@ -109,7 +116,7 @@ const mangaPassionProvider = {
           sourceEditionId: best.edition.id,
           sourceEditionTitle: best.edition.title || null,
           sourcePublisher: publisherNames(best.edition)[0] || null,
-          sourceUrl: `${MP_SOURCE_URL}/editions/${best.edition.id}`,
+          sourceUrl: buildEditionSourceUrl(best.edition.id) || this.sourceUrl,
           sourceResult: 'no-volumes-found',
           evidence: 'Manga Passion Edition gefunden, aber keine Bandliste erhalten.',
         });
@@ -122,7 +129,7 @@ const mangaPassionProvider = {
           sourceEditionId: best.edition.id,
           sourceEditionTitle: best.edition.title || null,
           sourcePublisher: publisherNames(best.edition)[0] || null,
-          sourceUrl: `${MP_SOURCE_URL}/editions/${best.edition.id}`,
+          sourceUrl: buildEditionSourceUrl(best.edition.id) || this.sourceUrl,
           sourceResult: 'volume-not-found',
           sourceVolumeNumber: null,
           evidence: `Manga Passion Edition gefunden, aber Band ${candidate.volumeNumber} nicht in der Bandliste.`,
@@ -130,12 +137,15 @@ const mangaPassionProvider = {
       }
 
       const releaseDate = dateFromMpVolumeRaw(volume);
+      const editionSourceUrl = buildEditionSourceUrl(best.edition.id);
       return normalizeProviderResult(candidate, this, {
         ...base,
         releaseDate,
         isbn13: normalizeIsbn13(volume.isbn13 || volume.isbn || null),
         coverUrl: safeHttpsUrl(volume.cover) || safeHttpsUrl(best.edition.cover),
-        sourceUrl: `${MP_SOURCE_URL}/editions/${best.edition.id}`,
+        // Phase 48: prefer the concrete editions URL; only fall back to the
+        // generic source URL if the edition ID is missing or invalid.
+        sourceUrl: editionSourceUrl || this.sourceUrl,
         sourceEditionId: best.edition.id,
         sourceEditionTitle: best.edition.title || null,
         sourcePublisher: publisherNames(best.edition)[0] || null,
@@ -159,3 +169,4 @@ const mangaPassionProvider = {
 };
 
 module.exports = mangaPassionProvider;
+module.exports._private = { buildEditionSourceUrl };
