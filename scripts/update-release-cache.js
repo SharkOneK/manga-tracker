@@ -477,7 +477,18 @@ async function tryMangaPassion(seedCandidate, aliasMap, policy, checkedAt) {
     const publisher = publisherNames(best.ed)[0] || item.publisher;
     const publisherMatches = normalizePublisher(publisher, aliasMap) === item.normalizedPublisher;
     const dateMatchesSeed = mpDate === item.releaseDate;
-    const confidence = best.score >= 90 && publisherMatches && dateMatchesSeed ? 'high' : 'medium';
+    // Phase 48: always build the concrete editions URL from the API id, never
+    // the generic landing page, so that downstream gates can verify the source.
+    const editionIdNumber = Number(best.ed.id);
+    const hasEditionId = Number.isInteger(editionIdNumber) && editionIdNumber >= 1;
+    const sourceUrl = hasEditionId
+      ? `https://www.manga-passion.de/editions/${editionIdNumber}`
+      : 'https://www.manga-passion.de';
+    // High-confidence requires a verified edition id (so the URL is concrete),
+    // a strong score, a matching publisher, and a matching release date.
+    const confidence = hasEditionId && best.score >= 90 && publisherMatches && dateMatchesSeed
+      ? 'high'
+      : 'medium';
 
     stats.mpConfirmed++;
     return {
@@ -486,7 +497,7 @@ async function tryMangaPassion(seedCandidate, aliasMap, policy, checkedAt) {
       normalizedPublisher: normalizePublisher(publisher, aliasMap),
       releaseDate: mpDate,
       coverUrl,
-      sourceUrl: 'https://www.manga-passion.de',
+      sourceUrl,
       sourceName: 'Manga Passion',
       confidence,
       notes: `Serverseitig via Manga-Passion-API bestätigt (Edition ${best.ed.id}, Band ${item.volumeNumber}, Score ${best.score}). Ursprung: app-seed.`,

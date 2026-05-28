@@ -119,6 +119,21 @@ function isAllowedSourceUrl(sourceUrl, sources) {
     });
 }
 
+// Phase 48: A high-confidence entry must point to a concrete resource (such as
+// a /editions/<id> or product page), not to the bare publisher landing page.
+// Returns true if the URL only encodes the host with no meaningful path.
+function isBareLandingPageUrl(sourceUrl) {
+  if (!isValidHttpUrl(sourceUrl)) return false;
+  try {
+    const url = new URL(sourceUrl);
+    const path = (url.pathname || '/').replace(/\/+$/, '');
+    if (path === '' || path === '/') return url.search === '' && url.hash === '';
+    return false;
+  } catch (_) {
+    return false;
+  }
+}
+
 function hasPublisherConflict(candidate, aliasMap) {
   const expected = normalizePublisher(candidate.publisher, aliasMap);
   const sourcePublisher = normalizePublisher(candidate.sourcePublisher || candidate.publisherFromSource, aliasMap);
@@ -168,6 +183,11 @@ function evaluateReleaseCandidate(candidate, context = {}) {
 
   if (!hasSourceUrl) reasonCodes.push('missing-source-url');
   if (hasSourceUrl && !sourceUrlAllowed) reasonCodes.push('source-url-not-allowed');
+  // Phase 48: a bare landing-page URL (e.g. https://www.manga-passion.de) is
+  // not specific enough to act as proof for a single volume; require a deeper
+  // path such as /editions/<id> or a product detail page.
+  const bareLandingPage = hasSourceUrl && isBareLandingPageUrl(candidate.sourceUrl);
+  if (bareLandingPage) reasonCodes.push('source-url-not-specific');
   if (!candidate.sourceName || typeof candidate.sourceName !== 'string') reasonCodes.push('missing-source-name');
   if (!sourceTitle) reasonCodes.push('missing-source-edition-title');
   if (!sourcePublisher) reasonCodes.push('missing-source-publisher');
@@ -206,6 +226,7 @@ function evaluateReleaseCandidate(candidate, context = {}) {
     realDate &&
     hasSourceUrl &&
     sourceUrlAllowed &&
+    !bareLandingPage &&
     candidate.sourceName
   ) {
     confidence = 'high';
@@ -228,6 +249,7 @@ module.exports = {
   buildPublisherAliasMap,
   evaluateReleaseCandidate,
   isAllowedSourceUrl,
+  isBareLandingPageUrl,
   isRealReleaseDate,
   isValidDate,
   isValidHttpUrl,

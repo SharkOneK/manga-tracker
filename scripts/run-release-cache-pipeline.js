@@ -214,6 +214,48 @@ function loadAppSeedCandidates() {
   return candidates;
 }
 
+// Phase 48: Backfill candidates for legacy Manga-Passion cache entries that were
+// written with the generic www.manga-passion.de source URL and remained at
+// medium/low confidence. They typically carry an "Edition <id>" reference in
+// their notes from the original API hit. We re-route them through the regular
+// provider check so that — only if the live source still matches series,
+// publisher, volume number, and a real release date — they can legitimately
+// reach high confidence with a concrete editions URL. This never short-circuits
+// the central evaluateReleaseCandidate gate.
+const MP_SOURCE_NAME = 'Manga Passion';
+const MP_GENERIC_SOURCE_URL = 'https://www.manga-passion.de';
+const MP_EDITION_PREFIX = 'https://www.manga-passion.de/editions/';
+const MP_EDITION_ID_RE = /Edition\s+(\d+)/i;
+
+function isLegacyMpBackfillTarget(item) {
+  if (!item || typeof item !== 'object') return false;
+  if (item.sourceName !== MP_SOURCE_NAME) return false;
+  if (item.confidence === 'high') return false;
+  const url = String(item.sourceUrl || '');
+  if (url.startsWith(MP_EDITION_PREFIX)) return false;
+  if (url && url !== MP_GENERIC_SOURCE_URL) return false;
+  if (typeof item.notes !== 'string') return false;
+  return MP_EDITION_ID_RE.test(item.notes);
+}
+
+function loadLegacyMpBackfillCandidates(cacheItems) {
+  if (!Array.isArray(cacheItems)) return [];
+  const out = [];
+  for (const item of cacheItems) {
+    if (!isLegacyMpBackfillTarget(item)) continue;
+    out.push({
+      origin: 'cache-backfill',
+      seriesTitle: item.seriesTitle,
+      publisher: item.publisher,
+      volumeNumber: item.volumeNumber,
+      seedReleaseDate: item.releaseDate || null,
+      notes: 'Phase 48: Legacy MP-Eintrag (generische URL) wird gegen Provider revalidiert.',
+      priority: 'hoch',
+    });
+  }
+  return out;
+}
+
 function loadReviewQueueCandidates(queueDoc) {
   if (!queueDoc || !Array.isArray(queueDoc.queue)) return [];
   return queueDoc.queue
@@ -236,7 +278,7 @@ function loadReviewQueueCandidates(queueDoc) {
 }
 
 function dedupeCandidates(candidates, aliasMap) {
-  const priority = new Map([['review-queue', 0], ['watchlist', 1], ['app-seed', 2]]);
+  const priority = new Map([['review-queue', 0], ['watchlist', 1], ['cache-backfill', 2], ['app-seed', 3]]);
   const byKey = new Map();
   for (const candidate of candidates) {
     if (!candidate.seriesTitle || !candidate.publisher || !Number.isInteger(candidate.volumeNumber)) continue;
@@ -430,6 +472,7 @@ async function main() {
   const rawCandidates = dedupeCandidates([
     ...loadReviewQueueCandidates(existingQueue),
     ...flattenWatchlist(watchlist),
+    ...loadLegacyMpBackfillCandidates(cacheItems),
     ...loadAppSeedCandidates(),
   ], aliasMap);
 
@@ -438,7 +481,10 @@ async function main() {
   for (const candidate of rawCandidates) {
     const key = cacheKey(candidate, aliasMap);
     const existing = cacheByKey.get(key);
-    if (existing && existing.confidence === 'high' && candidate.origin !== 'review-queue') {
+    // Re-check review-queue (manual triage) and cache-backfill (Phase 48: legacy
+    // MP entries with generic URL) even when an existing cache entry is present.
+    const alwaysRecheck = candidate.origin === 'review-queue' || candidate.origin === 'cache-backfill';
+    if (existing && existing.confidence === 'high' && !alwaysRecheck) {
       skippedAlreadyCached.push(key);
     } else {
       candidatesToCheck.push(candidate);
@@ -602,3 +648,8 @@ if (require.main === module) {
     process.exitCode = 1;
   });
 }
+
+module.exports = {
+  isLegacyMpBackfillTarget,
+  loadLegacyMpBackfillCandidates,
+};
