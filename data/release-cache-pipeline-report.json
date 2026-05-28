@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-05-27T16:49:33.970Z",
+  "generatedAt": "2026-05-28T17:45:41.655Z",
   "source": "run-release-cache-pipeline.js",
   "inputs": {
     "cacheItems": 182,
@@ -48,16 +48,29 @@
     "candidatesChecked": 78,
     "skippedAlreadyCached": 118,
     "skippedDueToLimit": 0,
-    "highConfidence": 0,
+    "highConfidence": 1,
     "mediumConfidence": 0,
-    "lowConfidence": 78,
+    "lowConfidence": 77,
     "blocked": 0,
-    "cachePatches": 0,
-    "reviewQueueWrites": 78,
+    "cachePatches": 1,
+    "reviewQueueWrites": 77,
     "invalidExistingCache": 0
   },
   "autoMergeEligible": false,
-  "cachePatches": [],
+  "cachePatches": [
+    {
+      "action": "update",
+      "key": "august 9th i will be eaten by you|carlsen manga|6",
+      "seriesTitle": "August 9th, I will be eaten by you",
+      "publisher": "Hayabusa",
+      "volumeNumber": 6,
+      "releaseDate": "2026-12-01",
+      "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
+      "sourceUrl": "https://www.manga-passion.de/editions/2015",
+      "confidence": "high"
+    }
+  ],
   "reviewQueueWrites": [
     {
       "key": "berserk master edition|panini manga|9",
@@ -1574,26 +1587,6 @@
       "sourceUrl": "https://www.carlsen.de",
       "releaseDate": null,
       "sourceResult": "publisher-not-supported"
-    },
-    {
-      "key": "august 9th i will be eaten by you|carlsen manga|6",
-      "queueKey": "August 9th, I will be eaten by you|Hayabusa|6",
-      "seriesTitle": "August 9th, I will be eaten by you",
-      "publisher": "Hayabusa",
-      "volumeNumber": 6,
-      "confidence": "low",
-      "reviewStatus": "auto-low-confidence",
-      "reasonCodes": [
-        "missing-source-edition-title",
-        "missing-source-publisher",
-        "missing-source-volume-number",
-        "missing-release-date"
-      ],
-      "sourceName": "Carlsen Manga",
-      "providerId": "carlsen",
-      "sourceUrl": "https://www.carlsen.de",
-      "releaseDate": null,
-      "sourceResult": "no-edition-found"
     },
     {
       "key": "die letzte elfe|yomeru|3",

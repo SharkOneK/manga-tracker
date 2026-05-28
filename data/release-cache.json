@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-05-27T05:59:56.937Z",
+  "generatedAt": "2026-05-28T17:45:41.655Z",
   "source": "run-release-cache-pipeline.js",
   "itemCount": 182,
   "items": [
@@ -192,12 +192,14 @@
       "volumeNumber": 6,
       "releaseDate": "2026-12-01",
       "isbn13": null,
-      "coverUrl": null,
-      "sourceUrl": null,
-      "sourceName": "app-seed",
-      "confidence": "medium",
-      "notes": "Aus src/app.js Seed \"august 9th\" übernommen; nicht extern bestätigt.",
-      "checkedAt": "2026-05-17T10:56:39.041Z"
+      "coverUrl": "https://media.manga-passion.de/volume/cover/2025/1202/1305/82b77ec05d4ddb075ad2fa87b65dbf9f.jpg",
+      "sourceUrl": "https://www.manga-passion.de/editions/2015",
+      "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
+      "evidence": "Manga Passion Edition, Verlag und Bandnummer wurden gegen die Bandliste abgeglichen.",
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 2015, Band 6). Ursprung: app-seed.",
+      "checkedAt": "2026-05-28T17:45:41.655Z"
     },
     {
       "seriesTitle": "Berserk Master Edition",
