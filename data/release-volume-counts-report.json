@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-05-28T17:46:28.051Z",
+  "generatedAt": "2026-05-29T14:29:16.800Z",
   "source": "run-release-volume-counts.js",
   "providerMode": "enabled",
   "policy": {
@@ -24,19 +24,19 @@
     ]
   },
   "summary": {
-    "seriesInVolumeCounts": 29,
+    "seriesInVolumeCounts": 31,
     "probeCandidates": 45,
     "checkedCandidates": 45,
     "detectedChanges": 2,
     "appliedHighConfidenceChanges": 2,
-    "blockedOrUnsafe": 122
+    "blockedOrUnsafe": 120
   },
   "changes": [
     {
       "seriesTitle": "Demon Slave",
       "publisher": "KAZÉ Manga",
-      "oldPublishedVolumesDE": 5,
-      "newPublishedVolumesDE": 6,
+      "oldPublishedVolumesDE": 6,
+      "newPublishedVolumesDE": 7,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/509",
       "confidence": "high"
@@ -44,8 +44,8 @@
     {
       "seriesTitle": "Real Account",
       "publisher": "TOKYOPOP",
-      "oldPublishedVolumesDE": 9,
-      "newPublishedVolumesDE": 10,
+      "oldPublishedVolumesDE": 10,
+      "newPublishedVolumesDE": 11,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/819",
       "confidence": "high"
@@ -67,8 +67,6 @@
       "publisher": "Hayabusa",
       "volumeNumber": 6,
       "reasonCodes": [
-        "not-high-confidence",
-        "source-url-not-allowed",
         "not-yet-released-or-invalid-date"
       ]
     },
@@ -531,14 +529,6 @@
       ]
     },
     {
-      "seriesTitle": "Gushing over Magical Girls",
-      "publisher": "MANGAMOON",
-      "volumeNumber": 3,
-      "reasonCodes": [
-        "not-yet-released-or-invalid-date"
-      ]
-    },
-    {
       "seriesTitle": "I Was Reincarnated as the 7th Prince So I Can Take My Time Perfecting My Magical Ability",
       "publisher": "Dokico",
       "volumeNumber": 1,
@@ -683,18 +673,11 @@
       ]
     },
     {
-      "seriesTitle": "Yandere Dark Elf",
-      "publisher": "MANGAMOON",
-      "volumeNumber": 3,
-      "reasonCodes": [
-        "not-yet-released-or-invalid-date"
-      ]
-    },
-    {
       "seriesTitle": "Vermeil in Gold",
       "publisher": "MANGAMOON",
       "volumeNumber": 2,
       "reasonCodes": [
+        "source-url-not-specific",
         "missing-source-edition-title",
         "missing-source-publisher",
         "missing-source-volume-number",
@@ -707,6 +690,7 @@
       "publisher": "MangaMoon",
       "volumeNumber": 2,
       "reasonCodes": [
+        "source-url-not-specific",
         "missing-source-edition-title",
         "missing-source-publisher",
         "missing-source-volume-number",
@@ -753,6 +737,7 @@
       "publisher": "Altraverse",
       "volumeNumber": 4,
       "reasonCodes": [
+        "source-url-not-specific",
         "missing-source-edition-title",
         "missing-source-publisher",
         "missing-source-volume-number",
@@ -765,6 +750,7 @@
       "publisher": "Altraverse",
       "volumeNumber": 5,
       "reasonCodes": [
+        "source-url-not-specific",
         "missing-source-edition-title",
         "missing-source-publisher",
         "missing-source-volume-number",
@@ -799,8 +785,13 @@
     {
       "seriesTitle": "Gushing over Magical Girls",
       "publisher": "MangaMoon",
-      "volumeNumber": 3,
+      "volumeNumber": 4,
       "reasonCodes": [
+        "source-url-not-specific",
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date",
         "not-yet-released"
       ]
     },
@@ -809,6 +800,7 @@
       "publisher": "MANGAMOON",
       "volumeNumber": 3,
       "reasonCodes": [
+        "source-url-not-specific",
         "missing-source-edition-title",
         "missing-source-publisher",
         "missing-source-volume-number",
@@ -870,14 +862,6 @@
       "seriesTitle": "Yakuza Reincarnation",
       "publisher": "Manga Cult",
       "volumeNumber": 16,
-      "reasonCodes": [
-        "not-yet-released"
-      ]
-    },
-    {
-      "seriesTitle": "Yandere Dark Elf",
-      "publisher": "MangaMoon",
-      "volumeNumber": 3,
       "reasonCodes": [
         "not-yet-released"
       ]
@@ -981,6 +965,7 @@
       "publisher": "Yomeru",
       "volumeNumber": 3,
       "reasonCodes": [
+        "source-url-not-specific",
         "missing-source-edition-title",
         "missing-source-publisher",
         "missing-source-volume-number",
@@ -1065,6 +1050,7 @@
       "publisher": "TOKYOPOP",
       "volumeNumber": 5,
       "reasonCodes": [
+        "source-url-not-specific",
         "missing-source-edition-title",
         "missing-source-publisher",
         "missing-source-volume-number",
@@ -1079,6 +1065,19 @@
       "reasonCodes": [
         "not-yet-released"
       ]
+    },
+    {
+      "seriesTitle": "Yandere Dark Elf",
+      "publisher": "MANGAMOON",
+      "volumeNumber": 4,
+      "reasonCodes": [
+        "source-url-not-specific",
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date",
+        "not-yet-released"
+      ]
     }
   ],
   "checkedCandidates": [
@@ -1091,6 +1090,7 @@
       "confidence": "low",
       "released": false,
       "reasonCodes": [
+        "source-url-not-specific",
         "missing-source-edition-title",
         "missing-source-publisher",
         "missing-source-volume-number",
@@ -1106,6 +1106,7 @@
       "confidence": "low",
       "released": false,
       "reasonCodes": [
+        "source-url-not-specific",
         "missing-source-edition-title",
         "missing-source-publisher",
         "missing-source-volume-number",
@@ -1164,6 +1165,7 @@
       "confidence": "low",
       "released": false,
       "reasonCodes": [
+        "source-url-not-specific",
         "missing-source-edition-title",
         "missing-source-publisher",
         "missing-source-volume-number",
@@ -1179,6 +1181,7 @@
       "confidence": "low",
       "released": false,
       "reasonCodes": [
+        "source-url-not-specific",
         "missing-source-edition-title",
         "missing-source-publisher",
         "missing-source-volume-number",
@@ -1218,12 +1221,18 @@
     {
       "seriesTitle": "Gushing over Magical Girls",
       "publisher": "MangaMoon",
-      "volumeNumber": 3,
-      "source": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/5407",
-      "confidence": "high",
+      "volumeNumber": 4,
+      "source": "carlsen",
+      "sourceUrl": "https://www.carlsen.de",
+      "confidence": "low",
       "released": false,
-      "reasonCodes": []
+      "reasonCodes": [
+        "source-url-not-specific",
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date"
+      ]
     },
     {
       "seriesTitle": "Isekai Soapland",
@@ -1234,6 +1243,7 @@
       "confidence": "low",
       "released": false,
       "reasonCodes": [
+        "source-url-not-specific",
         "missing-source-edition-title",
         "missing-source-publisher",
         "missing-source-volume-number",
@@ -1309,16 +1319,6 @@
       "volumeNumber": 16,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/1945",
-      "confidence": "high",
-      "released": false,
-      "reasonCodes": []
-    },
-    {
-      "seriesTitle": "Yandere Dark Elf",
-      "publisher": "MangaMoon",
-      "volumeNumber": 3,
-      "source": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/5408",
       "confidence": "high",
       "released": false,
       "reasonCodes": []
@@ -1445,7 +1445,7 @@
     {
       "seriesTitle": "Demon Slave",
       "publisher": "KAZÉ Manga",
-      "volumeNumber": 6,
+      "volumeNumber": 7,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/509",
       "confidence": "high",
@@ -1461,6 +1461,7 @@
       "confidence": "low",
       "released": false,
       "reasonCodes": [
+        "source-url-not-specific",
         "missing-source-edition-title",
         "missing-source-publisher",
         "missing-source-volume-number",
@@ -1568,6 +1569,7 @@
       "confidence": "low",
       "released": false,
       "reasonCodes": [
+        "source-url-not-specific",
         "missing-source-edition-title",
         "missing-source-publisher",
         "missing-source-volume-number",
@@ -1577,7 +1579,7 @@
     {
       "seriesTitle": "Real Account",
       "publisher": "TOKYOPOP",
-      "volumeNumber": 10,
+      "volumeNumber": 11,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/819",
       "confidence": "high",
@@ -1593,6 +1595,22 @@
       "confidence": "high",
       "released": false,
       "reasonCodes": []
+    },
+    {
+      "seriesTitle": "Yandere Dark Elf",
+      "publisher": "MANGAMOON",
+      "volumeNumber": 4,
+      "source": "carlsen",
+      "sourceUrl": "https://www.carlsen.de",
+      "confidence": "low",
+      "released": false,
+      "reasonCodes": [
+        "source-url-not-specific",
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date"
+      ]
     }
   ],
   "changedFilesAllowlist": [
