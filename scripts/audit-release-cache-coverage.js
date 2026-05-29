@@ -26,6 +26,26 @@ const cacheFile     = path.join(repoRoot, 'data', 'release-cache.json');
 const strict        = process.argv.includes('--strict');
 const jsonMode      = process.argv.includes('--json');
 
+// Phase 49: stdout-Hygiene fuer --json-Mode.
+// Im --json-Mode darf NUR ein einziger JSON-Block auf stdout landen, damit
+// nachgelagerte Konsumenten (z. B. sync-release-coverage-gap-docs.js) den
+// Output deterministisch parsen koennen. Jegliche Status-/Fortschritts-/
+// Fehlermeldungen wandern auf stderr.
+function logInfo() {
+  if (jsonMode) console.error.apply(console, arguments);
+  else console.log.apply(console, arguments);
+}
+
+function logErr() {
+  console.error.apply(console, arguments);
+}
+
+function writeJsonStdout(obj) {
+  // Bewusst process.stdout.write statt console.log, um keinerlei Side-Effects
+  // durch util.inspect-Hooks oder zusaetzliche Zeilenumbrueche zu riskieren.
+  process.stdout.write(JSON.stringify(obj, null, 2) + '\n');
+}
+
 function readJson(filePath) {
   if (!fs.existsSync(filePath)) {
     throw new Error(`Datei nicht gefunden: ${filePath}`);
@@ -189,30 +209,33 @@ function buildAuditReport(watchlist, cache) {
 }
 
 function printTextReport(report) {
-  console.log('\nAudit: Release-Cache-Abdeckung (Watchlist vs. Cache)\n');
-  console.log(`Watchlist: ${report.summary.enabledWatchlistEntries} aktivierte Einträge`);
-  console.log(`Expandierte Watchlist-Bandkandidaten: ${report.summary.expandedWatchlistVolumeCandidates}`);
-  console.log(`Cache: ${report.summary.cacheEntries} Einträge\n`);
+  // Hinweis: printTextReport wird im --json-Mode nicht aufgerufen; trotzdem
+  // konsequent ueber logInfo/logErr loggen, damit kuenftige Aufrufe von
+  // printTextReport bei jsonMode nicht versehentlich stdout verschmutzen.
+  logInfo('\nAudit: Release-Cache-Abdeckung (Watchlist vs. Cache)\n');
+  logInfo(`Watchlist: ${report.summary.enabledWatchlistEntries} aktivierte Einträge`);
+  logInfo(`Expandierte Watchlist-Bandkandidaten: ${report.summary.expandedWatchlistVolumeCandidates}`);
+  logInfo(`Cache: ${report.summary.cacheEntries} Einträge\n`);
 
   report.checked.forEach(item => {
     const marker = item.status === 'found' ? '✓' : '✗';
     const text = item.status === 'found' ? 'gefunden' : 'fehlt';
-    console.log(`  ${marker} ${item.seriesTitle} Band ${item.volumeNumber} ${text}`);
+    logInfo(`  ${marker} ${item.seriesTitle} Band ${item.volumeNumber} ${text}`);
   });
 
-  console.log('');
-  console.log(`Gefundene Cache-Einträge: ${report.summary.foundCacheEntries}`);
-  console.log(`Fehlende Cache-Abdeckung: ${report.summary.missingCacheCoverage}`);
+  logInfo('');
+  logInfo(`Gefundene Cache-Einträge: ${report.summary.foundCacheEntries}`);
+  logInfo(`Fehlende Cache-Abdeckung: ${report.summary.missingCacheCoverage}`);
 
   if (report.summary.missingCacheCoverage === 0) {
-    console.log('\n✅ Alle aktivierten Watchlist-Einträge sind im Cache abgedeckt\n');
+    logInfo('\n✅ Alle aktivierten Watchlist-Einträge sind im Cache abgedeckt\n');
   } else {
-    console.log(`\n⚠ ${report.summary.missingCacheCoverage} Watchlist-Eintrag/Einträge noch nicht im Cache`);
-    console.log(`Klassifizierung: ${report.summary.missingSeries} Serien / ${report.summary.missingPublishers} Verlage mit Quellen-/Datenqualitätslücken`);
+    logInfo(`\n⚠ ${report.summary.missingCacheCoverage} Watchlist-Eintrag/Einträge noch nicht im Cache`);
+    logInfo(`Klassifizierung: ${report.summary.missingSeries} Serien / ${report.summary.missingPublishers} Verlage mit Quellen-/Datenqualitätslücken`);
     if (strict) {
-      console.error('❌ Strict-Modus: Exit 1 wegen fehlender Cache-Abdeckung\n');
+      logErr('❌ Strict-Modus: Exit 1 wegen fehlender Cache-Abdeckung\n');
     } else {
-      console.log('ℹ Warnmodus (kein --strict): Exit 0\n');
+      logInfo('ℹ Warnmodus (kein --strict): Exit 0\n');
     }
   }
 }
@@ -224,20 +247,21 @@ try {
   report = buildAuditReport(watchlist, cache);
 } catch (e) {
   if (jsonMode) {
-    console.log(JSON.stringify({
+    // Phase 49: bei Fehlschlag bleibt stdout strikt ein einzelnes JSON-Objekt.
+    writeJsonStdout({
       schemaVersion: 1,
       error: e.message,
       summary: { exitCode: 1 },
-    }, null, 2));
+    });
   } else {
-    console.error(`  ✗ ${e.message}`);
-    console.error('\n❌ Audit fehlgeschlagen\n');
+    logErr(`  ✗ ${e.message}`);
+    logErr('\n❌ Audit fehlgeschlagen\n');
   }
   process.exit(1);
 }
 
 if (jsonMode) {
-  console.log(JSON.stringify(report, null, 2));
+  writeJsonStdout(report);
 } else {
   printTextReport(report);
 }

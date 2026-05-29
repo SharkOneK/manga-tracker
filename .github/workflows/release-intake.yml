@@ -51,6 +51,8 @@ jobs:
         run: |
           node --check scripts/apply-release-intake-candidates.js
           node --check scripts/sync-release-coverage-gap-docs.js
+          node --check scripts/audit-release-cache-coverage.js
+          node --check scripts/test-audit-json-contract.js
           node --check scripts/validate-release-watchlist.js
           node --check scripts/validate-release-cache-coverage-gaps.js
           node --check scripts/validate-release-source-review-queue.js
@@ -73,6 +75,7 @@ jobs:
           node scripts/test-stats.js
           node scripts/test-data-integrity.js
           node scripts/test-intake-automerge-gate.js
+          node scripts/test-audit-json-contract.js
           git diff --check
 
       - name: Run release intake
@@ -85,11 +88,41 @@ jobs:
         run: node scripts/validate-release-watchlist.js
 
       - name: Sync coverage-gap docs after intake
+        env:
+          # Phase 49: Node-Warnings konsequent vom audit --json stdout fernhalten.
+          # NODE_NO_WARNINGS schreibt Warnings ueberhaupt nicht raus; das schuetzt
+          # die strenge stdout-Hygiene-Konvention zwischen Audit und Sync.
+          NODE_NO_WARNINGS: '1'
         run: |
+          set -euo pipefail
           node scripts/sync-release-coverage-gap-docs.js
           node scripts/validate-release-cache-coverage-gaps.js
           node scripts/validate-release-source-review-queue.js
           node scripts/test-stats.js
+
+      - name: Capture audit raw output on failure
+        if: failure()
+        env:
+          NODE_NO_WARNINGS: '1'
+        run: |
+          # Phase 49: Diagnose-Step, der NUR bei Failure feuert und den
+          # Roh-stdout/-stderr des Audits ins Log spiegelt, damit der naechste
+          # Folgefix gezielt am tatsaechlichen Verursacher ansetzen kann.
+          # Sicherheit: audit --json liest ausschliesslich public Audit-
+          # Eingaben (Watchlist + Release-Cache-Daten); keine privaten
+          # Sammlungs-/Lese-/Wunschlistendaten betroffen.
+          echo "--- audit --json stdout ---"
+          node scripts/audit-release-cache-coverage.js --json > /tmp/audit.stdout 2> /tmp/audit.stderr || true
+          cat /tmp/audit.stdout || true
+          echo
+          echo "--- first 400 bytes ---"
+          head -c 400 /tmp/audit.stdout || true
+          echo
+          echo "--- last 400 bytes ---"
+          tail -c 400 /tmp/audit.stdout || true
+          echo
+          echo "--- audit --json stderr ---"
+          cat /tmp/audit.stderr || true
 
       - name: Security check after intake
         run: |

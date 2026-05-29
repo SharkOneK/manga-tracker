@@ -81,6 +81,9 @@ const SYNTAX_FILES = [
   'scripts/apply-release-intake-candidates.js',
   'scripts/report-catalog-lifecycle.js',
   'scripts/update-vault-frontmatter.js',
+  'scripts/sync-release-coverage-gap-docs.js',
+  'scripts/audit-release-cache-coverage.js',
+  'scripts/test-audit-json-contract.js',
 ];
 
 // ── Phase 2: Ausgeführte Checks (deckt CI ab + ergänzt fehlende Validatoren) ──
@@ -102,6 +105,7 @@ const RUN_CHECKS = [
   { label: 'Public/Private diff tests',             cmd: 'node', cmdArgs: ['scripts/test-public-private-diff.js'] },
   { label: 'Release volume count tests',            cmd: 'node', cmdArgs: ['scripts/test-release-volume-counts.js'] },
   { label: 'Manga Passion backfill tests (Phase 48)', cmd: 'node', cmdArgs: ['scripts/test-manga-passion-backfill.js'] },
+  { label: 'Audit JSON-Output contract (Phase 49)',   cmd: 'node', cmdArgs: ['scripts/test-audit-json-contract.js'] },
   { label: 'Auto-merge gate tests',                 cmd: 'node', cmdArgs: ['scripts/test-automerge-gate.js'] },
   { label: 'Intake auto-merge gate tests',          cmd: 'node', cmdArgs: ['scripts/test-intake-automerge-gate.js'] },
   { label: 'Security audit (static)',               cmd: 'node', cmdArgs: ['scripts/security-audit-static.js'] },
