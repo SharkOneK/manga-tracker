@@ -27,6 +27,21 @@ function publisherNames(edition) {
     : [];
 }
 
+// Phase 48 follow-up: an edition can only be a genuine ambiguity competitor for
+// a given volume if it could plausibly contain that volume at all. An edition
+// with a known numVolumes smaller than the requested volume number (e.g.
+// "Fairy Tail +" with numVolumes 1 vs. requested volume 17) cannot be the right
+// edition and must not trigger the ambiguous-edition guard. When numVolumes is
+// missing or not a valid positive integer we stay conservative and keep treating
+// the edition as a potential competitor.
+function editionCanContainVolume(edition, volumeNumber) {
+  const requested = Number(volumeNumber);
+  const total = Number(edition && edition.numVolumes);
+  if (!Number.isInteger(requested) || requested < 1) return false;
+  if (!Number.isInteger(total) || total < 1) return true; // unknown => conservative
+  return total >= requested;
+}
+
 function scoreEdition(seed, edition, aliasMap) {
   const seedTitle = normalizeTitle(seed.seriesTitle);
   const editionTitle = normalizeTitle(edition && edition.title);
@@ -104,7 +119,10 @@ const mangaPassionProvider = {
       const exactEditionMatches = scored.filter(({ edition }) => {
         const titleMatches = normalizeTitle(edition && edition.title) === expectedTitle;
         const publishers = publisherNames(edition).map(name => normalizePublisher(name, aliasMap));
-        return titleMatches && publishers.includes(expectedPublisher) && edition.print === true;
+        return titleMatches &&
+          publishers.includes(expectedPublisher) &&
+          edition.print === true &&
+          editionCanContainVolume(edition, candidate.volumeNumber);
       });
 
       const volumesUrl = `${MP_API}/editions/${best.edition.id}/volumes?itemsPerPage=300`;
@@ -169,4 +187,4 @@ const mangaPassionProvider = {
 };
 
 module.exports = mangaPassionProvider;
-module.exports._private = { buildEditionSourceUrl };
+module.exports._private = { buildEditionSourceUrl, editionCanContainVolume };

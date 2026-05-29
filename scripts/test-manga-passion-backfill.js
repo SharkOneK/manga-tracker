@@ -20,6 +20,7 @@ const {
   evaluateReleaseCandidate,
 } = require('./release-confidence');
 const mangaPassionProvider = require('./release-providers/manga-passion-provider');
+const { editionCanContainVolume } = mangaPassionProvider._private;
 const {
   isLegacyMpBackfillTarget,
   loadLegacyMpBackfillCandidates,
@@ -78,6 +79,29 @@ function fairyTailEdition960Volume17Fixture() {
       ],
     },
   };
+}
+
+// Phase 48 follow-up: the real Manga-Passion search for "Fairy Tail" also
+// returns the spin-off edition "Fairy Tail +" (edition 959, numVolumes 1).
+// Its title normalises to the same value ("fairy tail") and the publisher
+// matches, so before the fix it counted as a second exact match and tripped
+// the ambiguous-edition guard for volume 17 — even though a 1-volume edition
+// can never contain volume 17.
+function fairyTailWithPlusSpinoffFixture() {
+  const fixture = fairyTailEdition960Volume17Fixture();
+  fixture.searchHits = [
+    fixture.searchHits[0],
+    {
+      id: 959,
+      title: 'Fairy Tail +',
+      print: true,
+      digital: false,
+      publishers: [{ name: 'Carlsen Manga' }],
+      numVolumes: 1,
+      cover: 'https://media.manga-passion.de/edition/cover/959.jpg',
+    },
+  ];
+  return fixture;
 }
 
 function makeFakeFetchJson(fixture) {
@@ -324,6 +348,119 @@ function testLoadLegacyMpBackfillCandidatesYieldsFairyTailVolume17() {
   assert.strictEqual(candidates[0].volumeNumber, 17);
 }
 
+// --- Phase 48 follow-up: edition-volume plausibility in ambiguity detection ---
+
+function testEditionCanContainVolumeHelper() {
+  // Known capacity at or above the requested volume => plausible competitor.
+  assert.strictEqual(editionCanContainVolume({ numVolumes: 63 }, 17), true);
+  assert.strictEqual(editionCanContainVolume({ numVolumes: 17 }, 17), true);
+  // Known capacity below the requested volume => cannot be the right edition.
+  assert.strictEqual(editionCanContainVolume({ numVolumes: 1 }, 17), false);
+  // Unknown / invalid capacity => stay conservative (treat as competitor).
+  assert.strictEqual(editionCanContainVolume({}, 17), true);
+  assert.strictEqual(editionCanContainVolume({ numVolumes: null }, 17), true);
+  assert.strictEqual(editionCanContainVolume({ numVolumes: 'foo' }, 17), true);
+  // Invalid requested volume number => never plausible.
+  assert.strictEqual(editionCanContainVolume({ numVolumes: 63 }, 0), false);
+}
+
+async function testFairyTailPlusSpinoffDoesNotTriggerAmbiguity() {
+  const fixture = fairyTailWithPlusSpinoffFixture();
+  const result = await mangaPassionProvider.findRelease({
+    origin: 'cache-backfill',
+    seriesTitle: 'Fairy Tail',
+    publisher: 'Carlsen Manga!',
+    volumeNumber: 17,
+  }, {
+    sources,
+    aliasMap,
+    policy: { minDelayMs: 0, timeoutMs: 1000 },
+    checkedAt: '2026-05-29T00:00:00.000Z',
+    fetchJson: makeFakeFetchJson(fixture),
+  });
+
+  assert.strictEqual(result.sourceResult, 'volume-found');
+  assert.strictEqual(result.sourceEditionId, 960);
+  assert.strictEqual(result.ambiguousEdition, false,
+    'a 1-volume "Fairy Tail +" edition must not count as an ambiguity competitor for volume 17');
+  assert.strictEqual(result.sourceUrl, 'https://www.manga-passion.de/editions/960');
+
+  const evaluation = evaluateReleaseCandidate(result, { sources, aliasMap });
+  assert.strictEqual(evaluation.confidence, 'high',
+    `expected high, got ${evaluation.confidence} (${evaluation.reasonCodes.join(', ')})`);
+  assert.ok(!evaluation.reasonCodes.includes('ambiguous-edition'),
+    'ambiguous-edition must not be reported once the spin-off is filtered out');
+}
+
+async function testGenuineAmbiguityStillBlocks() {
+  // Two plausible print editions: same normalised title, same publisher, both
+  // with numVolumes >= requested volume. This must remain blocked.
+  const fixture = fairyTailEdition960Volume17Fixture();
+  fixture.searchHits = [
+    fixture.searchHits[0],
+    {
+      id: 961,
+      title: 'Fairy Tail',
+      print: true,
+      digital: false,
+      publishers: [{ name: 'Carlsen Manga' }],
+      numVolumes: 30,
+      cover: 'https://media.manga-passion.de/edition/cover/961.jpg',
+    },
+  ];
+  const result = await mangaPassionProvider.findRelease({
+    origin: 'cache-backfill',
+    seriesTitle: 'Fairy Tail',
+    publisher: 'Carlsen Manga!',
+    volumeNumber: 17,
+  }, {
+    sources,
+    aliasMap,
+    policy: { minDelayMs: 0, timeoutMs: 1000 },
+    checkedAt: '2026-05-29T00:00:00.000Z',
+    fetchJson: makeFakeFetchJson(fixture),
+  });
+
+  assert.strictEqual(result.ambiguousEdition, true,
+    'two plausible same-title/same-publisher print editions must stay ambiguous');
+  const evaluation = evaluateReleaseCandidate(result, { sources, aliasMap });
+  assert.notStrictEqual(evaluation.confidence, 'high');
+  assert.ok(evaluation.reasonCodes.includes('ambiguous-edition'),
+    `expected ambiguous-edition, got ${evaluation.reasonCodes.join(', ')}`);
+}
+
+async function testMissingNumVolumesKeepsAmbiguity() {
+  // A competing edition without numVolumes must stay conservative => ambiguous.
+  const fixture = fairyTailEdition960Volume17Fixture();
+  fixture.searchHits = [
+    fixture.searchHits[0],
+    {
+      id: 962,
+      title: 'Fairy Tail',
+      print: true,
+      digital: false,
+      publishers: [{ name: 'Carlsen Manga' }],
+      // numVolumes intentionally omitted
+      cover: 'https://media.manga-passion.de/edition/cover/962.jpg',
+    },
+  ];
+  const result = await mangaPassionProvider.findRelease({
+    origin: 'cache-backfill',
+    seriesTitle: 'Fairy Tail',
+    publisher: 'Carlsen Manga!',
+    volumeNumber: 17,
+  }, {
+    sources,
+    aliasMap,
+    policy: { minDelayMs: 0, timeoutMs: 1000 },
+    checkedAt: '2026-05-29T00:00:00.000Z',
+    fetchJson: makeFakeFetchJson(fixture),
+  });
+
+  assert.strictEqual(result.ambiguousEdition, true,
+    'a competing edition with unknown numVolumes must keep the ambiguity for safety');
+}
+
 async function main() {
   await testMpProviderBuildsConcreteEditionUrl();
   await testMpProviderKeepsEditionUrlWhenVolumeMissing();
@@ -337,7 +474,11 @@ async function main() {
   testBackfillIgnoresConcreteEditionUrl();
   testBackfillIgnoresEntriesWithoutEditionId();
   testLoadLegacyMpBackfillCandidatesYieldsFairyTailVolume17();
-  console.log('test-manga-passion-backfill: ok (12 checks)');
+  testEditionCanContainVolumeHelper();
+  await testFairyTailPlusSpinoffDoesNotTriggerAmbiguity();
+  await testGenuineAmbiguityStillBlocks();
+  await testMissingNumVolumesKeepsAmbiguity();
+  console.log('test-manga-passion-backfill: ok (16 checks)');
 }
 
 main().catch(error => {
