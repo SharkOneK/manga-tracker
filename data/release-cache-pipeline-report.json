@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-05-28T17:45:41.655Z",
+  "generatedAt": "2026-05-29T14:22:14.386Z",
   "source": "run-release-cache-pipeline.js",
   "inputs": {
     "cacheItems": 182,
@@ -45,32 +45,19 @@
   },
   "summary": {
     "candidatesDiscovered": 196,
-    "candidatesChecked": 78,
-    "skippedAlreadyCached": 118,
+    "candidatesChecked": 77,
+    "skippedAlreadyCached": 119,
     "skippedDueToLimit": 0,
-    "highConfidence": 1,
+    "highConfidence": 0,
     "mediumConfidence": 0,
     "lowConfidence": 77,
     "blocked": 0,
-    "cachePatches": 1,
+    "cachePatches": 0,
     "reviewQueueWrites": 77,
     "invalidExistingCache": 0
   },
   "autoMergeEligible": false,
-  "cachePatches": [
-    {
-      "action": "update",
-      "key": "august 9th i will be eaten by you|carlsen manga|6",
-      "seriesTitle": "August 9th, I will be eaten by you",
-      "publisher": "Hayabusa",
-      "volumeNumber": 6,
-      "releaseDate": "2026-12-01",
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/2015",
-      "confidence": "high"
-    }
-  ],
+  "cachePatches": [],
   "reviewQueueWrites": [
     {
       "key": "berserk master edition|panini manga|9",
@@ -81,6 +68,7 @@
       "confidence": "low",
       "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
+        "source-url-not-specific",
         "missing-source-edition-title",
         "missing-source-publisher",
         "missing-source-volume-number",
@@ -101,6 +89,7 @@
       "confidence": "low",
       "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
+        "source-url-not-specific",
         "missing-source-edition-title",
         "missing-source-publisher",
         "missing-source-volume-number",
@@ -121,6 +110,7 @@
       "confidence": "low",
       "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
+        "source-url-not-specific",
         "missing-source-edition-title",
         "missing-source-publisher",
         "missing-source-volume-number",
@@ -141,6 +131,7 @@
       "confidence": "low",
       "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
+        "source-url-not-specific",
         "missing-source-edition-title",
         "missing-source-publisher",
         "missing-source-volume-number",
@@ -161,6 +152,7 @@
       "confidence": "low",
       "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
+        "source-url-not-specific",
         "missing-source-edition-title",
         "missing-source-publisher",
         "missing-source-volume-number",
@@ -181,6 +173,7 @@
       "confidence": "low",
       "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
+        "source-url-not-specific",
         "missing-source-edition-title",
         "missing-source-publisher",
         "missing-source-volume-number",
@@ -201,6 +194,7 @@
       "confidence": "low",
       "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
+        "source-url-not-specific",
         "missing-source-edition-title",
         "missing-source-publisher",
         "missing-source-volume-number",
@@ -221,6 +215,7 @@
       "confidence": "low",
       "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
+        "source-url-not-specific",
         "missing-source-edition-title",
         "missing-source-publisher",
         "missing-source-volume-number",
@@ -241,6 +236,7 @@
       "confidence": "low",
       "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
+        "source-url-not-specific",
         "missing-source-edition-title",
         "missing-source-publisher",
         "missing-source-volume-number",
@@ -261,6 +257,7 @@
       "confidence": "low",
       "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
+        "source-url-not-specific",
         "missing-source-edition-title",
         "missing-source-publisher",
         "missing-source-volume-number",
@@ -281,6 +278,7 @@
       "confidence": "low",
       "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
+        "source-url-not-specific",
         "missing-source-edition-title",
         "missing-source-publisher",
         "missing-source-volume-number",
@@ -301,6 +299,7 @@
       "confidence": "low",
       "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
+        "source-url-not-specific",
         "missing-source-edition-title",
         "missing-source-publisher",
         "missing-source-volume-number",
@@ -321,6 +320,7 @@
       "confidence": "low",
       "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
+        "source-url-not-specific",
         "missing-source-edition-title",
         "missing-source-publisher",
         "missing-source-volume-number",
@@ -341,6 +341,7 @@
       "confidence": "low",
       "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
+        "source-url-not-specific",
         "missing-source-edition-title",
         "missing-source-publisher",
         "missing-source-volume-number",
@@ -361,6 +362,7 @@
       "confidence": "low",
       "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
+        "source-url-not-specific",
         "missing-source-edition-title",
         "missing-source-publisher",
         "missing-source-volume-number",
@@ -381,6 +383,7 @@
       "confidence": "low",
       "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
+        "source-url-not-specific",
         "missing-source-edition-title",
         "missing-source-publisher",
         "missing-source-volume-number",
@@ -401,6 +404,7 @@
       "confidence": "low",
       "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
+        "source-url-not-specific",
         "missing-source-edition-title",
         "missing-source-publisher",
         "missing-source-volume-number",
@@ -421,6 +425,7 @@
       "confidence": "low",
       "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
+        "source-url-not-specific",
         "missing-source-edition-title",
         "missing-source-publisher",
         "missing-source-volume-number",
@@ -441,6 +446,7 @@
       "confidence": "low",
       "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
+        "source-url-not-specific",
         "missing-source-edition-title",
         "missing-source-publisher",
         "missing-source-volume-number",
@@ -461,6 +467,7 @@
       "confidence": "low",
       "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
+        "source-url-not-specific",
         "missing-source-edition-title",
         "missing-source-publisher",
         "missing-source-volume-number",
@@ -481,6 +488,7 @@
       "confidence": "low",
       "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
+        "source-url-not-specific",
         "missing-source-edition-title",
         "missing-source-publisher",
         "missing-source-volume-number",
@@ -519,6 +527,7 @@
       "confidence": "low",
       "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
+        "source-url-not-specific",
         "missing-source-edition-title",
         "missing-source-publisher",
         "missing-source-volume-number",
@@ -539,6 +548,7 @@
       "confidence": "low",
       "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
+        "source-url-not-specific",
         "missing-source-edition-title",
         "missing-source-publisher",
         "missing-source-volume-number",
@@ -559,6 +569,7 @@
       "confidence": "low",
       "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
+        "source-url-not-specific",
         "missing-source-edition-title",
         "missing-source-publisher",
         "missing-source-volume-number",
@@ -579,6 +590,7 @@
       "confidence": "low",
       "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
+        "source-url-not-specific",
         "missing-source-edition-title",
         "missing-source-publisher",
         "missing-source-volume-number",
@@ -599,6 +611,7 @@
       "confidence": "low",
       "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
+        "source-url-not-specific",
         "missing-source-edition-title",
         "missing-source-publisher",
         "missing-source-volume-number",
@@ -619,6 +632,7 @@
       "confidence": "low",
       "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
+        "source-url-not-specific",
         "missing-source-edition-title",
         "missing-source-publisher",
         "missing-source-volume-number",
@@ -639,6 +653,7 @@
       "confidence": "low",
       "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
+        "source-url-not-specific",
         "missing-source-edition-title",
         "missing-source-publisher",
         "missing-source-volume-number",
@@ -659,6 +674,7 @@
       "confidence": "low",
       "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
+        "source-url-not-specific",
         "missing-source-edition-title",
         "missing-source-publisher",
         "missing-source-volume-number",
@@ -679,6 +695,7 @@
       "confidence": "low",
       "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
+        "source-url-not-specific",
         "missing-source-edition-title",
         "missing-source-publisher",
         "missing-source-volume-number",
@@ -699,6 +716,7 @@
       "confidence": "low",
       "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
+        "source-url-not-specific",
         "missing-source-edition-title",
         "missing-source-publisher",
         "missing-source-volume-number",
@@ -719,6 +737,7 @@
       "confidence": "low",
       "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
+        "source-url-not-specific",
         "missing-source-edition-title",
         "missing-source-publisher",
         "missing-source-volume-number",
@@ -739,6 +758,7 @@
       "confidence": "low",
       "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
+        "source-url-not-specific",
         "missing-source-edition-title",
         "missing-source-publisher",
         "missing-source-volume-number",
@@ -759,6 +779,7 @@
       "confidence": "low",
       "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
+        "source-url-not-specific",
         "missing-source-edition-title",
         "missing-source-publisher",
         "missing-source-volume-number",
@@ -779,6 +800,7 @@
       "confidence": "low",
       "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
+        "source-url-not-specific",
         "missing-source-edition-title",
         "missing-source-publisher",
         "missing-source-volume-number",
@@ -799,6 +821,7 @@
       "confidence": "low",
       "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
+        "source-url-not-specific",
         "missing-source-edition-title",
         "missing-source-publisher",
         "missing-source-volume-number",
@@ -819,6 +842,7 @@
       "confidence": "low",
       "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
+        "source-url-not-specific",
         "missing-source-edition-title",
         "missing-source-publisher",
         "missing-source-volume-number",
@@ -839,6 +863,7 @@
       "confidence": "low",
       "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
+        "source-url-not-specific",
         "missing-source-edition-title",
         "missing-source-publisher",
         "missing-source-volume-number",
@@ -859,6 +884,7 @@
       "confidence": "low",
       "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
+        "source-url-not-specific",
         "missing-source-edition-title",
         "missing-source-publisher",
         "missing-source-volume-number",
@@ -879,6 +905,7 @@
       "confidence": "low",
       "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
+        "source-url-not-specific",
         "missing-source-edition-title",
         "missing-source-publisher",
         "missing-source-volume-number",
@@ -899,6 +926,7 @@
       "confidence": "low",
       "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
+        "source-url-not-specific",
         "missing-source-edition-title",
         "missing-source-publisher",
         "missing-source-volume-number",
@@ -919,6 +947,7 @@
       "confidence": "low",
       "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
+        "source-url-not-specific",
         "missing-source-edition-title",
         "missing-source-publisher",
         "missing-source-volume-number",
@@ -939,6 +968,7 @@
       "confidence": "low",
       "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
+        "source-url-not-specific",
         "missing-source-edition-title",
         "missing-source-publisher",
         "missing-source-volume-number",
@@ -959,6 +989,7 @@
       "confidence": "low",
       "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
+        "source-url-not-specific",
         "missing-source-edition-title",
         "missing-source-publisher",
         "missing-source-volume-number",
@@ -979,6 +1010,7 @@
       "confidence": "low",
       "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
+        "source-url-not-specific",
         "missing-source-edition-title",
         "missing-source-publisher",
         "missing-source-volume-number",
@@ -999,6 +1031,7 @@
       "confidence": "low",
       "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
+        "source-url-not-specific",
         "missing-source-edition-title",
         "missing-source-publisher",
         "missing-source-volume-number",
@@ -1019,6 +1052,7 @@
       "confidence": "low",
       "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
+        "source-url-not-specific",
         "missing-source-edition-title",
         "missing-source-publisher",
         "missing-source-volume-number",
@@ -1039,6 +1073,7 @@
       "confidence": "low",
       "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
+        "source-url-not-specific",
         "missing-source-edition-title",
         "missing-source-publisher",
         "missing-source-volume-number",
@@ -1059,6 +1094,7 @@
       "confidence": "low",
       "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
+        "source-url-not-specific",
         "missing-source-edition-title",
         "missing-source-publisher",
         "missing-source-volume-number",
@@ -1079,6 +1115,7 @@
       "confidence": "low",
       "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
+        "source-url-not-specific",
         "missing-source-edition-title",
         "missing-source-publisher",
         "missing-source-volume-number",
@@ -1099,6 +1136,7 @@
       "confidence": "low",
       "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
+        "source-url-not-specific",
         "missing-source-edition-title",
         "missing-source-publisher",
         "missing-source-volume-number",
@@ -1119,6 +1157,7 @@
       "confidence": "low",
       "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
+        "source-url-not-specific",
         "missing-source-edition-title",
         "missing-source-publisher",
         "missing-source-volume-number",
@@ -1139,6 +1178,7 @@
       "confidence": "low",
       "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
+        "source-url-not-specific",
         "missing-source-edition-title",
         "missing-source-publisher",
         "missing-source-volume-number",
@@ -1159,6 +1199,7 @@
       "confidence": "low",
       "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
+        "source-url-not-specific",
         "missing-source-edition-title",
         "missing-source-publisher",
         "missing-source-volume-number",
@@ -1179,6 +1220,7 @@
       "confidence": "low",
       "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
+        "source-url-not-specific",
         "missing-source-edition-title",
         "missing-source-publisher",
         "missing-source-volume-number",
@@ -1199,6 +1241,7 @@
       "confidence": "low",
       "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
+        "source-url-not-specific",
         "missing-source-edition-title",
         "missing-source-publisher",
         "missing-source-volume-number",
@@ -1219,6 +1262,7 @@
       "confidence": "low",
       "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
+        "source-url-not-specific",
         "missing-source-edition-title",
         "missing-source-publisher",
         "missing-source-volume-number",
@@ -1239,6 +1283,7 @@
       "confidence": "low",
       "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
+        "source-url-not-specific",
         "missing-source-edition-title",
         "missing-source-publisher",
         "missing-source-volume-number",
@@ -1259,6 +1304,7 @@
       "confidence": "low",
       "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
+        "source-url-not-specific",
         "missing-source-edition-title",
         "missing-source-publisher",
         "missing-source-volume-number",
@@ -1279,6 +1325,7 @@
       "confidence": "low",
       "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
+        "source-url-not-specific",
         "missing-source-edition-title",
         "missing-source-publisher",
         "missing-source-volume-number",
@@ -1299,6 +1346,7 @@
       "confidence": "low",
       "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
+        "source-url-not-specific",
         "missing-source-edition-title",
         "missing-source-publisher",
         "missing-source-volume-number",
@@ -1319,6 +1367,7 @@
       "confidence": "low",
       "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
+        "source-url-not-specific",
         "missing-source-edition-title",
         "missing-source-publisher",
         "missing-source-volume-number",
@@ -1339,6 +1388,7 @@
       "confidence": "low",
       "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
+        "source-url-not-specific",
         "missing-source-edition-title",
         "missing-source-publisher",
         "missing-source-volume-number",
@@ -1359,6 +1409,7 @@
       "confidence": "low",
       "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
+        "source-url-not-specific",
         "missing-source-edition-title",
         "missing-source-publisher",
         "missing-source-volume-number",
@@ -1379,6 +1430,7 @@
       "confidence": "low",
       "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
+        "source-url-not-specific",
         "missing-source-edition-title",
         "missing-source-publisher",
         "missing-source-volume-number",
@@ -1399,6 +1451,7 @@
       "confidence": "low",
       "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
+        "source-url-not-specific",
         "missing-source-edition-title",
         "missing-source-publisher",
         "missing-source-volume-number",
@@ -1419,6 +1472,7 @@
       "confidence": "low",
       "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
+        "source-url-not-specific",
         "missing-source-edition-title",
         "missing-source-publisher",
         "missing-source-volume-number",
@@ -1439,6 +1493,7 @@
       "confidence": "low",
       "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
+        "source-url-not-specific",
         "missing-source-edition-title",
         "missing-source-publisher",
         "missing-source-volume-number",
@@ -1459,6 +1514,7 @@
       "confidence": "low",
       "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
+        "source-url-not-specific",
         "missing-source-edition-title",
         "missing-source-publisher",
         "missing-source-volume-number",
@@ -1479,6 +1535,7 @@
       "confidence": "low",
       "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
+        "source-url-not-specific",
         "missing-source-edition-title",
         "missing-source-publisher",
         "missing-source-volume-number",
@@ -1499,6 +1556,7 @@
       "confidence": "low",
       "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
+        "source-url-not-specific",
         "missing-source-edition-title",
         "missing-source-publisher",
         "missing-source-volume-number",
@@ -1519,6 +1577,7 @@
       "confidence": "low",
       "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
+        "source-url-not-specific",
         "missing-source-edition-title",
         "missing-source-publisher",
         "missing-source-volume-number",
@@ -1539,6 +1598,7 @@
       "confidence": "low",
       "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
+        "source-url-not-specific",
         "missing-source-edition-title",
         "missing-source-publisher",
         "missing-source-volume-number",
@@ -1577,6 +1637,7 @@
       "confidence": "low",
       "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
+        "source-url-not-specific",
         "missing-source-edition-title",
         "missing-source-publisher",
         "missing-source-volume-number",
@@ -1597,6 +1658,7 @@
       "confidence": "low",
       "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
+        "source-url-not-specific",
         "missing-source-edition-title",
         "missing-source-publisher",
         "missing-source-volume-number",
@@ -1624,6 +1686,7 @@
     "spy x family|crunchyroll manga|13",
     "spy x family|crunchyroll manga|14",
     "spy x family|crunchyroll manga|15",
+    "august 9th i will be eaten by you|carlsen manga|6",
     "vagabond master edition|egmont manga|8",
     "vagabond master edition|egmont manga|9",
     "vagabond master edition|egmont manga|10",
