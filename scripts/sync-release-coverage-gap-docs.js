@@ -42,21 +42,68 @@ function writeIfChanged(filePath, content) {
   return true;
 }
 
+// Phase 49: toleranter, deterministischer JSON-Extraktor.
+// Akzeptiert Begleitzeilen vor oder nach dem JSON-Objekt (z. B. Node-Warnings,
+// Loader-Notes), verlangt aber, dass genau ein parsbarer JSON-Block enthalten
+// ist, der die Audit-Pflichtfelder hat. Bei Inkonsistenz hart fehlschlagen.
 function parseAuditJsonStdout(stdout) {
-  const trimmed = stdout.trim();
-  if (!trimmed.startsWith('{') || !trimmed.endsWith('}')) {
-    throw new Error('Audit --json muss ausschliesslich ein JSON-Objekt auf stdout schreiben');
+  const text = String(stdout == null ? '' : stdout);
+  const start = text.indexOf('{');
+  const end = text.lastIndexOf('}');
+  if (start === -1 || end === -1 || end < start) {
+    throw new Error('Audit --json hat kein JSON-Objekt auf stdout geschrieben');
   }
-  return JSON.parse(trimmed);
+  const candidate = text.slice(start, end + 1);
+  let parsed;
+  try {
+    parsed = JSON.parse(candidate);
+  } catch (e) {
+    throw new Error(`Audit --json liefert kein parsbares JSON: ${e.message}`);
+  }
+  if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+    throw new Error('Audit --json liefert kein JSON-Objekt');
+  }
+  if (parsed.schemaVersion !== 1 || !parsed.summary || typeof parsed.summary !== 'object') {
+    throw new Error('Audit --json liefert kein Objekt mit erwarteten Pflichtfeldern (schemaVersion, summary)');
+  }
+  return parsed;
 }
 
 function runAuditJson() {
-  const stdout = cp.execFileSync(process.execPath, [auditScript, '--json'], {
-    cwd: repoRoot,
-    encoding: 'utf8',
-    stdio: ['ignore', 'pipe', 'pipe'],
-  });
-  return parseAuditJsonStdout(stdout);
+  let stdout = '';
+  let stderr = '';
+  try {
+    stdout = cp.execFileSync(process.execPath, [auditScript, '--json'], {
+      cwd: repoRoot,
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'pipe'],
+      env: { ...process.env, NODE_NO_WARNINGS: process.env.NODE_NO_WARNINGS || '1' },
+    });
+  } catch (e) {
+    // Phase 49: Bei Crash des Child-Prozesses stdout/stderr beilegen, damit
+    // CI-Diagnose nicht im Blindflug passiert.
+    const stdoutTail = e && e.stdout ? String(e.stdout).slice(-2000) : '';
+    const stderrTail = e && e.stderr ? String(e.stderr).slice(-2000) : '';
+    const detail = [];
+    if (stdoutTail) detail.push(`--- audit stdout (Auszug) ---\n${stdoutTail}`);
+    if (stderrTail) detail.push(`--- audit stderr (Auszug) ---\n${stderrTail}`);
+    const suffix = detail.length ? `\n\n${detail.join('\n\n')}` : '';
+    throw new Error(`Audit-Subprozess ist fehlgeschlagen: ${e.message}${suffix}`);
+  }
+  try {
+    return parseAuditJsonStdout(stdout);
+  } catch (parseErr) {
+    // Phase 49: Wenn der Subprozess sauber durchlief, aber stdout dennoch
+    // keinen parsbaren JSON-Block enthaelt, mindestens den stdout-Auszug an
+    // den CI-User durchreichen.
+    const stdoutTail = stdout ? String(stdout).slice(-2000) : '';
+    const stderrTail = stderr ? String(stderr).slice(-2000) : '';
+    const detail = [];
+    if (stdoutTail) detail.push(`--- audit stdout (Auszug) ---\n${stdoutTail}`);
+    if (stderrTail) detail.push(`--- audit stderr (Auszug) ---\n${stderrTail}`);
+    const suffix = detail.length ? `\n\n${detail.join('\n\n')}` : '';
+    throw new Error(`${parseErr.message}${suffix}`);
+  }
 }
 
 function normalizeText(value) {
