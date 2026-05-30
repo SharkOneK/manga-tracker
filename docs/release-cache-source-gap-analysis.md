@@ -2,23 +2,23 @@
 
 Stand: automatisch synchronisiert aus aktuellem Audit gegen `data/release-watchlist.json` und `data/release-cache.json`.
 
-Diese Datei dokumentiert die 30 bekannten `source-data-gap`-Luecken aus `docs/release-cache-coverage-gaps.md`. Sie ist bewusst eine Analyse- und Entscheidungsdatei: Es werden keine Release-Daten geraten, keine privaten Sammlungsdaten ergaenzt und `data/release-cache.json` bleibt unangetastet.
+Diese Datei dokumentiert die 28 bekannten `source-data-gap`-Luecken aus `docs/release-cache-coverage-gaps.md`. Sie ist bewusst eine Analyse- und Entscheidungsdatei: Es werden keine Release-Daten geraten, keine privaten Sammlungsdaten ergaenzt und `data/release-cache.json` bleibt unangetastet.
 
 ## Ergebnis
 
 | Kennzahl | Wert |
 |---|---:|
-| Analysierte Gaps | 30 |
-| Betroffene Serien | 12 |
+| Analysierte Gaps | 28 |
+| Betroffene Serien | 10 |
 | Sichere direkte Cache-Patches | 0 |
-| Manuelle Quellenpruefung noetig | 30 |
+| Manuelle Quellenpruefung noetig | 28 |
 
 ## Ursachencluster
 
 | Vermutete Ursache | Gaps |
 |---|---:|
 | not-yet-released | 25 |
-| manual-source-required | 3 |
+| manual-source-required | 1 |
 | source-missing | 1 |
 | volume-numbering-mismatch | 1 |
 
@@ -34,7 +34,7 @@ Interpretation:
 
 | Empfohlener Fix | Gaps |
 |---|---:|
-| manual-source-review | 30 |
+| manual-source-review | 28 |
 
 Der einzige sichere naechste Schritt ist aktuell `manual-source-review`: offizielle Verlagsseite oder bereits erlaubte vertrauenswuerdige Quelle pruefen und erst danach echte Release-Daten mit Source-URL uebernehmen.
 
@@ -52,8 +52,6 @@ Der einzige sichere naechste Schritt ist aktuell `manual-source-review`: offizie
 | Isekai Soapland | MANGAMOON | 3-8 | 6 | not-yet-released | manual-source-review | nein |
 | Neck mich nicht, Nagatoro-san | dani books | 6-7 | 2 | manual-source-required | manual-source-review | nein |
 | Tokyo Revengers – Doppelband-Edition | Carlsen Manga | 16 | 1 | volume-numbering-mismatch | manual-source-review | nein |
-| Tokyo Ghoul GIGANTIK | Crunchyroll Manga | 1 | 1 | manual-source-required | manual-source-review | nein |
-| Tokyo Ghoul:re GIGANTIK | Crunchyroll Manga | 1 | 1 | manual-source-required | manual-source-review | nein |
 
 ## Einzelgap-Matrix
 
@@ -87,8 +85,6 @@ Der einzige sichere naechste Schritt ist aktuell `manual-source-review`: offizie
 | Neck mich nicht, Nagatoro-san | dani books | 6 | not-yet-released | manual-source-review | nein | ja |
 | Tokyo Revengers – Doppelband-Edition | Carlsen Manga | 16 | volume-numbering-mismatch | manual-source-review | nein | ja |
 | Neck mich nicht, Nagatoro-san | dani books | 7 | manual-source-required | manual-source-review | nein | ja |
-| Tokyo Ghoul GIGANTIK | Crunchyroll Manga | 1 | manual-source-required | manual-source-review | nein | ja |
-| Tokyo Ghoul:re GIGANTIK | Crunchyroll Manga | 1 | manual-source-required | manual-source-review | nein | ja |
 
 ## Maschinenlesbare Analyse
 
@@ -629,44 +625,6 @@ Der einzige sichere naechste Schritt ist aktuell `manual-source-review`: offizie
       "recommendedFix": "manual-source-review",
       "safeToPatch": false,
       "manualSourceReviewNeeded": true
-    },
-    {
-      "seriesTitle": "Tokyo Ghoul GIGANTIK",
-      "publisher": "Crunchyroll Manga",
-      "volumeNumber": 1,
-      "classification": "source-data-gap",
-      "priority": "mittel",
-      "suspectedCause": "manual-source-required",
-      "checkedSources": [
-        {
-          "name": "Release-Intake-Staging / Release-Cache-Audit",
-          "url": "data/release-watchlist.json",
-          "result": "Nach Release-Intake in der Watchlist vorhanden; kein passender Eintrag in data/release-cache.json."
-        }
-      ],
-      "evidence": "Der Band wurde per Release-Intake in die Watchlist uebernommen. Der Release-Cache enthaelt noch kein belegtes Datum; kein Cache-Patch ohne verifizierte Quelle.",
-      "recommendedFix": "manual-source-review",
-      "safeToPatch": false,
-      "manualSourceReviewNeeded": true
-    },
-    {
-      "seriesTitle": "Tokyo Ghoul:re GIGANTIK",
-      "publisher": "Crunchyroll Manga",
-      "volumeNumber": 1,
-      "classification": "source-data-gap",
-      "priority": "mittel",
-      "suspectedCause": "manual-source-required",
-      "checkedSources": [
-        {
-          "name": "Release-Intake-Staging / Release-Cache-Audit",
-          "url": "data/release-watchlist.json",
-          "result": "Nach Release-Intake in der Watchlist vorhanden; kein passender Eintrag in data/release-cache.json."
-        }
-      ],
-      "evidence": "Der Band wurde per Release-Intake in die Watchlist uebernommen. Der Release-Cache enthaelt noch kein belegtes Datum; kein Cache-Patch ohne verifizierte Quelle.",
-      "recommendedFix": "manual-source-review",
-      "safeToPatch": false,
-      "manualSourceReviewNeeded": true
     }
   ]
 }
@@ -680,7 +638,6 @@ Der einzige sichere naechste Schritt ist aktuell `manual-source-review`: offizie
 | Altraverse | 6 | 2 | Offizielle Verlags-/Produktquelle manuell pruefen; kein Cache-Patch ohne belegtes tagesgenaues Release-Datum. |
 | Panini Manga | 6 | 1 | Offizielle Verlags-/Produktquelle manuell pruefen; kein Cache-Patch ohne belegtes tagesgenaues Release-Datum. |
 | Egmont Manga | 4 | 1 | Offizielle Verlags-/Produktquelle manuell pruefen; kein Cache-Patch ohne belegtes tagesgenaues Release-Datum. |
-| Crunchyroll Manga | 2 | 2 | Offizielle Verlags-/Produktquelle manuell pruefen; kein Cache-Patch ohne belegtes tagesgenaues Release-Datum. |
 | dani books | 2 | 1 | Offizielle Verlags-/Produktquelle manuell pruefen; kein Cache-Patch ohne belegtes tagesgenaues Release-Datum. |
 | MangaMoon | 2 | 2 | Offizielle Verlags-/Produktquelle manuell pruefen; kein Cache-Patch ohne belegtes tagesgenaues Release-Datum. |
 | Carlsen Manga | 1 | 1 | Offizielle Verlags-/Produktquelle manuell pruefen; kein Cache-Patch ohne belegtes tagesgenaues Release-Datum. |
