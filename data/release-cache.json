@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-05-28T17:45:41.655Z",
+  "generatedAt": "2026-05-30T10:30:29.037Z",
   "source": "run-release-cache-pipeline.js",
-  "itemCount": 182,
+  "itemCount": 184,
   "items": [
     {
       "seriesTitle": "Adou",
@@ -655,11 +655,13 @@
       "releaseDate": "2011-11-22",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2021/0704/1854/063546015caac93edc.jpg",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/960",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 960, Band 16, Score 105). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "providerId": "manga-passion",
+      "evidence": "Manga Passion Edition, Verlag und Bandnummer wurden gegen die Bandliste abgeglichen.",
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 960, Band 16). Ursprung: watchlist.",
+      "checkedAt": "2026-05-30T10:30:29.037Z"
     },
     {
       "seriesTitle": "Fairy Tail",
@@ -670,11 +672,13 @@
       "releaseDate": "2011-12-16",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2021/0805/1955/063556015cae346d09.jpg",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/960",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 960, Band 17, Score 105). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "providerId": "manga-passion",
+      "evidence": "Manga Passion Edition, Verlag und Bandnummer wurden gegen die Bandliste abgeglichen.",
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 960, Band 17). Ursprung: watchlist.",
+      "checkedAt": "2026-05-30T10:30:29.037Z"
     },
     {
       "seriesTitle": "Fairy Tail",
@@ -685,11 +689,13 @@
       "releaseDate": "2012-01-31",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2021/0906/2056/063566015cb33ac2ca.jpg",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/960",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 960, Band 18, Score 105). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "providerId": "manga-passion",
+      "evidence": "Manga Passion Edition, Verlag und Bandnummer wurden gegen die Bandliste abgeglichen.",
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 960, Band 18). Ursprung: watchlist.",
+      "checkedAt": "2026-05-30T10:30:29.037Z"
     },
     {
       "seriesTitle": "Fairy Tail",
@@ -700,11 +706,13 @@
       "releaseDate": "2012-02-28",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2021/1007/2157/063576015cb572834f.jpg",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/960",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 960, Band 19, Score 105). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "providerId": "manga-passion",
+      "evidence": "Manga Passion Edition, Verlag und Bandnummer wurden gegen die Bandliste abgeglichen.",
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 960, Band 19). Ursprung: watchlist.",
+      "checkedAt": "2026-05-30T10:30:29.037Z"
     },
     {
       "seriesTitle": "Fairy Tail",
@@ -715,11 +723,13 @@
       "releaseDate": "2012-03-20",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2021/1108/2258/063586015cbae3d05b.jpg",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/960",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 960, Band 20, Score 105). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "providerId": "manga-passion",
+      "evidence": "Manga Passion Edition, Verlag und Bandnummer wurden gegen die Bandliste abgeglichen.",
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 960, Band 20). Ursprung: watchlist.",
+      "checkedAt": "2026-05-30T10:30:29.037Z"
     },
     {
       "seriesTitle": "Fairy Tail",
@@ -730,11 +740,13 @@
       "releaseDate": "2012-05-29",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2021/1209/2359/063596015cbdf54e57.jpg",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/960",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 960, Band 21, Score 105). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "providerId": "manga-passion",
+      "evidence": "Manga Passion Edition, Verlag und Bandnummer wurden gegen die Bandliste abgeglichen.",
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 960, Band 21). Ursprung: watchlist.",
+      "checkedAt": "2026-05-30T10:30:29.037Z"
     },
     {
       "seriesTitle": "Fairy Tail",
@@ -745,11 +757,13 @@
       "releaseDate": "2012-07-31",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2021/0110/0000/063606015cc14338ee.jpg",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/960",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 960, Band 22, Score 105). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "providerId": "manga-passion",
+      "evidence": "Manga Passion Edition, Verlag und Bandnummer wurden gegen die Bandliste abgeglichen.",
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 960, Band 22). Ursprung: watchlist.",
+      "checkedAt": "2026-05-30T10:30:29.037Z"
     },
     {
       "seriesTitle": "Fairy Tail",
@@ -760,11 +774,13 @@
       "releaseDate": "2012-10-02",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2021/0211/0101/063616015cc4363dfa.jpg",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/960",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 960, Band 23, Score 105). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "providerId": "manga-passion",
+      "evidence": "Manga Passion Edition, Verlag und Bandnummer wurden gegen die Bandliste abgeglichen.",
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 960, Band 23). Ursprung: watchlist.",
+      "checkedAt": "2026-05-30T10:30:29.037Z"
     },
     {
       "seriesTitle": "Fairy Tail",
@@ -775,11 +791,13 @@
       "releaseDate": "2012-12-04",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2021/0312/0202/063626015cc79ef718.jpg",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/960",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 960, Band 24, Score 105). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "providerId": "manga-passion",
+      "evidence": "Manga Passion Edition, Verlag und Bandnummer wurden gegen die Bandliste abgeglichen.",
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 960, Band 24). Ursprung: watchlist.",
+      "checkedAt": "2026-05-30T10:30:29.037Z"
     },
     {
       "seriesTitle": "Fairy Tail",
@@ -790,11 +808,13 @@
       "releaseDate": "2013-01-29",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2021/0413/0303/063636015cc9b683b8.jpg",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/960",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 960, Band 25, Score 105). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "providerId": "manga-passion",
+      "evidence": "Manga Passion Edition, Verlag und Bandnummer wurden gegen die Bandliste abgeglichen.",
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 960, Band 25). Ursprung: watchlist.",
+      "checkedAt": "2026-05-30T10:30:29.037Z"
     },
     {
       "seriesTitle": "Fairy Tail",
@@ -805,11 +825,13 @@
       "releaseDate": "2013-03-19",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2021/0514/0404/063646015ccca43c78.jpg",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/960",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 960, Band 26, Score 105). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "providerId": "manga-passion",
+      "evidence": "Manga Passion Edition, Verlag und Bandnummer wurden gegen die Bandliste abgeglichen.",
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 960, Band 26). Ursprung: watchlist.",
+      "checkedAt": "2026-05-30T10:30:29.037Z"
     },
     {
       "seriesTitle": "Fairy Tail",
@@ -820,11 +842,13 @@
       "releaseDate": "2013-05-29",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2021/0615/0505/063656015cd080204b.jpg",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/960",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 960, Band 27, Score 105). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "providerId": "manga-passion",
+      "evidence": "Manga Passion Edition, Verlag und Bandnummer wurden gegen die Bandliste abgeglichen.",
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 960, Band 27). Ursprung: watchlist.",
+      "checkedAt": "2026-05-30T10:30:29.037Z"
     },
     {
       "seriesTitle": "Fairy Tail",
@@ -835,11 +859,13 @@
       "releaseDate": "2013-07-30",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2021/0716/0606/063666015cd563b10a.jpg",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/960",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 960, Band 28, Score 105). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "providerId": "manga-passion",
+      "evidence": "Manga Passion Edition, Verlag und Bandnummer wurden gegen die Bandliste abgeglichen.",
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 960, Band 28). Ursprung: watchlist.",
+      "checkedAt": "2026-05-30T10:30:29.037Z"
     },
     {
       "seriesTitle": "Fairy Tail",
@@ -850,11 +876,13 @@
       "releaseDate": "2013-10-01",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2021/0817/0707/063676015cd8a07f39.jpg",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/960",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 960, Band 29, Score 105). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "providerId": "manga-passion",
+      "evidence": "Manga Passion Edition, Verlag und Bandnummer wurden gegen die Bandliste abgeglichen.",
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 960, Band 29). Ursprung: watchlist.",
+      "checkedAt": "2026-05-30T10:30:29.037Z"
     },
     {
       "seriesTitle": "Fairy Tail",
@@ -865,11 +893,13 @@
       "releaseDate": "2013-12-03",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2021/0918/0808/063686015cdbe56a82.jpg",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/960",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 960, Band 30, Score 105). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "providerId": "manga-passion",
+      "evidence": "Manga Passion Edition, Verlag und Bandnummer wurden gegen die Bandliste abgeglichen.",
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 960, Band 30). Ursprung: watchlist.",
+      "checkedAt": "2026-05-30T10:30:29.037Z"
     },
     {
       "seriesTitle": "Fairy Tail",
@@ -880,11 +910,13 @@
       "releaseDate": "2014-01-28",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2021/1019/0909/063696015ce0038248.jpg",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/960",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 960, Band 31, Score 105). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "providerId": "manga-passion",
+      "evidence": "Manga Passion Edition, Verlag und Bandnummer wurden gegen die Bandliste abgeglichen.",
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 960, Band 31). Ursprung: watchlist.",
+      "checkedAt": "2026-05-30T10:30:29.037Z"
     },
     {
       "seriesTitle": "Fairy Tail",
@@ -895,11 +927,13 @@
       "releaseDate": "2014-03-18",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2021/1120/1010/063706015ce33e3d4f.jpg",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/960",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 960, Band 32, Score 105). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "providerId": "manga-passion",
+      "evidence": "Manga Passion Edition, Verlag und Bandnummer wurden gegen die Bandliste abgeglichen.",
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 960, Band 32). Ursprung: watchlist.",
+      "checkedAt": "2026-05-30T10:30:29.037Z"
     },
     {
       "seriesTitle": "Fairy Tail",
@@ -910,11 +944,13 @@
       "releaseDate": "2014-05-27",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2021/1221/1111/063716015ceb76ba76.jpg",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/960",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 960, Band 33, Score 105). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "providerId": "manga-passion",
+      "evidence": "Manga Passion Edition, Verlag und Bandnummer wurden gegen die Bandliste abgeglichen.",
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 960, Band 33). Ursprung: watchlist.",
+      "checkedAt": "2026-05-30T10:30:29.037Z"
     },
     {
       "seriesTitle": "Fairy Tail",
@@ -925,11 +961,13 @@
       "releaseDate": "2014-07-29",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2021/0122/1212/063726015cf04021d7.jpg",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/960",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 960, Band 34, Score 105). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "providerId": "manga-passion",
+      "evidence": "Manga Passion Edition, Verlag und Bandnummer wurden gegen die Bandliste abgeglichen.",
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 960, Band 34). Ursprung: watchlist.",
+      "checkedAt": "2026-05-30T10:30:29.037Z"
     },
     {
       "seriesTitle": "Fairy Tail",
@@ -940,11 +978,13 @@
       "releaseDate": "2014-09-30",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2021/0223/1313/063736015d3f5b5028.jpg",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/960",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 960, Band 35, Score 105). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "providerId": "manga-passion",
+      "evidence": "Manga Passion Edition, Verlag und Bandnummer wurden gegen die Bandliste abgeglichen.",
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 960, Band 35). Ursprung: watchlist.",
+      "checkedAt": "2026-05-30T10:30:29.037Z"
     },
     {
       "seriesTitle": "Fairy Tail",
@@ -955,11 +995,13 @@
       "releaseDate": "2014-11-25",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2021/0324/1414/063746015d422c3381.jpg",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/960",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 960, Band 36, Score 105). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "providerId": "manga-passion",
+      "evidence": "Manga Passion Edition, Verlag und Bandnummer wurden gegen die Bandliste abgeglichen.",
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 960, Band 36). Ursprung: watchlist.",
+      "checkedAt": "2026-05-30T10:30:29.037Z"
     },
     {
       "seriesTitle": "Fairy Tail",
@@ -970,11 +1012,13 @@
       "releaseDate": "2015-01-27",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2021/0425/1515/063756015d45556bfe.jpg",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/960",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 960, Band 37, Score 105). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "providerId": "manga-passion",
+      "evidence": "Manga Passion Edition, Verlag und Bandnummer wurden gegen die Bandliste abgeglichen.",
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 960, Band 37). Ursprung: watchlist.",
+      "checkedAt": "2026-05-30T10:30:29.037Z"
     },
     {
       "seriesTitle": "Fairy Tail",
@@ -985,11 +1029,13 @@
       "releaseDate": "2015-04-28",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2021/0526/1616/063766015d499e07d4.jpg",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/960",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 960, Band 38, Score 105). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "providerId": "manga-passion",
+      "evidence": "Manga Passion Edition, Verlag und Bandnummer wurden gegen die Bandliste abgeglichen.",
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 960, Band 38). Ursprung: watchlist.",
+      "checkedAt": "2026-05-30T10:30:29.037Z"
     },
     {
       "seriesTitle": "Fairy Tail",
@@ -1000,11 +1046,13 @@
       "releaseDate": "2015-06-30",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2021/0627/1717/063776015d4c6c4bdb.jpg",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/960",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 960, Band 39, Score 105). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "providerId": "manga-passion",
+      "evidence": "Manga Passion Edition, Verlag und Bandnummer wurden gegen die Bandliste abgeglichen.",
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 960, Band 39). Ursprung: watchlist.",
+      "checkedAt": "2026-05-30T10:30:29.037Z"
     },
     {
       "seriesTitle": "Fairy Tail",
@@ -1015,11 +1063,13 @@
       "releaseDate": "2015-08-25",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2021/0728/1818/063786015d51eb1470.jpg",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/960",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 960, Band 40, Score 105). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "providerId": "manga-passion",
+      "evidence": "Manga Passion Edition, Verlag und Bandnummer wurden gegen die Bandliste abgeglichen.",
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 960, Band 40). Ursprung: watchlist.",
+      "checkedAt": "2026-05-30T10:30:29.037Z"
     },
     {
       "seriesTitle": "Fairy Tail",
@@ -1030,11 +1080,13 @@
       "releaseDate": "2015-10-28",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2021/0829/1919/063796015d58588081.jpg",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/960",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 960, Band 41, Score 105). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "providerId": "manga-passion",
+      "evidence": "Manga Passion Edition, Verlag und Bandnummer wurden gegen die Bandliste abgeglichen.",
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 960, Band 41). Ursprung: watchlist.",
+      "checkedAt": "2026-05-30T10:30:29.037Z"
     },
     {
       "seriesTitle": "Fairy Tail",
@@ -1045,11 +1097,13 @@
       "releaseDate": "2015-12-22",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2021/0901/2020/063806015d5bfc7f2b.jpg",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/960",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 960, Band 42, Score 105). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "providerId": "manga-passion",
+      "evidence": "Manga Passion Edition, Verlag und Bandnummer wurden gegen die Bandliste abgeglichen.",
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 960, Band 42). Ursprung: watchlist.",
+      "checkedAt": "2026-05-30T10:30:29.037Z"
     },
     {
       "seriesTitle": "Fairy Tail",
@@ -1060,11 +1114,13 @@
       "releaseDate": "2016-03-01",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2021/1002/2121/063816015d5fd0f8cb.jpg",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/960",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 960, Band 43, Score 105). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "providerId": "manga-passion",
+      "evidence": "Manga Passion Edition, Verlag und Bandnummer wurden gegen die Bandliste abgeglichen.",
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 960, Band 43). Ursprung: watchlist.",
+      "checkedAt": "2026-05-30T10:30:29.037Z"
     },
     {
       "seriesTitle": "Fairy Tail",
@@ -1075,11 +1131,13 @@
       "releaseDate": "2016-04-26",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2021/1103/2222/063826015d63e3f3bc.jpg",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/960",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 960, Band 44, Score 105). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "providerId": "manga-passion",
+      "evidence": "Manga Passion Edition, Verlag und Bandnummer wurden gegen die Bandliste abgeglichen.",
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 960, Band 44). Ursprung: watchlist.",
+      "checkedAt": "2026-05-30T10:30:29.037Z"
     },
     {
       "seriesTitle": "Fairy Tail",
@@ -1090,11 +1148,13 @@
       "releaseDate": "2016-06-26",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2021/1204/2323/063836015d67251da8.jpg",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/960",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 960, Band 45, Score 105). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "providerId": "manga-passion",
+      "evidence": "Manga Passion Edition, Verlag und Bandnummer wurden gegen die Bandliste abgeglichen.",
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 960, Band 45). Ursprung: watchlist.",
+      "checkedAt": "2026-05-30T10:30:29.037Z"
     },
     {
       "seriesTitle": "Fairy Tail",
@@ -1105,11 +1165,13 @@
       "releaseDate": "2016-08-30",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2021/0105/0024/063846015d6a6a567a.jpg",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/960",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 960, Band 46, Score 105). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "providerId": "manga-passion",
+      "evidence": "Manga Passion Edition, Verlag und Bandnummer wurden gegen die Bandliste abgeglichen.",
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 960, Band 46). Ursprung: watchlist.",
+      "checkedAt": "2026-05-30T10:30:29.037Z"
     },
     {
       "seriesTitle": "Fairy Tail",
@@ -1120,11 +1182,13 @@
       "releaseDate": "2016-10-25",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2021/0206/0125/063856015d6e0a3821.jpg",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/960",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 960, Band 47, Score 105). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "providerId": "manga-passion",
+      "evidence": "Manga Passion Edition, Verlag und Bandnummer wurden gegen die Bandliste abgeglichen.",
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 960, Band 47). Ursprung: watchlist.",
+      "checkedAt": "2026-05-30T10:30:29.037Z"
     },
     {
       "seriesTitle": "Fairy Tail",
@@ -1135,11 +1199,13 @@
       "releaseDate": "2016-12-20",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2021/0307/0226/063866015d7115b38c.jpg",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/960",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 960, Band 48, Score 105). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "providerId": "manga-passion",
+      "evidence": "Manga Passion Edition, Verlag und Bandnummer wurden gegen die Bandliste abgeglichen.",
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 960, Band 48). Ursprung: watchlist.",
+      "checkedAt": "2026-05-30T10:30:29.037Z"
     },
     {
       "seriesTitle": "Fairy Tail",
@@ -1150,11 +1216,13 @@
       "releaseDate": "2017-02-28",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2021/0408/0327/063876015d74132a7a.jpg",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/960",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 960, Band 49, Score 105). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "providerId": "manga-passion",
+      "evidence": "Manga Passion Edition, Verlag und Bandnummer wurden gegen die Bandliste abgeglichen.",
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 960, Band 49). Ursprung: watchlist.",
+      "checkedAt": "2026-05-30T10:30:29.037Z"
     },
     {
       "seriesTitle": "Fairy Tail",
@@ -1165,11 +1233,13 @@
       "releaseDate": "2017-03-28",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2021/0509/0428/063886015d77265d04.jpg",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/960",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 960, Band 50, Score 105). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "providerId": "manga-passion",
+      "evidence": "Manga Passion Edition, Verlag und Bandnummer wurden gegen die Bandliste abgeglichen.",
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 960, Band 50). Ursprung: watchlist.",
+      "checkedAt": "2026-05-30T10:30:29.037Z"
     },
     {
       "seriesTitle": "Fairy Tail",
@@ -1180,11 +1250,13 @@
       "releaseDate": "2017-05-30",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2021/0610/0529/063896015d7c001ccf.jpg",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/960",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 960, Band 51, Score 105). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "providerId": "manga-passion",
+      "evidence": "Manga Passion Edition, Verlag und Bandnummer wurden gegen die Bandliste abgeglichen.",
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 960, Band 51). Ursprung: watchlist.",
+      "checkedAt": "2026-05-30T10:30:29.037Z"
     },
     {
       "seriesTitle": "Fairy Tail",
@@ -1195,11 +1267,13 @@
       "releaseDate": "2017-08-01",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2021/0711/0630/063906015d83d0bee5.jpg",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/960",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 960, Band 52, Score 105). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "providerId": "manga-passion",
+      "evidence": "Manga Passion Edition, Verlag und Bandnummer wurden gegen die Bandliste abgeglichen.",
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 960, Band 52). Ursprung: watchlist.",
+      "checkedAt": "2026-05-30T10:30:29.037Z"
     },
     {
       "seriesTitle": "Fairy Tail",
@@ -1210,11 +1284,13 @@
       "releaseDate": "2017-10-03",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2021/0812/0731/063916015d8708f1cd.jpg",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/960",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 960, Band 53, Score 105). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "providerId": "manga-passion",
+      "evidence": "Manga Passion Edition, Verlag und Bandnummer wurden gegen die Bandliste abgeglichen.",
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 960, Band 53). Ursprung: watchlist.",
+      "checkedAt": "2026-05-30T10:30:29.037Z"
     },
     {
       "seriesTitle": "Fairy Tail",
@@ -1225,11 +1301,13 @@
       "releaseDate": "2017-11-28",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2021/0913/0832/063926015d8c1ab2e2.jpg",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/960",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 960, Band 54, Score 105). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "providerId": "manga-passion",
+      "evidence": "Manga Passion Edition, Verlag und Bandnummer wurden gegen die Bandliste abgeglichen.",
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 960, Band 54). Ursprung: watchlist.",
+      "checkedAt": "2026-05-30T10:30:29.037Z"
     },
     {
       "seriesTitle": "Fairy Tail",
@@ -1240,11 +1318,13 @@
       "releaseDate": "2018-01-30",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2021/1014/0933/063936015d910223de.jpg",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/960",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 960, Band 55, Score 105). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "providerId": "manga-passion",
+      "evidence": "Manga Passion Edition, Verlag und Bandnummer wurden gegen die Bandliste abgeglichen.",
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 960, Band 55). Ursprung: watchlist.",
+      "checkedAt": "2026-05-30T10:30:29.037Z"
     },
     {
       "seriesTitle": "Fairy Tail",
@@ -1255,11 +1335,13 @@
       "releaseDate": "2018-04-30",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2021/1115/1034/063946015d945c834f.jpg",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/960",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 960, Band 56, Score 105). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "providerId": "manga-passion",
+      "evidence": "Manga Passion Edition, Verlag und Bandnummer wurden gegen die Bandliste abgeglichen.",
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 960, Band 56). Ursprung: watchlist.",
+      "checkedAt": "2026-05-30T10:30:29.037Z"
     },
     {
       "seriesTitle": "Fairy Tail",
@@ -1270,11 +1352,13 @@
       "releaseDate": "2018-06-26",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2021/1216/1135/063956015d97814cef.jpg",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/960",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 960, Band 57, Score 105). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "providerId": "manga-passion",
+      "evidence": "Manga Passion Edition, Verlag und Bandnummer wurden gegen die Bandliste abgeglichen.",
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 960, Band 57). Ursprung: watchlist.",
+      "checkedAt": "2026-05-30T10:30:29.037Z"
     },
     {
       "seriesTitle": "Fairy Tail",
@@ -1285,11 +1369,13 @@
       "releaseDate": "2018-08-28",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2021/0117/1236/063966015d9a9c1d17.jpg",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/960",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 960, Band 58, Score 105). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "providerId": "manga-passion",
+      "evidence": "Manga Passion Edition, Verlag und Bandnummer wurden gegen die Bandliste abgeglichen.",
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 960, Band 58). Ursprung: watchlist.",
+      "checkedAt": "2026-05-30T10:30:29.037Z"
     },
     {
       "seriesTitle": "Fairy Tail",
@@ -1300,11 +1386,13 @@
       "releaseDate": "2018-10-02",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2021/0218/1337/063976015d9e1e9949.jpg",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/960",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 960, Band 59, Score 105). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "providerId": "manga-passion",
+      "evidence": "Manga Passion Edition, Verlag und Bandnummer wurden gegen die Bandliste abgeglichen.",
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 960, Band 59). Ursprung: watchlist.",
+      "checkedAt": "2026-05-30T10:30:29.037Z"
     },
     {
       "seriesTitle": "Fairy Tail",
@@ -1315,11 +1403,13 @@
       "releaseDate": "2018-10-30",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2021/0319/1438/063986015da1488756.jpg",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/960",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 960, Band 60, Score 105). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "providerId": "manga-passion",
+      "evidence": "Manga Passion Edition, Verlag und Bandnummer wurden gegen die Bandliste abgeglichen.",
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 960, Band 60). Ursprung: watchlist.",
+      "checkedAt": "2026-05-30T10:30:29.037Z"
     },
     {
       "seriesTitle": "Fairy Tail",
@@ -1330,11 +1420,13 @@
       "releaseDate": "2018-12-27",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2021/0420/1539/063996015da6376a51.jpg",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/960",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 960, Band 61, Score 105). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "providerId": "manga-passion",
+      "evidence": "Manga Passion Edition, Verlag und Bandnummer wurden gegen die Bandliste abgeglichen.",
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 960, Band 61). Ursprung: watchlist.",
+      "checkedAt": "2026-05-30T10:30:29.037Z"
     },
     {
       "seriesTitle": "Fairy Tail",
@@ -1345,11 +1437,13 @@
       "releaseDate": "2019-02-26",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2021/0521/1640/064006015da9e0cc7f.jpg",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/960",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 960, Band 62, Score 105). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "providerId": "manga-passion",
+      "evidence": "Manga Passion Edition, Verlag und Bandnummer wurden gegen die Bandliste abgeglichen.",
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 960, Band 62). Ursprung: watchlist.",
+      "checkedAt": "2026-05-30T10:30:29.037Z"
     },
     {
       "seriesTitle": "Fairy Tail",
@@ -1360,11 +1454,13 @@
       "releaseDate": "2019-03-26",
       "isbn13": null,
       "coverUrl": "https://media.manga-passion.de/volume/cover/2021/0622/1741/064016015db0295975.jpg",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/960",
       "sourceName": "Manga Passion",
-      "confidence": "medium",
-      "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 960, Band 63, Score 105). Ursprung: app-seed.",
-      "checkedAt": "2026-05-19T10:35:20.068Z"
+      "providerId": "manga-passion",
+      "evidence": "Manga Passion Edition, Verlag und Bandnummer wurden gegen die Bandliste abgeglichen.",
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 960, Band 63). Ursprung: watchlist.",
+      "checkedAt": "2026-05-30T10:30:29.037Z"
     },
     {
       "seriesTitle": "From the Red Fog",
@@ -2477,6 +2573,40 @@
       "confidence": "high",
       "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 2790, Band 9). Ursprung: app-seed.",
       "checkedAt": "2026-05-19T15:26:34.180Z"
+    },
+    {
+      "seriesTitle": "Tokyo Ghoul GIGANTIK",
+      "normalizedSeriesTitle": "tokyo ghoul gigantik",
+      "publisher": "KAZÉ Manga",
+      "normalizedPublisher": "crunchyroll manga",
+      "volumeNumber": 1,
+      "releaseDate": "2025-08-01",
+      "isbn13": null,
+      "coverUrl": "https://media.manga-passion.de/volume/cover/2025/0620/1502/930f83f885662c53abfff80f124c69a1.jpg",
+      "sourceUrl": "https://www.manga-passion.de/editions/4962",
+      "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
+      "evidence": "Manga Passion Edition, Verlag und Bandnummer wurden gegen die Bandliste abgeglichen.",
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 4962, Band 1). Ursprung: watchlist.",
+      "checkedAt": "2026-05-30T10:30:29.037Z"
+    },
+    {
+      "seriesTitle": "Tokyo Ghoul:re GIGANTIK",
+      "normalizedSeriesTitle": "tokyo ghoul re gigantik",
+      "publisher": "KAZÉ Manga",
+      "normalizedPublisher": "crunchyroll manga",
+      "volumeNumber": 1,
+      "releaseDate": "2027-03-05",
+      "isbn13": null,
+      "coverUrl": "https://media.manga-passion.de/volume/cover/2026/0525/1241/e46d4c0e5368d973fdddafe8fff093ac.jpg",
+      "sourceUrl": "https://www.manga-passion.de/editions/6200",
+      "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
+      "evidence": "Manga Passion Edition, Verlag und Bandnummer wurden gegen die Bandliste abgeglichen.",
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 6200, Band 1). Ursprung: watchlist.",
+      "checkedAt": "2026-05-30T10:30:29.037Z"
     },
     {
       "seriesTitle": "Tokyo Revengers – Doppelband-Edition",
