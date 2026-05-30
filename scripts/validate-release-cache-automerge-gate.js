@@ -20,6 +20,8 @@ const {
   normalizePublisher,
   normalizeTitle,
 } = require('./release-confidence');
+const { validateReleaseVolumeCounts } = require('./validate-release-volume-counts');
+const { validateReleaseCacheVolumeCountsConsistency } = require('./validate-release-cache-volume-counts-consistency');
 
 const repoRoot = path.resolve(__dirname, '..');
 
@@ -27,6 +29,8 @@ const ALLOWLIST = new Set([
   'data/release-cache.json',
   'data/release-cache-pipeline-report.json',
   'data/release-source-review-queue.json',
+  'data/release-volume-counts.json',
+  'data/release-volume-counts-report.json',
 ]);
 
 const REPORT_QUEUE_ONLY_ALLOWLIST = new Set([
@@ -477,6 +481,38 @@ function evaluateReportQueueOnlyGate({ normalizedChangedFiles, report, beforeQue
   };
 }
 
+
+function validateReleaseVolumeArtifacts({ changedFiles, countsDoc, reportDoc, sources, cacheDoc }) {
+  const errors = [];
+  const volumeFilesChanged = changedFiles.some(file => file === 'data/release-volume-counts.json' || file === 'data/release-volume-counts-report.json');
+
+  if (volumeFilesChanged) {
+    const countsValidation = validateReleaseVolumeCounts(countsDoc, { sources });
+    if (!countsValidation.ok) {
+      errors.push(...countsValidation.errors.map(error => `release-volume-counts: ${error}`));
+    }
+
+    if (!reportDoc || typeof reportDoc !== 'object' || Array.isArray(reportDoc)) {
+      errors.push('release-volume-counts-report must be a JSON object.');
+    } else {
+      if (reportDoc.schemaVersion !== 1) errors.push('release-volume-counts-report.schemaVersion must be 1.');
+      if (reportDoc.privacyGateRequired !== true) errors.push('release-volume-counts-report.privacyGateRequired must be true.');
+    }
+  }
+
+  const consistency = validateReleaseCacheVolumeCountsConsistency({
+    cacheDoc,
+    countsDoc,
+    reportDoc,
+    sourcesDoc: sources,
+  });
+  if (!consistency.ok) {
+    errors.push(...consistency.errors.map(error => `cache/volume-count consistency: ${error}`));
+  }
+
+  return { ok: errors.length === 0, errors, volumeFilesChanged };
+}
+
 function evaluateAutoMergeGate({
   changedFiles,
   pipelineReport,
@@ -485,6 +521,8 @@ function evaluateAutoMergeGate({
   beforeCache = { items: [] },
   afterCache = { items: [] },
   sources = { sources: [] },
+  countsDoc = { items: [] },
+  reportDoc = { blockedCandidates: [] },
 }) {
   const normalizedChangedFiles = [...new Set((changedFiles || []).map(normalizePath).filter(Boolean))].sort();
   const base = { changedFiles: normalizedChangedFiles };
@@ -551,11 +589,29 @@ function evaluateAutoMergeGate({
       });
     }
 
+    const volumeValidation = validateReleaseVolumeArtifacts({
+      changedFiles: normalizedChangedFiles,
+      countsDoc: parseJsonInput(countsDoc, 'Release volume counts'),
+      reportDoc: parseJsonInput(reportDoc, 'Release volume counts report'),
+      sources: parseJsonInput(sources, 'Release sources'),
+      cacheDoc: parseJsonInput(afterCache, 'After release cache'),
+    });
+    if (!volumeValidation.ok) {
+      return deny('Blocked because release-cache and release-volume-count artifacts are inconsistent.', {
+        ...withCounts,
+        volumeFilesChanged: volumeValidation.volumeFilesChanged,
+        errors: volumeValidation.errors,
+      });
+    }
+
     return {
       allowed: true,
-      class: 'release-cache-high-confidence-only',
-      reason: 'Only allowed release-cache data files changed; every cache patch is high-confidence, source-backed, and matches the pipeline report.',
+      class: volumeValidation.volumeFilesChanged ? 'release-cache-with-volume-count-refresh' : 'release-cache-high-confidence-only',
+      reason: volumeValidation.volumeFilesChanged
+        ? 'Allowed release-cache data files changed and downstream release-volume-count artifacts were refreshed consistently.'
+        : 'Only allowed release-cache data files changed; every cache patch is high-confidence, source-backed, and downstream volume-count artifacts remain consistent.',
       ...withCounts,
+      volumeFilesChanged: volumeValidation.volumeFilesChanged,
     };
   } catch (error) {
     return deny(`Blocked because auto-merge gate could not evaluate safely: ${error.message}`, base);
@@ -670,6 +726,8 @@ function main() {
       beforeCache: readJsonFromGit(args.base, 'data/release-cache.json'),
       afterCache: readJsonFile('data/release-cache.json'),
       sources: readJsonFile('data/release-sources.json'),
+      countsDoc: readJsonFile('data/release-volume-counts.json'),
+      reportDoc: readJsonFile('data/release-volume-counts-report.json'),
     });
   } catch (error) {
     result = deny(`Blocked because auto-merge gate setup failed: ${error.message}`, {
@@ -698,4 +756,5 @@ module.exports = {
   evaluateAutoMergeGate,
   getChangedFiles,
   validateReleaseCachePatches,
+  validateReleaseVolumeArtifacts,
 };

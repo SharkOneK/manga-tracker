@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-05-30T10:52:33.197Z",
+  "generatedAt": "2026-05-30T11:58:33.463Z",
   "items": [
     {
       "seriesTitle": "Adou",
@@ -118,6 +118,15 @@
       "sourceUrl": "https://www.manga-passion.de/editions/5652",
       "confidence": "high",
       "checkedAt": "2026-05-19T15:26:34.180Z"
+    },
+    {
+      "seriesTitle": "Fairy Tail",
+      "publisher": "Carlsen Manga!",
+      "publishedVolumesDE": 63,
+      "source": "manga-passion",
+      "sourceUrl": "https://www.manga-passion.de/editions/960",
+      "confidence": "high",
+      "checkedAt": "2026-05-30T10:30:29.037Z"
     },
     {
       "seriesTitle": "From the Red Fog",
@@ -243,7 +252,7 @@
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/4962",
       "confidence": "high",
-      "checkedAt": "2026-05-30T10:52:33.197Z"
+      "checkedAt": "2026-05-30T10:30:29.037Z"
     },
     {
       "seriesTitle": "Tokyo Revengers – Doppelband-Edition",

@@ -37,6 +37,7 @@ jobs:
           node --check scripts/run-release-volume-counts.js
           node --check scripts/validate-release-volume-counts.js
           node --check scripts/validate-release-volume-counts-automerge-gate.js
+          node --check scripts/validate-release-cache-volume-counts-consistency.js
           node --check scripts/test-release-volume-counts.js
           node --check scripts/test-public-private-diff.js
           node --check scripts/write-release-volume-counts-status-mail.js
@@ -47,6 +48,7 @@ jobs:
       - name: Validate Phase 43 artifacts and gates
         run: |
           node scripts/validate-release-volume-counts.js
+          node scripts/validate-release-cache-volume-counts-consistency.js
           node scripts/test-release-volume-counts.js
           node scripts/test-public-private-diff.js
           node scripts/check-secrets.js

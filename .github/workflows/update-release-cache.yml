@@ -44,6 +44,9 @@ jobs:
           node --check scripts/release-providers/manga-passion-provider.js
           node --check scripts/validate-release-cache-pipeline-report.js
           node --check scripts/validate-release-cache-automerge-gate.js
+          node --check scripts/run-release-volume-counts.js
+          node --check scripts/validate-release-volume-counts.js
+          node --check scripts/validate-release-cache-volume-counts-consistency.js
           node --check scripts/update-release-cache.js
           node --check scripts/validate-release-cache.js
           node --check scripts/validate-release-watchlist.js
@@ -58,10 +61,15 @@ jobs:
       - name: Run automated release-cache pipeline
         run: node scripts/run-release-cache-pipeline.js
 
+      - name: Refresh volume counts from updated release cache
+        run: node scripts/run-release-volume-counts.js --from-cache-only
+
       - name: Validate release-cache artifacts
         run: |
           node scripts/validate-release-cache-pipeline-report.js
           node scripts/validate-release-cache.js
+          node scripts/validate-release-volume-counts.js
+          node scripts/validate-release-cache-volume-counts-consistency.js
           node scripts/validate-release-watchlist.js
           node scripts/sync-release-coverage-gap-docs.js
           node scripts/write-release-source-review-queue.js
@@ -99,6 +107,7 @@ jobs:
           console.log(`- Auto-merge eligible: ${report.autoMergeEligible ? 'yes' : 'no'}`);
           console.log('');
           console.log('Unsafe or ambiguous candidates are kept in `data/release-source-review-queue.json`; only `confidence: "high"` cache patches are written to `data/release-cache.json`.');
+          console.log('Downstream `data/release-volume-counts*.json` artifacts are refreshed from cache-only in the same PR so cache and volume-count reports cannot drift.');
           NODE
 
       - name: Detect release-cache pipeline changes
@@ -108,7 +117,9 @@ jobs:
           if git diff --quiet -- \
             data/release-cache.json \
             data/release-source-review-queue.json \
-            data/release-cache-pipeline-report.json; then
+            data/release-cache-pipeline-report.json \
+            data/release-volume-counts.json \
+            data/release-volume-counts-report.json; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
             echo "No release-cache data changes detected."
           else
@@ -116,7 +127,9 @@ jobs:
             git diff --stat -- \
               data/release-cache.json \
               data/release-source-review-queue.json \
-              data/release-cache-pipeline-report.json
+              data/release-cache-pipeline-report.json \
+              data/release-volume-counts.json \
+              data/release-volume-counts-report.json
           fi
 
       - name: Create release-cache update PR
@@ -135,6 +148,8 @@ jobs:
             data/release-cache.json
             data/release-source-review-queue.json
             data/release-cache-pipeline-report.json
+            data/release-volume-counts.json
+            data/release-volume-counts-report.json
 
       - name: Block auto-merge if PR number is missing
         if: steps.changes.outputs.changed == 'true' && steps.cpr.outputs.pull-request-number == ''
