@@ -4,10 +4,10 @@
   "generatedFrom": "docs/release-cache-source-gap-analysis.md",
   "reviewPolicy": "docs/release-cache-manual-source-review.md",
   "summary": {
-    "knownSourceGaps": 28,
-    "totalGaps": 91,
+    "knownSourceGaps": 30,
+    "totalGaps": 93,
     "safeToPatch": 14,
-    "pendingManualReview": 77,
+    "pendingManualReview": 79,
     "autoReviewed": 71,
     "patched": 14
   },
@@ -3275,6 +3275,58 @@
         "missing-release-date"
       ],
       "providerId": "carlsen"
+    },
+    {
+      "queueKey": "Tokyo Ghoul GIGANTIK|Crunchyroll Manga|1",
+      "seriesTitle": "Tokyo Ghoul GIGANTIK",
+      "publisher": "Crunchyroll Manga",
+      "volumeNumber": 1,
+      "classification": "source-data-gap",
+      "suspectedCause": "manual-source-required",
+      "priority": "mittel",
+      "recommendedFix": "manual-source-review",
+      "manualSourceReviewNeeded": true,
+      "checkedSources": [
+        {
+          "name": "Release-Intake-Staging / Release-Cache-Audit",
+          "url": "data/release-watchlist.json",
+          "result": "Nach Release-Intake in der Watchlist vorhanden; kein passender Eintrag in data/release-cache.json."
+        }
+      ],
+      "sourceAnalysisEvidence": "Der Band wurde per Release-Intake in die Watchlist uebernommen. Der Release-Cache enthaelt noch kein belegtes Datum; kein Cache-Patch ohne verifizierte Quelle.",
+      "safeToPatch": false,
+      "reviewStatus": "pending",
+      "sourceUrl": "",
+      "releaseDate": null,
+      "checkedAt": null,
+      "evidence": "",
+      "notes": "Automatisch aus aktueller Source-Gap-Analyse ergänzt; manuelle Quellenprüfung erforderlich."
+    },
+    {
+      "queueKey": "Tokyo Ghoul:re GIGANTIK|Crunchyroll Manga|1",
+      "seriesTitle": "Tokyo Ghoul:re GIGANTIK",
+      "publisher": "Crunchyroll Manga",
+      "volumeNumber": 1,
+      "classification": "source-data-gap",
+      "suspectedCause": "manual-source-required",
+      "priority": "mittel",
+      "recommendedFix": "manual-source-review",
+      "manualSourceReviewNeeded": true,
+      "checkedSources": [
+        {
+          "name": "Release-Intake-Staging / Release-Cache-Audit",
+          "url": "data/release-watchlist.json",
+          "result": "Nach Release-Intake in der Watchlist vorhanden; kein passender Eintrag in data/release-cache.json."
+        }
+      ],
+      "sourceAnalysisEvidence": "Der Band wurde per Release-Intake in die Watchlist uebernommen. Der Release-Cache enthaelt noch kein belegtes Datum; kein Cache-Patch ohne verifizierte Quelle.",
+      "safeToPatch": false,
+      "reviewStatus": "pending",
+      "sourceUrl": "",
+      "releaseDate": null,
+      "checkedAt": null,
+      "evidence": "",
+      "notes": "Automatisch aus aktueller Source-Gap-Analyse ergänzt; manuelle Quellenprüfung erforderlich."
     }
   ]
 }
