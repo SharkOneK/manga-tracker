@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-05-29T14:29:16.800Z",
+  "generatedAt": "2026-05-30T10:52:33.197Z",
   "items": [
     {
       "seriesTitle": "Adou",
@@ -104,11 +104,11 @@
     {
       "seriesTitle": "Demon Slave",
       "publisher": "KAZÉ Manga",
-      "publishedVolumesDE": 7,
+      "publishedVolumesDE": 8,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/509",
       "confidence": "high",
-      "checkedAt": "2026-05-29T14:29:16.800Z"
+      "checkedAt": "2026-05-30T10:52:33.197Z"
     },
     {
       "seriesTitle": "Die letzte Elfe",
@@ -212,11 +212,11 @@
     {
       "seriesTitle": "Real Account",
       "publisher": "TOKYOPOP",
-      "publishedVolumesDE": 11,
+      "publishedVolumesDE": 12,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/819",
       "confidence": "high",
-      "checkedAt": "2026-05-29T14:29:16.800Z"
+      "checkedAt": "2026-05-30T10:52:33.197Z"
     },
     {
       "seriesTitle": "Reincarnated as a Sword: Another Wish",
@@ -235,6 +235,15 @@
       "sourceUrl": "https://www.manga-passion.de/editions/364",
       "confidence": "high",
       "checkedAt": "2026-05-25T05:48:59.277Z"
+    },
+    {
+      "seriesTitle": "Tokyo Ghoul GIGANTIK",
+      "publisher": "KAZÉ Manga",
+      "publishedVolumesDE": 1,
+      "source": "manga-passion",
+      "sourceUrl": "https://www.manga-passion.de/editions/4962",
+      "confidence": "high",
+      "checkedAt": "2026-05-30T10:52:33.197Z"
     },
     {
       "seriesTitle": "Tokyo Revengers – Doppelband-Edition",
