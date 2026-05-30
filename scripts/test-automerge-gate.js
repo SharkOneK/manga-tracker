@@ -76,7 +76,7 @@ function cacheItem(overrides = {}) {
     publisher: 'Egmont Manga',
     normalizedPublisher: 'egmont manga',
     volumeNumber: 1,
-    releaseDate: '2026-06-01',
+    releaseDate: '2099-06-01',
     isbn13: null,
     coverUrl: null,
     sourceUrl: 'https://www.manga-passion.de/editions/1234',
@@ -97,6 +97,39 @@ function cacheDoc(items = []) {
     source: 'run-release-cache-pipeline.js',
     itemCount: items.length,
     items,
+  };
+}
+
+
+function volumeCountsDoc(items = []) {
+  return {
+    schemaVersion: 1,
+    generatedAt: '2026-05-30T00:00:00.000Z',
+    items,
+  };
+}
+
+function volumeCountItemFromCache(item, overrides = {}) {
+  return {
+    seriesTitle: item.seriesTitle,
+    publisher: item.publisher,
+    publishedVolumesDE: item.volumeNumber,
+    source: 'manga-passion',
+    sourceUrl: item.sourceUrl,
+    confidence: 'high',
+    checkedAt: item.checkedAt,
+    ...overrides,
+  };
+}
+
+function volumeCountsReport(overrides = {}) {
+  return {
+    schemaVersion: 1,
+    generatedAt: '2026-05-30T00:00:00.000Z',
+    summary: { appliedHighConfidenceChanges: 1, blockedOrUnsafe: 0 },
+    blockedCandidates: [],
+    privacyGateRequired: true,
+    ...overrides,
   };
 }
 
@@ -221,6 +254,44 @@ const tests = [
         afterCache: cacheDoc([after]),
       });
       assertAllowed('safe release-cache update', result);
+    },
+  ],
+
+  [
+    'past high-confidence release-cache add without volume-count refresh blocks as inconsistent',
+    () => {
+      const item = cacheItem({ releaseDate: '2026-05-01' });
+      const result = evaluate({
+        changedFiles: ['data/release-cache.json', 'data/release-cache-pipeline-report.json'],
+        pipelineReport: releaseCacheReportFor(item),
+        beforeCache: cacheDoc([]),
+        afterCache: cacheDoc([item]),
+        countsDoc: volumeCountsDoc([]),
+        reportDoc: volumeCountsReport(),
+      });
+      assertBlocked('stale downstream volume counts', result, /inconsistent/);
+      assert.ok(result.errors.some(error => /release-volume-counts is stale/.test(error)));
+    },
+  ],
+  [
+    'past high-confidence release-cache add with volume-count refresh is allowed',
+    () => {
+      const item = cacheItem({ releaseDate: '2026-05-01' });
+      const result = evaluate({
+        changedFiles: [
+          'data/release-cache.json',
+          'data/release-cache-pipeline-report.json',
+          'data/release-volume-counts.json',
+          'data/release-volume-counts-report.json',
+        ],
+        pipelineReport: releaseCacheReportFor(item),
+        beforeCache: cacheDoc([]),
+        afterCache: cacheDoc([item]),
+        countsDoc: volumeCountsDoc([volumeCountItemFromCache(item)]),
+        reportDoc: volumeCountsReport(),
+      });
+      assertAllowed('cache add with downstream volume refresh', result);
+      assert.strictEqual(result.class, 'release-cache-with-volume-count-refresh');
     },
   ],
   [
