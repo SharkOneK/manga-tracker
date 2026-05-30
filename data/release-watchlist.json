@@ -510,7 +510,23 @@
       "sourceUrl": null,
       "notes": "Aus Release-Intake-Staging übernommen.",
       "enabled": true
+    },
+    {
+      "seriesTitle": "Tokyo Ghoul GIGANTIK",
+      "publisher": "Crunchyroll Manga",
+      "volumeNumber": 1,
+      "sourceUrl": null,
+      "notes": "Aus Release-Intake-Staging übernommen.",
+      "enabled": true
+    },
+    {
+      "seriesTitle": "Tokyo Ghoul:re GIGANTIK",
+      "publisher": "Crunchyroll Manga",
+      "volumeNumber": 1,
+      "sourceUrl": null,
+      "notes": "Aus Release-Intake-Staging übernommen.",
+      "enabled": true
     }
   ],
-  "generatedAt": "2026-05-25T10:57:36.660Z"
+  "generatedAt": "2026-05-30T10:30:00.279Z"
 }
