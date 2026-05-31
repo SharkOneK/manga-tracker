@@ -614,7 +614,7 @@ function volumeRow(v) {
     <div class="vol-cover" data-style-background="${c}">
       ${bandCover ? `<img src="${bandCover}" alt="" loading="lazy" data-remove-on-error="true">` : `<div class="vol-cover-letter">${escapeHtml((v.title || '?').slice(0,1).toUpperCase())}</div>`}
       <div class="vol-cover-gradient"></div>
-      <div class="vol-band-badge">Band ${v._band}</div>
+      <div class="vol-band-badge">Band ${escapeHtml(v._band)}</div>
     </div>
     <div class="vol-info">
       <div class="vol-title">${escapeHtml(v.title)}</div>
@@ -644,7 +644,7 @@ function renderBandStatusList(status, el, hint) {
     return;
   }
   if (!filtered.length) {
-    el.innerHTML = `<div class="empty"><div class="empty-icon">🔍</div><h3>Keine Treffer für „${searchQ}"</h3><p>Versuche einen anderen Suchbegriff.</p></div>`;
+    el.innerHTML = `<div class="empty"><div class="empty-icon">🔍</div><h3>Keine Treffer für „${escapeHtml(searchQ)}"</h3><p>Versuche einen anderen Suchbegriff.</p></div>`;
     return;
   }
   el.innerHTML = `<div class="vol-list">${filtered.map(volumeRow).join('')}</div>`;
@@ -717,12 +717,12 @@ function mangaCard(m) {
       ${wishBadge}
     </div>
     <div class="card-info">
-      <div class="card-title">${m.title}</div>
-      <div class="card-pub">${m.pub || 'Unbekannt'} ${statusPill}</div>
+      <div class="card-title">${escapeHtml(m.title)}</div>
+      <div class="card-pub">${escapeHtml(m.pub || 'Unbekannt')} ${statusPill}</div>
       <div class="card-vols">${volText}</div>
       ${publicVolumeSummary ? `<div class="card-release-volume-summary">${publicVolumeSummary}</div>` : ''}
       ${hasProg ? `<div class="progress"><div class="progress-fill" data-style-width="${prog}%"></div></div>` : ''}
-      ${(m.genres||[]).length ? `<div class="card-genres">${(m.genres).map(g=>`<span class="card-genre">${g}</span>`).join('')}</div>` : ''}
+      ${(m.genres||[]).length ? `<div class="card-genres">${(m.genres).map(g=>`<span class="card-genre">${escapeHtml(g)}</span>`).join('')}</div>` : ''}
       ${(m.startedAt||m.finishedAt) ? `<div class="card-dates">${m.startedAt?'📖 '+new Date(m.startedAt+'T00:00:00').toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit',year:'numeric'}):''}${m.startedAt&&m.finishedAt?' – ':''}${m.finishedAt?'✅ '+new Date(m.finishedAt+'T00:00:00').toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit',year:'numeric'}):''}</div>`:''}
       <button class="share-btn" data-action="share-manga" data-manga-id="${escapeHtml(m.id)}" title="Empfehlung teilen">📤</button>
     </div>
@@ -748,9 +748,9 @@ function buyCard(m, isAvail) {
   return `<div class="buy-card ${isAvail ? 'avail' : 'soon'}">
     ${coverEl(m, 'mini', m.next)}
     <div class="buy-info">
-      <div class="buy-title">${m.title}</div>
-      <div class="buy-band">Band ${m.next} kaufen</div>
-      <div class="buy-pub">${m.pub || ''}</div>
+      <div class="buy-title">${escapeHtml(m.title)}</div>
+      <div class="buy-band">Band ${escapeHtml(m.next)} kaufen</div>
+      <div class="buy-pub">${escapeHtml(m.pub || '')}</div>
       ${dateLabel}
       ${shopLinks}
     </div>
@@ -848,6 +848,17 @@ function escapeHtml(value) {
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#39;');
+}
+
+// Phase 50: Escaping für YAML-Double-Quoted-Strings (Obsidian-Export).
+// Reihenfolge wichtig: erst Backslash, dann Anführungszeichen — sonst würde
+// ein bereits gesetzter Escape-Backslash erneut verdoppelt (incomplete sanitization).
+// Zeilenumbrüche werden auf Leerzeichen reduziert, damit das Frontmatter gültig bleibt.
+function escapeYamlString(value) {
+  return String(value ?? '')
+    .replace(/\\/g, '\\\\')
+    .replace(/"/g, '\\"')
+    .replace(/[\r\n]+/g, ' ');
 }
 
 // Phase 38: Der Wert `ongoing` beschreibt den Stand der deutschsprachigen
@@ -1071,12 +1082,12 @@ function renderDashboard() {
               const dateLabel = d
                 ? (isAvail ? 'Jetzt erhältlich' : d.toLocaleDateString('de-DE', {day:'2-digit',month:'2-digit',year:'numeric'}))
                 : 'Jetzt erhältlich';
-              const pubHtml  = item.pub   ? `<span class="stats-buy-pub">${item.pub}</span>` : '';
+              const pubHtml  = item.pub   ? `<span class="stats-buy-pub">${escapeHtml(item.pub)}</span>` : '';
               const dateHtml = `<span class="stats-buy-date">${dateLabel}</span>`;
               return `<div class="stats-buy-item${isAvail ? ' avail' : ' soon'}">
                 <div class="stats-buy-main">
-                  <span class="stats-buy-title">${item.title}</span>
-                  <span class="stats-buy-band">Band ${item.next}</span>
+                  <span class="stats-buy-title">${escapeHtml(item.title)}</span>
+                  <span class="stats-buy-band">Band ${escapeHtml(item.next)}</span>
                 </div>
                 <div class="stats-buy-meta">${pubHtml}${dateHtml}</div>
               </div>`;
@@ -1441,8 +1452,8 @@ function buildSeriesMd(m) {
   const lines = [
     '---',
     'type: manga-series',
-    `title: "${(m.title || '').replace(/"/g, '\\"')}"`,
-    `publisher: "${(m.pub || '').replace(/"/g, '\\"')}"`,
+    `title: "${escapeYamlString(m.title)}"`,
+    `publisher: "${escapeYamlString(m.pub)}"`,
     `status: "${status}"`,
     `collectionStatus: "${collectionStatus}"`,
     `ownedVolumes: ${owned}`,
@@ -1702,7 +1713,7 @@ function render() {
       return;
     }
     if (searchQ && !filtered.length) {
-      el.innerHTML = `<div class="empty"><div class="empty-icon">🔍</div><h3>Keine Treffer für „${searchQ}"</h3><p>Versuche einen anderen Suchbegriff.</p></div>`;
+      el.innerHTML = `<div class="empty"><div class="empty-icon">🔍</div><h3>Keine Treffer für „${escapeHtml(searchQ)}"</h3><p>Versuche einen anderen Suchbegriff.</p></div>`;
       return;
     }
     const avail = filtered.filter(m => !m.nextDate || new Date(m.nextDate+'T00:00:00') <= today);
@@ -1735,7 +1746,7 @@ function render() {
       return;
     }
     if (!filtered.length) {
-      el.innerHTML = `<div class="empty"><div class="empty-icon">🔍</div><h3>Keine Treffer für „${searchQ}"</h3></div>`;
+      el.innerHTML = `<div class="empty"><div class="empty-icon">🔍</div><h3>Keine Treffer für „${escapeHtml(searchQ)}"</h3></div>`;
       return;
     }
     el.innerHTML = `<div class="manga-grid">${filtered.map(mangaCard).join('')}</div>`;
@@ -1805,7 +1816,7 @@ function render() {
     return;
   }
   if (!items.length) {
-    el.innerHTML = `<div class="empty"><div class="empty-icon">🔍</div><h3>Keine Treffer für „${searchQ}"</h3><p>Versuche einen anderen Suchbegriff.</p></div>`;
+    el.innerHTML = `<div class="empty"><div class="empty-icon">🔍</div><h3>Keine Treffer für „${escapeHtml(searchQ)}"</h3><p>Versuche einen anderen Suchbegriff.</p></div>`;
     return;
   }
   el.innerHTML = `<div class="manga-grid">${items.map(mangaCard).join('')}</div>`;
@@ -3405,8 +3416,8 @@ function buildReleasePreview(m) {
     const reportJson = JSON.stringify(cacheMissReport, null, 2);
     return `<div class="release-preview-empty">
       Keine passenden Einträge in release-cache.json für<br>
-      <strong>${m.title}</strong> Band ${nextVol} gefunden.<br>
-      <span class="release-preview-small">Normalisierter Titel: "${normalizeReleaseTitle(m.title)}"</span><br>
+      <strong>${escapeHtml(m.title)}</strong> Band ${escapeHtml(nextVol)} gefunden.<br>
+      <span class="release-preview-small">Normalisierter Titel: "${escapeHtml(normalizeReleaseTitle(m.title))}"</span><br>
       <span class="release-preview-small">Bekannte Watchlist- und Review-Queue-Fälle werden durch die automatische Pipeline verarbeitet. Diese Modal-Ansicht ist nur Diagnose.</span>
     </div>
     <details class="cache-miss-report">
@@ -3429,22 +3440,22 @@ function buildReleasePreview(m) {
     const chkCover = hasNewCover && !hasCurrCover;
     const src = [item.sourceName, confLabel[item.confidence] || item.confidence].filter(Boolean).join(' · ');
     return `<div class="release-match-item" data-match-idx="${idx}">
-      <div class="release-match-title">${m.title} — Band ${item.volumeNumber}</div>
-      <div class="release-match-source">Quelle: ${src}</div>
+      <div class="release-match-title">${escapeHtml(m.title)} — Band ${escapeHtml(item.volumeNumber)}</div>
+      <div class="release-match-source">Quelle: ${escapeHtml(src)}</div>
 
       ${hasNewDate ? `<label class="release-check-label">
         <input type="checkbox" class="release-check-date release-field-checkbox" ${chkDate ? 'checked' : ''}>
         <span>Erscheinungsdatum:
-          <span class="release-old-value${hasCurrDate ? ' old-value' : ''}">${hasCurrDate ? m.nextDate : 'leer'}</span>
-          <span class="release-new-value"> → ${item.releaseDate}</span>
+          <span class="release-old-value${hasCurrDate ? ' old-value' : ''}">${hasCurrDate ? escapeHtml(m.nextDate) : 'leer'}</span>
+          <span class="release-new-value"> → ${escapeHtml(item.releaseDate)}</span>
         </span>
       </label>` : ''}
 
       ${hasNewIsbn ? `<label class="release-check-label">
         <input type="checkbox" class="release-check-isbn release-field-checkbox" ${chkIsbn ? 'checked' : ''}>
         <span>ISBN-13:
-          <span class="release-old-value${hasCurrIsbn ? ' old-value' : ''}">${hasCurrIsbn ? (m.isbn13 || 'vorhanden') : 'leer'}</span>
-          <span class="release-new-value"> → ${item.isbn13}</span>
+          <span class="release-old-value${hasCurrIsbn ? ' old-value' : ''}">${hasCurrIsbn ? escapeHtml(m.isbn13 || 'vorhanden') : 'leer'}</span>
+          <span class="release-new-value"> → ${escapeHtml(item.isbn13)}</span>
         </span>
       </label>` : ''}
 
