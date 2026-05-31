@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-05-30T10:30:29.037Z",
+  "generatedAt": "2026-05-31T11:11:21.455Z",
   "source": "run-release-cache-pipeline.js",
-  "itemCount": 184,
+  "itemCount": 187,
   "items": [
     {
       "seriesTitle": "Adou",
@@ -138,6 +138,23 @@
       "confidence": "high",
       "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 518, Band 11). Ursprung: watchlist.",
       "checkedAt": "2026-05-19T15:26:34.180Z"
+    },
+    {
+      "seriesTitle": "Arifureta – Der Kampf zurück in meine Welt",
+      "normalizedSeriesTitle": "arifureta der kampf zuruck in meine welt",
+      "publisher": "altraverse",
+      "normalizedPublisher": "altraverse",
+      "volumeNumber": 1,
+      "releaseDate": "2019-12-12",
+      "isbn13": null,
+      "coverUrl": "https://media.manga-passion.de/volume/cover/2021/0812/1955/004755f2ecd6306292.jpg",
+      "sourceUrl": "https://www.manga-passion.de/editions/302",
+      "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
+      "evidence": "Manga Passion Edition, Verlag und Bandnummer wurden gegen die Bandliste abgeglichen.",
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 302, Band 1). Ursprung: watchlist.",
+      "checkedAt": "2026-05-31T11:11:21.455Z"
     },
     {
       "seriesTitle": "Arifureta: Der Kampf zurück in meine Welt – Zero",
@@ -1463,6 +1480,23 @@
       "checkedAt": "2026-05-30T10:30:29.037Z"
     },
     {
+      "seriesTitle": "Frieren – Nach dem Ende der Reise",
+      "normalizedSeriesTitle": "frieren nach dem ende der reise",
+      "publisher": "altraverse",
+      "normalizedPublisher": "altraverse",
+      "volumeNumber": 1,
+      "releaseDate": "2022-04-19",
+      "isbn13": null,
+      "coverUrl": "https://media.manga-passion.de/volume/cover/2022/0802/2222/8604d408d32eb3e6bd23f1727b6890b5.jpg",
+      "sourceUrl": "https://www.manga-passion.de/editions/1697",
+      "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
+      "evidence": "Manga Passion Edition, Verlag und Bandnummer wurden gegen die Bandliste abgeglichen.",
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 1697, Band 1). Ursprung: watchlist.",
+      "checkedAt": "2026-05-31T11:11:21.455Z"
+    },
+    {
       "seriesTitle": "From the Red Fog",
       "normalizedSeriesTitle": "from the red fog",
       "publisher": "Manga Cult",
@@ -2573,6 +2607,23 @@
       "confidence": "high",
       "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 2790, Band 9). Ursprung: app-seed.",
       "checkedAt": "2026-05-19T15:26:34.180Z"
+    },
+    {
+      "seriesTitle": "The Rising of the Shield Hero",
+      "normalizedSeriesTitle": "the rising of the shield hero",
+      "publisher": "TOKYOPOP",
+      "normalizedPublisher": "tokyopop",
+      "volumeNumber": 1,
+      "releaseDate": "2017-04-05",
+      "isbn13": null,
+      "coverUrl": "https://media.manga-passion.de/volume/cover/2022/0124/2121/71a3ffa6d9f8545f5528d92d85138eef.jpg",
+      "sourceUrl": "https://www.manga-passion.de/editions/210",
+      "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
+      "evidence": "Manga Passion Edition, Verlag und Bandnummer wurden gegen die Bandliste abgeglichen.",
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 210, Band 1). Ursprung: watchlist.",
+      "checkedAt": "2026-05-31T11:11:21.455Z"
     },
     {
       "seriesTitle": "Tokyo Ghoul GIGANTIK",
