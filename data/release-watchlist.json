@@ -526,7 +526,31 @@
       "sourceUrl": null,
       "notes": "Aus Release-Intake-Staging übernommen.",
       "enabled": true
+    },
+    {
+      "seriesTitle": "Arifureta – Der Kampf zurück in meine Welt",
+      "publisher": "Altraverse",
+      "volumeNumber": 1,
+      "sourceUrl": null,
+      "notes": "Aus Release-Intake-Staging übernommen.",
+      "enabled": true
+    },
+    {
+      "seriesTitle": "The Rising of the Shield Hero",
+      "publisher": "Tokyopop",
+      "volumeNumber": 1,
+      "sourceUrl": null,
+      "notes": "Aus Release-Intake-Staging übernommen.",
+      "enabled": true
+    },
+    {
+      "seriesTitle": "Frieren – Nach dem Ende der Reise",
+      "publisher": "Altraverse",
+      "volumeNumber": 1,
+      "sourceUrl": null,
+      "notes": "Aus Release-Intake-Staging übernommen.",
+      "enabled": true
     }
   ],
-  "generatedAt": "2026-05-30T10:30:00.279Z"
+  "generatedAt": "2026-05-31T11:08:23.496Z"
 }
