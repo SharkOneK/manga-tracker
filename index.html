@@ -15,59 +15,108 @@
 <link rel="icon" href="./favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="./src/styles.css">
 </head>
-<body>
+<body class="dark" data-theme="shonen">
 
-<header>
-  <div class="header-title-row">
-    <h1><span class="jp">マンガ</span> Tracker 🇩🇪</h1>
-    <span id="sync-dot" class="sync-dot" title="Jetzt synchronisieren" data-action="manual-sync">🔄</span>
+<div class="app-root">
+
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-mark">マ</div>
+      <div>
+        <div class="brand-name"><span class="jp">マンガ</span> Tracker</div>
+        <div class="brand-sub">Deine DE-Sammlung 🇩🇪</div>
+      </div>
+    </div>
+    <div class="nav-group-label">Sammlung</div>
+    <button class="nav-item active" data-action="set-tab" data-tab="reading" data-nav="library">
+      <span class="nav-ic">📚</span><span>Bibliothek</span><span class="nav-count" id="nav-c-library">0</span>
+    </button>
+    <button class="nav-item" data-action="set-tab" data-tab="kalender" data-nav="kalender">
+      <span class="nav-ic">📅</span><span>Kalender</span><span class="nav-count" id="c-kalender">0</span>
+    </button>
+    <button class="nav-item" data-action="set-tab" data-tab="dashboard" data-nav="dashboard">
+      <span class="nav-ic">📊</span><span>Dashboard</span>
+    </button>
+    <div class="nav-group-label">Schnellzugriff</div>
+    <button class="nav-item" data-action="set-tab" data-tab="reading">
+      <span class="nav-ic">📖</span><span>Lese ich</span><span class="nav-count" id="nav-c-reading">0</span>
+    </button>
+    <button class="nav-item" data-action="set-tab" data-tab="owned">
+      <span class="nav-ic">📚</span><span>Zu lesen</span><span class="nav-count" id="nav-c-owned">0</span>
+    </button>
+    <button class="nav-item" data-action="set-tab" data-tab="wishlist">
+      <span class="nav-ic">💜</span><span>Wunschliste</span><span class="nav-count" id="nav-c-wishlist">0</span>
+    </button>
+    <div class="sidebar-foot">
+      <div class="avatar">S</div>
+      <div class="who">SharkOneK<small id="side-vol-total">0 Bände</small></div>
+    </div>
+  </aside>
+
+  <div class="main">
+    <header class="topbar">
+      <div class="topbar-inner">
+        <h1 class="page-title" id="page-title">Bibliothek</h1>
+        <div class="mobile-brand">
+          <div class="brand-mark">マ</div>
+          <div class="brand-name"><span class="jp">マンガ</span> Tracker</div>
+        </div>
+        <div class="search">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input class="search-input" id="search-input" type="search" placeholder="Titel, Verlag, Genre…" autocomplete="off">
+          <button class="search-clear" id="search-clear" data-action="clear-search" title="Suche löschen">✕</button>
+        </div>
+        <span id="sync-dot" class="sync-dot icon-btn" title="Jetzt synchronisieren" data-action="manual-sync">🔄</span>
+        <button class="icon-btn header-share-btn" id="btn-share-profile" data-action="share-profile" title="Sammlung öffentlich teilen">🔗</button>
+        <button class="btn-add" id="btn-add" data-action="open-add"><span>＋</span><span class="label-full">Hinzufügen</span></button>
+      </div>
+    </header>
+
+    <div class="main-inner">
+
+      <div class="readonly-banner hidden" id="readonly-banner">
+        <span>👁 <strong>Öffentliche Ansicht</strong> — Du siehst die Sammlung von jemandem anderen</span>
+        <button class="readonly-btn" data-action="start-own-collection">✨ Eigene Sammlung starten</button>
+      </div>
+
+      <div class="tabs segmented" id="tabs">
+        <div class="tab active" data-tab="reading">📖 Lese ich <span class="badge" id="c-reading">0</span></div>
+        <div class="tab" data-tab="completed">✅ Gelesen <span class="badge" id="c-completed">0</span></div>
+        <div class="tab" data-tab="owned">📚 Zu lesen <span class="badge" id="c-owned">0</span></div>
+        <div class="tab" data-tab="wishlist">💜 Wunschliste <span class="badge" id="c-wishlist">0</span></div>
+        <div class="tab" data-tab="buy">🛒 Zu kaufen <span class="badge" id="c-buy">0</span></div>
+      </div>
+
+      <div class="toolbar" id="toolbar">
+        <span class="search-hint" id="search-hint"></span>
+        <select class="sort-select" id="pub-filter" title="Verlag filtern">
+          <option value="">Alle Verlage</option>
+        </select>
+        <select class="sort-select" id="sort-select" title="Sortierung">
+          <option value="az">A–Z</option>
+          <option value="za">Z–A</option>
+          <option value="next">Nächster Band</option>
+          <option value="added">Hinzugefügt</option>
+        </select>
+        <div class="view-toggle" id="view-toggle">
+          <button class="view-btn active" id="vbtn-series" data-view="series" title="Serienansicht">⊞</button>
+          <button class="view-btn" id="vbtn-volumes" data-view="volumes" title="Bändenliste">☰</button>
+        </div>
+      </div>
+
+      <div class="genre-filter-wrap hidden" id="genre-filter-wrap"></div>
+
+      <div id="content"></div>
+    </div>
   </div>
-  <div class="header-actions">
-    <button class="add-btn header-share-btn" id="btn-share-profile" data-action="share-profile" title="Sammlung öffentlich teilen">🔗</button>
-    <button class="add-btn" id="btn-add" data-action="open-add">＋ Hinzufügen</button>
-  </div>
-</header>
 
-<div class="readonly-banner hidden" id="readonly-banner">
-  <span>👁 <strong>Öffentliche Ansicht</strong> — Du siehst die Sammlung von jemandem anderen</span>
-  <button class="readonly-btn" data-action="start-own-collection">✨ Eigene Sammlung starten</button>
-</div>
+  <nav class="botnav">
+    <button data-action="set-tab" data-tab="reading" data-nav="library"><span class="nav-ic">📚</span><span>Bibliothek</span></button>
+    <button data-action="set-tab" data-tab="kalender" data-nav="kalender"><span class="nav-ic">📅</span><span>Kalender</span></button>
+    <button data-action="set-tab" data-tab="dashboard" data-nav="dashboard"><span class="nav-ic">📊</span><span>Dashboard</span></button>
+    <button data-action="open-add"><span class="nav-ic">＋</span><span>Neu</span></button>
+  </nav>
 
-<div class="tabs" id="tabs">
-  <div class="tab active" data-tab="reading">📖 Lese ich <span class="badge" id="c-reading">0</span></div>
-  <div class="tab" data-tab="completed">✅ Gelesen <span class="badge" id="c-completed">0</span></div>
-  <div class="tab" data-tab="owned">📚 Zu lesen <span class="badge" id="c-owned">0</span></div>
-  <div class="tab" data-tab="wishlist">💜 Wunschliste <span class="badge" id="c-wishlist">0</span></div>
-  <div class="tab" data-tab="buy">🛒 Zu kaufen <span class="badge" id="c-buy">0</span></div>
-  <div class="tab" data-tab="kalender">📅 Kalender <span class="badge" id="c-kalender">0</span></div>
-  <div class="tab" data-tab="dashboard">📊 Dashboard</div>
-</div>
-<div class="genre-filter-wrap hidden" id="genre-filter-wrap"></div>
-
-<div class="search-bar">
-  <div class="search-wrap">
-    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-    <input class="search-input" id="search-input" type="search" placeholder="Manga suchen…" autocomplete="off">
-    <button class="search-clear" id="search-clear" data-action="clear-search" title="Suche löschen">✕</button>
-  </div>
-  <span class="search-hint" id="search-hint"></span>
-  <select class="sort-select" id="pub-filter" title="Verlag filtern">
-    <option value="">Alle Verlage</option>
-  </select>
-  <select class="sort-select" id="sort-select" title="Sortierung">
-    <option value="az">A–Z</option>
-    <option value="za">Z–A</option>
-    <option value="next">Nächster Band</option>
-    <option value="added">Hinzugefügt</option>
-  </select>
-  <div class="view-toggle" id="view-toggle">
-    <button class="view-btn active" id="vbtn-series" data-view="series" title="Serienansicht">⊞</button>
-    <button class="view-btn" id="vbtn-volumes" data-view="volumes" title="Bändenliste">☰</button>
-  </div>
-</div>
-
-<div class="main">
-  <div id="content"></div>
 </div>
 
 <!-- Modal -->

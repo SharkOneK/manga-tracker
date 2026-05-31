@@ -1647,6 +1647,13 @@ function render() {
   document.getElementById('c-wishlist').textContent = wishItems.length;
   document.getElementById('c-buy').textContent = buyItems.length;
   document.getElementById('c-kalender').textContent = kalItems.length;
+  // Sidebar-Navigation (Redesign): Gesamt-/Schnellzugriff-Zähler
+  const _setText = (id, val) => { const e = document.getElementById(id); if (e) e.textContent = val; };
+  _setText('nav-c-library', db.m.length);
+  _setText('nav-c-reading', bandCnt.reading);
+  _setText('nav-c-owned', bandCnt.owned);
+  _setText('nav-c-wishlist', wishItems.length);
+  _setText('side-vol-total', `${db.m.reduce((s, m) => s + mOwned(m), 0)} Bände`);
 
   // search hint
   const hint = document.getElementById('search-hint');
@@ -1825,11 +1832,36 @@ function render() {
 }
 
 // ─── Tabs ─────────────────────────────────────────────────────────────────
+const LIBRARY_TABS = ['reading', 'completed', 'owned', 'wishlist', 'buy'];
+const TAB_TITLES = {
+  reading: 'Lese ich', completed: 'Gelesen', owned: 'Zu lesen',
+  wishlist: 'Wunschliste', buy: 'Zu kaufen', kalender: 'Kalender', dashboard: 'Dashboard',
+};
 function setTab(t) {
   tab = t;
-  document.querySelectorAll('.tab').forEach(el => {
+  const inLibrary = LIBRARY_TABS.includes(t);
+  // Segmentierte Regal-Leiste (nur in der Bibliothek)
+  document.querySelectorAll('#tabs .tab').forEach(el => {
     el.classList.toggle('active', el.dataset.tab === t);
   });
+  // Sidebar / Bottom-Nav aktive Zustände
+  document.querySelectorAll('.nav-item, .botnav button').forEach(el => {
+    const nav = el.dataset.nav;
+    let active = false;
+    if (nav === 'library') active = inLibrary;
+    else if (nav) active = (nav === t);
+    else active = (el.dataset.tab === t); // Schnellzugriff-Direktlinks
+    el.classList.toggle('active', active);
+  });
+  // Seitentitel
+  const titleEl = document.getElementById('page-title');
+  if (titleEl) titleEl.textContent = inLibrary ? 'Bibliothek' : (TAB_TITLES[t] || 'Manga Tracker');
+  // Regal-Leiste + Toolbar nur in der Bibliothek anzeigen
+  const tabsEl = document.getElementById('tabs');
+  if (tabsEl) tabsEl.style.display = inLibrary ? '' : 'none';
+  const toolbarEl = document.getElementById('toolbar');
+  if (toolbarEl) toolbarEl.style.display = inLibrary ? '' : 'none';
+  // View-Toggle nur in der Serien-/Bändenübersicht (nicht bei buy/wishlist)
   document.getElementById('view-toggle').style.display = (t === 'buy' || t === 'wishlist' || t === 'owned' || t === 'reading' || t === 'kalender' || t === 'dashboard') ? 'none' : 'flex';
   render();
 }
@@ -4521,6 +4553,10 @@ function bindDelegatedEvents() {
 bindStaticEvents();
 bindDelegatedEvents();
 render();
+// Deferred-Style-Mechanik aktivieren: wendet data-style-background/-width/-height
+// CSP-konform per CSSOM an (Cover-Farb-Fallbacks, Fortschrittsbalken-Breiten,
+// Monats-Balkenhöhen). Ohne diesen Aufruf blieb die Funktion ungenutzt.
+bindDeferredStyleObserver();
 applyReadOnly();
 // Phase 15b: Release-Cache laden (non-blocking; Fehler dürfen App-Start nicht blockieren)
 loadReleaseCache().catch(e => console.warn('[Phase 15] Unerwarteter Ladefehler:', e));
