@@ -611,8 +611,8 @@ function volumeRow(v) {
   const clickAttrs = isPublicReadOnly() ? '' : ` data-action="open-edit" data-manga-id="${escapeHtml(v.id)}"`;
   const status = v._bandStatus || bandStatus(v, v._band);
   return `<div class="vol-row"${clickAttrs}>
-    <div class="vol-cover" data-style-background="${c}">
-      ${bandCover ? `<img src="${bandCover}" alt="" loading="lazy" data-remove-on-error="true">` : `<div class="vol-cover-letter">${escapeHtml((v.title || '?').slice(0,1).toUpperCase())}</div>`}
+    <div class="vol-cover" data-style-background="${escapeHtml(c)}">
+      ${bandCover ? `<img src="${escapeHtml(bandCover)}" alt="" loading="lazy" data-remove-on-error="true">` : `<div class="vol-cover-letter">${escapeHtml((v.title || '?').slice(0,1).toUpperCase())}</div>`}
       <div class="vol-cover-gradient"></div>
       <div class="vol-band-badge">Band ${escapeHtml(v._band)}</div>
     </div>
@@ -658,13 +658,13 @@ function coverEl(m, size = 'full', bandNr = null) {
                         : (bc['1'] || m.cover);
   const img = safeHttpsUrl(rawImg);
   if (size === 'full') {
-    return `<div class="cover" data-style-background="${c}">
-      ${img ? `<img src="${img}" alt="" loading="lazy" data-remove-on-error="true">` : ''}
+    return `<div class="cover" data-style-background="${escapeHtml(c)}">
+      ${img ? `<img src="${escapeHtml(img)}" alt="" loading="lazy" data-remove-on-error="true">` : ''}
       <div class="cover-gradient"></div>
     </div>`;
   }
-  return `<div class="mini-cover" data-style-background="${c}">
-    ${img ? `<img src="${img}" alt="" loading="lazy" data-remove-on-error="true">` : ''}
+  return `<div class="mini-cover" data-style-background="${escapeHtml(c)}">
+    ${img ? `<img src="${escapeHtml(img)}" alt="" loading="lazy" data-remove-on-error="true">` : ''}
   </div>`;
 }
 
