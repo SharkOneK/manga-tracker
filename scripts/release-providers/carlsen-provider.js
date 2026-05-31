@@ -8,13 +8,16 @@ const BASE_URL = 'https://www.carlsen.de';
 const PRODUCT_PATH_RE = /^\/(?:manga|softcover|hardcover|taschenbuch|produkt)\//i;
 
 function decodeHtml(value) {
+  // Phase 50: &amp; zuletzt dekodieren, damit verschachtelte Entities nicht
+  // doppelt aufgelöst werden (js/double-escaping). Beispiel: "&amp;lt;" muss
+  // zu "&lt;" werden, nicht zu "<".
   return String(value == null ? '' : value)
-    .replace(/&amp;/g, '&')
     .replace(/&quot;/g, '"')
     .replace(/&#39;|&apos;/g, "'")
     .replace(/&lt;/g, '<')
     .replace(/&gt;/g, '>')
-    .replace(/&nbsp;/g, ' ');
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&amp;/g, '&');
 }
 
 function absoluteCarlsenUrl(href) {

@@ -120,6 +120,30 @@ nicht als First-Party-Quellcode bewertet wird. Die Supply-Chain-Absicherung für
 statischen Audit erhalten: Existenz der lokalen Datei und lokale Einbindung statt CDN werden dort
 weiterhin geprüft.
 
+## Phase 50 — Triage der CodeQL-High-Alerts
+
+Der erste CodeQL-Lauf (Phase 46d) erzeugte 16 offene High-Alerts. Phase 50 hat sie bewertet und
+behoben bzw. begründet geschlossen:
+
+- **`js/xss-through-dom` (11):** Die betroffenen `innerHTML`-Render-Pfade (`mangaCard`, `buyCard`,
+  `volumeRow`, `buyPreviewRow`, `buildReleasePreview`) und die in Leerzustände eingesetzte
+  Suchanfrage (`searchQ`) leiten Nutzdaten jetzt konsequent durch `escapeHtml()`. Damit ist die
+  `innerHTML`-Injektion auch dann ausgeschlossen, wenn Sammlungs- oder Release-Cache-Daten künftig
+  fremde Inhalte enthalten. (Real-World-Risiko war wegen Single-User-Charakter überwiegend
+  Self-XSS, die Härtung ist trotzdem umgesetzt.)
+- **`js/incomplete-sanitization` (2):** Der Obsidian-YAML-Export escaped Titel/Verlag über die neue
+  Hilfsfunktion `escapeYamlString()` (erst Backslash, dann Anführungszeichen, Zeilenumbrüche → Space),
+  abgesichert durch einen Regressionstest in `scripts/test-data-integrity.js`.
+- **`js/double-escaping` (2):** Die `decodeHtml()`-Funktionen in `carlsen-provider.js` und
+  `generic-publisher-provider.js` dekodieren `&amp;` jetzt zuletzt, damit verschachtelte Entities
+  nicht doppelt aufgelöst werden.
+- **`js/incomplete-url-substring-sanitization` (1, `scripts/security-audit-static.js`):** bewusst als
+  *false positive* im Security-Tab geschlossen — die Stelle ist eine **Erkennungs-Heuristik**, die im
+  eigenen statischen `index.html` nach einer CDN-Referenz (`cdn.jsdelivr.net` + `jszip`) sucht; sie
+  sanitisiert keine externe Eingabe. Eine „Subdomain-Umgehung" ist hier kein Angriffsvektor.
+
+Ziel/Ergebnis: 0 unbewertete offene High-Alerts im Security-Tab.
+
 ## CSP-Status
 
 Phase 21 hat eine pragmatische CSP eingeführt.

@@ -68,6 +68,14 @@ function escapeHtml(value) {
     .replace(/'/g, '&#39;');
 }
 
+// Phase 50: escapeYamlString (Obsidian-Export) — Spiegel der app.js-Implementierung
+function escapeYamlString(value) {
+  return String(value !== null && value !== undefined ? value : '')
+    .replace(/\\/g, '\\\\')
+    .replace(/"/g, '\\"')
+    .replace(/[\r\n]+/g, ' ');
+}
+
 // safeHttpsUrl
 function safeHttpsUrl(v) {
   if (!v || typeof v !== 'string') return '';
@@ -187,6 +195,17 @@ runTest('escapeHtml escaped <, >, &, ", \' korrekt', function() {
   assert.strictEqual(escapeHtml("O'Brian & Co"), 'O&#39;Brian &amp; Co');
   assert.strictEqual(escapeHtml(''), '');
   assert.strictEqual(escapeHtml(null), '');
+});
+
+// 12b. Phase 50: escapeYamlString escaped Backslash und Anführungszeichen korrekt
+runTest('escapeYamlString escaped \\ und " in korrekter Reihenfolge', function() {
+  // Backslash zuerst, dann Quote — kein doppeltes Escaping eines bereits gesetzten Escapes
+  assert.strictEqual(escapeYamlString('a\\b'), 'a\\\\b');
+  assert.strictEqual(escapeYamlString('Titel "Sondertitel"'), 'Titel \\"Sondertitel\\"');
+  assert.strictEqual(escapeYamlString('Pfad\\"x"'), 'Pfad\\\\\\"x\\"');
+  assert.strictEqual(escapeYamlString('Zeile1\nZeile2'), 'Zeile1 Zeile2');
+  assert.strictEqual(escapeYamlString(''), '');
+  assert.strictEqual(escapeYamlString(null), '');
 });
 
 // 13. safeHttpsUrl akzeptiert https-URLs
