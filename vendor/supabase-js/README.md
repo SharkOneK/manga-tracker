@@ -19,8 +19,9 @@ vendor/supabase-js/supabase.umd.js
 > documented manual step, performed once on a machine with npm access.
 
 ```bash
-# In a scratch dir (NOT the repo), fetch a pinned version:
-npm pack @supabase/supabase-js@<VERSION>
+# In a scratch dir (NOT the repo), fetch a pinned version.
+# Recommended floor: 2.106.2 (see "Version requirement" below).
+npm pack @supabase/supabase-js@2.106.2
 tar -xzf supabase-supabase-js-*.tgz
 # The UMD build ships in the package:
 cp package/dist/umd/supabase.js \
@@ -43,14 +44,31 @@ The official passkeys docs (https://supabase.com/docs/guides/auth/passkeys, chec
 createClient(url, key, { auth: { experimental: { passkey: true } } })
 ```
 
-They do **not** publish a concrete minimum SemVer. The `v2.105.0+` figure from
-Backlog 7.5 is **not** confirmed by the docs. Before pinning `<VERSION>`:
+They do **not** publish a concrete minimum SemVer, and the supabase-js release notes
+do not mention passkeys by name — the WebAuthn logic ships inside the bundled
+`@supabase/auth-js` dependency. The `v2.105.0+` figure from Backlog 7.5 is **not**
+confirmed by any source.
 
-1. Confirm the chosen build exposes `auth.signInWithPasskey`, `auth.registerPasskey`
-   and the `auth.passkey.*` namespace (grep the UMD file or test in a browser).
+**Research result (2026-06-01):** Passkeys for Supabase Auth (Beta) were announced
+**2026-05-25** (changelog 46458). The latest stable supabase-js at that date is
+**v2.106.2 (2026-05-25)**. There is no published version floor, so:
+
+- **Recommended pin: `@supabase/supabase-js@2.106.2` or newer stable.** Avoid beta
+  channels (e.g. `2.103.0-beta.x`) for production GitHub Pages.
+- The pin is only provisional until **empirically verified** — that verification is
+  the real gate, not the version number.
+
+Before committing the vendored bundle:
+
+1. **Verify the build exposes** `auth.signInWithPasskey`, `auth.registerPasskey` and
+   the `auth.passkey.*` namespace (grep the UMD file or test in a browser console).
+   If a given stable lacks them, bump to the next stable and re-check.
 2. Record the exact pinned version here and in the Phase 51 plan note.
 3. Re-run `scripts/check-secrets.js` and `scripts/security-audit-static.js` — a new
    vendored file must not trip the secret scanner and must keep the audit green.
+
+Sources: https://supabase.com/changelog/46458-passkeys-for-supabase-auth-beta ·
+https://github.com/supabase/supabase-js/releases · https://supabase.com/docs/guides/auth/passkeys
 
 ## CSP note
 
