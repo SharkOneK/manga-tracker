@@ -5,6 +5,15 @@ step**. External scripts (e.g. JSZip) are vendored locally, never loaded from a 
 Supabase Auth + passkeys need the `@supabase/supabase-js` client, so it must be
 vendored here the same way.
 
+> [!NOTE] Status 2026-06-01
+> **`supabase.umd.js` is vendored: `@supabase/supabase-js@2.106.2` (≈200 KB, UMD).**
+> Verified in the bundle: `signInWithPasskey`, `registerPasskey`, the
+> `/passkeys/registration|authentication/*` endpoints (list/update/delete),
+> `signInWithOtp`/`verifyOtp` (OTP bootstrap) and the `createClient` export.
+> **Not yet wired into `index.html`** — the `<script>` tags are deliberately added
+> together with the login UI so the 200 KB are not shipped to public viewers before
+> the feature exists. The steps below document how the bundle was produced.
+
 ## What to add
 
 A single UMD bundle that exposes a global `window.supabase` with `createClient`:
