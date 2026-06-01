@@ -246,7 +246,10 @@ const tests = [
     'safe high-confidence release-cache update is allowed by Phase 45 data gate',
     () => {
       const before = cacheItem({ releaseDate: '2026-05-01', checkedAt: '2026-05-20T00:00:00.000Z' });
-      const after = cacheItem({ releaseDate: '2026-06-01', checkedAt: '2026-05-27T00:00:00.000Z' });
+      // Zukunftsdatum (noch nicht erschienen) statt eines fixen Datums, das mit
+      // fortschreitender Zeit zur Vergangenheit wird und dann faelschlich den
+      // Cache/Volume-Count-Konsistenz-Guard ausloest (isPastOrToday).
+      const after = cacheItem({ releaseDate: '2099-06-01', checkedAt: '2026-05-27T00:00:00.000Z' });
       const result = evaluate({
         changedFiles: ['data/release-cache.json', 'data/release-cache-pipeline-report.json'],
         pipelineReport: releaseCacheReportFor(after),
