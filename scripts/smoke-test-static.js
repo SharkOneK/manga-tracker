@@ -730,6 +730,27 @@ if (typeof stylesCs !== 'undefined' && stylesCs) {
   else fail('src/styles.css: release-coverage-ready-notice CSS-Klasse fehlt');
 }
 
+console.log('\nPruefe: Phase 52 - Band/Serie-Umschalter fuer reading/owned/wishlist\n');
+
+[
+  ['Zentrale Sichtbarkeits-Helper', 'function updateViewToggleVisibility('],
+  ['NO_TOGGLE_TABS-Liste', "const NO_TOGGLE_TABS = ['buy', 'kalender', 'dashboard']"],
+  ['Serien-Grid-Helper', 'function renderSeriesGrid('],
+  ['Wunschlisten-Baendeansicht (Option A)', 'function renderWishlistVolumes('],
+  ['Wunschlisten-Band-Einträge-Helper', 'function wishlistBandEntries('],
+].forEach(([label, marker]) => {
+  if (!appJs26.includes(marker)) fail('src/app.js: Phase-52-Marker fehlt: ' + label);
+  else pass('src/app.js: Phase-52-Marker vorhanden: ' + label);
+});
+
+// Die alte harte Single-View-Verdrahtung darf nicht mehr vorhanden sein.
+if (appJs26.includes("tab === 'buy' || tab === 'wishlist' || tab === 'owned' || tab === 'reading'")
+    || appJs26.includes("t === 'buy' || t === 'wishlist' || t === 'owned' || t === 'reading'")) {
+  fail('src/app.js: alte harte view-toggle-Verdrahtung fuer reading/owned/wishlist noch vorhanden');
+} else {
+  pass('src/app.js: alte harte view-toggle-Verdrahtung fuer reading/owned/wishlist entfernt');
+}
+
 console.log('');
 if (totalErrors > 0) {
   console.error('❌ Smoke-Test fehlgeschlagen — ' + totalErrors + ' Fehler\n');

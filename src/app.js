@@ -485,11 +485,20 @@ let _currentReleaseMatches = [];        // Zwischenspeicher für aktuelle Vorsch
 // Release-Daten und DE-Bandstand laufen vollautomatisch über Phase 25/32/42/43.
 // Preview-State-Variablen entfallen entsprechend.
 
+// Phase 52: Zentrale Sichtbarkeitslogik für den Serien-/Bänder-Umschalter.
+// Der Umschalter erscheint in allen Bibliothekstabs mit Serien/Bänder-Dualität
+// (reading, owned, completed, wishlist) und ist nur in Tabs ohne diese
+// Dualität ausgeblendet.
+const NO_TOGGLE_TABS = ['buy', 'kalender', 'dashboard'];
+function updateViewToggleVisibility() {
+  const toggle = document.getElementById('view-toggle');
+  if (toggle) toggle.style.display = NO_TOGGLE_TABS.includes(tab) ? 'none' : 'flex';
+}
+
 function setView(mode) {
   viewMode = mode;
   document.getElementById('vbtn-series').classList.toggle('active', mode === 'series');
   document.getElementById('vbtn-volumes').classList.toggle('active', mode === 'volumes');
-  document.getElementById('view-toggle').style.display = (tab === 'buy' || tab === 'wishlist' || tab === 'owned' || tab === 'reading') ? 'none' : 'flex';
   render();
 }
 
@@ -625,8 +634,9 @@ function volumeRow(v) {
   </div>`;
 }
 
+// Phase 52: Bändenansicht (☰) für reading/owned/completed — Phase-31-Verhalten.
+// Sichtbarkeit des Umschalters steuert updateViewToggleVisibility() zentral.
 function renderBandStatusList(status, el, hint) {
-  document.getElementById('view-toggle').style.display = 'none';
   const all = bandEntriesForStatus(status, applyPubFilter(db.m));
   const filtered = sortVolumeEntries(bandEntriesForStatus(status, applySearch(applyPubFilter(db.m))));
   if (searchQ) hint.textContent = `${filtered.length} von ${all.length} Band${all.length!==1?'e':''}`;
@@ -638,9 +648,78 @@ function renderBandStatusList(status, el, hint) {
     const emptyInfo = {
       reading: ['📖', 'Kein Band aktuell in Bearbeitung', 'Setze einen Band auf „Lese ich“, dann erscheint er hier.'],
       owned: ['📚', 'Keine ungelesenen Bände zum Lesen', 'Gekaufte, noch ungelesene Bände erscheinen hier.'],
+      completed: ['✅', 'Noch keine Bände als gelesen markiert', 'Sobald du Bände als „Gelesen“ markierst, erscheinen sie hier.'],
     };
     const [ic, tt, sub] = emptyInfo[status] || ['📦','Leer',''];
     el.innerHTML = `<div class="empty"><div class="empty-icon">${ic}</div><h3>${tt}</h3><p>${sub}</p></div>`;
+    return;
+  }
+  if (!filtered.length) {
+    el.innerHTML = `<div class="empty"><div class="empty-icon">🔍</div><h3>Keine Treffer für „${escapeHtml(searchQ)}"</h3><p>Versuche einen anderen Suchbegriff.</p></div>`;
+    return;
+  }
+  el.innerHTML = `<div class="vol-list">${filtered.map(volumeRow).join('')}</div>`;
+}
+
+// Phase 52: Serienansicht (⊞) für reading/owned/completed/wishlist.
+// Extrahiert aus dem früheren completed-Serienpfad, damit alle vier Tabs
+// denselben Code nutzen.
+function renderSeriesGrid(status, el, hint) {
+  const rawItems = applySort(applyGenreFilter(applyPubFilter(db.m.filter(m => mSeriesStatus(m) === status))));
+  const items = applySearch(rawItems);
+
+  if (searchQ) hint.textContent = `${items.length} von ${rawItems.length} Ergebnis${items.length!==1?'se':''}`;
+  else hint.textContent = '';
+
+  if (!rawItems.length) {
+    const info = {
+      reading:   ['📖', 'Noch nichts in Bearbeitung', 'Füge Mangas hinzu, die du gerade liest.'],
+      completed: ['✅', 'Noch nichts abgeschlossen', 'Hier landen Serien, die du vollständig gelesen hast.'],
+      owned:     ['📚', 'Noch nichts zum Lesen', 'Sobald du einen Band als „Gekauft" markierst, erscheint er hier.'],
+      wishlist:  ['💜', 'Wunschliste ist leer', 'Füge Serien hinzu, die du noch kaufen oder starten möchtest.'],
+    };
+    const [ic, tt, sub] = info[status]||['📦','Leer',''];
+    el.innerHTML = `<div class="empty">
+      <div class="empty-icon">${ic}</div>
+      <h3>${tt}</h3>
+      <p>${sub}</p>
+      <button class="add-btn centered-add-btn" data-action="open-add">＋ Manga hinzufügen</button>
+    </div>`;
+    return;
+  }
+  if (!items.length) {
+    el.innerHTML = `<div class="empty"><div class="empty-icon">🔍</div><h3>Keine Treffer für „${escapeHtml(searchQ)}"</h3><p>Versuche einen anderen Suchbegriff.</p></div>`;
+    return;
+  }
+  el.innerHTML = `<div class="manga-grid">${items.map(mangaCard).join('')}</div>`;
+  updatePubFilter();
+  updateGenreFilter();
+}
+
+// Phase 52 (Option A): Bändenansicht (☰) der Wunschliste.
+// Listet alle erfassten Band-Einträge (jeder Bandstatus) der Serien mit
+// mSeriesStatus(m) === 'wishlist'. Wunschlistenserien haben meist keine
+// einzelnen Bände → erklärender Leerzustand.
+function wishlistBandEntries(list) {
+  const vols = [];
+  list.filter(m => mSeriesStatus(m) === 'wishlist').forEach(m => {
+    Object.entries(m.bands || {}).forEach(([bandNr, st]) => {
+      vols.push({ ...m, _band: Number(bandNr), _bandStatus: st });
+    });
+  });
+  return vols;
+}
+
+function renderWishlistVolumes(el, hint) {
+  const all = wishlistBandEntries(applyPubFilter(db.m));
+  const filtered = sortVolumeEntries(wishlistBandEntries(applySearch(applyPubFilter(db.m))));
+  if (searchQ) hint.textContent = `${filtered.length} von ${all.length} Band${all.length!==1?'e':''}`;
+  else {
+    const serienCount = new Set(all.map(v => v.id)).size;
+    hint.textContent = all.length ? `${all.length} Band${all.length!==1?'e':''} aus ${serienCount} Serie${serienCount!==1?'n':''}` : '';
+  }
+  if (!all.length) {
+    el.innerHTML = `<div class="empty"><div class="empty-icon">💜</div><h3>Keine erfassten Bände auf der Wunschliste</h3><p>Wunschlistenserien haben meist noch keine einzelnen Bände — wechsle zur Serienansicht (⊞).</p></div>`;
     return;
   }
   if (!filtered.length) {
@@ -887,7 +966,6 @@ function renderDashboard() {
   const year = new Date().getFullYear();
   const MONATE = ['Jan','Feb','Mär','Apr','Mai','Jun','Jul','Aug','Sep','Okt','Nov','Dez'];
   const el = document.getElementById('content');
-  document.getElementById('view-toggle').style.display = 'none';
   updateGenreFilter();
 
   // Sammlung gesamt
@@ -1660,10 +1738,12 @@ function render() {
 
   const el = document.getElementById('content');
 
+  // Phase 52: Umschalter-Sichtbarkeit zentral aus dem aktuellen Tab ableiten.
+  updateViewToggleVisibility();
+
   if (tab === 'dashboard') { renderDashboard(); return; }
 
   if (tab === 'kalender') {
-    document.getElementById('view-toggle').style.display = 'none';
     const filtered = applySearch(kalItems);
     hint.textContent = filtered.length ? `${filtered.length} Termin${filtered.length!==1?'e':''}` : '';
     if (!kalItems.length) {
@@ -1738,97 +1818,19 @@ function render() {
     return;
   }
 
-  if (tab === 'wishlist') {
-    document.getElementById('view-toggle').style.display = 'none';
-    const filtered = applySearch(applySort(applyPubFilter(wishItems)));
-    if (searchQ) hint.textContent = `${filtered.length} von ${wishItems.length} Ergebnis${filtered.length!==1?'se':''}`;
-    else hint.textContent = '';
-    if (!wishItems.length) {
-      el.innerHTML = `<div class="empty">
-        <div class="empty-icon">💜</div>
-        <h3>Wunschliste ist leer</h3>
-        <p>Füge Serien hinzu, die du noch kaufen oder starten möchtest.<br>Beim Bearbeiten einfach „Auf Wunschliste setzen" anhaken.</p>
-        <button class="add-btn centered-add-btn" data-action="open-add">＋ Manga hinzufügen</button>
-      </div>`;
-      return;
-    }
-    if (!filtered.length) {
-      el.innerHTML = `<div class="empty"><div class="empty-icon">🔍</div><h3>Keine Treffer für „${escapeHtml(searchQ)}"</h3></div>`;
-      return;
-    }
-    el.innerHTML = `<div class="manga-grid">${filtered.map(mangaCard).join('')}</div>`;
-    return;
-  }
-
-  if (tab === 'owned' || tab === 'reading') {
+  // ── Phase 52: Bibliothekstabs mit Serien/Bänder-Umschalter ──────────────
+  // reading, owned, completed und wishlist nutzen denselben Pfad und schalten
+  // über den globalen viewMode zwischen Serienansicht (⊞) und Bändenansicht (☰).
+  if (viewMode === 'volumes') {
+    // Wunschliste (Option A): vorhandene Band-Einträge der Wunschlistenserien.
+    if (tab === 'wishlist') { renderWishlistVolumes(el, hint); return; }
+    // reading/owned/completed: Bände mit passendem Bandstatus (Phase-31-Verhalten).
     renderBandStatusList(tab, el, hint);
     return;
   }
 
-  document.getElementById('view-toggle').style.display = 'flex';
-
-  // ── Bändenmodus: quer durch alle Manga, nur Bände mit passendem Bandstatus ──
-  if (viewMode === 'volumes') {
-    const searched = applySearch(db.m);
-    const vols = [];
-    searched.forEach(m => {
-      Object.entries(m.bands || {}).forEach(([bandNr, st]) => {
-        if (st === tab) vols.push({ ...m, _band: Number(bandNr) });
-      });
-    });
-    if (!vols.length) {
-      const emptyInfo = {
-        reading:   ['📖', 'Kein Band aktuell in Bearbeitung', 'Trage bei einer Serie den aktuell gelesenen Band ein.'],
-        completed: ['✅', 'Noch keine Bände als gelesen markiert', 'Sobald du eine Serie liest, erscheinen abgeschlossene Bände hier.'],
-        owned:     ['📚', 'Keine ungelesenen Bände zum Lesen', 'Gekaufte, noch ungelesene Bände erscheinen hier.'],
-      };
-      const [ic, tt, sub] = emptyInfo[tab] || ['📦','Leer',''];
-      hint.textContent = '';
-      el.innerHTML = `<div class="empty"><div class="empty-icon">${ic}</div><h3>${tt}</h3><p>${sub}</p></div>`;
-      return;
-    }
-    const serienCount = new Set(vols.map(v => v.id)).size;
-    hint.textContent = `${vols.length} Band${vols.length!==1?'e':''} aus ${serienCount} Serie${serienCount!==1?'n':''}`;
-    // Sortierung auch in der Bändenansicht anwenden (primär nach sortMode, sekundär nach Bandnummer)
-    const sortedVols = vols.slice().sort((a, b) => {
-      if (sortMode === 'za') { const t = b.title.localeCompare(a.title,'de'); return t !== 0 ? t : a._band - b._band; }
-      if (sortMode === 'added') { const t = (b.at||0)-(a.at||0); return t !== 0 ? t : a._band - b._band; }
-      // az (default)
-      const t = a.title.localeCompare(b.title,'de'); return t !== 0 ? t : a._band - b._band;
-    });
-    el.innerHTML = `<div class="vol-list">${sortedVols.map(volumeRow).join('')}</div>`;
-    return;
-  }
-
-  // ── Serienansicht (Standard) ───────────────────────────────────────────
-  const rawItems = applySort(applyGenreFilter(applyPubFilter(db.m.filter(m => mSeriesStatus(m) === tab))));
-  const items = applySearch(rawItems);
-
-  if (searchQ) hint.textContent = `${items.length} von ${rawItems.length} Ergebnis${items.length!==1?'se':''}`;
-  else hint.textContent = '';
-
-  if (!rawItems.length) {
-    const info = {
-      reading:   ['📖', 'Noch nichts in Bearbeitung', 'Füge Mangas hinzu, die du gerade liest.'],
-      completed: ['✅', 'Noch nichts abgeschlossen', 'Hier landen Serien, die du vollständig gelesen hast.'],
-      owned:     ['📚', 'Noch nichts zum Lesen', 'Sobald du einen Band als „Gekauft" markierst, erscheint er hier.'],
-    };
-    const [ic, tt, sub] = info[tab]||['📦','Leer',''];
-    el.innerHTML = `<div class="empty">
-      <div class="empty-icon">${ic}</div>
-      <h3>${tt}</h3>
-      <p>${sub}</p>
-      <button class="add-btn centered-add-btn" data-action="open-add">＋ Manga hinzufügen</button>
-    </div>`;
-    return;
-  }
-  if (!items.length) {
-    el.innerHTML = `<div class="empty"><div class="empty-icon">🔍</div><h3>Keine Treffer für „${escapeHtml(searchQ)}"</h3><p>Versuche einen anderen Suchbegriff.</p></div>`;
-    return;
-  }
-  el.innerHTML = `<div class="manga-grid">${items.map(mangaCard).join('')}</div>`;
-  updatePubFilter();
-  updateGenreFilter();
+  // Serienansicht (Standard) für alle vier Tabs.
+  renderSeriesGrid(tab, el, hint);
 }
 
 // ─── Tabs ─────────────────────────────────────────────────────────────────
@@ -1861,8 +1863,7 @@ function setTab(t) {
   if (tabsEl) tabsEl.style.display = inLibrary ? '' : 'none';
   const toolbarEl = document.getElementById('toolbar');
   if (toolbarEl) toolbarEl.style.display = inLibrary ? '' : 'none';
-  // View-Toggle nur in der Serien-/Bändenübersicht (nicht bei buy/wishlist)
-  document.getElementById('view-toggle').style.display = (t === 'buy' || t === 'wishlist' || t === 'owned' || t === 'reading' || t === 'kalender' || t === 'dashboard') ? 'none' : 'flex';
+  // Phase 52: Umschalter-Sichtbarkeit wird zentral in render() gesetzt.
   render();
 }
 
