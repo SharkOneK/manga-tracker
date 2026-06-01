@@ -1,4 +1,10 @@
--- Phase 51 (DRAFT — NOT YET APPLIED): Supabase Auth user + passkey enablement
+-- Phase 51: Supabase Auth user + passkey enablement
+--
+-- APPLIED 2026-06-01 to project sssxiqtnkctvyghyrqff via MCP apply_migration
+-- (migration name: phase51_auth_user_migration), incl. the explicit anon EXECUTE
+-- revokes below. Verified: user_id column + index, dual-auth RLS, both RPCs,
+-- public projection intact, 1 collection row preserved, anon cannot execute the
+-- new RPCs.
 --
 -- Scope:
 --   Introduce real Supabase Auth users alongside the existing owner-token model,
@@ -99,6 +105,10 @@ end;
 $$;
 
 revoke all on function public.claim_collection_for_current_user(uuid) from public;
+-- Supabase default privileges grant EXECUTE on public functions to anon as well;
+-- revoke it explicitly. This function relies on auth.uid() and is for signed-in
+-- users only (anon would get auth.uid() = null -> no-op).
+revoke execute on function public.claim_collection_for_current_user(uuid) from anon;
 grant execute on function public.claim_collection_for_current_user(uuid) to authenticated;
 
 -- ── 4. Owner read for signed-in users (no token header) ─────────────────────
@@ -120,6 +130,8 @@ as $$
 $$;
 
 revoke all on function public.get_owner_collection_for_user(uuid) from public;
+-- Same as above: signed-in users only, revoke the implicit anon default grant.
+revoke execute on function public.get_owner_collection_for_user(uuid) from anon;
 grant execute on function public.get_owner_collection_for_user(uuid) to authenticated;
 
 -- ── 5. NOT in this migration (deliberate follow-ups) ────────────────────────
