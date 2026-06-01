@@ -1,11 +1,11 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-05-31T11:11:21.455Z",
+  "generatedAt": "2026-06-01T20:44:19.047Z",
   "source": "run-release-cache-pipeline.js",
   "inputs": {
-    "cacheItems": 184,
+    "cacheItems": 187,
     "watchlistCandidates": 196,
-    "reviewQueueCandidates": 93,
+    "reviewQueueCandidates": 91,
     "appSeedCandidates": 5
   },
   "policy": {
@@ -45,56 +45,19 @@
   },
   "summary": {
     "candidatesDiscovered": 201,
-    "candidatesChecked": 32,
-    "skippedAlreadyCached": 169,
+    "candidatesChecked": 29,
+    "skippedAlreadyCached": 172,
     "skippedDueToLimit": 0,
-    "highConfidence": 3,
+    "highConfidence": 0,
     "mediumConfidence": 0,
     "lowConfidence": 29,
     "blocked": 0,
-    "cachePatches": 3,
+    "cachePatches": 0,
     "reviewQueueWrites": 29,
     "invalidExistingCache": 0
   },
   "autoMergeEligible": false,
-  "cachePatches": [
-    {
-      "action": "add",
-      "key": "the rising of the shield hero|tokyopop|1",
-      "seriesTitle": "The Rising of the Shield Hero",
-      "publisher": "TOKYOPOP",
-      "volumeNumber": 1,
-      "releaseDate": "2017-04-05",
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/210",
-      "confidence": "high"
-    },
-    {
-      "action": "add",
-      "key": "frieren nach dem ende der reise|altraverse|1",
-      "seriesTitle": "Frieren – Nach dem Ende der Reise",
-      "publisher": "altraverse",
-      "volumeNumber": 1,
-      "releaseDate": "2022-04-19",
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/1697",
-      "confidence": "high"
-    },
-    {
-      "action": "add",
-      "key": "arifureta der kampf zuruck in meine welt|altraverse|1",
-      "seriesTitle": "Arifureta – Der Kampf zurück in meine Welt",
-      "publisher": "altraverse",
-      "volumeNumber": 1,
-      "releaseDate": "2019-12-12",
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/302",
-      "confidence": "high"
-    }
-  ],
+  "cachePatches": [],
   "reviewQueueWrites": [
     {
       "key": "berserk master edition|panini manga|9",
@@ -868,6 +831,9 @@
     "mein wunsch von einer oberschulerin getotet zu werden|yomeru|1",
     "tokyo ghoul gigantik|crunchyroll manga|1",
     "tokyo ghoul re gigantik|crunchyroll manga|1",
+    "arifureta der kampf zuruck in meine welt|altraverse|1",
+    "the rising of the shield hero|tokyopop|1",
+    "frieren nach dem ende der reise|altraverse|1",
     "the eminence in shadow|tokyopop|9",
     "dai dark|manga cult|9",
     "arifureta der kampf zuruck in meine welt zero|altraverse|1"

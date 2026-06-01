@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-05-31T20:43:37.830Z",
+  "generatedAt": "2026-06-01T20:47:49.246Z",
   "source": "run-release-volume-counts.js",
   "providerMode": "from-cache-only",
   "policy": {
@@ -25,8 +25,7 @@
       "volumeNumber": 3,
       "reasonCodes": [
         "not-high-confidence",
-        "source-url-not-allowed",
-        "not-yet-released-or-invalid-date"
+        "source-url-not-allowed"
       ]
     },
     {
