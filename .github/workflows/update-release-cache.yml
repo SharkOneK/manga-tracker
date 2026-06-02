@@ -61,7 +61,12 @@ jobs:
       - name: Run automated release-cache pipeline
         run: node scripts/run-release-cache-pipeline.js
 
-      - name: Refresh volume counts from updated release cache
+      # Volume-count files are owned by the separate "Update Release Volume Counts"
+      # workflow. We still regenerate them here so the in-workflow consistency
+      # validator below can run, but they are NOT committed to this PR (see the
+      # add-paths and change-detection steps). This avoids two workflows fighting
+      # over data/release-volume-counts*.json and the resulting merge conflicts.
+      - name: Refresh volume counts from cache (consistency check only, not committed)
         run: node scripts/run-release-volume-counts.js --from-cache-only
 
       - name: Validate release-cache artifacts
@@ -107,7 +112,7 @@ jobs:
           console.log(`- Auto-merge eligible: ${report.autoMergeEligible ? 'yes' : 'no'}`);
           console.log('');
           console.log('Unsafe or ambiguous candidates are kept in `data/release-source-review-queue.json`; only `confidence: "high"` cache patches are written to `data/release-cache.json`.');
-          console.log('Downstream `data/release-volume-counts*.json` artifacts are refreshed from cache-only in the same PR so cache and volume-count reports cannot drift.');
+          console.log('Volume-count artifacts (`data/release-volume-counts*.json`) are owned by the separate "Update Release Volume Counts" workflow and are intentionally not part of this PR.');
           NODE
 
       - name: Detect release-cache pipeline changes
@@ -117,9 +122,7 @@ jobs:
           if git diff --quiet -- \
             data/release-cache.json \
             data/release-source-review-queue.json \
-            data/release-cache-pipeline-report.json \
-            data/release-volume-counts.json \
-            data/release-volume-counts-report.json; then
+            data/release-cache-pipeline-report.json; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
             echo "No release-cache data changes detected."
           else
@@ -127,9 +130,7 @@ jobs:
             git diff --stat -- \
               data/release-cache.json \
               data/release-source-review-queue.json \
-              data/release-cache-pipeline-report.json \
-              data/release-volume-counts.json \
-              data/release-volume-counts-report.json
+              data/release-cache-pipeline-report.json
           fi
 
       - name: Create release-cache update PR
@@ -148,8 +149,6 @@ jobs:
             data/release-cache.json
             data/release-source-review-queue.json
             data/release-cache-pipeline-report.json
-            data/release-volume-counts.json
-            data/release-volume-counts-report.json
 
       - name: Block auto-merge if PR number is missing
         if: steps.changes.outputs.changed == 'true' && steps.cpr.outputs.pull-request-number == ''
