@@ -1,52 +1,74 @@
 /*
- * Phase 51 (SCAFFOLD — not wired into index.html yet): Supabase Auth + Passkeys.
+ * Phase 51 — Supabase Auth + Passkeys (Login-UI).
  *
- * Why this exists:
- *   The app today authenticates the owner only via an x-owner-token header
- *   (see src/supabase.js) and uses NO @supabase/supabase-js client. Passkeys
- *   (WebAuthn) require a confirmed, non-anonymous Supabase Auth user, which in
- *   turn requires the supabase-js client with `experimental: { passkey: true }`.
+ * Self-contained, opt-in auth layer. It is INERT unless explicitly enabled, so it
+ * never affects the public share view or the normal owner-token workflow until the
+ * owner turns it on for their own browser.
  *
- * What this module is:
- *   A thin, feature-flagged wrapper around the vendored supabase-js UMD build
- *   (window.supabase). It is INERT until:
- *     1. vendor/supabase-js/supabase.umd.js is added (see vendor README), and
- *     2. <script src="./vendor/supabase-js/supabase.umd.js"></script> and this
- *        file are added to index.html, and
- *     3. AUTH_ENABLED is flipped on (or window.MT_AUTH_ENABLED is set).
+ * Enable (owner browser only):
+ *   localStorage.setItem('mtAuthEnabled', '1')   // then reload
+ *   (or set window.MT_AUTH_ENABLED = true before this script runs)
  *
- * Bootstrap reality (important):
- *   signInWithPasskey() only works for a user that already registered a passkey,
- *   and registerPasskey() requires an already-confirmed user. So the very first
- *   onboarding cannot be passkey-only: we bootstrap the user once via email OTP
- *   (signInWithOtp / verifyOtp), then register a passkey for subsequent logins.
- *
- * CSP: index.html uses `script-src 'self'` and a fixed connect-src allowlist.
- *   supabase-js must be vendored locally (no CDN). The Supabase origin is already
- *   in connect-src; no CSP change is needed for the existing project URL.
+ * Design notes:
+ *  - NO @supabase/supabase-js <script> tag in index.html. The ~200 KB UMD bundle is
+ *    LAZY-LOADED (dynamic same-origin <script>, allowed under CSP `script-src 'self'`)
+ *    only when an auth action actually needs it — public viewers never download it.
+ *  - The signed-in display (email in the sidebar foot) is restored from the persisted
+ *    Supabase session in localStorage WITHOUT loading the bundle.
+ *  - Passkeys need a confirmed, non-anonymous user. The first login bootstraps via
+ *    email OTP; afterwards the passkey is the primary login.
+ *  - Data sync (src/supabase.js) is intentionally NOT changed here. This step adds
+ *    login + passkey + owner-claim. Switching pull/push to the session JWT is a
+ *    separate, later step. The owner-claim binds the existing collection to auth.uid()
+ *    so that switch becomes possible.
  */
 (function () {
   'use strict';
 
-  // Reuse the same project endpoint/key already used by src/supabase.js.
   var SUPA_URL = 'https://sssxiqtnkctvyghyrqff.supabase.co';
   var SUPA_KEY = 'sb_publishable_dHER8ble5X15bPpByKRs8g_fK_01io7';
-
-  // Master kill-switch. Keep false until vendoring + wiring + DB migration are done.
-  var AUTH_ENABLED = (typeof window !== 'undefined' && window.MT_AUTH_ENABLED === true);
+  var PROJECT_REF = 'sssxiqtnkctvyghyrqff';
+  var SESSION_STORAGE_KEY = 'sb-' + PROJECT_REF + '-auth-token';
+  var BUNDLE_SRC = './vendor/supabase-js/supabase.umd.js';
 
   var client = null;
+  var bundlePromise = null;
 
-  function isAvailable() {
-    return AUTH_ENABLED &&
-      typeof window !== 'undefined' &&
-      window.supabase &&
-      typeof window.supabase.createClient === 'function';
+  // ── Enablement / context guards ─────────────────────────────────────────────
+  function authEnabled() {
+    try {
+      if (typeof window !== 'undefined' && window.MT_AUTH_ENABLED === true) return true;
+      return localStorage.getItem('mtAuthEnabled') === '1';
+    } catch (_) { return false; }
   }
 
-  // Lazily create the singleton client with the passkey opt-in flag.
-  function getClient() {
-    if (!isAvailable()) return null;
+  function isPublicViewContext() {
+    try { return !!new URLSearchParams(window.location.search).get('view'); }
+    catch (_) { return false; }
+  }
+
+  // ── Lazy bundle load (CSP-safe dynamic same-origin script) ──────────────────
+  function loadBundle() {
+    if (window.supabase && typeof window.supabase.createClient === 'function') {
+      return Promise.resolve();
+    }
+    if (bundlePromise) return bundlePromise;
+    bundlePromise = new Promise(function (resolve, reject) {
+      var s = document.createElement('script');
+      s.src = BUNDLE_SRC;
+      s.async = true;
+      s.onload = function () {
+        if (window.supabase && typeof window.supabase.createClient === 'function') resolve();
+        else reject(new Error('supabase-js geladen, aber createClient fehlt'));
+      };
+      s.onerror = function () { reject(new Error('supabase-js-Bundle konnte nicht geladen werden')); };
+      document.head.appendChild(s);
+    });
+    return bundlePromise;
+  }
+
+  async function ensureClient() {
+    await loadBundle();
     if (client) return client;
     client = window.supabase.createClient(SUPA_URL, SUPA_KEY, {
       auth: {
@@ -58,90 +80,77 @@
     return client;
   }
 
-  // ── Session helpers ────────────────────────────────────────────────────────
+  // ── Session display without the bundle ──────────────────────────────────────
+  // Reads the persisted Supabase session straight from localStorage so we can show
+  // "signed in as X" on reload without paying the 200 KB.
+  function readStoredSession() {
+    try {
+      var raw = localStorage.getItem(SESSION_STORAGE_KEY);
+      if (!raw) return null;
+      var parsed = JSON.parse(raw);
+      var sess = parsed && parsed.access_token ? parsed : (parsed && parsed.currentSession) || null;
+      if (!sess || !sess.access_token) return null;
+      if (sess.expires_at && Number(sess.expires_at) * 1000 < Date.now()) {
+        // expired; refresh token may still work, but treat display as signed-out-ish
+        return { user: (sess.user || null), expired: true };
+      }
+      return { user: (sess.user || null), expired: false };
+    } catch (_) { return null; }
+  }
+
+  // ── Auth operations (each lazy-loads the bundle) ────────────────────────────
   async function getSession() {
-    var c = getClient();
-    if (!c) return null;
+    var c = await ensureClient();
     var res = await c.auth.getSession();
     return (res && res.data) ? res.data.session : null;
   }
-
   async function getUser() {
     var s = await getSession();
     return s ? s.user : null;
   }
-
   async function signOut() {
-    var c = getClient();
-    if (!c) return;
+    var c = await ensureClient();
     await c.auth.signOut();
   }
-
-  // ── Email OTP bootstrap (one-time account creation/confirmation) ────────────
-  // Sends a magic-link / OTP code to the address. Required at least once before
-  // a passkey can be registered for a brand-new user.
   async function startEmailOtp(email) {
-    var c = getClient();
-    if (!c) throw new Error('auth unavailable');
+    var c = await ensureClient();
     return c.auth.signInWithOtp({ email: email });
   }
-
   async function verifyEmailOtp(email, token) {
-    var c = getClient();
-    if (!c) throw new Error('auth unavailable');
+    var c = await ensureClient();
     return c.auth.verifyOtp({ email: email, token: token, type: 'email' });
   }
-
-  // ── Passkeys (primary day-to-day login) ────────────────────────────────────
-  // Sign in via a discoverable credential — no email/username prompt needed.
   async function signInWithPasskey() {
-    var c = getClient();
-    if (!c) throw new Error('auth unavailable');
+    var c = await ensureClient();
     return c.auth.signInWithPasskey();
   }
-
-  // Register a passkey for the CURRENTLY signed-in user. Call from a settings
-  // page or right after the OTP bootstrap.
   async function registerPasskey() {
-    var c = getClient();
-    if (!c) throw new Error('auth unavailable');
+    var c = await ensureClient();
     var user = await getUser();
-    if (!user) throw new Error('must be signed in to register a passkey');
+    if (!user) throw new Error('Zum Registrieren eines Passkeys zuerst anmelden.');
     return c.auth.registerPasskey();
   }
-
   async function listPasskeys() {
-    var c = getClient();
-    if (!c) throw new Error('auth unavailable');
+    var c = await ensureClient();
     return c.auth.passkey.list();
   }
-
   async function deletePasskey(passkeyId) {
-    var c = getClient();
-    if (!c) throw new Error('auth unavailable');
+    var c = await ensureClient();
     return c.auth.passkey.delete({ passkeyId: passkeyId });
   }
 
-  // ── Bridge to the legacy collection (Bestandsmigration) ─────────────────────
-  // After sign-in, bind the existing token-owned collection to auth.uid() exactly
-  // once, by calling the claim RPC WITH the legacy x-owner-token header as proof.
-  // Requires the Phase 51 migration to be applied. Returns the claimed id or null.
+  // Bind the legacy token-owned collection to the signed-in user (idempotent).
   async function claimLegacyCollection() {
-    var c = getClient();
-    if (!c) throw new Error('auth unavailable');
-
+    await ensureClient();
     var legacy = (window.MangaTrackerSupabase && window.MangaTrackerSupabase.getOwnerState)
       ? window.MangaTrackerSupabase.getOwnerState()
       : { collId: null, ownerToken: null };
-
-    if (!legacy.collId || !legacy.ownerToken) return null; // nothing to claim
+    if (!legacy.collId || !legacy.ownerToken) return null;
 
     var session = await getSession();
     var accessToken = session ? session.access_token : null;
-    if (!accessToken) throw new Error('must be signed in to claim');
+    if (!accessToken) throw new Error('Zum Übernehmen zuerst anmelden.');
 
-    // Direct PostgREST RPC call so we can send BOTH the auth JWT and the
-    // x-owner-token proof header in the same request.
     var resp = await fetch(SUPA_URL + '/rest/v1/rpc/claim_collection_for_current_user', {
       method: 'POST',
       headers: {
@@ -152,14 +161,190 @@
       },
       body: JSON.stringify({ collection_id: legacy.collId }),
     });
-    if (!resp.ok) {
-      throw new Error('claim failed: HTTP ' + resp.status);
-    }
-    return resp.json(); // claimed uuid or null
+    if (!resp.ok) throw new Error('Claim fehlgeschlagen: HTTP ' + resp.status);
+    var claimedId = await resp.json();
+    if (claimedId) { try { localStorage.setItem('mtCollectionClaimed', '1'); } catch (_) {} }
+    return claimedId;
   }
 
+  // ── Sidebar UI ──────────────────────────────────────────────────────────────
+  function el(tag, attrs, text) {
+    var n = document.createElement(tag);
+    if (attrs) Object.keys(attrs).forEach(function (k) { n.setAttribute(k, attrs[k]); });
+    if (text != null) n.textContent = text;
+    return n;
+  }
+
+  function setUserName(name) {
+    var nameEl = document.getElementById('side-user-name');
+    if (nameEl && name) nameEl.textContent = name;
+  }
+
+  function setStatus(container, msg, isError) {
+    var s = container.querySelector('.auth-status');
+    if (!s) { s = el('div', { class: 'auth-status' }); container.appendChild(s); }
+    s.textContent = msg || '';
+    s.style.color = isError ? 'var(--danger, #ff6b6b)' : 'var(--text-dim, #9aa)';
+  }
+
+  function clearChildrenKeepStatus(container) {
+    Array.prototype.slice.call(container.children).forEach(function (ch) {
+      if (!ch.classList.contains('auth-status')) container.removeChild(ch);
+    });
+  }
+
+  function renderSignedOut(container) {
+    clearChildrenKeepStatus(container);
+    var loginBtn = el('button', { type: 'button', class: 'auth-btn' }, '🔑 Anmelden');
+    loginBtn.addEventListener('click', function () { onPrimaryLogin(container, loginBtn); });
+    container.appendChild(loginBtn);
+
+    var otpToggle = el('button', { type: 'button', class: 'auth-btn auth-btn-soft' }, '✉️ Per E-Mail-Code');
+    otpToggle.addEventListener('click', function () { renderEmailOtp(container); });
+    container.appendChild(otpToggle);
+  }
+
+  function renderEmailOtp(container) {
+    clearChildrenKeepStatus(container);
+    var emailInput = el('input', { type: 'email', class: 'auth-input', placeholder: 'E-Mail', autocomplete: 'email' });
+    var sendBtn = el('button', { type: 'button', class: 'auth-btn' }, 'Code senden');
+    var codeInput = el('input', { type: 'text', class: 'auth-input', placeholder: '6-stelliger Code', inputmode: 'numeric', autocomplete: 'one-time-code' });
+    codeInput.style.display = 'none';
+    var verifyBtn = el('button', { type: 'button', class: 'auth-btn' }, 'Bestätigen');
+    verifyBtn.style.display = 'none';
+    var back = el('button', { type: 'button', class: 'auth-btn auth-btn-soft' }, '← Zurück');
+
+    sendBtn.addEventListener('click', async function () {
+      var email = (emailInput.value || '').trim();
+      if (!email) { setStatus(container, 'Bitte E-Mail eingeben.', true); return; }
+      sendBtn.disabled = true; setStatus(container, 'Sende Code …');
+      try {
+        var r = await startEmailOtp(email);
+        if (r && r.error) throw r.error;
+        codeInput.style.display = ''; verifyBtn.style.display = '';
+        setStatus(container, 'Code per E-Mail gesendet. Eintragen und bestätigen.');
+      } catch (e) {
+        setStatus(container, 'Fehler: ' + (e && e.message ? e.message : e), true);
+      } finally { sendBtn.disabled = false; }
+    });
+
+    verifyBtn.addEventListener('click', async function () {
+      var email = (emailInput.value || '').trim();
+      var code = (codeInput.value || '').trim();
+      if (!code) { setStatus(container, 'Bitte Code eingeben.', true); return; }
+      verifyBtn.disabled = true; setStatus(container, 'Prüfe Code …');
+      try {
+        var r = await verifyEmailOtp(email, code);
+        if (r && r.error) throw r.error;
+        await refreshUi();
+      } catch (e) {
+        setStatus(container, 'Fehler: ' + (e && e.message ? e.message : e), true);
+      } finally { verifyBtn.disabled = false; }
+    });
+
+    back.addEventListener('click', function () { setStatus(container, ''); renderSignedOut(container); });
+
+    container.appendChild(emailInput);
+    container.appendChild(sendBtn);
+    container.appendChild(codeInput);
+    container.appendChild(verifyBtn);
+    container.appendChild(back);
+  }
+
+  async function onPrimaryLogin(container, btn) {
+    btn.disabled = true; setStatus(container, 'Passkey-Anmeldung …');
+    try {
+      var r = await signInWithPasskey();
+      if (r && r.error) throw r.error;
+      await refreshUi();
+    } catch (e) {
+      // No passkey yet / unsupported / cancelled -> offer email bootstrap.
+      setStatus(container, 'Kein Passkey nutzbar — per E-Mail anmelden.', true);
+      renderEmailOtp(container);
+    } finally { btn.disabled = false; }
+  }
+
+  function renderSignedIn(container, user) {
+    clearChildrenKeepStatus(container);
+    if (user && user.email) setUserName(user.email);
+
+    var passkeyBtn = el('button', { type: 'button', class: 'auth-btn' }, '➕ Passkey hinzufügen');
+    passkeyBtn.addEventListener('click', async function () {
+      passkeyBtn.disabled = true; setStatus(container, 'Passkey-Registrierung …');
+      try {
+        var r = await registerPasskey();
+        if (r && r.error) throw r.error;
+        setStatus(container, 'Passkey registriert ✓');
+      } catch (e) {
+        setStatus(container, 'Fehler: ' + (e && e.message ? e.message : e), true);
+      } finally { passkeyBtn.disabled = false; }
+    });
+    container.appendChild(passkeyBtn);
+
+    // Owner-claim: show only if a legacy owner token exists and not yet claimed.
+    var owner = (window.MangaTrackerSupabase && window.MangaTrackerSupabase.getOwnerState)
+      ? window.MangaTrackerSupabase.getOwnerState() : { collId: null, ownerToken: null };
+    var alreadyClaimed = false;
+    try { alreadyClaimed = localStorage.getItem('mtCollectionClaimed') === '1'; } catch (_) {}
+    if (owner.collId && owner.ownerToken && !alreadyClaimed) {
+      var claimBtn = el('button', { type: 'button', class: 'auth-btn' }, '🔗 Sammlung übernehmen');
+      claimBtn.addEventListener('click', async function () {
+        claimBtn.disabled = true; setStatus(container, 'Übernehme Sammlung …');
+        try {
+          var id = await claimLegacyCollection();
+          if (id) { setStatus(container, 'Sammlung übernommen ✓'); claimBtn.remove(); }
+          else { setStatus(container, 'Nichts zu übernehmen.', true); }
+        } catch (e) {
+          setStatus(container, 'Fehler: ' + (e && e.message ? e.message : e), true);
+          claimBtn.disabled = false;
+        }
+      });
+      container.appendChild(claimBtn);
+    }
+
+    var outBtn = el('button', { type: 'button', class: 'auth-btn auth-btn-soft' }, '↩ Abmelden');
+    outBtn.addEventListener('click', async function () {
+      outBtn.disabled = true; setStatus(container, 'Abmelden …');
+      try { await signOut(); } catch (_) {}
+      setUserName('SharkOneK');
+      setStatus(container, '');
+      renderSignedOut(container);
+    });
+    container.appendChild(outBtn);
+  }
+
+  // Decide UI state. Uses the stored session for display; only loads the bundle
+  // when an action requires it.
+  async function refreshUi() {
+    var container = document.getElementById('auth-controls');
+    if (!container) return;
+    // If the bundle is already loaded (after an action), trust the live session.
+    if (window.supabase && client) {
+      try {
+        var s = await getSession();
+        if (s && s.user) { renderSignedIn(container, s.user); return; }
+      } catch (_) {}
+      renderSignedOut(container);
+      return;
+    }
+    // Otherwise rely on the persisted session for display (no bundle download).
+    var stored = readStoredSession();
+    if (stored && stored.user && !stored.expired) renderSignedIn(container, stored.user);
+    else renderSignedOut(container);
+  }
+
+  function initAuthUi() {
+    if (!authEnabled() || isPublicViewContext()) return;
+    var container = document.getElementById('auth-controls');
+    if (!container) return;
+    container.hidden = false;
+    refreshUi();
+  }
+
+  // ── Public API (for console/testing and future wiring) ──────────────────────
   window.MangaTrackerAuth = {
-    isAvailable: isAvailable,
+    isEnabled: authEnabled,
+    ensureClient: ensureClient,
     getSession: getSession,
     getUser: getUser,
     signOut: signOut,
@@ -170,5 +355,12 @@
     listPasskeys: listPasskeys,
     deletePasskey: deletePasskey,
     claimLegacyCollection: claimLegacyCollection,
+    refreshUi: refreshUi,
   };
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initAuthUi);
+  } else {
+    initAuthUi();
+  }
 })();
