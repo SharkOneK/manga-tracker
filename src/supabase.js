@@ -104,6 +104,50 @@
     } catch (_) { return false; }
   }
 
+  // Phase 51 (Etappe 7/2): keep the session alive without loading the 200 KB bundle.
+  function getStoredSession() {
+    try {
+      var raw = localStorage.getItem(SESSION_STORAGE_KEY);
+      if (!raw) return null;
+      var parsed = JSON.parse(raw);
+      return (parsed && (parsed.access_token || parsed.refresh_token)) ? parsed
+        : (parsed && parsed.currentSession) || null;
+    } catch (_) { return null; }
+  }
+
+  function persistSession(sess) {
+    try {
+      if (sess && sess.expires_in && !sess.expires_at) {
+        sess.expires_at = Math.floor(Date.now() / 1000) + Number(sess.expires_in);
+      }
+      localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(sess));
+    } catch (_) {}
+  }
+
+  // Returns a valid access token, refreshing via the refresh_token if the stored
+  // one is (about to be) expired. Returns null when the user is not signed in or
+  // the refresh fails (→ caller surfaces "nicht angemeldet"; the strict gate then
+  // forces a re-login).
+  async function ensureFreshAccessToken() {
+    var tok = getStoredAccessToken();
+    if (tok) return tok;
+    var sess = getStoredSession();
+    var refreshToken = sess && sess.refresh_token;
+    if (!refreshToken) return null;
+    try {
+      var r = await fetch(SUPA_URL + '/auth/v1/token?grant_type=refresh_token', {
+        method: 'POST',
+        headers: { apikey: SUPA_KEY, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ refresh_token: refreshToken }),
+      });
+      if (!r.ok) return null;
+      var fresh = await r.json();
+      if (!fresh || !fresh.access_token) return null;
+      persistSession(fresh);
+      return fresh.access_token;
+    } catch (_) { return null; }
+  }
+
   // Phase 51b: discover the collection ids bound to the signed-in user (auth.uid()).
   // Lets a fresh browser (valid session but no adopt link / owner token) find which
   // collection to load. Returns [] when not signed in or none owned.
@@ -152,38 +196,16 @@
     return Array.isArray(rows) && rows[0] ? rows[0][fieldName] : null;
   }
 
-  async function fetchCollection(collId, ownerToken) {
-    // Phase 51: primary path — signed-in owner reads via auth.uid() RPC (JWT).
-    var sessionToken = getStoredAccessToken();
-    if (sessionToken) {
-      try {
-        var viaSession = await requestJson(SUPA_RPC + '/get_owner_collection_for_user', sessionHeaders(sessionToken), {
-          method: 'POST',
-          headers: Object.assign({}, sessionHeaders(sessionToken), { 'Content-Type': 'application/json' }),
-          body: JSON.stringify({ collection_id: collId }),
-        });
-        if (viaSession) return viaSession;
-        console.warn('[Phase 51] Session-Read lieferte keine Daten (Sammlung evtl. noch nicht geclaimt) — Fallback auf Owner-Token.');
-      } catch (e) {
-        console.warn('[Phase 51] Session-Read fehlgeschlagen — Fallback auf Owner-Token:', e && e.message);
-      }
-    }
-
-    // Fallback: legacy x-owner-token owner RPC, then legacy data read.
-    if (ownerToken) {
-      try {
-        return await requestJson(SUPA_RPC + '/get_owner_collection', headers(ownerToken, true), {
-          method: 'POST',
-          headers: Object.assign({}, headers(ownerToken, true), { 'Content-Type': 'application/json' }),
-          body: JSON.stringify({ collection_id: collId }),
-        });
-      } catch (e) {
-        if (!isPublicDataUnavailableError(e)) throw e;
-        console.warn('[Phase 27b] owner RPC not available yet; falling back to legacy owner data read until migration is applied.');
-      }
-    }
-    var j = await requestJson(SUPA_REST + '?id=eq.' + collId + '&select=data', headers(ownerToken, true));
-    return firstCollectionField(j, 'data');
+  async function fetchCollection(collId) {
+    // Phase 51 (Etappe 7): session-only. The signed-in owner reads via the
+    // auth.uid() RPC; there is no owner-token fallback anymore.
+    var token = await ensureFreshAccessToken();
+    if (!token) throw new Error('Nicht angemeldet — bitte einloggen.');
+    return requestJson(SUPA_RPC + '/get_owner_collection_for_user', sessionHeaders(token), {
+      method: 'POST',
+      headers: Object.assign({}, sessionHeaders(token), { 'Content-Type': 'application/json' }),
+      body: JSON.stringify({ collection_id: collId }),
+    });
   }
 
   async function fetchPublicCollection(collId) {
@@ -352,10 +374,9 @@
     }
   }
 
-  // Phase 51: session PATCH. Uses return=representation so we can count the rows
-  // actually updated. RLS only matches when user_id = auth.uid(); a return of 0 rows
-  // means the collection is not (yet) claimed by this user — we must NOT treat that
-  // as success (silent no-op write), so the caller falls back to the token path.
+  // Phase 51 (Etappe 7): session PATCH via the auth.uid() RLS policy. Uses
+  // return=representation to count updated rows; 0 rows means the row is not owned
+  // by this user (not claimed) — surfaced as an error, never a silent no-op write.
   async function sessionPatch(collId, accessToken, payload) {
     var r = await fetch(SUPA_REST + '?id=eq.' + collId, {
       method: 'PATCH',
@@ -372,42 +393,14 @@
     return Array.isArray(rows) ? rows.length : 0;
   }
 
-  async function patchCollection(collId, ownerToken, data, publicData) {
-    // Phase 51: primary path — signed-in owner writes via auth.uid() RLS (JWT).
-    var sessionToken = getStoredAccessToken();
-    if (sessionToken) {
-      try {
-        var payload = (publicData !== undefined) ? { data: data, public_data: publicData } : { data: data };
-        var n = await sessionPatch(collId, sessionToken, payload);
-        if (n >= 1) return { publicDataWritten: publicData !== undefined, via: 'session' };
-        console.warn('[Phase 51] Session-PATCH traf 0 Zeilen (Sammlung evtl. noch nicht geclaimt) — Fallback auf Owner-Token.');
-      } catch (e) {
-        if (isPublicDataUnavailableError(e)) {
-          try {
-            var n2 = await sessionPatch(collId, sessionToken, { data: data });
-            if (n2 >= 1) return { publicDataWritten: false, via: 'session' };
-          } catch (_) { /* fall through to token path */ }
-        }
-        console.warn('[Phase 51] Session-PATCH fehlgeschlagen — Fallback auf Owner-Token:', e && e.message);
-      }
-    }
-
-    // Fallback: legacy x-owner-token PATCH (unchanged behaviour).
-    if (publicData !== undefined) {
-      try {
-        await patchCollectionPayload(collId, ownerToken, {
-          data: data,
-          public_data: publicData,
-        });
-        return { publicDataWritten: true };
-      } catch (e) {
-        if (!isPublicDataUnavailableError(e)) throw e;
-        console.warn('[Phase 27a] public_data not writable yet; falling back to legacy data-only sync.');
-      }
-    }
-
-    await patchCollectionPayload(collId, ownerToken, { data: data });
-    return { publicDataWritten: false };
+  async function patchCollection(collId, data, publicData) {
+    // Phase 51 (Etappe 7): session-only. No owner-token fallback anymore.
+    var token = await ensureFreshAccessToken();
+    if (!token) throw new Error('Nicht angemeldet — bitte einloggen.');
+    var payload = (publicData !== undefined) ? { data: data, public_data: publicData } : { data: data };
+    var n = await sessionPatch(collId, token, payload);
+    if (n < 1) throw new Error('Sammlung nicht dem angemeldeten Konto zugeordnet (0 Zeilen).');
+    return { publicDataWritten: publicData !== undefined, via: 'session' };
   }
 
   window.MangaTrackerSupabase = {

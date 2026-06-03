@@ -49,18 +49,30 @@ function loadPublicProjectionHelpers() {
   return sandbox.buildPublicCollectionData;
 }
 
-function loadSupabaseAdapter(mockFetch) {
+const SESSION_KEY = 'sb-sssxiqtnkctvyghyrqff-auth-token';
+function freshSession(accessToken) {
+  return JSON.stringify({
+    access_token: accessToken || 'jwt1',
+    refresh_token: 'r1',
+    expires_at: Math.floor(Date.now() / 1000) + 3600,
+  });
+}
+
+function loadSupabaseAdapter(mockFetch, seed) {
   const supabaseJs = fs.readFileSync(supabaseJsPath, 'utf8');
   const storage = new Map();
+  if (seed) Object.keys(seed).forEach((k) => storage.set(k, String(seed[k])));
   const sandbox = {
     console,
     fetch: mockFetch,
     URLSearchParams,
+    Date,
     history: { replaceState() {} },
     window: {},
     localStorage: {
       getItem(key) { return storage.has(key) ? storage.get(key) : null; },
       setItem(key, value) { storage.set(key, String(value)); },
+      removeItem(key) { storage.delete(key); },
     },
   };
   sandbox.window.location = { hash: '', search: '', pathname: '/' };
@@ -136,51 +148,65 @@ console.log('\nPhase 27b - Public Projection/RLS Tests\n');
     assert.strictEqual(Object.prototype.hasOwnProperty.call(projection.m[0], 'mpEditionId'), false);
   });
 
-  await runTest('Cloud-Push sendet data und public_data, wenn public_data akzeptiert wird', async function() {
+  await runTest('Cloud-Push (Session) sendet data + public_data via JWT, ohne x-owner-token', async function() {
     const calls = [];
     const adapter = loadSupabaseAdapter(makeFetchSequence([
-      mockResponse(true, 204, ''),
-    ], calls));
+      mockResponse(true, 200, [{ id: 'col1' }]), // return=representation → 1 Zeile
+    ], calls), { [SESSION_KEY]: freshSession('jwt1') });
 
     const data = { m: [{ id: 'private' }] };
     const publicData = { m: [{ id: 'public' }] };
-    const result = await adapter.patchCollection('col1', 'tok1', data, publicData);
+    const result = await adapter.patchCollection('col1', data, publicData);
 
     assert.strictEqual(calls.length, 1);
     assert.deepStrictEqual(calls[0].body, { data, public_data: publicData });
-    assert.strictEqual(calls[0].options.headers['x-owner-token'], 'tok1');
+    assert.strictEqual(calls[0].options.headers['Authorization'], 'Bearer jwt1');
+    assert.strictEqual(calls[0].options.headers['Prefer'], 'return=representation');
+    assert.ok(!calls[0].options.headers['x-owner-token']);
     assert.strictEqual(result.publicDataWritten, true);
   });
 
-  await runTest('Cloud-Push fällt auf data-only zurück, wenn public_data remote fehlt', async function() {
+  await runTest('Cloud-Push erneuert abgelaufene Session per refresh_token', async function() {
     const calls = [];
+    const expired = JSON.stringify({
+      access_token: 'old', refresh_token: 'r1',
+      expires_at: Math.floor(Date.now() / 1000) - 10,
+    });
     const adapter = loadSupabaseAdapter(makeFetchSequence([
-      mockResponse(false, 400, "Could not find the 'public_data' column in the schema cache"),
-      mockResponse(true, 204, ''),
-    ], calls));
+      mockResponse(true, 200, { access_token: 'jwt2', refresh_token: 'r2', expires_in: 3600 }), // refresh
+      mockResponse(true, 200, [{ id: 'col1' }]), // patch
+    ], calls), { [SESSION_KEY]: expired });
 
-    const data = { m: [{ id: 'private' }] };
-    const publicData = { m: [{ id: 'public' }] };
-    const result = await adapter.patchCollection('col1', 'tok1', data, publicData);
+    const data = { m: [] };
+    const result = await adapter.patchCollection('col1', data, { m: [] });
 
     assert.strictEqual(calls.length, 2);
-    assert.deepStrictEqual(calls[0].body, { data, public_data: publicData });
-    assert.deepStrictEqual(calls[1].body, { data });
-    assert.strictEqual(result.publicDataWritten, false);
+    assert.ok(calls[0].url.includes('grant_type=refresh_token'));
+    assert.deepStrictEqual(calls[0].body, { refresh_token: 'r1' });
+    assert.strictEqual(calls[1].options.headers['Authorization'], 'Bearer jwt2');
+    assert.strictEqual(result.publicDataWritten, true);
   });
 
-  await runTest('Owner-Pull nutzt owner RPC mit x-owner-token', async function() {
+  await runTest('Cloud-Push wirft ohne Session (kein Token-Fallback)', async function() {
+    const calls = [];
+    const adapter = loadSupabaseAdapter(makeFetchSequence([], calls)); // keine Session geseedet
+    await assert.rejects(() => adapter.patchCollection('col1', { m: [] }, { m: [] }), /Nicht angemeldet/);
+    assert.strictEqual(calls.length, 0);
+  });
+
+  await runTest('Owner-Pull nutzt get_owner_collection_for_user via JWT', async function() {
     const calls = [];
     const adapter = loadSupabaseAdapter(makeFetchSequence([
       mockResponse(true, 200, { m: [{ id: 'private' }] }),
-    ], calls));
+    ], calls), { [SESSION_KEY]: freshSession('jwt1') });
 
-    const result = await adapter.fetchCollection('col1', 'tok1');
+    const result = await adapter.fetchCollection('col1');
     assert.deepStrictEqual(result, { m: [{ id: 'private' }] });
     assert.strictEqual(calls.length, 1);
-    assert.ok(calls[0].url.includes('/rpc/get_owner_collection'));
+    assert.ok(calls[0].url.includes('/rpc/get_owner_collection_for_user'));
     assert.strictEqual(calls[0].options.method, 'POST');
-    assert.strictEqual(calls[0].options.headers['x-owner-token'], 'tok1');
+    assert.strictEqual(calls[0].options.headers['Authorization'], 'Bearer jwt1');
+    assert.ok(!calls[0].options.headers['x-owner-token']);
     assert.deepStrictEqual(calls[0].body, { collection_id: 'col1' });
   });
 
@@ -210,7 +236,7 @@ console.log('\nPhase 27b - Public Projection/RLS Tests\n');
   });
   await runTest('src/app.js verdrahtet Cloud-Push und Public-View mit public_data-Pfad', function() {
     const appJs = fs.readFileSync(appJsPath, 'utf8');
-    assert.ok(appJs.includes('SupabaseAdapter.patchCollection(_collId, _ownerToken, db, buildPublicCollectionData(db))'));
+    assert.ok(appJs.includes('SupabaseAdapter.patchCollection(_collId, db, buildPublicCollectionData(db))'));
     assert.ok(appJs.includes('SupabaseAdapter.fetchPublicCollection(_viewColl)'));
     const supabaseJs = fs.readFileSync(supabaseJsPath, 'utf8');
     assert.ok(supabaseJs.includes('collection_public_projection'));

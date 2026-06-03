@@ -95,13 +95,12 @@ function validateDatabase(candidate) {
 
 async function pushCloud() {
   if (!canWriteCloud()) return;
-  // Phase 51: _ownerToken may be absent on a signed-in fresh browser; canWriteCloud()
-  // already guarantees either a token or a valid session. patchCollection picks the path.
+  // Phase 51 (Etappe 7): owner writes go via the Supabase session only.
   if (!_collId) return;
   if (!validateDatabase()) { setSyncStatus('⚠️', 'Daten ungültig – Sync übersprungen'); return; }
   setSyncStatus('🔄', 'Synchronisiert…');
   try {
-    await SupabaseAdapter.patchCollection(_collId, _ownerToken, db, buildPublicCollectionData(db));
+    await SupabaseAdapter.patchCollection(_collId, db, buildPublicCollectionData(db));
     setSyncStatus('☁️', 'Cloud-Sync aktiv');
   } catch(e) {
     setSyncStatus('⚠️', 'Sync fehlgeschlagen');
@@ -112,7 +111,7 @@ async function loadFromCloud() {
   if (!_collId) { setSyncStatus('💾', 'Lokal – keine Sammlung verbunden'); return; }
   setSyncStatus('🔄', 'Lade aus Cloud…');
   try {
-    const record = await SupabaseAdapter.fetchCollection(_collId, _ownerToken);
+    const record = await SupabaseAdapter.fetchCollection(_collId);
     if (record && Array.isArray(record.m) && record.m.length > 0) {
       // Validierung VOR Übernahme: kaputte Cloud-Daten dürfen lokale Sammlung nicht überschreiben
       if (!validateDatabase(record)) {
