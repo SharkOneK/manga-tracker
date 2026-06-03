@@ -378,7 +378,11 @@
   // return=representation to count updated rows; 0 rows means the row is not owned
   // by this user (not claimed) — surfaced as an error, never a silent no-op write.
   async function sessionPatch(collId, accessToken, payload) {
-    var r = await fetch(SUPA_REST + '?id=eq.' + collId, {
+    // select=id limits the returned representation to the id column, which the
+    // authenticated role IS allowed to read. Returning the full row would include
+    // the private `data` column (no SELECT grant for authenticated) → permission
+    // denied. We still get the updated-row count for the 0-row check.
+    var r = await fetch(SUPA_REST + '?id=eq.' + collId + '&select=id', {
       method: 'PATCH',
       headers: {
         apikey: SUPA_KEY,
