@@ -1057,6 +1057,17 @@ body.dark {
 .mobile-brand .brand-name { font-size: 1.02rem; }
 @media (max-width: 900px) { .page-title { display: none; } .mobile-brand { display: flex; } }
 
+/* Phase 53 — mobiler Konto-/Login-Einstiegspunkt. Auf Desktop liegt das Login in
+   der Sidebar; der Konto-Button erscheint nur ≤900 px (analog .mobile-brand). */
+.account-btn-mobile { display: none; }
+@media (max-width: 900px) { .account-btn-mobile { display: grid; } }
+
+/* Konto-Sheet — nutzt .overlay/.modal; nur Inhaltszeile + Auth-Slot ergänzen. */
+.account-user { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+.account-user .who { font-size: 0.9rem; font-weight: 700; min-width: 0; }
+.account-user .who .auth-user-name { overflow-wrap: anywhere; }
+.account-modal .auth-controls { display: flex; flex-direction: column; gap: 8px; }
+
 .topbar .search { position: relative; flex: 1; max-width: 420px; margin-left: auto; }
 .topbar .search > svg { position: absolute; left: 13px; top: 50%; transform: translateY(-50%);
   width: 16px; height: 16px; color: var(--text-dim); pointer-events: none; }
