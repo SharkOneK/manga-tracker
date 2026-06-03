@@ -2743,16 +2743,16 @@ function buildIntakeSubmitCandidate(candidate) {
 // anderen nicht blockiert. Der Katalog-Intake wiederholt die fachliche Signatur
 // und ergaenzt 'origin', sourceKey/coverUrl bleiben null bis Provider-Anbindung greift.
 function maybeSubmitReleaseIntakeCandidate(candidate) {
+  // isReleaseIntakeSendAllowed() already requires canWriteCloud() (= a Supabase
+  // session). Phase 51: intake authorizes via the session JWT, not the owner token.
   if (!isReleaseIntakeSendAllowed(candidate)) return;
-  const { ownerToken } = window.MangaTrackerSupabase.getOwnerState();
-  if (!ownerToken) return;
   const submission = buildIntakeSubmitCandidate(candidate);
   if (!submission) return;
 
   // Phase 36b — bestehender Intake in release_intake_candidates
   Promise.resolve().then(async function () {
     try {
-      const r = await window.MangaTrackerSupabase.submitReleaseIntakeCandidate(submission, ownerToken);
+      const r = await window.MangaTrackerSupabase.submitReleaseIntakeCandidate(submission);
       if (r && r.result && r.result !== 'error') {
         console.info('[Phase 36b] Release intake:', r.result, submission.seriesTitle, 'Bd.', submission.volumeNumber);
       } else if (r && r.result === 'error') {
@@ -2776,7 +2776,7 @@ function maybeSubmitReleaseIntakeCandidate(candidate) {
         sourceUrl:    submission.sourceUrl,
         origin:       'browser',
       };
-      const r = await window.MangaTrackerSupabase.submitMangaCatalogCandidate(catalogSubmission, ownerToken);
+      const r = await window.MangaTrackerSupabase.submitMangaCatalogCandidate(catalogSubmission);
       if (r && r.result && r.result !== 'error') {
         console.info('[Phase 39b] Catalog intake:', r.result, catalogSubmission.seriesTitle, 'Bd.', catalogSubmission.volumeNumber);
       } else if (r && r.result === 'error') {
@@ -3193,11 +3193,11 @@ function buildCatalogSeedSubmission(candidate) {
   };
 }
 
-async function submitCatalogSeedCandidate(candidate, ownerToken) {
+async function submitCatalogSeedCandidate(candidate) {
   const submission = buildCatalogSeedSubmission(candidate);
-  if (!submission || !ownerToken) return { result: 'blocked' };
+  if (!submission) return { result: 'blocked' };
   try {
-    const result = await window.MangaTrackerSupabase.submitMangaCatalogCandidate(submission, ownerToken);
+    const result = await window.MangaTrackerSupabase.submitMangaCatalogCandidate(submission);
     return result && result.result ? result : { result: 'blocked' };
   } catch (e) {
     return { result: 'error', message: String(e && e.message || e).slice(0, 200) };
@@ -3205,17 +3205,15 @@ async function submitCatalogSeedCandidate(candidate, ownerToken) {
 }
 
 function maybeSeedCatalogFromCollection(manga) {
+  // isCatalogSeedSendAllowed() already requires canWriteCloud() (= a Supabase session).
   if (!isCatalogSeedSendAllowed()) return false;
-  const ownerState = window.MangaTrackerSupabase.getOwnerState ? window.MangaTrackerSupabase.getOwnerState() : {};
-  const ownerToken = ownerState && ownerState.ownerToken;
-  if (!ownerToken) return false;
 
   const candidates = collectCatalogSeedCandidates(manga);
   if (!candidates.length) return false;
 
   Promise.resolve().then(async function () {
     for (const candidate of candidates) {
-      const result = await submitCatalogSeedCandidate(candidate, ownerToken);
+      const result = await submitCatalogSeedCandidate(candidate);
       const resultCode = result && result.result ? result.result : 'blocked';
       if (resultCode === 'error') {
         console.warn('[Phase 47] Catalog seed failed (non-blocking):', result.message || '', candidate.seriesTitle, 'Bd.', candidate.volumeNumber);
@@ -3261,13 +3259,6 @@ async function seedCatalogBackfill() {
     toast('ℹ️ Katalog-Backfill läuft bereits.');
     return;
   }
-  const ownerState = window.MangaTrackerSupabase.getOwnerState ? window.MangaTrackerSupabase.getOwnerState() : {};
-  const ownerToken = ownerState && ownerState.ownerToken;
-  if (!ownerToken) {
-    toast('🔒 Owner-Zugang fehlt.');
-    return;
-  }
-
   const candidates = collectCatalogSeedBackfillCandidates();
   if (!candidates.length) {
     toast('ℹ️ Keine seedbaren Bände gefunden.');
@@ -3280,7 +3271,7 @@ async function seedCatalogBackfill() {
   const counts = { submitted: 0, updated: 0, already_verified: 0, already_rejected: 0, blocked: 0, error: 0, other: 0 };
   try {
     for (let i = 0; i < candidates.length; i++) {
-      const result = await submitCatalogSeedCandidate(candidates[i], ownerToken);
+      const result = await submitCatalogSeedCandidate(candidates[i]);
       const code = result && result.result ? result.result : 'blocked';
       if (Object.prototype.hasOwnProperty.call(counts, code)) counts[code]++;
       else counts.other++;
