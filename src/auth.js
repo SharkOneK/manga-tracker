@@ -345,8 +345,13 @@
       return;
     }
     // Otherwise rely on the persisted session for display (no bundle download).
+    // Consistent with the app's strict gate (hasSession): a present session counts
+    // as signed-in even if the access token is currently expired — actions refresh
+    // it on demand. This avoids showing "Anmelden" while the app shows the data.
     var stored = readStoredSession();
-    if (stored && stored.user && !stored.expired) renderSignedIn(container, stored.user);
+    var signedIn = !!(window.MangaTrackerSupabase &&
+      window.MangaTrackerSupabase.hasSession && window.MangaTrackerSupabase.hasSession());
+    if (signedIn) renderSignedIn(container, stored && stored.user);
     else renderSignedOut(container);
   }
 
