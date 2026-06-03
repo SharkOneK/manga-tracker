@@ -5,6 +5,12 @@
   var SUPA_PUBLIC_REST = SUPA_URL + '/rest/v1/collection_public_projection';
   var SUPA_RPC = SUPA_URL + '/rest/v1/rpc';
 
+  // Phase 51: Supabase Auth session (JWT) is the primary owner path; the legacy
+  // x-owner-token is the fallback. The session is read straight from the persisted
+  // supabase-js storage so we never have to load the ~200 KB auth bundle just to sync.
+  var PROJECT_REF = 'sssxiqtnkctvyghyrqff';
+  var SESSION_STORAGE_KEY = 'sb-' + PROJECT_REF + '-auth-token';
+
   var UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
   function adoptOwnerIfPresent() {
@@ -53,6 +59,31 @@
     return h;
   }
 
+  // Phase 51: Authorization carries the user's JWT instead of the anon key, so
+  // PostgREST/RLS evaluate auth.uid(). apikey stays the publishable key.
+  function sessionHeaders(accessToken) {
+    return {
+      apikey: SUPA_KEY,
+      Authorization: 'Bearer ' + accessToken,
+    };
+  }
+
+  // Read a non-expired access token from the persisted supabase-js session WITHOUT
+  // loading the auth bundle. Returns null if absent or (about to be) expired, which
+  // makes every caller fall back to the owner-token path safely.
+  function getStoredAccessToken() {
+    try {
+      var raw = localStorage.getItem(SESSION_STORAGE_KEY);
+      if (!raw) return null;
+      var parsed = JSON.parse(raw);
+      var sess = (parsed && parsed.access_token) ? parsed : (parsed && parsed.currentSession) || null;
+      if (!sess || !sess.access_token) return null;
+      // 60s skew: don't use a token that is expired or expires imminently.
+      if (sess.expires_at && (Number(sess.expires_at) * 1000) < (Date.now() + 60000)) return null;
+      return sess.access_token;
+    } catch (_) { return null; }
+  }
+
   function httpError(status, text) {
     var e = new Error('HTTP ' + status + ': ' + String(text || '').slice(0, 160));
     e.status = status;
@@ -85,6 +116,23 @@
   }
 
   async function fetchCollection(collId, ownerToken) {
+    // Phase 51: primary path — signed-in owner reads via auth.uid() RPC (JWT).
+    var sessionToken = getStoredAccessToken();
+    if (sessionToken) {
+      try {
+        var viaSession = await requestJson(SUPA_RPC + '/get_owner_collection_for_user', sessionHeaders(sessionToken), {
+          method: 'POST',
+          headers: Object.assign({}, sessionHeaders(sessionToken), { 'Content-Type': 'application/json' }),
+          body: JSON.stringify({ collection_id: collId }),
+        });
+        if (viaSession) return viaSession;
+        console.warn('[Phase 51] Session-Read lieferte keine Daten (Sammlung evtl. noch nicht geclaimt) — Fallback auf Owner-Token.');
+      } catch (e) {
+        console.warn('[Phase 51] Session-Read fehlgeschlagen — Fallback auf Owner-Token:', e && e.message);
+      }
+    }
+
+    // Fallback: legacy x-owner-token owner RPC, then legacy data read.
     if (ownerToken) {
       try {
         return await requestJson(SUPA_RPC + '/get_owner_collection', headers(ownerToken, true), {
@@ -267,7 +315,47 @@
     }
   }
 
+  // Phase 51: session PATCH. Uses return=representation so we can count the rows
+  // actually updated. RLS only matches when user_id = auth.uid(); a return of 0 rows
+  // means the collection is not (yet) claimed by this user — we must NOT treat that
+  // as success (silent no-op write), so the caller falls back to the token path.
+  async function sessionPatch(collId, accessToken, payload) {
+    var r = await fetch(SUPA_REST + '?id=eq.' + collId, {
+      method: 'PATCH',
+      headers: {
+        apikey: SUPA_KEY,
+        Authorization: 'Bearer ' + accessToken,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=representation',
+      },
+      body: JSON.stringify(payload),
+    });
+    if (!r.ok) throw httpError(r.status, await r.text());
+    var rows = await r.json();
+    return Array.isArray(rows) ? rows.length : 0;
+  }
+
   async function patchCollection(collId, ownerToken, data, publicData) {
+    // Phase 51: primary path — signed-in owner writes via auth.uid() RLS (JWT).
+    var sessionToken = getStoredAccessToken();
+    if (sessionToken) {
+      try {
+        var payload = (publicData !== undefined) ? { data: data, public_data: publicData } : { data: data };
+        var n = await sessionPatch(collId, sessionToken, payload);
+        if (n >= 1) return { publicDataWritten: publicData !== undefined, via: 'session' };
+        console.warn('[Phase 51] Session-PATCH traf 0 Zeilen (Sammlung evtl. noch nicht geclaimt) — Fallback auf Owner-Token.');
+      } catch (e) {
+        if (isPublicDataUnavailableError(e)) {
+          try {
+            var n2 = await sessionPatch(collId, sessionToken, { data: data });
+            if (n2 >= 1) return { publicDataWritten: false, via: 'session' };
+          } catch (_) { /* fall through to token path */ }
+        }
+        console.warn('[Phase 51] Session-PATCH fehlgeschlagen — Fallback auf Owner-Token:', e && e.message);
+      }
+    }
+
+    // Fallback: legacy x-owner-token PATCH (unchanged behaviour).
     if (publicData !== undefined) {
       try {
         await patchCollectionPayload(collId, ownerToken, {
