@@ -402,7 +402,7 @@ if (!supabaseJs) {
   fail('Check 27: src/supabase.js nicht gefunden (Public-View-Pfad nicht prüfbar)');
 } else {
   const start = supabaseJs.indexOf('async function fetchPublicCollection');
-  const end = supabaseJs.indexOf('async function patchCollectionPayload', start);
+  const end = supabaseJs.indexOf('async function submitReleaseIntakeCandidate', start);
   const publicFn = start >= 0 && end > start ? supabaseJs.slice(start, end) : '';
   if (!(publicFn.includes('collection_public_projection') || publicFn.includes('SUPA_PUBLIC_REST')) || !publicFn.includes('select=public_data')) {
     fail('Check 27: fetchPublicCollection nutzt nicht die Public Projection/public_data');

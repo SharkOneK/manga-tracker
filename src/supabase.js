@@ -172,17 +172,6 @@
     return e;
   }
 
-  function isPublicDataUnavailableError(error) {
-    if (!error) return false;
-    var status = Number(error.status);
-    var text = String(error.responseText || error.message || '').toLowerCase();
-    if (status !== 400 && status !== 403 && status !== 404) return false;
-    return text.includes('public_data') ||
-      text.includes('column') ||
-      text.includes('schema cache') ||
-      text.includes('permission denied');
-  }
-
   async function requestJson(url, requestHeaders, options) {
     var requestOptions = Object.assign({ headers: requestHeaders }, options || {});
     var r = await fetch(url, requestOptions);
@@ -218,21 +207,6 @@
     return firstCollectionField(publicRows, 'public_data');
   }
 
-  async function patchCollectionPayload(collId, ownerToken, payload) {
-    var r = await fetch(SUPA_REST + '?id=eq.' + collId, {
-      method: 'PATCH',
-      headers: Object.assign({}, headers(ownerToken, true), {
-        'Content-Type': 'application/json',
-        'Prefer': 'return=minimal',
-      }),
-      body: JSON.stringify(payload),
-    });
-    if (!r.ok) {
-      throw httpError(r.status, await r.text());
-    }
-    return r;
-  }
-
   // ── Phase 36b: Release Intake Staging ─────────────────────────────────────
   // Submits a single allowlist-sanitized release candidate to Supabase staging.
   // Only called when the user has enabled auto-intake AND is in cloud-owner mode.
@@ -248,8 +222,7 @@
     'seriesTitle', 'publisher', 'volumeNumber', 'sourceUrl', 'notes', 'enabled',
   ]);
 
-  async function submitReleaseIntakeCandidate(candidate, ownerToken) {
-    if (!ownerToken) return { result: 'blocked' };
+  async function submitReleaseIntakeCandidate(candidate) {
     if (!candidate || typeof candidate !== 'object') return { result: 'blocked' };
 
     var seriesTitle  = String(candidate.seriesTitle  || '').trim();
@@ -283,7 +256,9 @@
     }
 
     try {
-      var rpcHeaders = Object.assign({}, headers(ownerToken, true), { 'Content-Type': 'application/json' });
+      var token = await ensureFreshAccessToken();
+      if (!token) return { result: 'blocked' };
+      var rpcHeaders = Object.assign({}, sessionHeaders(token), { 'Content-Type': 'application/json' });
       var result = await requestJson(SUPA_RPC + '/submit_release_intake_candidate', rpcHeaders, {
         method: 'POST',
         body: JSON.stringify(body),
@@ -321,8 +296,7 @@
   var ISO_DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
   var ISBN_RE = /^[0-9Xx]{10,13}$/;
 
-  async function submitMangaCatalogCandidate(candidate, ownerToken) {
-    if (!ownerToken) return { result: 'blocked' };
+  async function submitMangaCatalogCandidate(candidate) {
     if (!candidate || typeof candidate !== 'object') return { result: 'blocked' };
 
     var seriesTitle  = String(candidate.seriesTitle  || '').trim();
@@ -362,7 +336,9 @@
     }
 
     try {
-      var rpcHeaders = Object.assign({}, headers(ownerToken, true), { 'Content-Type': 'application/json' });
+      var token = await ensureFreshAccessToken();
+      if (!token) return { result: 'blocked' };
+      var rpcHeaders = Object.assign({}, sessionHeaders(token), { 'Content-Type': 'application/json' });
       var result = await requestJson(SUPA_RPC + '/submit_manga_catalog_candidate', rpcHeaders, {
         method: 'POST',
         body: JSON.stringify(body),
