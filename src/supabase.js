@@ -84,6 +84,28 @@
     } catch (_) { return null; }
   }
 
+  // Phase 51b: sync check whether a usable owner session exists (no bundle load).
+  function hasValidSession() {
+    return !!getStoredAccessToken();
+  }
+
+  // Phase 51b: discover the collection ids bound to the signed-in user (auth.uid()).
+  // Lets a fresh browser (valid session but no adopt link / owner token) find which
+  // collection to load. Returns [] when not signed in or none owned.
+  async function fetchMyCollectionIds() {
+    var token = getStoredAccessToken();
+    if (!token) return [];
+    var rows = await requestJson(SUPA_RPC + '/get_my_collection_ids', sessionHeaders(token), {
+      method: 'POST',
+      headers: Object.assign({}, sessionHeaders(token), { 'Content-Type': 'application/json' }),
+      body: JSON.stringify({}),
+    });
+    if (!Array.isArray(rows)) return [];
+    return rows
+      .map(function (r) { return (r && typeof r === 'object') ? r.id : r; })
+      .filter(function (v) { return typeof v === 'string' && v; });
+  }
+
   function httpError(status, text) {
     var e = new Error('HTTP ' + status + ': ' + String(text || '').slice(0, 160));
     e.status = status;
@@ -380,6 +402,8 @@
     fetchCollection: fetchCollection,
     fetchPublicCollection: fetchPublicCollection,
     patchCollection: patchCollection,
+    hasValidSession: hasValidSession,
+    fetchMyCollectionIds: fetchMyCollectionIds,
     submitReleaseIntakeCandidate: submitReleaseIntakeCandidate,
     submitMangaCatalogCandidate:  submitMangaCatalogCandidate,
   };
