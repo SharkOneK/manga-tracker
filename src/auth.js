@@ -236,10 +236,14 @@
       try {
         var r = await verifyEmailOtp(email, code);
         if (r && r.error) throw r.error;
-        await refreshUi();
+        // Reload so the app re-boots with the session and loads the owner's
+        // collection (incl. discovery by auth.uid() on a fresh browser).
+        setStatus(container, 'Angemeldet ✓ — lade Sammlung …');
+        window.location.reload();
       } catch (e) {
         setStatus(container, 'Fehler: ' + (e && e.message ? e.message : e), true);
-      } finally { verifyBtn.disabled = false; }
+        verifyBtn.disabled = false;
+      }
     });
 
     back.addEventListener('click', function () { setStatus(container, ''); renderSignedOut(container); });
@@ -256,12 +260,15 @@
     try {
       var r = await signInWithPasskey();
       if (r && r.error) throw r.error;
-      await refreshUi();
+      // Reload so the app re-boots with the session and loads the collection.
+      setStatus(container, 'Angemeldet ✓ — lade Sammlung …');
+      window.location.reload();
     } catch (e) {
       // No passkey yet / unsupported / cancelled -> offer email bootstrap.
       setStatus(container, 'Kein Passkey nutzbar — per E-Mail anmelden.', true);
       renderEmailOtp(container);
-    } finally { btn.disabled = false; }
+      btn.disabled = false;
+    }
   }
 
   function renderSignedIn(container, user) {

@@ -95,7 +95,9 @@ function validateDatabase(candidate) {
 
 async function pushCloud() {
   if (!canWriteCloud()) return;
-  if (!_collId || !_ownerToken) return;
+  // Phase 51: _ownerToken may be absent on a signed-in fresh browser; canWriteCloud()
+  // already guarantees either a token or a valid session. patchCollection picks the path.
+  if (!_collId) return;
   if (!validateDatabase()) { setSyncStatus('⚠️', 'Daten ungültig – Sync übersprungen'); return; }
   setSyncStatus('🔄', 'Synchronisiert…');
   try {
@@ -851,7 +853,10 @@ const _viewColl = new URLSearchParams(window.location.search).get('view');
 // Der Frontend-Check ist nur UX; der harte Schutz ist die RLS-Policy collections_update_owner.
 function getAppMode() {
   if (_viewColl) return 'public-readonly';
-  if (_collId && _ownerToken) return 'cloud-owner-edit';
+  // Phase 51: a signed-in owner (valid session) is cloud-owner-edit even without the
+  // legacy owner token — e.g. on a fresh browser. Writes then go via the session JWT
+  // (src/supabase.js patchCollection), with the token path as fallback when present.
+  if (_collId && (_ownerToken || (SupabaseAdapter.hasValidSession && SupabaseAdapter.hasValidSession()))) return 'cloud-owner-edit';
   return 'local-edit';
 }
 function isPublicReadOnly() { return getAppMode() === 'public-readonly'; }
@@ -4570,8 +4575,30 @@ if (_viewColl) {
   // Eigene Cloud-Daten laden – ohne Owner-Token bleibt der Modus read-only,
   // gesteuert ueber die readOnly-Konstante und die RLS-Policy.
   loadFromCloud();
+} else if (SupabaseAdapter.hasValidSession && SupabaseAdapter.hasValidSession()) {
+  // Phase 51: angemeldeter Owner auf frischem Browser ohne Adopt-Link. Die an
+  // auth.uid() gebundene Sammlung per Session finden, ID lokal merken und laden.
+  discoverAndLoadOwnCollection();
 } else {
   // Kein Cloud-Sync konfiguriert: rein lokale Sammlung. Adopt-Link auf einem
   // Owner-Geraet einmalig oeffnen, um mtCollId + mtOwnerToken zu setzen.
   setSyncStatus('💾', 'Lokal – kein Cloud-Sync (Adopt-Link öffnen)');
+}
+
+// Phase 51: Sammlungs-Discovery für angemeldete Owner ohne lokale Collection-ID.
+async function discoverAndLoadOwnCollection() {
+  setSyncStatus('🔄', 'Sammlung wird gesucht…');
+  try {
+    const ids = await SupabaseAdapter.fetchMyCollectionIds();
+    if (ids && ids.length) {
+      _collId = ids[0];
+      try { localStorage.setItem('mtCollId', _collId); } catch (_) {}
+      await loadFromCloud();
+    } else {
+      setSyncStatus('💾', 'Angemeldet – keine eigene Sammlung gefunden (zuerst „Sammlung übernehmen“)');
+    }
+  } catch (e) {
+    console.warn('[Phase 51] Sammlungs-Discovery fehlgeschlagen:', e && e.message);
+    setSyncStatus('⚠️', 'Sammlung konnte nicht gefunden werden');
+  }
 }
