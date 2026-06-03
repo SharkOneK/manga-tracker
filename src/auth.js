@@ -35,11 +35,15 @@
   var bundlePromise = null;
 
   // ── Enablement / context guards ─────────────────────────────────────────────
+  // The login is shown by default now (feature verified). It can be force-disabled
+  // per browser via window.MT_AUTH_ENABLED === false or localStorage.mtAuthDisabled.
+  // The public share view is excluded separately (isPublicViewContext).
   function authEnabled() {
     try {
-      if (typeof window !== 'undefined' && window.MT_AUTH_ENABLED === true) return true;
-      return localStorage.getItem('mtAuthEnabled') === '1';
-    } catch (_) { return false; }
+      if (typeof window !== 'undefined' && window.MT_AUTH_ENABLED === false) return false;
+      if (localStorage.getItem('mtAuthDisabled') === '1') return false;
+      return true;
+    } catch (_) { return true; }
   }
 
   function isPublicViewContext() {
