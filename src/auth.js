@@ -143,33 +143,6 @@
     return c.auth.passkey.delete({ passkeyId: passkeyId });
   }
 
-  // Bind the legacy token-owned collection to the signed-in user (idempotent).
-  async function claimLegacyCollection() {
-    await ensureClient();
-    var legacy = (window.MangaTrackerSupabase && window.MangaTrackerSupabase.getOwnerState)
-      ? window.MangaTrackerSupabase.getOwnerState()
-      : { collId: null, ownerToken: null };
-    if (!legacy.collId || !legacy.ownerToken) return null;
-
-    var session = await getSession();
-    var accessToken = session ? session.access_token : null;
-    if (!accessToken) throw new Error('Zum Übernehmen zuerst anmelden.');
-
-    var resp = await fetch(SUPA_URL + '/rest/v1/rpc/claim_collection_for_current_user', {
-      method: 'POST',
-      headers: {
-        apikey: SUPA_KEY,
-        Authorization: 'Bearer ' + accessToken,
-        'x-owner-token': legacy.ownerToken,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ collection_id: legacy.collId }),
-    });
-    if (!resp.ok) throw new Error('Claim fehlgeschlagen: HTTP ' + resp.status);
-    var claimedId = await resp.json();
-    if (claimedId) { try { localStorage.setItem('mtCollectionClaimed', '1'); } catch (_) {} }
-    return claimedId;
-  }
 
   // ── Sidebar UI ──────────────────────────────────────────────────────────────
   function el(tag, attrs, text) {
@@ -292,27 +265,6 @@
     });
     container.appendChild(passkeyBtn);
 
-    // Owner-claim: show only if a legacy owner token exists and not yet claimed.
-    var owner = (window.MangaTrackerSupabase && window.MangaTrackerSupabase.getOwnerState)
-      ? window.MangaTrackerSupabase.getOwnerState() : { collId: null, ownerToken: null };
-    var alreadyClaimed = false;
-    try { alreadyClaimed = localStorage.getItem('mtCollectionClaimed') === '1'; } catch (_) {}
-    if (owner.collId && owner.ownerToken && !alreadyClaimed) {
-      var claimBtn = el('button', { type: 'button', class: 'auth-btn' }, '🔗 Sammlung übernehmen');
-      claimBtn.addEventListener('click', async function () {
-        claimBtn.disabled = true; setStatus(container, 'Übernehme Sammlung …');
-        try {
-          var id = await claimLegacyCollection();
-          if (id) { setStatus(container, 'Sammlung übernommen ✓'); claimBtn.remove(); }
-          else { setStatus(container, 'Nichts zu übernehmen.', true); }
-        } catch (e) {
-          setStatus(container, 'Fehler: ' + (e && e.message ? e.message : e), true);
-          claimBtn.disabled = false;
-        }
-      });
-      container.appendChild(claimBtn);
-    }
-
     var outBtn = el('button', { type: 'button', class: 'auth-btn auth-btn-soft' }, '↩ Abmelden');
     outBtn.addEventListener('click', async function () {
       outBtn.disabled = true; setStatus(container, 'Abmelden …');
@@ -376,7 +328,6 @@
     registerPasskey: registerPasskey,
     listPasskeys: listPasskeys,
     deletePasskey: deletePasskey,
-    claimLegacyCollection: claimLegacyCollection,
     refreshUi: refreshUi,
   };
 
