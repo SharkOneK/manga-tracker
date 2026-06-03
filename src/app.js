@@ -853,14 +853,17 @@ const _viewColl = new URLSearchParams(window.location.search).get('view');
 // Der Frontend-Check ist nur UX; der harte Schutz ist die RLS-Policy collections_update_owner.
 function getAppMode() {
   if (_viewColl) return 'public-readonly';
-  // Phase 51: a signed-in owner (valid session) is cloud-owner-edit even without the
-  // legacy owner token — e.g. on a fresh browser. Writes then go via the session JWT
-  // (src/supabase.js patchCollection), with the token path as fallback when present.
-  if (_collId && (_ownerToken || (SupabaseAdapter.hasValidSession && SupabaseAdapter.hasValidSession()))) return 'cloud-owner-edit';
-  return 'local-edit';
+  // Phase 51 (Etappe 7) — strict login gate: only a signed-in owner (Supabase
+  // session) gets owner-edit. The legacy owner token alone no longer unlocks the
+  // app; without a session the app is 'locked' (no data shown). Cloud read/write
+  // still use the session JWT (token path remains a fallback inside src/supabase.js
+  // until the DB hardening step removes it).
+  if (SupabaseAdapter.hasSession && SupabaseAdapter.hasSession()) return 'cloud-owner-edit';
+  return 'locked';
 }
 function isPublicReadOnly() { return getAppMode() === 'public-readonly'; }
-function canEditLocal()     { return !isPublicReadOnly(); }
+function isLocked()         { return getAppMode() === 'locked'; }
+function canEditLocal()     { return getAppMode() === 'cloud-owner-edit'; }
 function canWriteCloud()    { return getAppMode() === 'cloud-owner-edit'; }
 
 // UUID-Validator für View-IDs
@@ -873,6 +876,18 @@ function applyReadOnly() {
   document.getElementById('readonly-banner').style.display = 'flex';
   document.getElementById('btn-add').style.display = 'none';
   document.getElementById('btn-share-profile').style.display = 'none';
+}
+
+// Phase 51 (Etappe 7): strict login gate. When not signed in, hide owner actions
+// and show a banner pointing to the sidebar login. The collection itself is not
+// rendered (db is emptied at boot), so no data is shown without a session.
+function applyLockedState() {
+  const banner = document.getElementById('login-gate-banner');
+  if (!isLocked()) { if (banner) banner.style.display = 'none'; return; }
+  if (banner) banner.style.display = 'flex';
+  const add = document.getElementById('btn-add');           if (add) add.style.display = 'none';
+  const share = document.getElementById('btn-share-profile'); if (share) share.style.display = 'none';
+  setSyncStatus('🔒', 'Anmeldung erforderlich');
 }
 
 function shareProfile() {
@@ -4558,12 +4573,16 @@ function bindDelegatedEvents() {
 // ─── Init ─────────────────────────────────────────────────────────────────
 bindStaticEvents();
 bindDelegatedEvents();
+// Phase 51 (Etappe 7): strict gate — without a session, do not render cached data.
+const _bootLocked = isLocked();
+if (_bootLocked) { db = { m: [] }; }
 render();
 // Deferred-Style-Mechanik aktivieren: wendet data-style-background/-width/-height
 // CSP-konform per CSSOM an (Cover-Farb-Fallbacks, Fortschrittsbalken-Breiten,
 // Monats-Balkenhöhen). Ohne diesen Aufruf blieb die Funktion ungenutzt.
 bindDeferredStyleObserver();
 applyReadOnly();
+applyLockedState();
 // Phase 15b: Release-Cache laden (non-blocking; Fehler dürfen App-Start nicht blockieren)
 loadReleaseCache().catch(e => console.warn('[Phase 15] Unerwarteter Ladefehler:', e));
 loadReleaseCoverageKnownData().catch(e => console.warn('[Phase 34] Release-System-Index nicht vollständig ladbar:', e));
@@ -4571,18 +4590,16 @@ loadReleaseVolumeCounts().catch(e => console.warn('[Phase 43] Release-Volume-Cou
 if (_viewColl) {
   // Öffentliche Ansicht: fremde Sammlung laden (immer read-only)
   loadViewCollection();
+} else if (_bootLocked) {
+  // Phase 51 (Etappe 7): nicht angemeldet → keine Daten laden, Login-Banner steht.
+  setSyncStatus('🔒', 'Anmeldung erforderlich');
 } else if (_collId) {
-  // Eigene Cloud-Daten laden – ohne Owner-Token bleibt der Modus read-only,
-  // gesteuert ueber die readOnly-Konstante und die RLS-Policy.
+  // Angemeldeter Owner mit bekannter Collection-ID: Cloud-Daten per Session laden.
   loadFromCloud();
-} else if (SupabaseAdapter.hasValidSession && SupabaseAdapter.hasValidSession()) {
-  // Phase 51: angemeldeter Owner auf frischem Browser ohne Adopt-Link. Die an
-  // auth.uid() gebundene Sammlung per Session finden, ID lokal merken und laden.
-  discoverAndLoadOwnCollection();
 } else {
-  // Kein Cloud-Sync konfiguriert: rein lokale Sammlung. Adopt-Link auf einem
-  // Owner-Geraet einmalig oeffnen, um mtCollId + mtOwnerToken zu setzen.
-  setSyncStatus('💾', 'Lokal – kein Cloud-Sync (Adopt-Link öffnen)');
+  // Angemeldeter Owner ohne lokale Collection-ID (z. B. frischer Browser): die an
+  // auth.uid() gebundene Sammlung per Session finden, ID merken und laden.
+  discoverAndLoadOwnCollection();
 }
 
 // Phase 51: Sammlungs-Discovery für angemeldete Owner ohne lokale Collection-ID.

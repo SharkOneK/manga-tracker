@@ -317,9 +317,15 @@
     outBtn.addEventListener('click', async function () {
       outBtn.disabled = true; setStatus(container, 'Abmelden …');
       try { await signOut(); } catch (_) {}
-      setUserName('SharkOneK');
-      setStatus(container, '');
-      renderSignedOut(container);
+      // Phase 51 (Etappe 7): strict gate — clear local owner data on logout so the
+      // collection is not visible without a session. Reload into the locked state.
+      try {
+        localStorage.removeItem('mtDE');
+        localStorage.removeItem('mtCollId');
+        localStorage.removeItem('mtOwnerToken');
+        localStorage.removeItem('mtCollectionClaimed');
+      } catch (_) {}
+      window.location.reload();
     });
     container.appendChild(outBtn);
   }
