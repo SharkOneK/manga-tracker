@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-06-02T08:51:49.858Z",
+  "generatedAt": "2026-06-03T09:13:19.775Z",
   "items": [
     {
       "seriesTitle": "Adou",
@@ -14,11 +14,11 @@
     {
       "seriesTitle": "Arifureta – Der Kampf zurück in meine Welt",
       "publisher": "altraverse",
-      "publishedVolumesDE": 3,
+      "publishedVolumesDE": 4,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/302",
       "confidence": "high",
-      "checkedAt": "2026-06-02T08:51:49.858Z"
+      "checkedAt": "2026-06-03T09:13:19.775Z"
     },
     {
       "seriesTitle": "Arifureta: Der Kampf zurück in meine Welt – Zero",
@@ -113,11 +113,11 @@
     {
       "seriesTitle": "Demon Slave",
       "publisher": "KAZÉ Manga",
-      "publishedVolumesDE": 11,
+      "publishedVolumesDE": 12,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/509",
       "confidence": "high",
-      "checkedAt": "2026-06-02T08:51:49.858Z"
+      "checkedAt": "2026-06-03T09:13:19.775Z"
     },
     {
       "seriesTitle": "Die letzte Elfe",
@@ -140,11 +140,11 @@
     {
       "seriesTitle": "Frieren – Nach dem Ende der Reise",
       "publisher": "altraverse",
-      "publishedVolumesDE": 3,
+      "publishedVolumesDE": 4,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/1697",
       "confidence": "high",
-      "checkedAt": "2026-06-02T08:51:49.858Z"
+      "checkedAt": "2026-06-03T09:13:19.775Z"
     },
     {
       "seriesTitle": "From the Red Fog",
@@ -266,20 +266,20 @@
     {
       "seriesTitle": "The Rising of the Shield Hero",
       "publisher": "TOKYOPOP",
-      "publishedVolumesDE": 3,
+      "publishedVolumesDE": 4,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/210",
       "confidence": "high",
-      "checkedAt": "2026-06-02T08:51:49.858Z"
+      "checkedAt": "2026-06-03T09:13:19.775Z"
     },
     {
       "seriesTitle": "Tokyo Ghoul GIGANTIK",
       "publisher": "KAZÉ Manga",
-      "publishedVolumesDE": 4,
+      "publishedVolumesDE": 5,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/4962",
       "confidence": "high",
-      "checkedAt": "2026-06-02T08:51:49.858Z"
+      "checkedAt": "2026-06-03T09:13:19.775Z"
     },
     {
       "seriesTitle": "Tokyo Revengers – Doppelband-Edition",
