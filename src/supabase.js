@@ -84,9 +84,24 @@
     } catch (_) { return null; }
   }
 
-  // Phase 51b: sync check whether a usable owner session exists (no bundle load).
+  // Phase 51b: sync check whether a usable (non-expired) access token exists.
   function hasValidSession() {
     return !!getStoredAccessToken();
+  }
+
+  // Phase 51 (Etappe 7): is the user signed in at all? True when a session object
+  // exists with an access OR refresh token, even if the access token is currently
+  // expired (the token-fallback path still covers reads/writes until Etappe 7/2).
+  // Used by the strict login gate to decide "locked" vs "owner".
+  function hasSession() {
+    try {
+      var raw = localStorage.getItem(SESSION_STORAGE_KEY);
+      if (!raw) return false;
+      var parsed = JSON.parse(raw);
+      var sess = (parsed && (parsed.access_token || parsed.refresh_token)) ? parsed
+        : (parsed && parsed.currentSession) || null;
+      return !!(sess && (sess.access_token || sess.refresh_token));
+    } catch (_) { return false; }
   }
 
   // Phase 51b: discover the collection ids bound to the signed-in user (auth.uid()).
@@ -403,6 +418,7 @@
     fetchPublicCollection: fetchPublicCollection,
     patchCollection: patchCollection,
     hasValidSession: hasValidSession,
+    hasSession: hasSession,
     fetchMyCollectionIds: fetchMyCollectionIds,
     submitReleaseIntakeCandidate: submitReleaseIntakeCandidate,
     submitMangaCatalogCandidate:  submitMangaCatalogCandidate,
