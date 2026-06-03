@@ -153,8 +153,12 @@
   }
 
   function setUserName(name) {
-    var nameEl = document.getElementById('side-user-name');
-    if (nameEl && name) nameEl.textContent = name;
+    if (!name) return;
+    // Phase 53: Sidebar-Name (Desktop) UND mobiler Konto-Sheet-Name aktualisieren.
+    Array.prototype.forEach.call(
+      document.querySelectorAll('#side-user-name, .auth-user-name'),
+      function (nameEl) { nameEl.textContent = name; }
+    );
   }
 
   function setStatus(container, msg, isError) {
@@ -282,18 +286,29 @@
     container.appendChild(outBtn);
   }
 
+  // Phase 53: render the same state into EVERY .auth-controls container (sidebar
+  // on desktop + account sheet on mobile). One logic path, multiple render slots —
+  // no duplicate IDs, no second state machine.
+  function renderInto(container, signedIn, user) {
+    if (signedIn) renderSignedIn(container, user);
+    else renderSignedOut(container);
+  }
+
   // Decide UI state. Uses the stored session for display; only loads the bundle
   // when an action requires it.
   async function refreshUi() {
-    var container = document.getElementById('auth-controls');
-    if (!container) return;
+    var containers = document.querySelectorAll('.auth-controls');
+    if (!containers.length) return;
     // If the bundle is already loaded (after an action), trust the live session.
     if (window.supabase && client) {
+      var liveUser = null;
       try {
         var s = await getSession();
-        if (s && s.user) { renderSignedIn(container, s.user); return; }
+        liveUser = (s && s.user) || null;
       } catch (_) {}
-      renderSignedOut(container);
+      Array.prototype.forEach.call(containers, function (c) {
+        renderInto(c, !!liveUser, liveUser);
+      });
       return;
     }
     // Otherwise rely on the persisted session for display (no bundle download).
@@ -303,15 +318,16 @@
     var stored = readStoredSession();
     var signedIn = !!(window.MangaTrackerSupabase &&
       window.MangaTrackerSupabase.hasSession && window.MangaTrackerSupabase.hasSession());
-    if (signedIn) renderSignedIn(container, stored && stored.user);
-    else renderSignedOut(container);
+    Array.prototype.forEach.call(containers, function (c) {
+      renderInto(c, signedIn, stored && stored.user);
+    });
   }
 
   function initAuthUi() {
     if (!authEnabled() || isPublicViewContext()) return;
-    var container = document.getElementById('auth-controls');
-    if (!container) return;
-    container.hidden = false;
+    var containers = document.querySelectorAll('.auth-controls');
+    if (!containers.length) return;
+    Array.prototype.forEach.call(containers, function (c) { c.hidden = false; });
     refreshUi();
   }
 

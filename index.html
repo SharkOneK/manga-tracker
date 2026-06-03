@@ -68,6 +68,7 @@
           <button class="search-clear" id="search-clear" data-action="clear-search" title="Suche löschen">✕</button>
         </div>
         <span id="sync-dot" class="sync-dot icon-btn" title="Jetzt synchronisieren" data-action="manual-sync">🔄</span>
+        <button class="icon-btn account-btn-mobile" id="btn-account" data-action="open-account" title="Konto / Anmelden">👤</button>
         <button class="icon-btn header-share-btn" id="btn-share-profile" data-action="share-profile" title="Sammlung öffentlich teilen">🔗</button>
         <button class="btn-add" id="btn-add" data-action="open-add"><span>＋</span><span class="label-full">Hinzufügen</span></button>
       </div>
@@ -252,6 +253,25 @@
     <div class="modal-footer">
       <button class="btn-full btn-cancel-full" data-action="close-release-preview">Abbrechen</button>
       <button class="btn-full btn-save" data-action="apply-release-updates">Ausgewählte übernehmen</button>
+    </div>
+  </div>
+</div>
+
+<!-- Phase 53 — Konto-Sheet (mobiler Login-Einstiegspunkt). Nutzt bestehende Modal/Overlay-CSS.
+     Zweiter Auth-Render-Slot per KLASSE .auth-controls (keine doppelte ID); auth.js rendert
+     dieselbe UI/State per querySelectorAll in alle Slots. -->
+<div class="overlay account-overlay hidden" id="account-overlay">
+  <div class="modal account-modal" id="account-modal">
+    <div class="modal-header">
+      <h2>Konto</h2>
+      <button class="close-btn" data-action="close-account">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="account-user">
+        <div class="avatar">S</div>
+        <div class="who"><span class="auth-user-name">SharkOneK</span></div>
+      </div>
+      <div class="auth-controls" hidden></div>
     </div>
   </div>
 </div>

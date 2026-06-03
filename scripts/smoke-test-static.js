@@ -751,6 +751,58 @@ if (appJs26.includes("tab === 'buy' || tab === 'wishlist' || tab === 'owned' || 
   pass('src/app.js: alte harte view-toggle-Verdrahtung fuer reading/owned/wishlist entfernt');
 }
 
+// ─── Phase 53 — Login auf Mobilgeräten erreichbar machen ───────────────────
+console.log('\nPruefe: Phase 53 - Login auf Mobilgeraeten erreichbar machen\n');
+
+// index.html: mobiler Konto-Button + zweiter Auth-Slot (per Klasse, keine Doppel-ID).
+[
+  ['Mobiler Konto-Button', 'data-action="open-account"'],
+  ['Konto-Sheet-Overlay', 'id="account-overlay"'],
+  ['Konto-Sheet schliessen', 'data-action="close-account"'],
+  ['Mobiler Auth-User-Name-Slot', 'class="auth-user-name"'],
+].forEach(([label, marker]) => {
+  if (!html.includes(marker)) fail('index.html: Phase-53-Marker fehlt: ' + label);
+  else pass('index.html: Phase-53-Marker vorhanden: ' + label);
+});
+
+// Genau EINE id="auth-controls" (Sidebar); der zweite Container nutzt die Klasse.
+const authControlsIdCount = (html.match(/id="auth-controls"/g) || []).length;
+if (authControlsIdCount !== 1) {
+  fail('index.html: id="auth-controls" muss genau einmal vorkommen (keine doppelten DOM-IDs), gefunden: ' + authControlsIdCount);
+} else {
+  pass('index.html: id="auth-controls" eindeutig; zweiter Slot per Klasse .auth-controls');
+}
+if ((html.match(/class="auth-controls"/g) || []).length < 2) {
+  fail('index.html: zweiter .auth-controls-Container (Konto-Sheet) fehlt');
+} else {
+  pass('index.html: zweiter .auth-controls-Container (Konto-Sheet) vorhanden');
+}
+
+// src/app.js: Konto-Sheet-Verdrahtung.
+[
+  ['open-account-Dispatcher', "case 'open-account':"],
+  ['close-account-Dispatcher', "case 'close-account':"],
+  ['openAccount-Funktion', 'function openAccount('],
+  ['refreshUi-Aufruf im Sheet', 'window.MangaTrackerAuth?.refreshUi?.()'],
+].forEach(([label, marker]) => {
+  if (!appJs26.includes(marker)) fail('src/app.js: Phase-53-Marker fehlt: ' + label);
+  else pass('src/app.js: Phase-53-Marker vorhanden: ' + label);
+});
+
+// src/auth.js: ein Logikpfad, mehrere Render-Container (querySelectorAll statt nur ID).
+const authJsP53 = fs.readFileSync(path.join(repoRoot, 'src', 'auth.js'), 'utf-8');
+if (!authJsP53.includes("document.querySelectorAll('.auth-controls')")) {
+  fail('src/auth.js: refreshUi/initAuthUi muss alle .auth-controls per querySelectorAll bedienen');
+} else {
+  pass('src/auth.js: alle .auth-controls-Container werden per querySelectorAll bedient');
+}
+// Der alte Einzel-Container-Pfad in refreshUi/initAuthUi darf nicht mehr greifen.
+if (authJsP53.includes("var container = document.getElementById('auth-controls')")) {
+  fail('src/auth.js: alter Einzel-Container-Pfad (getElementById auth-controls) noch vorhanden');
+} else {
+  pass('src/auth.js: alter Einzel-Container-Pfad entfernt');
+}
+
 console.log('');
 if (totalErrors > 0) {
   console.error('❌ Smoke-Test fehlgeschlagen — ' + totalErrors + ' Fehler\n');

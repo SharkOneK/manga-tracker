@@ -875,6 +875,8 @@ function applyReadOnly() {
   document.getElementById('readonly-banner').style.display = 'flex';
   document.getElementById('btn-add').style.display = 'none';
   document.getElementById('btn-share-profile').style.display = 'none';
+  // Phase 53: kein Login-Einstiegspunkt in der öffentlichen Ansicht.
+  const acct = document.getElementById('btn-account'); if (acct) acct.style.display = 'none';
 }
 
 // Phase 51 (Etappe 7): strict login gate. When not signed in, hide owner actions
@@ -2003,6 +2005,28 @@ function closeModal() {
 
 function overlayClick(e) {
   if (e.target === document.getElementById('overlay')) closeModal();
+}
+
+// ─── Phase 53: Konto-Sheet (mobiler Login-Einstiegspunkt) ──────────────────
+// Öffnet das Konto-Sheet und lässt die bestehende Auth-UI (src/auth.js) den
+// aktuellen Zustand in den Sheet-Container rendern. Keine Auth-Logik hier.
+function openAccount() {
+  const ov = document.getElementById('account-overlay');
+  if (!ov) return;
+  ov.classList.remove('hidden');
+  ov.style.display = 'flex';
+  try { window.MangaTrackerAuth?.refreshUi?.(); } catch (_) {}
+}
+
+function closeAccount() {
+  const ov = document.getElementById('account-overlay');
+  if (!ov) return;
+  ov.style.display = 'none';
+  ov.classList.add('hidden');
+}
+
+function overlayClickAccount(e) {
+  if (e.target === document.getElementById('account-overlay')) closeAccount();
 }
 
 // ─── Phase 20: Hilfsfunktionen ────────────────────────────────────────────
@@ -4427,6 +4451,7 @@ function bindStaticEvents() {
   // Modal buttons / overlays
   document.getElementById('overlay')?.addEventListener('click', overlayClick);
   document.getElementById('release-preview-overlay')?.addEventListener('click', overlayClickReleasePreview);
+  document.getElementById('account-overlay')?.addEventListener('click', overlayClickAccount);
   document.getElementById('import-file-input')?.addEventListener('change', function(event) {
     handleImportFile(event.target);
   });
@@ -4453,6 +4478,12 @@ function bindDelegatedEvents() {
         break;
       case 'open-add':
         openAdd();
+        break;
+      case 'open-account':
+        openAccount();
+        break;
+      case 'close-account':
+        closeAccount();
         break;
       case 'start-own-collection':
         startOwnCollection();
