@@ -550,7 +550,71 @@
       "sourceUrl": null,
       "notes": "Aus Release-Intake-Staging übernommen.",
       "enabled": true
+    },
+    {
+      "seriesTitle": "Vinland Saga",
+      "publisher": "Carlsen Manga",
+      "volumeNumber": 1,
+      "sourceUrl": null,
+      "notes": "Aus Release-Intake-Staging übernommen.",
+      "enabled": true
+    },
+    {
+      "seriesTitle": "One Piece",
+      "publisher": "Carlsen Manga",
+      "volumeNumber": 1,
+      "sourceUrl": null,
+      "notes": "Aus Release-Intake-Staging übernommen.",
+      "enabled": true
+    },
+    {
+      "seriesTitle": "Tokyo Ghoul",
+      "publisher": "Kazé Manga",
+      "volumeNumber": 1,
+      "sourceUrl": null,
+      "notes": "Aus Release-Intake-Staging übernommen.",
+      "enabled": true
+    },
+    {
+      "seriesTitle": "Tokyo Ghoul:re",
+      "publisher": "Kazé Manga",
+      "volumeNumber": 1,
+      "sourceUrl": null,
+      "notes": "Aus Release-Intake-Staging übernommen.",
+      "enabled": true
+    },
+    {
+      "seriesTitle": "Death Note - Diamond Edition",
+      "publisher": "Tokyopop",
+      "volumeNumber": 1,
+      "sourceUrl": null,
+      "notes": "Aus Release-Intake-Staging übernommen.",
+      "enabled": true
+    },
+    {
+      "seriesTitle": "DARLING in the FRANXX",
+      "publisher": "Manga Cult",
+      "volumeNumber": 1,
+      "sourceUrl": null,
+      "notes": "Aus Release-Intake-Staging übernommen.",
+      "enabled": true
+    },
+    {
+      "seriesTitle": "Meine Wiedergeburt als Schleim in einer anderen Welt",
+      "publisher": "Altraverse",
+      "volumeNumber": 1,
+      "sourceUrl": null,
+      "notes": "Aus Release-Intake-Staging übernommen.",
+      "enabled": true
+    },
+    {
+      "seriesTitle": "Mushoku Tensei – In dieser Welt mach ich alles anders",
+      "publisher": "Panini Manga",
+      "volumeNumber": 1,
+      "sourceUrl": null,
+      "notes": "Aus Release-Intake-Staging übernommen.",
+      "enabled": true
     }
   ],
-  "generatedAt": "2026-05-31T11:08:23.496Z"
+  "generatedAt": "2026-06-04T17:29:16.852Z"
 }
