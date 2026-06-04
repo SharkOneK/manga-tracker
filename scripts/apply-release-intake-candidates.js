@@ -7,10 +7,21 @@
  * Reads pending release intake candidates from Supabase staging and merges
  * any new, valid entries into data/release-watchlist.json.
  *
- * After processing each candidate the script updates its status in Supabase:
- *   'adopted'   — added to the watchlist
- *   'duplicate' — already present in watchlist (no change)
- *   'blocked'   — failed hard validation (never written)
+ * Status updates in Supabase are TRANSACTIONAL with respect to the repo:
+ *   'adopted'   — verified present in the committed main watchlist (safe/terminal)
+ *   'blocked'   — failed hard validation (deterministic; never written)
+ *   'pending'   — kept pending for entries this run newly appended to the
+ *                 watchlist file; they only become 'adopted' on a later run once
+ *                 the bundle PR carrying them has merged into main.
+ *
+ * Rationale: the Supabase status write and the watchlist commit are NOT atomic.
+ * The status write hits the remote DB immediately, but the watchlist change only
+ * reaches main much later (PR auto-merge), after several more workflow steps.
+ * Marking 'adopted' up-front (the old behaviour) orphaned candidates whenever a
+ * later step or the merge failed (e.g. the failed run on 2026-05-29): flagged
+ * done in the DB, yet never in the watchlist and never retried. Confirming
+ * against the checked-out main watchlist makes adoption robust against any
+ * later-step or merge failure.
  *
  * Required env vars (provided as GitHub Secrets in CI):
  *   SUPABASE_URL               — e.g. https://xxx.supabase.co
@@ -212,10 +223,14 @@ async function main() {
     process.exit(0);
   }
 
-  // ── 3. Process each candidate ───────────────────────────────────────────────
-  let adopted   = 0;
-  let duplicate = 0;
-  let blocked   = 0;
+  // ── 3. Classify each candidate (no Supabase writes yet) ─────────────────────
+  // Defer all status writes until *after* the watchlist file is safely written,
+  // and only ever mark a candidate 'adopted' once it is verified present in the
+  // committed main watchlist. Newly appended entries stay 'pending' and are
+  // confirmed on a later run after their bundle PR has merged. See header.
+  const confirmedAdoptedIds = [];   // pending candidates already on main → adopt
+  const blockedUpdates      = [];   // { id, reason }
+  let   newlyAdded          = 0;    // appended to the watchlist file this run
 
   for (const row of pending) {
     const rowId = row.id || '(no-id)';
@@ -224,8 +239,7 @@ async function main() {
     const check = validateIntakeRow(row);
     if (!check.ok) {
       console.log(`  ✗ Blocked [${rowId}]: ${check.reason}`);
-      await updateCandidateStatus(rowId, 'blocked', { blocked_reason: check.reason });
-      blocked++;
+      blockedUpdates.push({ id: rowId, reason: check.reason });
       continue;
     }
 
@@ -234,15 +248,15 @@ async function main() {
     const volumeNumber = Number(row.volume_number);
     const dedup        = intakeDedupKey(seriesTitle, publisher, volumeNumber);
 
-    // Deduplicate
+    // Already on the committed main watchlist → adoption is now confirmed/safe.
     if (watchlistKeys.has(dedup)) {
-      console.log(`  ~ Duplicate [${rowId}]: ${seriesTitle} Bd.${volumeNumber} (${publisher})`);
-      await updateCandidateStatus(rowId, 'duplicate');
-      duplicate++;
+      console.log(`  ✓ Confirmed [${rowId}]: ${seriesTitle} Bd.${volumeNumber} (${publisher}) already on main → adopted`);
+      confirmedAdoptedIds.push(rowId);
       continue;
     }
 
-    // Adopt: build a minimal watchlist entry from allowlist fields only
+    // New, valid candidate → append to the watchlist file, but keep it 'pending'.
+    // Build a minimal watchlist entry from allowlist fields only.
     const newEntry = {
       seriesTitle,
       publisher,
@@ -256,25 +270,41 @@ async function main() {
 
     watchlist.items.push(newEntry);
     watchlistKeys.add(dedup);
-    console.log(`  + Adopted  [${rowId}]: ${seriesTitle} Bd.${volumeNumber} (${publisher})`);
-    await updateCandidateStatus(rowId, 'adopted', { adopted_at: new Date().toISOString() });
-    adopted++;
+    console.log(`  + Queued   [${rowId}]: ${seriesTitle} Bd.${volumeNumber} (${publisher}) → added to bundle PR (stays 'pending' until merged)`);
+    newlyAdded++;
   }
 
-  // ── 5. Write updated watchlist if anything was adopted ─────────────────────
-  if (adopted === 0) {
-    console.log(`\n  ℹ No new entries to adopt (${duplicate} duplicate(s), ${blocked} blocked). Exit 0.\n`);
-    process.exit(0);
+  // ── 4. Write the updated watchlist FIRST — before any Supabase status write ──
+  if (newlyAdded > 0) {
+    watchlist.generatedAt = new Date().toISOString();
+    const output = JSON.stringify(watchlist, null, 2) + '\n';
+    try {
+      fs.writeFileSync(watchlistPath, output, 'utf-8');
+    } catch (e) {
+      // If we cannot persist the watchlist, touch nothing in Supabase — the
+      // candidates stay 'pending' and are retried on the next run.
+      console.error('  ✗ Failed to write data/release-watchlist.json: ' + (e.message || e));
+      process.exit(1);
+    }
+    console.log(`\n  ✓ data/release-watchlist.json updated (+${newlyAdded} new entr${newlyAdded === 1 ? 'y' : 'ies'} queued for the bundle PR)`);
+  } else {
+    console.log('\n  ℹ No new entries appended to the watchlist this run.');
   }
 
-  watchlist.generatedAt = new Date().toISOString();
-  const output = JSON.stringify(watchlist, null, 2) + '\n';
-  fs.writeFileSync(watchlistPath, output, 'utf-8');
+  // ── 5. Reconcile Supabase statuses (only confirmed-safe transitions) ────────
+  // Runs only after the watchlist file is safely written. Newly added entries
+  // are intentionally left 'pending'; they get confirmed on a later run.
+  for (const id of confirmedAdoptedIds) {
+    await updateCandidateStatus(id, 'adopted', { adopted_at: new Date().toISOString() });
+  }
+  for (const b of blockedUpdates) {
+    await updateCandidateStatus(b.id, 'blocked', { blocked_reason: b.reason });
+  }
 
-  console.log(`\n  ✓ data/release-watchlist.json updated:`);
-  console.log(`      adopted:   ${adopted}`);
-  console.log(`      duplicate: ${duplicate}`);
-  console.log(`      blocked:   ${blocked}`);
+  console.log('\n  Summary:');
+  console.log(`      confirmed-adopted (already on main): ${confirmedAdoptedIds.length}`);
+  console.log(`      newly queued (pending until merge):  ${newlyAdded}`);
+  console.log(`      blocked:                             ${blockedUpdates.length}`);
   console.log('');
 }
 
