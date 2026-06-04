@@ -21,8 +21,14 @@ const fs   = require('fs');
 const path = require('path');
 
 const repoRoot      = path.resolve(__dirname, '..');
-const watchlistFile = path.join(repoRoot, 'data', 'release-watchlist.json');
-const cacheFile     = path.join(repoRoot, 'data', 'release-cache.json');
+// Phase 54b: optionale Env-Overrides nur fuer Tests/Fixtures. Ohne gesetzte
+// Variablen bleibt das Verhalten exakt wie zuvor (Standardpfade unter data/).
+const watchlistFile = process.env.AUDIT_WATCHLIST_FILE
+  ? path.resolve(process.env.AUDIT_WATCHLIST_FILE)
+  : path.join(repoRoot, 'data', 'release-watchlist.json');
+const cacheFile     = process.env.AUDIT_CACHE_FILE
+  ? path.resolve(process.env.AUDIT_CACHE_FILE)
+  : path.join(repoRoot, 'data', 'release-cache.json');
 const strict        = process.argv.includes('--strict');
 const jsonMode      = process.argv.includes('--json');
 
