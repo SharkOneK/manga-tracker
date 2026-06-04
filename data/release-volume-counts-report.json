@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-06-03T09:13:19.775Z",
+  "generatedAt": "2026-06-04T08:37:48.865Z",
   "source": "run-release-volume-counts.js",
   "providerMode": "enabled",
   "policy": {
@@ -27,16 +27,16 @@
     "seriesInVolumeCounts": 36,
     "probeCandidates": 51,
     "checkedCandidates": 51,
-    "detectedChanges": 5,
-    "appliedHighConfidenceChanges": 5,
-    "blockedOrUnsafe": 76
+    "detectedChanges": 4,
+    "appliedHighConfidenceChanges": 4,
+    "blockedOrUnsafe": 77
   },
   "changes": [
     {
       "seriesTitle": "Arifureta – Der Kampf zurück in meine Welt",
       "publisher": "altraverse",
-      "oldPublishedVolumesDE": 3,
-      "newPublishedVolumesDE": 4,
+      "oldPublishedVolumesDE": 4,
+      "newPublishedVolumesDE": 5,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/302",
       "confidence": "high"
@@ -44,8 +44,8 @@
     {
       "seriesTitle": "Demon Slave",
       "publisher": "KAZÉ Manga",
-      "oldPublishedVolumesDE": 11,
-      "newPublishedVolumesDE": 12,
+      "oldPublishedVolumesDE": 12,
+      "newPublishedVolumesDE": 13,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/509",
       "confidence": "high"
@@ -53,8 +53,8 @@
     {
       "seriesTitle": "Frieren – Nach dem Ende der Reise",
       "publisher": "altraverse",
-      "oldPublishedVolumesDE": 3,
-      "newPublishedVolumesDE": 4,
+      "oldPublishedVolumesDE": 4,
+      "newPublishedVolumesDE": 5,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/1697",
       "confidence": "high"
@@ -62,19 +62,10 @@
     {
       "seriesTitle": "The Rising of the Shield Hero",
       "publisher": "TOKYOPOP",
-      "oldPublishedVolumesDE": 3,
-      "newPublishedVolumesDE": 4,
-      "source": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/210",
-      "confidence": "high"
-    },
-    {
-      "seriesTitle": "Tokyo Ghoul GIGANTIK",
-      "publisher": "KAZÉ Manga",
       "oldPublishedVolumesDE": 4,
       "newPublishedVolumesDE": 5,
       "source": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/4962",
+      "sourceUrl": "https://www.manga-passion.de/editions/210",
       "confidence": "high"
     }
   ],
@@ -748,6 +739,14 @@
       ]
     },
     {
+      "seriesTitle": "Tokyo Ghoul GIGANTIK",
+      "publisher": "KAZÉ Manga",
+      "volumeNumber": 6,
+      "reasonCodes": [
+        "not-yet-released"
+      ]
+    },
+    {
       "seriesTitle": "Yandere Dark Elf",
       "publisher": "MANGAMOON",
       "volumeNumber": 4,
@@ -1027,7 +1026,7 @@
     {
       "seriesTitle": "Arifureta – Der Kampf zurück in meine Welt",
       "publisher": "altraverse",
-      "volumeNumber": 4,
+      "volumeNumber": 5,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/302",
       "confidence": "high",
@@ -1146,7 +1145,7 @@
     {
       "seriesTitle": "Demon Slave",
       "publisher": "KAZÉ Manga",
-      "volumeNumber": 12,
+      "volumeNumber": 13,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/509",
       "confidence": "high",
@@ -1185,7 +1184,7 @@
     {
       "seriesTitle": "Frieren – Nach dem Ende der Reise",
       "publisher": "altraverse",
-      "volumeNumber": 4,
+      "volumeNumber": 5,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/1697",
       "confidence": "high",
@@ -1329,7 +1328,7 @@
     {
       "seriesTitle": "The Rising of the Shield Hero",
       "publisher": "TOKYOPOP",
-      "volumeNumber": 4,
+      "volumeNumber": 5,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/210",
       "confidence": "high",
@@ -1339,11 +1338,11 @@
     {
       "seriesTitle": "Tokyo Ghoul GIGANTIK",
       "publisher": "KAZÉ Manga",
-      "volumeNumber": 5,
+      "volumeNumber": 6,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/4962",
       "confidence": "high",
-      "released": true,
+      "released": false,
       "reasonCodes": []
     },
     {

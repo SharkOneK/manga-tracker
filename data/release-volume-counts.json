@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-06-03T09:13:19.775Z",
+  "generatedAt": "2026-06-04T08:37:48.865Z",
   "items": [
     {
       "seriesTitle": "Adou",
@@ -14,11 +14,11 @@
     {
       "seriesTitle": "Arifureta – Der Kampf zurück in meine Welt",
       "publisher": "altraverse",
-      "publishedVolumesDE": 4,
+      "publishedVolumesDE": 5,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/302",
       "confidence": "high",
-      "checkedAt": "2026-06-03T09:13:19.775Z"
+      "checkedAt": "2026-06-04T08:37:48.865Z"
     },
     {
       "seriesTitle": "Arifureta: Der Kampf zurück in meine Welt – Zero",
@@ -113,11 +113,11 @@
     {
       "seriesTitle": "Demon Slave",
       "publisher": "KAZÉ Manga",
-      "publishedVolumesDE": 12,
+      "publishedVolumesDE": 13,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/509",
       "confidence": "high",
-      "checkedAt": "2026-06-03T09:13:19.775Z"
+      "checkedAt": "2026-06-04T08:37:48.865Z"
     },
     {
       "seriesTitle": "Die letzte Elfe",
@@ -140,11 +140,11 @@
     {
       "seriesTitle": "Frieren – Nach dem Ende der Reise",
       "publisher": "altraverse",
-      "publishedVolumesDE": 4,
+      "publishedVolumesDE": 5,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/1697",
       "confidence": "high",
-      "checkedAt": "2026-06-03T09:13:19.775Z"
+      "checkedAt": "2026-06-04T08:37:48.865Z"
     },
     {
       "seriesTitle": "From the Red Fog",
@@ -266,11 +266,11 @@
     {
       "seriesTitle": "The Rising of the Shield Hero",
       "publisher": "TOKYOPOP",
-      "publishedVolumesDE": 4,
+      "publishedVolumesDE": 5,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/210",
       "confidence": "high",
-      "checkedAt": "2026-06-03T09:13:19.775Z"
+      "checkedAt": "2026-06-04T08:37:48.865Z"
     },
     {
       "seriesTitle": "Tokyo Ghoul GIGANTIK",
