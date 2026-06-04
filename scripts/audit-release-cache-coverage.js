@@ -257,7 +257,9 @@ try {
     logErr(`  ✗ ${e.message}`);
     logErr('\n❌ Audit fehlgeschlagen\n');
   }
-  process.exit(1);
+  // Phase 54: konsistent zum Erfolgspfad exitCode setzen statt process.exit().
+  process.exitCode = 1;
+  return;
 }
 
 if (jsonMode) {
@@ -266,4 +268,8 @@ if (jsonMode) {
   printTextReport(report);
 }
 
-process.exit(report.summary.exitCode);
+// Phase 54: KEIN process.exit() hier — process.stdout.write() auf eine Pipe ist
+// asynchron; ein sofortiges exit schneidet den ungeleerten Puffer ab
+// (Truncation ab ~128 KiB). exitCode setzen — Node leert stdout regulär und
+// beendet sich danach selbst (das Skript hält keine offenen Handles).
+process.exitCode = report.summary.exitCode;
