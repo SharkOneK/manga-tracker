@@ -21,8 +21,14 @@ const fs   = require('fs');
 const path = require('path');
 
 const repoRoot      = path.resolve(__dirname, '..');
-const watchlistFile = path.join(repoRoot, 'data', 'release-watchlist.json');
-const cacheFile     = path.join(repoRoot, 'data', 'release-cache.json');
+// Phase 54b: optionale Env-Overrides nur fuer Tests/Fixtures. Ohne gesetzte
+// Variablen bleibt das Verhalten exakt wie zuvor (Standardpfade unter data/).
+const watchlistFile = process.env.AUDIT_WATCHLIST_FILE
+  ? path.resolve(process.env.AUDIT_WATCHLIST_FILE)
+  : path.join(repoRoot, 'data', 'release-watchlist.json');
+const cacheFile     = process.env.AUDIT_CACHE_FILE
+  ? path.resolve(process.env.AUDIT_CACHE_FILE)
+  : path.join(repoRoot, 'data', 'release-cache.json');
 const strict        = process.argv.includes('--strict');
 const jsonMode      = process.argv.includes('--json');
 
@@ -257,7 +263,9 @@ try {
     logErr(`  ✗ ${e.message}`);
     logErr('\n❌ Audit fehlgeschlagen\n');
   }
-  process.exit(1);
+  // Phase 54: konsistent zum Erfolgspfad exitCode setzen statt process.exit().
+  process.exitCode = 1;
+  return;
 }
 
 if (jsonMode) {
@@ -266,4 +274,8 @@ if (jsonMode) {
   printTextReport(report);
 }
 
-process.exit(report.summary.exitCode);
+// Phase 54: KEIN process.exit() hier — process.stdout.write() auf eine Pipe ist
+// asynchron; ein sofortiges exit schneidet den ungeleerten Puffer ab
+// (Truncation ab ~128 KiB). exitCode setzen — Node leert stdout regulär und
+// beendet sich danach selbst (das Skript hält keine offenen Handles).
+process.exitCode = report.summary.exitCode;
