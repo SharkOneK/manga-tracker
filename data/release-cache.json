@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-05-31T11:11:21.455Z",
+  "generatedAt": "2026-06-05T08:16:18.014Z",
   "source": "run-release-cache-pipeline.js",
-  "itemCount": 187,
+  "itemCount": 194,
   "items": [
     {
       "seriesTitle": "Adou",
@@ -600,6 +600,23 @@
       "confidence": "high",
       "notes": "Serverseitig via Manga-Passion-API bestätigt (Edition 2027, Band 21, Score 100). Ursprung: app-seed.",
       "checkedAt": "2026-05-17T10:56:39.041Z"
+    },
+    {
+      "seriesTitle": "DARLING in the FRANXX",
+      "normalizedSeriesTitle": "darling in the franxx",
+      "publisher": "Manga Cult",
+      "normalizedPublisher": "manga cult",
+      "volumeNumber": 1,
+      "releaseDate": "2024-08-01",
+      "isbn13": null,
+      "coverUrl": "https://media.manga-passion.de/volume/cover/2024/0716/2133/104e66f97e40c48bb58d9fbd55736d32.jpg",
+      "sourceUrl": "https://www.manga-passion.de/editions/2936",
+      "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
+      "evidence": "Manga Passion Edition, Verlag und Bandnummer wurden gegen die Bandliste abgeglichen.",
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 2936, Band 1). Ursprung: watchlist.",
+      "checkedAt": "2026-06-05T08:16:18.014Z"
     },
     {
       "seriesTitle": "Demon King of God Killing",
@@ -2238,6 +2255,23 @@
       "checkedAt": "2026-05-26T14:17:36.296Z"
     },
     {
+      "seriesTitle": "Meine Wiedergeburt als Schleim in einer anderen Welt",
+      "normalizedSeriesTitle": "meine wiedergeburt als schleim in einer anderen welt",
+      "publisher": "altraverse",
+      "normalizedPublisher": "altraverse",
+      "volumeNumber": 1,
+      "releaseDate": "2018-08-23",
+      "isbn13": null,
+      "coverUrl": "https://media.manga-passion.de/volume/cover/2021/0417/1527/005675f2fa86ac74d2.jpg",
+      "sourceUrl": "https://www.manga-passion.de/editions/249",
+      "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
+      "evidence": "Manga Passion Edition, Verlag und Bandnummer wurden gegen die Bandliste abgeglichen.",
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 249, Band 1). Ursprung: watchlist.",
+      "checkedAt": "2026-06-05T08:16:18.014Z"
+    },
+    {
       "seriesTitle": "Mirai Nikki – New Edition",
       "normalizedSeriesTitle": "mirai nikki new edition",
       "publisher": "Egmont Manga",
@@ -2315,6 +2349,23 @@
       "checkedAt": "2026-05-19T15:26:34.180Z"
     },
     {
+      "seriesTitle": "Mushoku Tensei – In dieser Welt mach ich alles anders",
+      "normalizedSeriesTitle": "mushoku tensei in dieser welt mach ich alles anders",
+      "publisher": "Panini Manga",
+      "normalizedPublisher": "panini manga",
+      "volumeNumber": 1,
+      "releaseDate": "2021-07-27",
+      "isbn13": null,
+      "coverUrl": "https://media.manga-passion.de/volume/cover/2021/0622/0541/0814160db9552d8ab3.jpg",
+      "sourceUrl": "https://www.manga-passion.de/editions/1314",
+      "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
+      "evidence": "Manga Passion Edition, Verlag und Bandnummer wurden gegen die Bandliste abgeglichen.",
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 1314, Band 1). Ursprung: watchlist.",
+      "checkedAt": "2026-06-05T08:16:18.014Z"
+    },
+    {
       "seriesTitle": "Neck mich nicht, Nagatoro-san",
       "normalizedSeriesTitle": "neck mich nicht nagatoro san",
       "publisher": "dani books",
@@ -2328,6 +2379,23 @@
       "confidence": "high",
       "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 1750, Band 5). Ursprung: watchlist.",
       "checkedAt": "2026-05-19T15:26:34.180Z"
+    },
+    {
+      "seriesTitle": "One Piece",
+      "normalizedSeriesTitle": "one piece",
+      "publisher": "Carlsen Manga!",
+      "normalizedPublisher": "carlsen manga",
+      "volumeNumber": 1,
+      "releaseDate": "2001-01-31",
+      "isbn13": null,
+      "coverUrl": "https://media.manga-passion.de/volume/cover/2021/0725/1842/012425f5a7c4ece2c1.jpeg",
+      "sourceUrl": "https://www.manga-passion.de/editions/87",
+      "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
+      "evidence": "Manga Passion Edition, Verlag und Bandnummer wurden gegen die Bandliste abgeglichen.",
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 87, Band 1). Ursprung: watchlist.",
+      "checkedAt": "2026-06-05T08:16:18.014Z"
     },
     {
       "seriesTitle": "Real Account",
@@ -2626,6 +2694,23 @@
       "checkedAt": "2026-05-31T11:11:21.455Z"
     },
     {
+      "seriesTitle": "Tokyo Ghoul",
+      "normalizedSeriesTitle": "tokyo ghoul",
+      "publisher": "KAZÉ Manga",
+      "normalizedPublisher": "crunchyroll manga",
+      "volumeNumber": 1,
+      "releaseDate": "2014-05-02",
+      "isbn13": null,
+      "coverUrl": "https://media.manga-passion.de/volume/cover/2021/1022/2145/062856010a4c72aff7.jpg",
+      "sourceUrl": "https://www.manga-passion.de/editions/951",
+      "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
+      "evidence": "Manga Passion Edition, Verlag und Bandnummer wurden gegen die Bandliste abgeglichen.",
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 951, Band 1). Ursprung: watchlist.",
+      "checkedAt": "2026-06-05T08:16:18.014Z"
+    },
+    {
       "seriesTitle": "Tokyo Ghoul GIGANTIK",
       "normalizedSeriesTitle": "tokyo ghoul gigantik",
       "publisher": "KAZÉ Manga",
@@ -2641,6 +2726,23 @@
       "confidence": "high",
       "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 4962, Band 1). Ursprung: watchlist.",
       "checkedAt": "2026-05-30T10:30:29.037Z"
+    },
+    {
+      "seriesTitle": "Tokyo Ghoul:re",
+      "normalizedSeriesTitle": "tokyo ghoul re",
+      "publisher": "KAZÉ Manga",
+      "normalizedPublisher": "crunchyroll manga",
+      "volumeNumber": 1,
+      "releaseDate": "2016-09-01",
+      "isbn13": null,
+      "coverUrl": "https://media.manga-passion.de/volume/cover/2021/1207/1159/062996010ad78567bd.jpg",
+      "sourceUrl": "https://www.manga-passion.de/editions/952",
+      "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
+      "evidence": "Manga Passion Edition, Verlag und Bandnummer wurden gegen die Bandliste abgeglichen.",
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 952, Band 1). Ursprung: watchlist.",
+      "checkedAt": "2026-06-05T08:16:18.014Z"
     },
     {
       "seriesTitle": "Tokyo Ghoul:re GIGANTIK",
@@ -2889,6 +2991,23 @@
       "confidence": "high",
       "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 4636, Band 15). Ursprung: watchlist.",
       "checkedAt": "2026-05-26T14:17:36.296Z"
+    },
+    {
+      "seriesTitle": "Vinland Saga",
+      "normalizedSeriesTitle": "vinland saga",
+      "publisher": "Carlsen Manga!",
+      "normalizedPublisher": "carlsen manga",
+      "volumeNumber": 1,
+      "releaseDate": "2012-03-20",
+      "isbn13": null,
+      "coverUrl": "https://media.manga-passion.de/volume/cover/2021/0218/1349/043095fb11a9b6963d.jpeg",
+      "sourceUrl": "https://www.manga-passion.de/editions/223",
+      "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
+      "evidence": "Manga Passion Edition, Verlag und Bandnummer wurden gegen die Bandliste abgeglichen.",
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 223, Band 1). Ursprung: watchlist.",
+      "checkedAt": "2026-06-05T08:16:18.014Z"
     },
     {
       "seriesTitle": "Witch and Hound",

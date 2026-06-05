@@ -4,11 +4,11 @@
   "generatedFrom": "docs/release-cache-source-gap-analysis.md",
   "reviewPolicy": "docs/release-cache-manual-source-review.md",
   "summary": {
-    "knownSourceGaps": 34,
-    "totalGaps": 97,
+    "knownSourceGaps": 29,
+    "totalGaps": 92,
     "safeToPatch": 62,
-    "pendingManualReview": 35,
-    "autoReviewed": 23,
+    "pendingManualReview": 30,
+    "autoReviewed": 24,
     "patched": 62
   },
   "sortOrder": "priority(sehr hoch, hoch, mittel, niedrig), seriesTitle, publisher, volumeNumber",
@@ -911,6 +911,47 @@
         "missing-release-date"
       ],
       "providerId": "manga-passion"
+    },
+    {
+      "queueKey": "Death Note - Diamond Edition|Tokyopop|1",
+      "seriesTitle": "Death Note - Diamond Edition",
+      "publisher": "Tokyopop",
+      "volumeNumber": 1,
+      "classification": "source-data-gap",
+      "suspectedCause": "manual-source-required",
+      "priority": "mittel",
+      "recommendedFix": "manual-source-review",
+      "manualSourceReviewNeeded": true,
+      "checkedSources": [
+        {
+          "name": "Release-Intake-Staging / Release-Cache-Audit",
+          "url": "data/release-watchlist.json",
+          "result": "Nach Release-Intake in der Watchlist vorhanden; kein passender Eintrag in data/release-cache.json."
+        }
+      ],
+      "sourceAnalysisEvidence": "Der Band wurde per Release-Intake in die Watchlist uebernommen. Der Release-Cache enthaelt noch kein belegtes Datum; kein Cache-Patch ohne verifizierte Quelle.",
+      "safeToPatch": false,
+      "reviewStatus": "auto-low-confidence",
+      "sourceUrl": "https://www.carlsen.de",
+      "releaseDate": null,
+      "checkedAt": "2026-06-05T08:16:18.014Z",
+      "evidence": "Automatische Quellenprüfung: publisher-not-supported. Confidence: low. Gruende: source-url-not-specific, missing-source-edition-title, missing-source-publisher, missing-source-volume-number, missing-release-date.",
+      "notes": "Automatisch geprüft; nicht sicher genug für den öffentlichen Cache.",
+      "sourceConfidence": "low",
+      "sourceName": "Carlsen Manga",
+      "providerId": "carlsen",
+      "sourceEditionId": null,
+      "sourceEditionTitle": null,
+      "sourcePublisher": null,
+      "sourceVolumeNumber": null,
+      "sourceResult": "publisher-not-supported",
+      "confidenceReasons": [
+        "source-url-not-specific",
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date"
+      ]
     },
     {
       "queueKey": "Fairy Tail|Carlsen Manga|16",
@@ -2987,162 +3028,6 @@
         "missing-release-date"
       ],
       "providerId": "carlsen"
-    },
-    {
-      "queueKey": "Vinland Saga|Carlsen Manga|1",
-      "seriesTitle": "Vinland Saga",
-      "publisher": "Carlsen Manga",
-      "volumeNumber": 1,
-      "classification": "source-data-gap",
-      "suspectedCause": "manual-source-required",
-      "priority": "mittel",
-      "recommendedFix": "manual-source-review",
-      "manualSourceReviewNeeded": true,
-      "checkedSources": [
-        {
-          "name": "Release-Intake-Staging / Release-Cache-Audit",
-          "url": "data/release-watchlist.json",
-          "result": "Nach Release-Intake in der Watchlist vorhanden; kein passender Eintrag in data/release-cache.json."
-        }
-      ],
-      "sourceAnalysisEvidence": "Der Band wurde per Release-Intake in die Watchlist uebernommen. Der Release-Cache enthaelt noch kein belegtes Datum; kein Cache-Patch ohne verifizierte Quelle.",
-      "safeToPatch": false,
-      "reviewStatus": "pending",
-      "sourceUrl": "",
-      "releaseDate": null,
-      "checkedAt": null,
-      "evidence": "",
-      "notes": "Automatisch aus aktueller Source-Gap-Analyse ergänzt; manuelle Quellenprüfung erforderlich."
-    },
-    {
-      "queueKey": "One Piece|Carlsen Manga|1",
-      "seriesTitle": "One Piece",
-      "publisher": "Carlsen Manga",
-      "volumeNumber": 1,
-      "classification": "source-data-gap",
-      "suspectedCause": "manual-source-required",
-      "priority": "mittel",
-      "recommendedFix": "manual-source-review",
-      "manualSourceReviewNeeded": true,
-      "checkedSources": [
-        {
-          "name": "Release-Intake-Staging / Release-Cache-Audit",
-          "url": "data/release-watchlist.json",
-          "result": "Nach Release-Intake in der Watchlist vorhanden; kein passender Eintrag in data/release-cache.json."
-        }
-      ],
-      "sourceAnalysisEvidence": "Der Band wurde per Release-Intake in die Watchlist uebernommen. Der Release-Cache enthaelt noch kein belegtes Datum; kein Cache-Patch ohne verifizierte Quelle.",
-      "safeToPatch": false,
-      "reviewStatus": "pending",
-      "sourceUrl": "",
-      "releaseDate": null,
-      "checkedAt": null,
-      "evidence": "",
-      "notes": "Automatisch aus aktueller Source-Gap-Analyse ergänzt; manuelle Quellenprüfung erforderlich."
-    },
-    {
-      "queueKey": "Death Note - Diamond Edition|Tokyopop|1",
-      "seriesTitle": "Death Note - Diamond Edition",
-      "publisher": "Tokyopop",
-      "volumeNumber": 1,
-      "classification": "source-data-gap",
-      "suspectedCause": "manual-source-required",
-      "priority": "mittel",
-      "recommendedFix": "manual-source-review",
-      "manualSourceReviewNeeded": true,
-      "checkedSources": [
-        {
-          "name": "Release-Intake-Staging / Release-Cache-Audit",
-          "url": "data/release-watchlist.json",
-          "result": "Nach Release-Intake in der Watchlist vorhanden; kein passender Eintrag in data/release-cache.json."
-        }
-      ],
-      "sourceAnalysisEvidence": "Der Band wurde per Release-Intake in die Watchlist uebernommen. Der Release-Cache enthaelt noch kein belegtes Datum; kein Cache-Patch ohne verifizierte Quelle.",
-      "safeToPatch": false,
-      "reviewStatus": "pending",
-      "sourceUrl": "",
-      "releaseDate": null,
-      "checkedAt": null,
-      "evidence": "",
-      "notes": "Automatisch aus aktueller Source-Gap-Analyse ergänzt; manuelle Quellenprüfung erforderlich."
-    },
-    {
-      "queueKey": "DARLING in the FRANXX|Manga Cult|1",
-      "seriesTitle": "DARLING in the FRANXX",
-      "publisher": "Manga Cult",
-      "volumeNumber": 1,
-      "classification": "source-data-gap",
-      "suspectedCause": "manual-source-required",
-      "priority": "mittel",
-      "recommendedFix": "manual-source-review",
-      "manualSourceReviewNeeded": true,
-      "checkedSources": [
-        {
-          "name": "Release-Intake-Staging / Release-Cache-Audit",
-          "url": "data/release-watchlist.json",
-          "result": "Nach Release-Intake in der Watchlist vorhanden; kein passender Eintrag in data/release-cache.json."
-        }
-      ],
-      "sourceAnalysisEvidence": "Der Band wurde per Release-Intake in die Watchlist uebernommen. Der Release-Cache enthaelt noch kein belegtes Datum; kein Cache-Patch ohne verifizierte Quelle.",
-      "safeToPatch": false,
-      "reviewStatus": "pending",
-      "sourceUrl": "",
-      "releaseDate": null,
-      "checkedAt": null,
-      "evidence": "",
-      "notes": "Automatisch aus aktueller Source-Gap-Analyse ergänzt; manuelle Quellenprüfung erforderlich."
-    },
-    {
-      "queueKey": "Meine Wiedergeburt als Schleim in einer anderen Welt|Altraverse|1",
-      "seriesTitle": "Meine Wiedergeburt als Schleim in einer anderen Welt",
-      "publisher": "Altraverse",
-      "volumeNumber": 1,
-      "classification": "source-data-gap",
-      "suspectedCause": "manual-source-required",
-      "priority": "mittel",
-      "recommendedFix": "manual-source-review",
-      "manualSourceReviewNeeded": true,
-      "checkedSources": [
-        {
-          "name": "Release-Intake-Staging / Release-Cache-Audit",
-          "url": "data/release-watchlist.json",
-          "result": "Nach Release-Intake in der Watchlist vorhanden; kein passender Eintrag in data/release-cache.json."
-        }
-      ],
-      "sourceAnalysisEvidence": "Der Band wurde per Release-Intake in die Watchlist uebernommen. Der Release-Cache enthaelt noch kein belegtes Datum; kein Cache-Patch ohne verifizierte Quelle.",
-      "safeToPatch": false,
-      "reviewStatus": "pending",
-      "sourceUrl": "",
-      "releaseDate": null,
-      "checkedAt": null,
-      "evidence": "",
-      "notes": "Automatisch aus aktueller Source-Gap-Analyse ergänzt; manuelle Quellenprüfung erforderlich."
-    },
-    {
-      "queueKey": "Mushoku Tensei – In dieser Welt mach ich alles anders|Panini Manga|1",
-      "seriesTitle": "Mushoku Tensei – In dieser Welt mach ich alles anders",
-      "publisher": "Panini Manga",
-      "volumeNumber": 1,
-      "classification": "source-data-gap",
-      "suspectedCause": "manual-source-required",
-      "priority": "mittel",
-      "recommendedFix": "manual-source-review",
-      "manualSourceReviewNeeded": true,
-      "checkedSources": [
-        {
-          "name": "Release-Intake-Staging / Release-Cache-Audit",
-          "url": "data/release-watchlist.json",
-          "result": "Nach Release-Intake in der Watchlist vorhanden; kein passender Eintrag in data/release-cache.json."
-        }
-      ],
-      "sourceAnalysisEvidence": "Der Band wurde per Release-Intake in die Watchlist uebernommen. Der Release-Cache enthaelt noch kein belegtes Datum; kein Cache-Patch ohne verifizierte Quelle.",
-      "safeToPatch": false,
-      "reviewStatus": "pending",
-      "sourceUrl": "",
-      "releaseDate": null,
-      "checkedAt": null,
-      "evidence": "",
-      "notes": "Automatisch aus aktueller Source-Gap-Analyse ergänzt; manuelle Quellenprüfung erforderlich."
     }
   ]
 }
