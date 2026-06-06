@@ -1,11 +1,11 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-06-05T08:16:18.014Z",
+  "generatedAt": "2026-06-06T07:24:32.336Z",
   "source": "run-release-cache-pipeline.js",
   "inputs": {
-    "cacheItems": 187,
+    "cacheItems": 194,
     "watchlistCandidates": 204,
-    "reviewQueueCandidates": 97,
+    "reviewQueueCandidates": 92,
     "appSeedCandidates": 5
   },
   "policy": {
@@ -45,104 +45,19 @@
   },
   "summary": {
     "candidatesDiscovered": 209,
-    "candidatesChecked": 37,
-    "skippedAlreadyCached": 172,
+    "candidatesChecked": 30,
+    "skippedAlreadyCached": 179,
     "skippedDueToLimit": 0,
-    "highConfidence": 7,
+    "highConfidence": 0,
     "mediumConfidence": 0,
     "lowConfidence": 30,
     "blocked": 0,
-    "cachePatches": 7,
+    "cachePatches": 0,
     "reviewQueueWrites": 30,
     "invalidExistingCache": 0
   },
   "autoMergeEligible": false,
-  "cachePatches": [
-    {
-      "action": "add",
-      "key": "vinland saga|carlsen manga|1",
-      "seriesTitle": "Vinland Saga",
-      "publisher": "Carlsen Manga!",
-      "volumeNumber": 1,
-      "releaseDate": "2012-03-20",
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/223",
-      "confidence": "high"
-    },
-    {
-      "action": "add",
-      "key": "one piece|carlsen manga|1",
-      "seriesTitle": "One Piece",
-      "publisher": "Carlsen Manga!",
-      "volumeNumber": 1,
-      "releaseDate": "2001-01-31",
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/87",
-      "confidence": "high"
-    },
-    {
-      "action": "add",
-      "key": "darling in the franxx|manga cult|1",
-      "seriesTitle": "DARLING in the FRANXX",
-      "publisher": "Manga Cult",
-      "volumeNumber": 1,
-      "releaseDate": "2024-08-01",
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/2936",
-      "confidence": "high"
-    },
-    {
-      "action": "add",
-      "key": "meine wiedergeburt als schleim in einer anderen welt|altraverse|1",
-      "seriesTitle": "Meine Wiedergeburt als Schleim in einer anderen Welt",
-      "publisher": "altraverse",
-      "volumeNumber": 1,
-      "releaseDate": "2018-08-23",
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/249",
-      "confidence": "high"
-    },
-    {
-      "action": "add",
-      "key": "mushoku tensei in dieser welt mach ich alles anders|panini manga|1",
-      "seriesTitle": "Mushoku Tensei – In dieser Welt mach ich alles anders",
-      "publisher": "Panini Manga",
-      "volumeNumber": 1,
-      "releaseDate": "2021-07-27",
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/1314",
-      "confidence": "high"
-    },
-    {
-      "action": "add",
-      "key": "tokyo ghoul|crunchyroll manga|1",
-      "seriesTitle": "Tokyo Ghoul",
-      "publisher": "KAZÉ Manga",
-      "volumeNumber": 1,
-      "releaseDate": "2014-05-02",
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/951",
-      "confidence": "high"
-    },
-    {
-      "action": "add",
-      "key": "tokyo ghoul re|crunchyroll manga|1",
-      "seriesTitle": "Tokyo Ghoul:re",
-      "publisher": "KAZÉ Manga",
-      "volumeNumber": 1,
-      "releaseDate": "2016-09-01",
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/952",
-      "confidence": "high"
-    }
-  ],
+  "cachePatches": [],
   "reviewQueueWrites": [
     {
       "key": "berserk master edition|panini manga|9",
@@ -604,6 +519,27 @@
       "sourceResult": "volume-not-found"
     },
     {
+      "key": "death note diamond edition|tokyopop|1",
+      "queueKey": "Death Note - Diamond Edition|Tokyopop|1",
+      "seriesTitle": "Death Note - Diamond Edition",
+      "publisher": "Tokyopop",
+      "volumeNumber": 1,
+      "confidence": "low",
+      "reviewStatus": "auto-low-confidence",
+      "reasonCodes": [
+        "source-url-not-specific",
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date"
+      ],
+      "sourceName": "Carlsen Manga",
+      "providerId": "carlsen",
+      "sourceUrl": "https://www.carlsen.de",
+      "releaseDate": null,
+      "sourceResult": "publisher-not-supported"
+    },
+    {
       "key": "gushing over magical girls|mangamoon|4",
       "queueKey": "Gushing over Magical Girls|MangaMoon|4",
       "seriesTitle": "Gushing over Magical Girls",
@@ -732,27 +668,6 @@
       "seriesTitle": "Die letzte Elfe",
       "publisher": "Yomeru",
       "volumeNumber": 3,
-      "confidence": "low",
-      "reviewStatus": "auto-low-confidence",
-      "reasonCodes": [
-        "source-url-not-specific",
-        "missing-source-edition-title",
-        "missing-source-publisher",
-        "missing-source-volume-number",
-        "missing-release-date"
-      ],
-      "sourceName": "Carlsen Manga",
-      "providerId": "carlsen",
-      "sourceUrl": "https://www.carlsen.de",
-      "releaseDate": null,
-      "sourceResult": "publisher-not-supported"
-    },
-    {
-      "key": "death note diamond edition|tokyopop|1",
-      "queueKey": "Death Note - Diamond Edition|Tokyopop|1",
-      "seriesTitle": "Death Note - Diamond Edition",
-      "publisher": "Tokyopop",
-      "volumeNumber": 1,
       "confidence": "low",
       "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
@@ -940,6 +855,13 @@
     "arifureta der kampf zuruck in meine welt|altraverse|1",
     "the rising of the shield hero|tokyopop|1",
     "frieren nach dem ende der reise|altraverse|1",
+    "vinland saga|carlsen manga|1",
+    "one piece|carlsen manga|1",
+    "tokyo ghoul|crunchyroll manga|1",
+    "tokyo ghoul re|crunchyroll manga|1",
+    "darling in the franxx|manga cult|1",
+    "meine wiedergeburt als schleim in einer anderen welt|altraverse|1",
+    "mushoku tensei in dieser welt mach ich alles anders|panini manga|1",
     "the eminence in shadow|tokyopop|9",
     "dai dark|manga cult|9",
     "arifureta der kampf zuruck in meine welt zero|altraverse|1"
