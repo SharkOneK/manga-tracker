@@ -25,17 +25,29 @@ const { validateReleaseCacheVolumeCountsConsistency } = require('./validate-rele
 
 const repoRoot = path.resolve(__dirname, '..');
 
+// Deterministisch aus dem Coverage-Audit generierte Doku-Dateien. Sie werden im
+// selben Workflow per scripts/sync-release-coverage-gap-docs.js erzeugt, sind
+// reines Markdown (kein Code, keine App-Datenquelle) und muessen synchron mit
+// den Cache-Daten committet werden, damit die geplante CI nicht an Doku-Drift
+// scheitert. Deshalb sind exakt diese zwei Pfade von der docs/-Sperre ausgenommen.
+const ALLOWED_GENERATED_DOCS = new Set([
+  'docs/release-cache-coverage-gaps.md',
+  'docs/release-cache-source-gap-analysis.md',
+]);
+
 const ALLOWLIST = new Set([
   'data/release-cache.json',
   'data/release-cache-pipeline-report.json',
   'data/release-source-review-queue.json',
   'data/release-volume-counts.json',
   'data/release-volume-counts-report.json',
+  ...ALLOWED_GENERATED_DOCS,
 ]);
 
 const REPORT_QUEUE_ONLY_ALLOWLIST = new Set([
   'data/release-cache-pipeline-report.json',
   'data/release-source-review-queue.json',
+  ...ALLOWED_GENERATED_DOCS,
 ]);
 
 const BLOCKED_EXACT = new Set([
@@ -537,7 +549,7 @@ function evaluateAutoMergeGate({
         return deny(`Blocked because ${file} changed.`, base);
       }
       const blockedPrefix = BLOCKED_PREFIXES.find((prefix) => file.startsWith(prefix));
-      if (blockedPrefix) {
+      if (blockedPrefix && !ALLOWED_GENERATED_DOCS.has(file)) {
         return deny(`Blocked because ${blockedPrefix} changes are not allowed in Phase 45.`, base);
       }
       if (!ALLOWLIST.has(file)) {
@@ -748,6 +760,7 @@ if (require.main === module) {
 
 module.exports = {
   ALLOWLIST,
+  ALLOWED_GENERATED_DOCS,
   REPORT_QUEUE_ONLY_ALLOWLIST,
   BLOCKED_EXACT,
   BLOCKED_PREFIXES,

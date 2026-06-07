@@ -358,8 +358,41 @@ const tests = [
     () => assertBlocked('supabase changed', evaluate({ changedFiles: ['supabase/migrations/foo.sql'] }), /supabase\//),
   ],
   [
-    'docs change blocks',
-    () => assertBlocked('docs changed', evaluate({ changedFiles: ['docs/release-cache-coverage-gaps.md'] }), /docs\//),
+    'non-allowlisted docs change blocks',
+    () => assertBlocked('docs changed', evaluate({ changedFiles: ['docs/some-other-doc.md'] }), /docs\//),
+  ],
+  [
+    'generated coverage docs alongside report/queue are allowed',
+    () => {
+      const result = evaluate({
+        changedFiles: [
+          'data/release-cache-pipeline-report.json',
+          'data/release-source-review-queue.json',
+          'docs/release-cache-coverage-gaps.md',
+          'docs/release-cache-source-gap-analysis.md',
+        ],
+      });
+      assertAllowed('coverage docs with report/queue', result);
+    },
+  ],
+  [
+    'generated coverage docs alongside a safe release-cache add are allowed',
+    () => {
+      const item = cacheItem();
+      const result = evaluate({
+        changedFiles: [
+          'data/release-cache.json',
+          'data/release-cache-pipeline-report.json',
+          'docs/release-cache-coverage-gaps.md',
+          'docs/release-cache-source-gap-analysis.md',
+        ],
+        pipelineReport: releaseCacheReportFor(item),
+        beforeCache: cacheDoc([]),
+        afterCache: cacheDoc([item]),
+      });
+      assertAllowed('coverage docs with cache add', result);
+      assert.strictEqual(result.class, 'release-cache-high-confidence-only');
+    },
   ],
   [
     'missing pipeline report blocks',
