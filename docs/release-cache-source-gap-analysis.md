@@ -2,23 +2,23 @@
 
 Stand: automatisch synchronisiert aus aktuellem Audit gegen `data/release-watchlist.json` und `data/release-cache.json`.
 
-Diese Datei dokumentiert die 34 bekannten `source-data-gap`-Luecken aus `docs/release-cache-coverage-gaps.md`. Sie ist bewusst eine Analyse- und Entscheidungsdatei: Es werden keine Release-Daten geraten, keine privaten Sammlungsdaten ergaenzt und `data/release-cache.json` bleibt unangetastet.
+Diese Datei dokumentiert die 29 bekannten `source-data-gap`-Luecken aus `docs/release-cache-coverage-gaps.md`. Sie ist bewusst eine Analyse- und Entscheidungsdatei: Es werden keine Release-Daten geraten, keine privaten Sammlungsdaten ergaenzt und `data/release-cache.json` bleibt unangetastet.
 
 ## Ergebnis
 
 | Kennzahl | Wert |
 |---|---:|
-| Analysierte Gaps | 34 |
-| Betroffene Serien | 16 |
+| Analysierte Gaps | 29 |
+| Betroffene Serien | 11 |
 | Sichere direkte Cache-Patches | 0 |
-| Manuelle Quellenpruefung noetig | 34 |
+| Manuelle Quellenpruefung noetig | 29 |
 
 ## Ursachencluster
 
 | Vermutete Ursache | Gaps |
 |---|---:|
 | not-yet-released | 25 |
-| manual-source-required | 7 |
+| manual-source-required | 2 |
 | source-missing | 1 |
 | volume-numbering-mismatch | 1 |
 
@@ -34,7 +34,7 @@ Interpretation:
 
 | Empfohlener Fix | Gaps |
 |---|---:|
-| manual-source-review | 34 |
+| manual-source-review | 29 |
 
 Der einzige sichere naechste Schritt ist aktuell `manual-source-review`: offizielle Verlagsseite oder bereits erlaubte vertrauenswuerdige Quelle pruefen und erst danach echte Release-Daten mit Source-URL uebernehmen.
 
@@ -52,12 +52,7 @@ Der einzige sichere naechste Schritt ist aktuell `manual-source-review`: offizie
 | Isekai Soapland | MANGAMOON | 3-8 | 6 | not-yet-released | manual-source-review | nein |
 | Neck mich nicht, Nagatoro-san | dani books | 6-7 | 2 | manual-source-required | manual-source-review | nein |
 | Tokyo Revengers – Doppelband-Edition | Carlsen Manga | 16 | 1 | volume-numbering-mismatch | manual-source-review | nein |
-| Vinland Saga | Carlsen Manga | 1 | 1 | manual-source-required | manual-source-review | nein |
-| One Piece | Carlsen Manga | 1 | 1 | manual-source-required | manual-source-review | nein |
 | Death Note - Diamond Edition | Tokyopop | 1 | 1 | manual-source-required | manual-source-review | nein |
-| DARLING in the FRANXX | Manga Cult | 1 | 1 | manual-source-required | manual-source-review | nein |
-| Meine Wiedergeburt als Schleim in einer anderen Welt | Altraverse | 1 | 1 | manual-source-required | manual-source-review | nein |
-| Mushoku Tensei – In dieser Welt mach ich alles anders | Panini Manga | 1 | 1 | manual-source-required | manual-source-review | nein |
 
 ## Einzelgap-Matrix
 
@@ -91,12 +86,7 @@ Der einzige sichere naechste Schritt ist aktuell `manual-source-review`: offizie
 | Neck mich nicht, Nagatoro-san | dani books | 6 | not-yet-released | manual-source-review | nein | ja |
 | Tokyo Revengers – Doppelband-Edition | Carlsen Manga | 16 | volume-numbering-mismatch | manual-source-review | nein | ja |
 | Neck mich nicht, Nagatoro-san | dani books | 7 | manual-source-required | manual-source-review | nein | ja |
-| Vinland Saga | Carlsen Manga | 1 | manual-source-required | manual-source-review | nein | ja |
-| One Piece | Carlsen Manga | 1 | manual-source-required | manual-source-review | nein | ja |
 | Death Note - Diamond Edition | Tokyopop | 1 | manual-source-required | manual-source-review | nein | ja |
-| DARLING in the FRANXX | Manga Cult | 1 | manual-source-required | manual-source-review | nein | ja |
-| Meine Wiedergeburt als Schleim in einer anderen Welt | Altraverse | 1 | manual-source-required | manual-source-review | nein | ja |
-| Mushoku Tensei – In dieser Welt mach ich alles anders | Panini Manga | 1 | manual-source-required | manual-source-review | nein | ja |
 
 ## Maschinenlesbare Analyse
 
@@ -639,103 +629,8 @@ Der einzige sichere naechste Schritt ist aktuell `manual-source-review`: offizie
       "manualSourceReviewNeeded": true
     },
     {
-      "seriesTitle": "Vinland Saga",
-      "publisher": "Carlsen Manga",
-      "volumeNumber": 1,
-      "classification": "source-data-gap",
-      "priority": "mittel",
-      "suspectedCause": "manual-source-required",
-      "checkedSources": [
-        {
-          "name": "Release-Intake-Staging / Release-Cache-Audit",
-          "url": "data/release-watchlist.json",
-          "result": "Nach Release-Intake in der Watchlist vorhanden; kein passender Eintrag in data/release-cache.json."
-        }
-      ],
-      "evidence": "Der Band wurde per Release-Intake in die Watchlist uebernommen. Der Release-Cache enthaelt noch kein belegtes Datum; kein Cache-Patch ohne verifizierte Quelle.",
-      "recommendedFix": "manual-source-review",
-      "safeToPatch": false,
-      "manualSourceReviewNeeded": true
-    },
-    {
-      "seriesTitle": "One Piece",
-      "publisher": "Carlsen Manga",
-      "volumeNumber": 1,
-      "classification": "source-data-gap",
-      "priority": "mittel",
-      "suspectedCause": "manual-source-required",
-      "checkedSources": [
-        {
-          "name": "Release-Intake-Staging / Release-Cache-Audit",
-          "url": "data/release-watchlist.json",
-          "result": "Nach Release-Intake in der Watchlist vorhanden; kein passender Eintrag in data/release-cache.json."
-        }
-      ],
-      "evidence": "Der Band wurde per Release-Intake in die Watchlist uebernommen. Der Release-Cache enthaelt noch kein belegtes Datum; kein Cache-Patch ohne verifizierte Quelle.",
-      "recommendedFix": "manual-source-review",
-      "safeToPatch": false,
-      "manualSourceReviewNeeded": true
-    },
-    {
       "seriesTitle": "Death Note - Diamond Edition",
       "publisher": "Tokyopop",
-      "volumeNumber": 1,
-      "classification": "source-data-gap",
-      "priority": "mittel",
-      "suspectedCause": "manual-source-required",
-      "checkedSources": [
-        {
-          "name": "Release-Intake-Staging / Release-Cache-Audit",
-          "url": "data/release-watchlist.json",
-          "result": "Nach Release-Intake in der Watchlist vorhanden; kein passender Eintrag in data/release-cache.json."
-        }
-      ],
-      "evidence": "Der Band wurde per Release-Intake in die Watchlist uebernommen. Der Release-Cache enthaelt noch kein belegtes Datum; kein Cache-Patch ohne verifizierte Quelle.",
-      "recommendedFix": "manual-source-review",
-      "safeToPatch": false,
-      "manualSourceReviewNeeded": true
-    },
-    {
-      "seriesTitle": "DARLING in the FRANXX",
-      "publisher": "Manga Cult",
-      "volumeNumber": 1,
-      "classification": "source-data-gap",
-      "priority": "mittel",
-      "suspectedCause": "manual-source-required",
-      "checkedSources": [
-        {
-          "name": "Release-Intake-Staging / Release-Cache-Audit",
-          "url": "data/release-watchlist.json",
-          "result": "Nach Release-Intake in der Watchlist vorhanden; kein passender Eintrag in data/release-cache.json."
-        }
-      ],
-      "evidence": "Der Band wurde per Release-Intake in die Watchlist uebernommen. Der Release-Cache enthaelt noch kein belegtes Datum; kein Cache-Patch ohne verifizierte Quelle.",
-      "recommendedFix": "manual-source-review",
-      "safeToPatch": false,
-      "manualSourceReviewNeeded": true
-    },
-    {
-      "seriesTitle": "Meine Wiedergeburt als Schleim in einer anderen Welt",
-      "publisher": "Altraverse",
-      "volumeNumber": 1,
-      "classification": "source-data-gap",
-      "priority": "mittel",
-      "suspectedCause": "manual-source-required",
-      "checkedSources": [
-        {
-          "name": "Release-Intake-Staging / Release-Cache-Audit",
-          "url": "data/release-watchlist.json",
-          "result": "Nach Release-Intake in der Watchlist vorhanden; kein passender Eintrag in data/release-cache.json."
-        }
-      ],
-      "evidence": "Der Band wurde per Release-Intake in die Watchlist uebernommen. Der Release-Cache enthaelt noch kein belegtes Datum; kein Cache-Patch ohne verifizierte Quelle.",
-      "recommendedFix": "manual-source-review",
-      "safeToPatch": false,
-      "manualSourceReviewNeeded": true
-    },
-    {
-      "seriesTitle": "Mushoku Tensei – In dieser Welt mach ich alles anders",
-      "publisher": "Panini Manga",
       "volumeNumber": 1,
       "classification": "source-data-gap",
       "priority": "mittel",
@@ -760,14 +655,13 @@ Der einzige sichere naechste Schritt ist aktuell `manual-source-review`: offizie
 
 | Verlag | Gaps | Serien | Strategie |
 |---|---:|---:|---|
-| Altraverse | 7 | 3 | Offizielle Verlags-/Produktquelle manuell pruefen; kein Cache-Patch ohne belegtes tagesgenaues Release-Datum. |
 | MANGAMOON | 7 | 2 | Offizielle Verlags-/Produktquelle manuell pruefen; kein Cache-Patch ohne belegtes tagesgenaues Release-Datum. |
-| Panini Manga | 7 | 2 | Offizielle Verlags-/Produktquelle manuell pruefen; kein Cache-Patch ohne belegtes tagesgenaues Release-Datum. |
+| Altraverse | 6 | 2 | Offizielle Verlags-/Produktquelle manuell pruefen; kein Cache-Patch ohne belegtes tagesgenaues Release-Datum. |
+| Panini Manga | 6 | 1 | Offizielle Verlags-/Produktquelle manuell pruefen; kein Cache-Patch ohne belegtes tagesgenaues Release-Datum. |
 | Egmont Manga | 4 | 1 | Offizielle Verlags-/Produktquelle manuell pruefen; kein Cache-Patch ohne belegtes tagesgenaues Release-Datum. |
-| Carlsen Manga | 3 | 3 | Offizielle Verlags-/Produktquelle manuell pruefen; kein Cache-Patch ohne belegtes tagesgenaues Release-Datum. |
 | dani books | 2 | 1 | Offizielle Verlags-/Produktquelle manuell pruefen; kein Cache-Patch ohne belegtes tagesgenaues Release-Datum. |
 | MangaMoon | 2 | 2 | Offizielle Verlags-/Produktquelle manuell pruefen; kein Cache-Patch ohne belegtes tagesgenaues Release-Datum. |
-| Manga Cult | 1 | 1 | Offizielle Verlags-/Produktquelle manuell pruefen; kein Cache-Patch ohne belegtes tagesgenaues Release-Datum. |
+| Carlsen Manga | 1 | 1 | Offizielle Verlags-/Produktquelle manuell pruefen; kein Cache-Patch ohne belegtes tagesgenaues Release-Datum. |
 | Tokyopop | 1 | 1 | Offizielle Verlags-/Produktquelle manuell pruefen; kein Cache-Patch ohne belegtes tagesgenaues Release-Datum. |
 
 ## Konkrete naechste Fixes

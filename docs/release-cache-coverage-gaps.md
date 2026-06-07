@@ -8,15 +8,15 @@ Stand: automatisch synchronisiert aus aktuellem Audit gegen `data/release-watchl
 |---|---:|
 | Aktivierte Watchlist-Eintraege | 50 |
 | Expandierte Watchlist-Bandkandidaten | 204 |
-| Release-Cache-Eintraege | 187 |
-| Gefundene Cache-Eintraege | 170 |
-| Verbleibende Luecken | 34 |
-| Betroffene Serien | 16 |
-| Betroffene Verlage | 9 |
+| Release-Cache-Eintraege | 194 |
+| Gefundene Cache-Eintraege | 175 |
+| Verbleibende Luecken | 29 |
+| Betroffene Serien | 11 |
+| Betroffene Verlage | 8 |
 
 ## Klassifikation
 
-Alle 34 verbleibenden Luecken sind als `source-data-gap` klassifiziert.
+Alle 29 verbleibenden Luecken sind als `source-data-gap` klassifiziert.
 
 Bedeutung: Der Watchlist-Band wurde nach dem Cache-Update weiterhin nicht in `data/release-cache.json` gefunden. Diese Faelle sind Quellen-/Datenqualitaetsfaelle und duerfen nicht durch Fake-Daten geschlossen werden.
 
@@ -36,25 +36,19 @@ Empfohlener Umgang: manuell in verlaesslicher Quelle pruefen, erst danach echte 
 | Isekai Soapland | MANGAMOON | 3-8 | 6 | source-data-gap |
 | Neck mich nicht, Nagatoro-san | dani books | 6-7 | 2 | source-data-gap |
 | Tokyo Revengers – Doppelband-Edition | Carlsen Manga | 16 | 1 | source-data-gap |
-| Vinland Saga | Carlsen Manga | 1 | 1 | source-data-gap |
-| One Piece | Carlsen Manga | 1 | 1 | source-data-gap |
 | Death Note - Diamond Edition | Tokyopop | 1 | 1 | source-data-gap |
-| DARLING in the FRANXX | Manga Cult | 1 | 1 | source-data-gap |
-| Meine Wiedergeburt als Schleim in einer anderen Welt | Altraverse | 1 | 1 | source-data-gap |
-| Mushoku Tensei – In dieser Welt mach ich alles anders | Panini Manga | 1 | 1 | source-data-gap |
 
 ## Luecken nach Verlag
 
 | Verlag | Luecken | Serien |
 |---|---:|---:|
-| Altraverse | 7 | 3 |
 | MANGAMOON | 7 | 2 |
-| Panini Manga | 7 | 2 |
+| Altraverse | 6 | 2 |
+| Panini Manga | 6 | 1 |
 | Egmont Manga | 4 | 1 |
-| Carlsen Manga | 3 | 3 |
 | dani books | 2 | 1 |
 | MangaMoon | 2 | 2 |
-| Manga Cult | 1 | 1 |
+| Carlsen Manga | 1 | 1 |
 | Tokyopop | 1 | 1 |
 
 ## Maschinenlesbarer Audit
@@ -97,7 +91,7 @@ Der normale Workflow scheitert weiterhin nicht an bekannten `source-data-gap`-Lu
 
 ## Phase 23a: Ursachenanalyse
 
-Die 34 `source-data-gap`-Einzelluecken sind in `docs/release-cache-source-gap-analysis.md` strukturiert analysiert.
+Die 29 `source-data-gap`-Einzelluecken sind in `docs/release-cache-source-gap-analysis.md` strukturiert analysiert.
 
 Die Analyse dokumentiert pro Gap:
 
