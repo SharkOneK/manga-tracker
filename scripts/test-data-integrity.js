@@ -757,9 +757,12 @@ runTest('Phase 42b: write-release-source-review-queue.js hat keinen festen Sourc
 });
 
 
-// Phase 45: Update Release Cache still syncs generated coverage docs before validation,
-// but bot PRs manage only data files so the release-cache auto-merge allowlist stays narrow.
-runTest('Phase 45: update-release-cache.yml synchronisiert Coverage-Dokumente, PR bleibt data-only', function() {
+// Update Release Cache syncs the generated coverage docs before validation AND
+// commits them with the data files. Otherwise the regenerated docs are discarded
+// and the scheduled CI on main fails whenever a gap resolves (docs vs. audit drift).
+// The two generated coverage docs are deterministic markdown artifacts and are
+// explicitly allowlisted in the release-cache auto-merge gate.
+runTest('Phase 45: update-release-cache.yml synchronisiert Coverage-Dokumente und committet sie mit', function() {
   const fs2 = require('fs');
   const path2 = require('path');
   const wfPath = path2.resolve(__dirname, '../.github/workflows/update-release-cache.yml');
@@ -772,8 +775,8 @@ runTest('Phase 45: update-release-cache.yml synchronisiert Coverage-Dokumente, P
   assert.ok(addPaths.includes('data/release-cache.json'), 'Managed PR files must include release-cache data');
   assert.ok(addPaths.includes('data/release-source-review-queue.json'), 'Managed PR files must include review queue data');
   assert.ok(addPaths.includes('data/release-cache-pipeline-report.json'), 'Managed PR files must include pipeline report data');
-  assert.ok(!addPaths.includes('docs/release-cache-source-gap-analysis.md'), 'Managed PR files must not include source-gap analysis docs in Phase 45 auto-merge PRs');
-  assert.ok(!addPaths.includes('docs/release-cache-coverage-gaps.md'), 'Managed PR files must not include coverage docs in Phase 45 auto-merge PRs');
+  assert.ok(addPaths.includes('docs/release-cache-source-gap-analysis.md'), 'Managed PR files must commit the regenerated source-gap analysis doc');
+  assert.ok(addPaths.includes('docs/release-cache-coverage-gaps.md'), 'Managed PR files must commit the regenerated coverage-gaps doc');
 });
 
 runTest('Phase 42c: Coverage-Gap-Validator hat keine festen Gap-Zahlen', function() {

@@ -122,7 +122,9 @@ jobs:
           if git diff --quiet -- \
             data/release-cache.json \
             data/release-source-review-queue.json \
-            data/release-cache-pipeline-report.json; then
+            data/release-cache-pipeline-report.json \
+            docs/release-cache-coverage-gaps.md \
+            docs/release-cache-source-gap-analysis.md; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
             echo "No release-cache data changes detected."
           else
@@ -130,7 +132,9 @@ jobs:
             git diff --stat -- \
               data/release-cache.json \
               data/release-source-review-queue.json \
-              data/release-cache-pipeline-report.json
+              data/release-cache-pipeline-report.json \
+              docs/release-cache-coverage-gaps.md \
+              docs/release-cache-source-gap-analysis.md
           fi
 
       - name: Create release-cache update PR
@@ -149,6 +153,8 @@ jobs:
             data/release-cache.json
             data/release-source-review-queue.json
             data/release-cache-pipeline-report.json
+            docs/release-cache-coverage-gaps.md
+            docs/release-cache-source-gap-analysis.md
 
       - name: Block auto-merge if PR number is missing
         if: steps.changes.outputs.changed == 'true' && steps.cpr.outputs.pull-request-number == ''
