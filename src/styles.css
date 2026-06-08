@@ -833,6 +833,19 @@ body.dark .stat-big-card { background: #1a1a2e; }
 .stats-buy-date { font-size: 0.72rem; color: var(--warning); font-weight: 600; }
 .stats-buy-item.avail .stats-buy-date { color: var(--success); }
 
+/* ── Phase 55 (2A): Datenqualität — Serien ohne Bandanzahl ── */
+.stats-gap-summary { font-size: 0.8rem; color: var(--text-muted); font-weight: 600; margin: 4px 0 8px; }
+.stats-gap-list { display: flex; flex-direction: column; gap: 6px; }
+.stats-gap-item { display: flex; justify-content: space-between; align-items: center; gap: 10px;
+  padding: 8px 12px; border-radius: 10px; background: var(--card-bg);
+  border: 1px solid var(--border); border-left-width: 3px; border-left-color: var(--border); }
+.stats-gap-item.acute { border-left-color: var(--warning); }
+.stats-gap-title { font-weight: 700; font-size: 0.85rem; min-width: 0;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.stats-gap-meta { display: flex; align-items: center; gap: 8px; flex-shrink: 0;
+  font-size: 0.72rem; color: var(--text-muted); }
+.stats-gap-drop { color: var(--warning); font-weight: 700; }
+
 /* ── Phase 44b: Read-only Automationsanzeige ── */
 .automation-readout {
   background: var(--bg);

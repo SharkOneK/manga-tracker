@@ -1660,5 +1660,95 @@ test('Phase 47: Katalog-Seed nutzt nur bestehenden Supabase-RPC und keine data/*
   assert.ok(!/release-watchlist\.json|release-cache\.json|api\.github\.com|pushCloud\s*\(|writeFile/.test(fnCode), 'Katalog-Seed darf nicht auf Repo-Dateien/GitHub schreiben');
 });
 
+// ─── Phase 55 (2A): Serien ohne gültige Bandanzahl ──────────────────────────
+// Spiegelt seriesWithoutValidTotal() aus app.js (reine Anzeige, keine Mutation).
+function seriesWithoutValidTotal(mangaList) {
+  return (mangaList || [])
+    .filter(m => {
+      const t = Number(m.total);
+      return isNaN(t) || t <= 0;
+    })
+    .map(m => {
+      const owned = mOwned(m);
+      const isWishlist = m.status === 'wishlist';
+      return { title: m.title, owned, isWishlist, droppedFromBuy: !isWishlist && owned > 0 };
+    })
+    .sort((a, b) => {
+      if (a.droppedFromBuy !== b.droppedFromBuy) return a.droppedFromBuy ? -1 : 1;
+      return (a.title || '').localeCompare(b.title || '', 'de');
+    });
+}
+
+console.log('\nPhase 55 (2A) — Datenqualität: Serien ohne Bandanzahl\n');
+
+test('Serie mit Bänden ohne total taucht als Datenlücke auf (droppedFromBuy)', () => {
+  const list = [
+    { title: 'One Piece', total: null, status: 'completed', ongoing: 'true', bands: { '1': 'completed' } },
+    { title: 'Vollständig', total: 3, status: 'owned', bands: { '1': 'owned', '2': 'owned', '3': 'owned' } },
+  ];
+  const gaps = seriesWithoutValidTotal(list);
+  assert.strictEqual(gaps.length, 1, 'nur die Serie ohne total ist eine Lücke');
+  assert.strictEqual(gaps[0].title, 'One Piece');
+  assert.strictEqual(gaps[0].droppedFromBuy, true, 'Serie mit Bänden ohne total fällt aus dem Kaufen-Tab');
+  assert.strictEqual(gaps[0].owned, 1);
+});
+
+test('total <= 0 und nicht-numerisches total gelten als ungültig', () => {
+  const list = [
+    { title: 'Null', total: 0, status: 'owned', bands: { '1': 'owned' } },
+    { title: 'Negativ', total: -2, status: 'owned', bands: { '1': 'owned' } },
+    { title: 'Text', total: 'abc', status: 'owned', bands: { '1': 'owned' } },
+    { title: 'Gut', total: 5, status: 'owned', bands: { '1': 'owned' } },
+  ];
+  const gaps = seriesWithoutValidTotal(list);
+  assert.strictEqual(gaps.length, 3, '0, negativ und nicht-numerisch sind ungültig');
+  assert.ok(!gaps.some(g => g.title === 'Gut'), 'gültiges total taucht nicht auf');
+});
+
+test('Wunschliste ohne total wird gelistet, aber nicht als droppedFromBuy markiert', () => {
+  const list = [
+    { title: 'Vinland Saga', total: null, status: 'wishlist', ongoing: 'true', bands: {} },
+  ];
+  const gaps = seriesWithoutValidTotal(list);
+  assert.strictEqual(gaps.length, 1);
+  assert.strictEqual(gaps[0].isWishlist, true);
+  assert.strictEqual(gaps[0].droppedFromBuy, false, 'Wunschliste fällt nicht "still" aus dem Kaufen-Tab');
+});
+
+test('Sortierung: Serien mit Bänden (droppedFromBuy) zuerst, dann alphabetisch', () => {
+  const list = [
+    { title: 'Zebra-Wunsch', total: null, status: 'wishlist', bands: {} },
+    { title: 'One Piece', total: null, status: 'completed', bands: { '1': 'completed' } },
+    { title: 'Apfel-Wunsch', total: null, status: 'wishlist', bands: {} },
+    { title: 'Vermeil in Gold', total: null, status: 'owned', bands: { '1': 'owned' } },
+  ];
+  const gaps = seriesWithoutValidTotal(list);
+  assert.deepStrictEqual(
+    gaps.map(g => g.title),
+    ['One Piece', 'Vermeil in Gold', 'Apfel-Wunsch', 'Zebra-Wunsch'],
+  );
+});
+
+test('Vollständige Sammlung (alle mit gültigem total) → keine Datenlücke', () => {
+  const list = [
+    { title: 'A', total: 2, status: 'owned', bands: { '1': 'owned', '2': 'owned' } },
+    { title: 'B', total: 10, status: 'reading', bands: { '1': 'reading' } },
+  ];
+  assert.strictEqual(seriesWithoutValidTotal(list).length, 0);
+});
+
+test('Phase 55 (2A): seriesWithoutValidTotal + Dashboard-Block existieren in app.js', () => {
+  const fs = require('fs');
+  const appJs = fs.readFileSync('src/app.js', 'utf8');
+  assert.ok(appJs.includes('function seriesWithoutValidTotal'), 'seriesWithoutValidTotal muss existieren');
+  assert.ok(appJs.includes('Serien ohne Bandanzahl'), 'Dashboard muss den Datenqualitäts-Block rendern');
+  assert.ok(appJs.includes('stats-gap-list'), 'Dashboard muss die Gap-Liste rendern');
+  // Reine Anzeige: keine Mutation/Schreibpfade im Helfer
+  const start = appJs.indexOf('function seriesWithoutValidTotal(');
+  const end = appJs.indexOf('\nfunction ', start + 1);
+  const fnCode = start >= 0 && end > start ? appJs.slice(start, end) : '';
+  assert.ok(!/pushCloud\s*\(|writeFile|execute_sql|\.bands\s*=/.test(fnCode), 'Helfer darf nichts mutieren/schreiben');
+});
+
 console.log(`\n${passed + failed} Tests — ${passed} bestanden, ${failed} fehlgeschlagen\n`);
 if (failed > 0) process.exit(1);
