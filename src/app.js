@@ -564,6 +564,35 @@ function toBuyList() {
     .sort((a, b) => compareBuyEntries(a, b, today));
 }
 
+// ─── Phase 55 (2A): Datenqualität — Serien ohne gültige Bandanzahl ──────────
+// Reine Anzeige-/Diagnose-Helfer (keine Mutation). Listet alle Serien, denen
+// das Feld `total` fehlt oder ungültig ist (NaN/<=0). Serien, die bereits
+// Bände besitzen (kein Wunschlisten-Status), werden dadurch komplett aus
+// `toBuyList()` gefiltert ("dropped") — diese Fälle werden hervorgehoben,
+// damit das Problem nicht erneut unbemerkt auftritt.
+function seriesWithoutValidTotal(mangaList) {
+  return (mangaList || [])
+    .filter(m => {
+      const t = Number(m.total);
+      return isNaN(t) || t <= 0;
+    })
+    .map(m => {
+      const owned = mOwned(m);
+      const isWishlist = m.status === 'wishlist';
+      return {
+        title: m.title,
+        owned,
+        isWishlist,
+        // Besitzt Bände, ist aber keine Wunschliste → fällt still aus dem Kaufen-Tab
+        droppedFromBuy: !isWishlist && owned > 0,
+      };
+    })
+    .sort((a, b) => {
+      if (a.droppedFromBuy !== b.droppedFromBuy) return a.droppedFromBuy ? -1 : 1;
+      return (a.title || '').localeCompare(b.title || '', 'de');
+    });
+}
+
 // ─── Volume list helpers ──────────────────────────────────────────────────
 function bandStatus(m, bandNr) {
   return (m.bands || {})[String(bandNr)] || 'owned';
@@ -1128,6 +1157,31 @@ function renderDashboard() {
           </div>`
         : `<p class="stat-progress-na">Kauf-Fortschritt nicht berechenbar</p>`}
     </div>
+
+    ${(() => {
+      // Phase 55 (2A): Datenqualitäts-Block — Serien ohne gültige Bandanzahl
+      const gaps = seriesWithoutValidTotal(db.m);
+      if (!gaps.length) return '';
+      const droppedCount = gaps.filter(g => g.droppedFromBuy).length;
+      const rows = gaps.map(g => {
+        const meta = g.isWishlist
+          ? 'Wunschliste'
+          : `${g.owned} Band${g.owned === 1 ? '' : 'e'} besessen`;
+        const dropTag = g.droppedFromBuy
+          ? `<span class="stats-gap-drop">fehlt im Kaufen-Tab</span>`
+          : '';
+        return `<div class="stats-gap-item${g.droppedFromBuy ? ' acute' : ''}">
+          <span class="stats-gap-title">${escapeHtml(g.title)}</span>
+          <span class="stats-gap-meta">${escapeHtml(meta)}${dropTag}</span>
+        </div>`;
+      }).join('');
+      return `<div class="stats-section">
+      <h3>Serien ohne Bandanzahl</h3>
+      <p class="stats-section-hint small">Diesen Serien fehlt das Feld <code>total</code> (Gesamtbandzahl). Serien mit Bänden werden dadurch komplett aus dem Kaufen-Tab gefiltert, bevor der erste fehlende Band berechnet wird. Reine Anzeige – es wird nichts geändert.</p>
+      <div class="stats-gap-summary">${gaps.length} Serie${gaps.length === 1 ? '' : 'n'} ohne Bandanzahl${droppedCount ? ` · davon ${droppedCount} mit Bänden (fehlen im Kaufen-Tab)` : ''}</div>
+      <div class="stats-gap-list">${rows}</div>
+    </div>`;
+    })()}
 
     <div class="stats-section">
       <h3>Deutschsprachige Veröffentlichung</h3>
