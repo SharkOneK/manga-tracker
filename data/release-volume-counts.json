@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-06-08T09:11:27.151Z",
+  "generatedAt": "2026-06-09T05:24:07.932Z",
   "items": [
     {
       "seriesTitle": "Adou",
@@ -212,9 +212,18 @@
     {
       "seriesTitle": "Lili-Men",
       "publisher": "Egmont Manga",
-      "publishedVolumesDE": 7,
+      "publishedVolumesDE": 8,
       "source": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/5077",
+      "sourceUrl": "https://www.manga-passion.de",
+      "confidence": "high",
+      "checkedAt": "2026-05-17T10:56:39.041Z"
+    },
+    {
+      "seriesTitle": "Maria's Judgement",
+      "publisher": "Egmont Manga",
+      "publishedVolumesDE": 6,
+      "source": "manga-passion",
+      "sourceUrl": "https://www.manga-passion.de/editions/4618",
       "confidence": "high",
       "checkedAt": "2026-05-19T15:26:34.180Z"
     },
@@ -239,11 +248,11 @@
     {
       "seriesTitle": "Mirai Nikki – New Edition",
       "publisher": "Egmont Manga",
-      "publishedVolumesDE": 3,
+      "publishedVolumesDE": 4,
       "source": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/5504",
+      "sourceUrl": "https://www.manga-passion.de",
       "confidence": "high",
-      "checkedAt": "2026-05-19T15:26:34.180Z"
+      "checkedAt": "2026-05-17T10:56:39.041Z"
     },
     {
       "seriesTitle": "Mujina into the Deep",
@@ -347,7 +356,7 @@
     {
       "seriesTitle": "Vagabond – Master Edition",
       "publisher": "Egmont Manga",
-      "publishedVolumesDE": 10,
+      "publishedVolumesDE": 11,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/4636",
       "confidence": "high",
