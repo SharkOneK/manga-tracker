@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "comment": "Phase 58: kuratierte Overrides fuer den DE-Veroeffentlichungsstatus. Haben Vorrang vor manga-passion edition.status. Nur fuer Faelle, in denen die automatische Quelle falsch liegt oder keine Edition existiert.",
+  "items": [
+    {
+      "seriesTitle": "Real Account",
+      "publisher": "Tokyopop",
+      "ongoing": "false",
+      "reason": "manga-passion meldet status=1 (laufend); Serie ist real eingestellt/abgeschlossen."
+    }
+  ]
+}
