@@ -1,0 +1,572 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-06-09T04:45:27.185Z",
+  "source": "run-series-publication-status.js",
+  "networkMode": "enabled",
+  "summary": {
+    "seriesWithStatus": 41,
+    "ongoing": 32,
+    "finished": 9,
+    "checkedEditions": 41,
+    "appliedChanges": 41,
+    "blockedOrUnmapped": 2
+  },
+  "changes": [
+    {
+      "seriesTitle": "Adou",
+      "publisher": "altraverse",
+      "oldOngoing": null,
+      "newOngoing": "true",
+      "editionId": 518
+    },
+    {
+      "seriesTitle": "Arifureta – Der Kampf zurück in meine Welt",
+      "publisher": "altraverse",
+      "oldOngoing": null,
+      "newOngoing": "true",
+      "editionId": 302
+    },
+    {
+      "seriesTitle": "Arifureta: Der Kampf zurück in meine Welt – Zero",
+      "publisher": "altraverse",
+      "oldOngoing": null,
+      "newOngoing": "true",
+      "editionId": 5807
+    },
+    {
+      "seriesTitle": "August 9th, I will be eaten by you",
+      "publisher": "Hayabusa",
+      "oldOngoing": null,
+      "newOngoing": "true",
+      "editionId": 2015
+    },
+    {
+      "seriesTitle": "Berserk Master Edition",
+      "publisher": "Panini Manga",
+      "oldOngoing": null,
+      "newOngoing": "true",
+      "editionId": 5211
+    },
+    {
+      "seriesTitle": "Bitte zieh dich an, Takamine!",
+      "publisher": "Egmont Manga",
+      "oldOngoing": null,
+      "newOngoing": "true",
+      "editionId": 5858
+    },
+    {
+      "seriesTitle": "Blood Blade",
+      "publisher": "Hayabusa",
+      "oldOngoing": null,
+      "newOngoing": "true",
+      "editionId": 5098
+    },
+    {
+      "seriesTitle": "Brynhildr in the Darkness",
+      "publisher": "TOKYOPOP",
+      "oldOngoing": null,
+      "newOngoing": "false",
+      "editionId": 3260
+    },
+    {
+      "seriesTitle": "Chainsaw Man",
+      "publisher": "Egmont Manga",
+      "oldOngoing": null,
+      "newOngoing": "true",
+      "editionId": 269
+    },
+    {
+      "seriesTitle": "Dai Dark",
+      "publisher": "Manga Cult",
+      "oldOngoing": null,
+      "newOngoing": "true",
+      "editionId": 2177
+    },
+    {
+      "seriesTitle": "DARLING in the FRANXX",
+      "publisher": "Manga Cult",
+      "oldOngoing": null,
+      "newOngoing": "true",
+      "editionId": 2936
+    },
+    {
+      "seriesTitle": "Demon King of God Killing",
+      "publisher": "Egmont Manga",
+      "oldOngoing": null,
+      "newOngoing": "true",
+      "editionId": 2485
+    },
+    {
+      "seriesTitle": "Demon Slave",
+      "publisher": "KAZÉ Manga",
+      "oldOngoing": null,
+      "newOngoing": "true",
+      "editionId": 509
+    },
+    {
+      "seriesTitle": "Die letzte Elfe",
+      "publisher": "Yomeru",
+      "oldOngoing": null,
+      "newOngoing": "true",
+      "editionId": 5652
+    },
+    {
+      "seriesTitle": "Fairy Tail",
+      "publisher": "Carlsen Manga!",
+      "oldOngoing": null,
+      "newOngoing": "false",
+      "editionId": 960
+    },
+    {
+      "seriesTitle": "Frieren – Nach dem Ende der Reise",
+      "publisher": "altraverse",
+      "oldOngoing": null,
+      "newOngoing": "true",
+      "editionId": 1697
+    },
+    {
+      "seriesTitle": "From the Red Fog",
+      "publisher": "Manga Cult",
+      "oldOngoing": null,
+      "newOngoing": "false",
+      "editionId": 2391
+    },
+    {
+      "seriesTitle": "Gushing over Magical Girls",
+      "publisher": "MANGAMOON",
+      "oldOngoing": null,
+      "newOngoing": "true",
+      "editionId": 5407
+    },
+    {
+      "seriesTitle": "Jujutsu Kaisen",
+      "publisher": "KAZÉ Manga",
+      "oldOngoing": null,
+      "newOngoing": "false",
+      "editionId": 47
+    },
+    {
+      "seriesTitle": "Kaiju No.8",
+      "publisher": "KAZÉ Manga",
+      "oldOngoing": null,
+      "newOngoing": "false",
+      "editionId": 1966
+    },
+    {
+      "seriesTitle": "Kijin Gentosho: Dämonenjäger",
+      "publisher": "Panini Manga",
+      "oldOngoing": null,
+      "newOngoing": "true",
+      "editionId": 2088
+    },
+    {
+      "seriesTitle": "Lili-Men",
+      "publisher": "Egmont Manga",
+      "oldOngoing": null,
+      "newOngoing": "true",
+      "editionId": 5077
+    },
+    {
+      "seriesTitle": "Mein Wunsch, von einer Oberschülerin getötet zu werden",
+      "publisher": "Yomeru",
+      "oldOngoing": null,
+      "newOngoing": "false",
+      "editionId": 4972
+    },
+    {
+      "seriesTitle": "Meine Wiedergeburt als Schleim in einer anderen Welt",
+      "publisher": "altraverse",
+      "oldOngoing": null,
+      "newOngoing": "true",
+      "editionId": 249
+    },
+    {
+      "seriesTitle": "Mirai Nikki – New Edition",
+      "publisher": "Egmont Manga",
+      "oldOngoing": null,
+      "newOngoing": "true",
+      "editionId": 5504
+    },
+    {
+      "seriesTitle": "Mujina into the Deep",
+      "publisher": "TOKYOPOP",
+      "oldOngoing": null,
+      "newOngoing": "true",
+      "editionId": 5184
+    },
+    {
+      "seriesTitle": "Mushoku Tensei – In dieser Welt mach ich alles anders",
+      "publisher": "Panini Manga",
+      "oldOngoing": null,
+      "newOngoing": "true",
+      "editionId": 1314
+    },
+    {
+      "seriesTitle": "One Piece",
+      "publisher": "Carlsen Manga!",
+      "oldOngoing": null,
+      "newOngoing": "true",
+      "editionId": 87
+    },
+    {
+      "seriesTitle": "Real Account",
+      "publisher": "TOKYOPOP",
+      "oldOngoing": null,
+      "newOngoing": "true",
+      "editionId": 819
+    },
+    {
+      "seriesTitle": "Reincarnated as a Sword: Another Wish",
+      "publisher": "Dokico",
+      "oldOngoing": null,
+      "newOngoing": "true",
+      "editionId": 5351
+    },
+    {
+      "seriesTitle": "Spy x Family",
+      "publisher": "KAZÉ Manga",
+      "oldOngoing": null,
+      "newOngoing": "true",
+      "editionId": 364
+    },
+    {
+      "seriesTitle": "The Rising of the Shield Hero",
+      "publisher": "TOKYOPOP",
+      "oldOngoing": null,
+      "newOngoing": "true",
+      "editionId": 210
+    },
+    {
+      "seriesTitle": "Tokyo Ghoul",
+      "publisher": "KAZÉ Manga",
+      "oldOngoing": null,
+      "newOngoing": "false",
+      "editionId": 951
+    },
+    {
+      "seriesTitle": "Tokyo Ghoul GIGANTIK",
+      "publisher": "KAZÉ Manga",
+      "oldOngoing": null,
+      "newOngoing": "true",
+      "editionId": 4962
+    },
+    {
+      "seriesTitle": "Tokyo Ghoul:re",
+      "publisher": "KAZÉ Manga",
+      "oldOngoing": null,
+      "newOngoing": "false",
+      "editionId": 952
+    },
+    {
+      "seriesTitle": "Tokyo Revengers – Doppelband-Edition",
+      "publisher": "Carlsen Manga!",
+      "oldOngoing": null,
+      "newOngoing": "false",
+      "editionId": 1599
+    },
+    {
+      "seriesTitle": "Vagabond – Master Edition",
+      "publisher": "Egmont Manga",
+      "oldOngoing": null,
+      "newOngoing": "true",
+      "editionId": 4636
+    },
+    {
+      "seriesTitle": "Vinland Saga",
+      "publisher": "Carlsen Manga!",
+      "oldOngoing": null,
+      "newOngoing": "true",
+      "editionId": 223
+    },
+    {
+      "seriesTitle": "Witch and Hound",
+      "publisher": "Egmont Manga",
+      "oldOngoing": null,
+      "newOngoing": "true",
+      "editionId": 5483
+    },
+    {
+      "seriesTitle": "Yakuza Reincarnation",
+      "publisher": "Manga Cult",
+      "oldOngoing": null,
+      "newOngoing": "true",
+      "editionId": 1945
+    },
+    {
+      "seriesTitle": "Yandere Dark Elf",
+      "publisher": "MANGAMOON",
+      "oldOngoing": null,
+      "newOngoing": "true",
+      "editionId": 5408
+    }
+  ],
+  "blocked": [
+    {
+      "seriesTitle": "Colorless",
+      "publisher": "Manga Cult",
+      "reasonCodes": [
+        "no-manga-passion-edition"
+      ]
+    },
+    {
+      "seriesTitle": "Kagurabachi",
+      "publisher": "Carlsen Manga",
+      "reasonCodes": [
+        "no-manga-passion-edition"
+      ]
+    }
+  ],
+  "checked": [
+    {
+      "seriesTitle": "Adou",
+      "publisher": "altraverse",
+      "editionId": 518,
+      "sourceStatus": 1
+    },
+    {
+      "seriesTitle": "Arifureta – Der Kampf zurück in meine Welt",
+      "publisher": "altraverse",
+      "editionId": 302,
+      "sourceStatus": 1
+    },
+    {
+      "seriesTitle": "Arifureta: Der Kampf zurück in meine Welt – Zero",
+      "publisher": "altraverse",
+      "editionId": 5807,
+      "sourceStatus": 1
+    },
+    {
+      "seriesTitle": "August 9th, I will be eaten by you",
+      "publisher": "Hayabusa",
+      "editionId": 2015,
+      "sourceStatus": 1
+    },
+    {
+      "seriesTitle": "Berserk Master Edition",
+      "publisher": "Panini Manga",
+      "editionId": 5211,
+      "sourceStatus": 1
+    },
+    {
+      "seriesTitle": "Bitte zieh dich an, Takamine!",
+      "publisher": "Egmont Manga",
+      "editionId": 5858,
+      "sourceStatus": 1
+    },
+    {
+      "seriesTitle": "Blood Blade",
+      "publisher": "Hayabusa",
+      "editionId": 5098,
+      "sourceStatus": 1
+    },
+    {
+      "seriesTitle": "Brynhildr in the Darkness",
+      "publisher": "TOKYOPOP",
+      "editionId": 3260,
+      "sourceStatus": 2
+    },
+    {
+      "seriesTitle": "Chainsaw Man",
+      "publisher": "Egmont Manga",
+      "editionId": 269,
+      "sourceStatus": 1
+    },
+    {
+      "seriesTitle": "Dai Dark",
+      "publisher": "Manga Cult",
+      "editionId": 2177,
+      "sourceStatus": 1
+    },
+    {
+      "seriesTitle": "DARLING in the FRANXX",
+      "publisher": "Manga Cult",
+      "editionId": 2936,
+      "sourceStatus": 1
+    },
+    {
+      "seriesTitle": "Demon King of God Killing",
+      "publisher": "Egmont Manga",
+      "editionId": 2485,
+      "sourceStatus": 1
+    },
+    {
+      "seriesTitle": "Demon Slave",
+      "publisher": "KAZÉ Manga",
+      "editionId": 509,
+      "sourceStatus": 1
+    },
+    {
+      "seriesTitle": "Die letzte Elfe",
+      "publisher": "Yomeru",
+      "editionId": 5652,
+      "sourceStatus": 1
+    },
+    {
+      "seriesTitle": "Fairy Tail",
+      "publisher": "Carlsen Manga!",
+      "editionId": 960,
+      "sourceStatus": 2
+    },
+    {
+      "seriesTitle": "Frieren – Nach dem Ende der Reise",
+      "publisher": "altraverse",
+      "editionId": 1697,
+      "sourceStatus": 1
+    },
+    {
+      "seriesTitle": "From the Red Fog",
+      "publisher": "Manga Cult",
+      "editionId": 2391,
+      "sourceStatus": 2
+    },
+    {
+      "seriesTitle": "Gushing over Magical Girls",
+      "publisher": "MANGAMOON",
+      "editionId": 5407,
+      "sourceStatus": 1
+    },
+    {
+      "seriesTitle": "Jujutsu Kaisen",
+      "publisher": "KAZÉ Manga",
+      "editionId": 47,
+      "sourceStatus": 2
+    },
+    {
+      "seriesTitle": "Kaiju No.8",
+      "publisher": "KAZÉ Manga",
+      "editionId": 1966,
+      "sourceStatus": 2
+    },
+    {
+      "seriesTitle": "Kijin Gentosho: Dämonenjäger",
+      "publisher": "Panini Manga",
+      "editionId": 2088,
+      "sourceStatus": 1
+    },
+    {
+      "seriesTitle": "Lili-Men",
+      "publisher": "Egmont Manga",
+      "editionId": 5077,
+      "sourceStatus": 1
+    },
+    {
+      "seriesTitle": "Mein Wunsch, von einer Oberschülerin getötet zu werden",
+      "publisher": "Yomeru",
+      "editionId": 4972,
+      "sourceStatus": 2
+    },
+    {
+      "seriesTitle": "Meine Wiedergeburt als Schleim in einer anderen Welt",
+      "publisher": "altraverse",
+      "editionId": 249,
+      "sourceStatus": 1
+    },
+    {
+      "seriesTitle": "Mirai Nikki – New Edition",
+      "publisher": "Egmont Manga",
+      "editionId": 5504,
+      "sourceStatus": 1
+    },
+    {
+      "seriesTitle": "Mujina into the Deep",
+      "publisher": "TOKYOPOP",
+      "editionId": 5184,
+      "sourceStatus": 1
+    },
+    {
+      "seriesTitle": "Mushoku Tensei – In dieser Welt mach ich alles anders",
+      "publisher": "Panini Manga",
+      "editionId": 1314,
+      "sourceStatus": 1
+    },
+    {
+      "seriesTitle": "One Piece",
+      "publisher": "Carlsen Manga!",
+      "editionId": 87,
+      "sourceStatus": 1
+    },
+    {
+      "seriesTitle": "Real Account",
+      "publisher": "TOKYOPOP",
+      "editionId": 819,
+      "sourceStatus": 1
+    },
+    {
+      "seriesTitle": "Reincarnated as a Sword: Another Wish",
+      "publisher": "Dokico",
+      "editionId": 5351,
+      "sourceStatus": 1
+    },
+    {
+      "seriesTitle": "Spy x Family",
+      "publisher": "KAZÉ Manga",
+      "editionId": 364,
+      "sourceStatus": 1
+    },
+    {
+      "seriesTitle": "The Rising of the Shield Hero",
+      "publisher": "TOKYOPOP",
+      "editionId": 210,
+      "sourceStatus": 1
+    },
+    {
+      "seriesTitle": "Tokyo Ghoul",
+      "publisher": "KAZÉ Manga",
+      "editionId": 951,
+      "sourceStatus": 2
+    },
+    {
+      "seriesTitle": "Tokyo Ghoul GIGANTIK",
+      "publisher": "KAZÉ Manga",
+      "editionId": 4962,
+      "sourceStatus": 1
+    },
+    {
+      "seriesTitle": "Tokyo Ghoul:re",
+      "publisher": "KAZÉ Manga",
+      "editionId": 952,
+      "sourceStatus": 2
+    },
+    {
+      "seriesTitle": "Tokyo Revengers – Doppelband-Edition",
+      "publisher": "Carlsen Manga!",
+      "editionId": 1599,
+      "sourceStatus": 2
+    },
+    {
+      "seriesTitle": "Vagabond – Master Edition",
+      "publisher": "Egmont Manga",
+      "editionId": 4636,
+      "sourceStatus": 1
+    },
+    {
+      "seriesTitle": "Vinland Saga",
+      "publisher": "Carlsen Manga!",
+      "editionId": 223,
+      "sourceStatus": 1
+    },
+    {
+      "seriesTitle": "Witch and Hound",
+      "publisher": "Egmont Manga",
+      "editionId": 5483,
+      "sourceStatus": 1
+    },
+    {
+      "seriesTitle": "Yakuza Reincarnation",
+      "publisher": "Manga Cult",
+      "editionId": 1945,
+      "sourceStatus": 1
+    },
+    {
+      "seriesTitle": "Yandere Dark Elf",
+      "publisher": "MANGAMOON",
+      "editionId": 5408,
+      "sourceStatus": 1
+    }
+  ],
+  "changedFilesAllowlist": [
+    "data/series-publication-status.json",
+    "data/series-publication-status-report.json"
+  ],
+  "privacyGateRequired": true
+}

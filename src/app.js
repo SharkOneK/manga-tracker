@@ -480,6 +480,8 @@ let releaseReviewQueueData = null;      // Phase 34: read-only release-source-re
 let releaseReviewQueueStatus = 'not-loaded';
 let releaseVolumeCounts = null;       // Phase 43: read-only public DE volume counts
 let releaseVolumeCountsStatus = 'not-loaded';
+let seriesPublicationStatus = null;   // Phase 57: read-only DE publication status (laufend/abgeschlossen)
+let seriesPublicationStatusState = 'not-loaded';
 let _currentReleaseMatches = [];        // Zwischenspeicher für aktuelle Vorschau (Phase 15c)
 // Phase 44a-followup: Dashboard-Buttons "Alle Release-Daten prüfen",
 // "Alle Serien-Status prüfen" und "Cache-Coverage prüfen" entfernt.
@@ -1998,6 +2000,33 @@ function renderAutomationReadout(m) {
   dateEl.innerHTML = dateHtml;
 }
 
+// Phase 57: read-only Anzeige des DE-Veröffentlichungsstatus (laufend/abgeschlossen).
+// Quelle ist die Publication-Status-Automatik (manga-passion edition.status).
+// Das Feld ist nicht mehr manuell editierbar; bestehende Werte werden beim
+// Speichern erhalten.
+function renderOngoingReadout(m) {
+  const el = document.getElementById('f-ongoing-auto');
+  if (!el) return;
+  let html = `<span class="automation-readout-empty">Noch kein automatischer Status vorhanden.</span>`;
+  if (m) {
+    const status = (typeof findPublicationStatusForSeries === 'function')
+      ? findPublicationStatusForSeries(m) : null;
+    const value = status ? status.ongoing : (m.ongoing === 'true' || m.ongoing === 'false' ? m.ongoing : null);
+    if (value === 'true' || value === 'false') {
+      const label = value === 'true'
+        ? 'Laufend 🔄 – weitere DE-Bände erwartet'
+        : 'Abgeschlossen ✓ – DE-Ausgabe komplett';
+      const checked = status && status.checkedAt ? String(status.checkedAt).slice(0, 10) : '';
+      const meta = status
+        ? `Quelle: ${escapeHtml(status.source || 'Publication-Status-Routine')}` + (checked ? ` · zuletzt geprüft ${escapeHtml(checked)}` : '')
+        : 'Bestehender Wert. Wird beim Speichern erhalten, aber nicht mehr manuell aktualisiert.';
+      html = `<div class="automation-readout-value">${escapeHtml(label)}</div>`
+        + `<div class="automation-readout-meta">${meta}</div>`;
+    }
+  }
+  el.innerHTML = html;
+}
+
 function openAdd() {
   editId = null;
   modalBands = {};
@@ -2009,6 +2038,7 @@ function openAdd() {
   document.getElementById('f-ongoing').value = 'true';
   document.getElementById('f-nextdate').value = '';
   renderAutomationReadout(null);
+  renderOngoingReadout(null);
   renderCoverReadout(null);
   document.getElementById('f-notes').value = '';
   document.getElementById('f-started').value = '';
@@ -2038,6 +2068,7 @@ function openEdit(id, e) {
   document.getElementById('f-ongoing').value = m.ongoing??'true';
   document.getElementById('f-nextdate').value = m.nextDate??'';
   renderAutomationReadout(m);
+  renderOngoingReadout(m);
   renderCoverReadout(m);
   document.getElementById('f-notes').value = m.notes??'';
   document.getElementById('f-started').value = m.startedAt || '';
@@ -2192,7 +2223,13 @@ function doSave() {
     }
   }
   const bands = { ...modalBands };
-  const ongoing = document.getElementById('f-ongoing').value;
+  // Phase 57: 'ongoing' (DE-Veröffentlichungsstatus) ist read-only und wird von der
+  // Publication-Status-Automatik gepflegt, nicht aus dem Formular. Bestehenden Wert
+  // erhalten; bei neuen Einträgen 'true' als Default, bis die Automatik greift.
+  const _ongoingExisting = editId ? db.m.find(x => x.id === editId) : null;
+  const ongoing = (_ongoingExisting && (_ongoingExisting.ongoing === 'true' || _ongoingExisting.ongoing === 'false'))
+    ? _ongoingExisting.ongoing
+    : 'true';
 
   // ── Auto-Setting für startedAt / finishedAt ─────────────────────────────
   // Nicht überschreiben was der User manuell eingegeben hat oder was schon im Eintrag steht
@@ -3398,6 +3435,43 @@ function findReleaseVolumeCountForSeries(m) {
   const normT = normalizeReleaseTitle(m.title);
   const normP = normalizeReleasePublisher(m.pub || '');
   const matches = releaseVolumeCounts.items.filter(item => {
+    const itemT = normalizeReleaseTitle(item.seriesTitle || '');
+    const itemP = normalizeReleasePublisher(item.publisher || '');
+    return normT === itemT && _releasePubsMatch(normP, itemP);
+  });
+  if (matches.length !== 1) return null;
+  return matches[0];
+}
+
+// Phase 57: read-only DE publication status (laufend/abgeschlossen).
+function validateSeriesPublicationStatusClient(doc) {
+  return !!doc && doc.schemaVersion === 1 && Array.isArray(doc.items)
+    && doc.items.every(item => item && typeof item === 'object'
+      && typeof item.seriesTitle === 'string' && item.seriesTitle.trim()
+      && typeof item.publisher === 'string' && item.publisher.trim()
+      && (item.ongoing === 'true' || item.ongoing === 'false')
+      && item.confidence === 'high');
+}
+
+async function loadSeriesPublicationStatus() {
+  try {
+    const data = await loadJsonReadOnly('./data/series-publication-status.json');
+    if (!validateSeriesPublicationStatusClient(data)) throw new Error('invalid schema');
+    seriesPublicationStatus = data;
+    seriesPublicationStatusState = 'loaded';
+    console.info(`[Phase 57] series-publication-status.json geladen: ${data.items.length} Serie(n), Stand: ${data.generatedAt || 'unbekannt'}`);
+  } catch (e) {
+    seriesPublicationStatus = null;
+    seriesPublicationStatusState = 'missing';
+    console.warn('[Phase 57] series-publication-status.json nicht als Read-only-Index ladbar:', e.message);
+  }
+}
+
+function findPublicationStatusForSeries(m) {
+  if (!seriesPublicationStatus || !Array.isArray(seriesPublicationStatus.items)) return null;
+  const normT = normalizeReleaseTitle(m.title);
+  const normP = normalizeReleasePublisher(m.pub || '');
+  const matches = seriesPublicationStatus.items.filter(item => {
     const itemT = normalizeReleaseTitle(item.seriesTitle || '');
     const itemP = normalizeReleasePublisher(item.publisher || '');
     return normT === itemT && _releasePubsMatch(normP, itemP);
@@ -4662,6 +4736,7 @@ applyLockedState();
 loadReleaseCache().catch(e => console.warn('[Phase 15] Unerwarteter Ladefehler:', e));
 loadReleaseCoverageKnownData().catch(e => console.warn('[Phase 34] Release-System-Index nicht vollständig ladbar:', e));
 loadReleaseVolumeCounts().catch(e => console.warn('[Phase 43] Release-Volume-Counts nicht ladbar:', e));
+loadSeriesPublicationStatus().catch(e => console.warn('[Phase 57] Series-Publication-Status nicht ladbar:', e));
 if (_viewColl) {
   // Öffentliche Ansicht: fremde Sammlung laden (immer read-only)
   loadViewCollection();
