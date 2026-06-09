@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-06-08T09:11:27.151Z",
+  "generatedAt": "2026-06-09T08:06:24.881Z",
   "items": [
     {
       "seriesTitle": "Adou",
@@ -14,11 +14,11 @@
     {
       "seriesTitle": "Arifureta – Der Kampf zurück in meine Welt",
       "publisher": "altraverse",
-      "publishedVolumesDE": 9,
+      "publishedVolumesDE": 10,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/302",
       "confidence": "high",
-      "checkedAt": "2026-06-08T09:11:27.151Z"
+      "checkedAt": "2026-06-09T08:06:24.881Z"
     },
     {
       "seriesTitle": "Arifureta: Der Kampf zurück in meine Welt – Zero",
@@ -104,11 +104,11 @@
     {
       "seriesTitle": "DARLING in the FRANXX",
       "publisher": "Manga Cult",
-      "publishedVolumesDE": 4,
+      "publishedVolumesDE": 5,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/2936",
       "confidence": "high",
-      "checkedAt": "2026-06-08T09:11:27.151Z"
+      "checkedAt": "2026-06-09T08:06:24.881Z"
     },
     {
       "seriesTitle": "Demon King of God Killing",
@@ -122,11 +122,11 @@
     {
       "seriesTitle": "Demon Slave",
       "publisher": "KAZÉ Manga",
-      "publishedVolumesDE": 17,
+      "publishedVolumesDE": 18,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/509",
       "confidence": "high",
-      "checkedAt": "2026-06-08T09:11:27.151Z"
+      "checkedAt": "2026-06-09T08:06:24.881Z"
     },
     {
       "seriesTitle": "Die letzte Elfe",
@@ -149,11 +149,11 @@
     {
       "seriesTitle": "Frieren – Nach dem Ende der Reise",
       "publisher": "altraverse",
-      "publishedVolumesDE": 9,
+      "publishedVolumesDE": 10,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/1697",
       "confidence": "high",
-      "checkedAt": "2026-06-08T09:11:27.151Z"
+      "checkedAt": "2026-06-09T08:06:24.881Z"
     },
     {
       "seriesTitle": "From the Red Fog",
@@ -212,9 +212,18 @@
     {
       "seriesTitle": "Lili-Men",
       "publisher": "Egmont Manga",
-      "publishedVolumesDE": 7,
+      "publishedVolumesDE": 8,
       "source": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/5077",
+      "sourceUrl": "https://www.manga-passion.de",
+      "confidence": "high",
+      "checkedAt": "2026-05-17T10:56:39.041Z"
+    },
+    {
+      "seriesTitle": "Maria's Judgement",
+      "publisher": "Egmont Manga",
+      "publishedVolumesDE": 6,
+      "source": "manga-passion",
+      "sourceUrl": "https://www.manga-passion.de/editions/4618",
       "confidence": "high",
       "checkedAt": "2026-05-19T15:26:34.180Z"
     },
@@ -230,20 +239,20 @@
     {
       "seriesTitle": "Meine Wiedergeburt als Schleim in einer anderen Welt",
       "publisher": "altraverse",
-      "publishedVolumesDE": 4,
+      "publishedVolumesDE": 5,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/249",
       "confidence": "high",
-      "checkedAt": "2026-06-08T09:11:27.151Z"
+      "checkedAt": "2026-06-09T08:06:24.881Z"
     },
     {
       "seriesTitle": "Mirai Nikki – New Edition",
       "publisher": "Egmont Manga",
-      "publishedVolumesDE": 3,
+      "publishedVolumesDE": 4,
       "source": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/5504",
+      "sourceUrl": "https://www.manga-passion.de",
       "confidence": "high",
-      "checkedAt": "2026-05-19T15:26:34.180Z"
+      "checkedAt": "2026-05-17T10:56:39.041Z"
     },
     {
       "seriesTitle": "Mujina into the Deep",
@@ -257,20 +266,20 @@
     {
       "seriesTitle": "Mushoku Tensei – In dieser Welt mach ich alles anders",
       "publisher": "Panini Manga",
-      "publishedVolumesDE": 4,
+      "publishedVolumesDE": 5,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/1314",
       "confidence": "high",
-      "checkedAt": "2026-06-08T09:11:27.151Z"
+      "checkedAt": "2026-06-09T08:06:24.881Z"
     },
     {
       "seriesTitle": "One Piece",
       "publisher": "Carlsen Manga!",
-      "publishedVolumesDE": 4,
+      "publishedVolumesDE": 5,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/87",
       "confidence": "high",
-      "checkedAt": "2026-06-08T09:11:27.151Z"
+      "checkedAt": "2026-06-09T08:06:24.881Z"
     },
     {
       "seriesTitle": "Real Account",
@@ -302,20 +311,20 @@
     {
       "seriesTitle": "The Rising of the Shield Hero",
       "publisher": "TOKYOPOP",
-      "publishedVolumesDE": 9,
+      "publishedVolumesDE": 10,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/210",
       "confidence": "high",
-      "checkedAt": "2026-06-08T09:11:27.151Z"
+      "checkedAt": "2026-06-09T08:06:24.881Z"
     },
     {
       "seriesTitle": "Tokyo Ghoul",
       "publisher": "KAZÉ Manga",
-      "publishedVolumesDE": 4,
+      "publishedVolumesDE": 5,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/951",
       "confidence": "high",
-      "checkedAt": "2026-06-08T09:11:27.151Z"
+      "checkedAt": "2026-06-09T08:06:24.881Z"
     },
     {
       "seriesTitle": "Tokyo Ghoul GIGANTIK",
@@ -329,11 +338,11 @@
     {
       "seriesTitle": "Tokyo Ghoul:re",
       "publisher": "KAZÉ Manga",
-      "publishedVolumesDE": 4,
+      "publishedVolumesDE": 5,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/952",
       "confidence": "high",
-      "checkedAt": "2026-06-08T09:11:27.151Z"
+      "checkedAt": "2026-06-09T08:06:24.881Z"
     },
     {
       "seriesTitle": "Tokyo Revengers – Doppelband-Edition",
@@ -347,7 +356,7 @@
     {
       "seriesTitle": "Vagabond – Master Edition",
       "publisher": "Egmont Manga",
-      "publishedVolumesDE": 10,
+      "publishedVolumesDE": 11,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/4636",
       "confidence": "high",
@@ -356,11 +365,11 @@
     {
       "seriesTitle": "Vinland Saga",
       "publisher": "Carlsen Manga!",
-      "publishedVolumesDE": 4,
+      "publishedVolumesDE": 5,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/223",
       "confidence": "high",
-      "checkedAt": "2026-06-08T09:11:27.151Z"
+      "checkedAt": "2026-06-09T08:06:24.881Z"
     },
     {
       "seriesTitle": "Witch and Hound",
