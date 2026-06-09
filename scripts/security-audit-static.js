@@ -783,6 +783,17 @@ if (!pubStatusWorkflow) {
   pass('Check 57d: Phase-57 Workflow enthält Privacy-Gate');
 }
 
+// ── Check 57e: Phase 58 curated overrides are validated and applied in pipeline ──
+if (!fileExists('data/series-status-overrides.json')) {
+  pass('Check 57e: Phase-58 Override-Datei nicht vorhanden (optional) — übersprungen');
+} else if (!pubStatusValidator || !pubStatusValidator.includes('validateSeriesStatusOverrides')) {
+  fail('Check 57e: Phase-58 Override-Validator (validateSeriesStatusOverrides) fehlt');
+} else if (!pubStatusRunner || !pubStatusRunner.includes('series-status-overrides.json') || !pubStatusRunner.includes('validateSeriesStatusOverrides')) {
+  fail('Check 57e: Phase-58 Pipeline wendet Overrides nicht validiert an');
+} else {
+  pass('Check 57e: Phase-58 Overrides werden validiert und in der Pipeline angewandt');
+}
+
 const passed = totalChecks - totalFailed - totalWarns;
 console.log('');
 if (totalWarns > 0) {

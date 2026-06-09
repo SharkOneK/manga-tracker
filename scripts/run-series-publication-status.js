@@ -28,13 +28,14 @@ const {
   normalizePublisher,
   normalizeTitle,
 } = require('./release-confidence');
-const { validateSeriesPublicationStatus } = require('./validate-series-publication-status');
+const { validateSeriesPublicationStatus, validateSeriesStatusOverrides } = require('./validate-series-publication-status');
 
 const repoRoot = path.resolve(__dirname, '..');
 const dataDir = path.join(repoRoot, 'data');
 const countsFile = path.join(dataDir, 'release-volume-counts.json');
 const statusFile = path.join(dataDir, 'series-publication-status.json');
 const reportFile = path.join(dataDir, 'series-publication-status-report.json');
+const overridesFile = path.join(dataDir, 'series-status-overrides.json');
 
 const MP_API = 'https://api.manga-passion.de';
 const DEFAULT_DELAY_MS = Number(process.env.PUBLICATION_STATUS_MIN_DELAY_MS || 250);
@@ -186,6 +187,40 @@ async function main() {
     await sleep(DEFAULT_DELAY_MS);
   }
 
+  // Phase 58: apply curated overrides. Overrides win over the API value and
+  // also produce a status item when no manga-passion edition exists (closes the
+  // coverage gap). Invalid override files abort the run.
+  const overrides = [];
+  if (fs.existsSync(overridesFile)) {
+    let ovDoc;
+    try { ovDoc = JSON.parse(fs.readFileSync(overridesFile, 'utf8')); }
+    catch (e) { throw new Error(`series-status-overrides.json nicht lesbar: ${e.message}`); }
+    const ovValidation = validateSeriesStatusOverrides(ovDoc);
+    if (!ovValidation.ok) {
+      throw new Error(`series-status-overrides validation failed: ${ovValidation.errors.join('; ')}`);
+    }
+    for (const ov of ovDoc.items) {
+      const title = String(ov.seriesTitle).trim();
+      const publisher = String(ov.publisher).trim();
+      const key = statusKey(title, publisher);
+      const prev = byKey.get(key);
+      const item = {
+        seriesTitle: title,
+        publisher,
+        ongoing: ov.ongoing,
+        source: 'override',
+        reason: ov.reason,
+        confidence: 'high',
+        checkedAt: startedAt,
+      };
+      byKey.set(key, item);
+      overrides.push({ seriesTitle: title, publisher, ongoing: ov.ongoing, replacedSource: prev ? prev.source : null });
+      if (!prev || prev.ongoing !== ov.ongoing) {
+        applied.push({ seriesTitle: title, publisher, oldOngoing: prev ? prev.ongoing : null, newOngoing: ov.ongoing, source: 'override' });
+      }
+    }
+  }
+
   const nextItems = sortItems([...byKey.values()]);
   const nextStatus = { schemaVersion: 1, generatedAt: startedAt, items: nextItems };
   nextStatus.generatedAt = stableGeneratedAt(statusFile, nextStatus);
@@ -210,9 +245,11 @@ async function main() {
       finished: finishedCount,
       checkedEditions: checked.length,
       appliedChanges: applied.length,
+      overridesApplied: overrides.length,
       blockedOrUnmapped: blocked.length,
     },
     changes: applied,
+    overrides,
     blocked,
     checked,
     changedFilesAllowlist: [
@@ -227,6 +264,7 @@ async function main() {
   console.log('Series-publication-status pipeline abgeschlossen.');
   console.log(`  Serien mit Status: ${nextItems.length} (laufend ${ongoingCount}, abgeschlossen ${finishedCount})`);
   console.log(`  Geaenderte Status: ${applied.length}`);
+  console.log(`  Overrides angewandt: ${overrides.length}`);
   console.log(`  Blockiert/unmapped: ${blocked.length}`);
 }
 
