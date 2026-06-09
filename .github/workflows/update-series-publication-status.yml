@@ -1,0 +1,102 @@
+name: Update Series Publication Status
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '41 4 * * *'
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: update-series-publication-status
+  cancel-in-progress: false
+
+jobs:
+  update-series-publication-status:
+    runs-on: ubuntu-latest
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+
+      - name: Check Phase 57 syntax
+        run: |
+          node --check scripts/run-series-publication-status.js
+          node --check scripts/validate-series-publication-status.js
+          node --check scripts/test-series-publication-status.js
+
+      - name: Run publication status pipeline
+        run: node scripts/run-series-publication-status.js
+
+      - name: Validate Phase 57 artifacts and gates
+        run: |
+          node scripts/validate-series-publication-status.js
+          node scripts/test-series-publication-status.js
+          node scripts/test-public-private-diff.js
+          node scripts/check-secrets.js
+          node scripts/security-audit-static.js
+          git diff --check
+
+      - name: Prepare Phase 57 PR body
+        shell: bash
+        run: |
+          node <<'NODE' > "$RUNNER_TEMP/series-publication-status-pr-body.md"
+          const fs = require('fs');
+          const report = JSON.parse(fs.readFileSync('data/series-publication-status-report.json', 'utf8'));
+          const s = report.summary || {};
+          console.log('## Phase 57 Series Publication Status Summary');
+          console.log('');
+          console.log(`- Generated at: ${report.generatedAt}`);
+          console.log(`- Series with status: ${s.seriesWithStatus || 0}`);
+          console.log(`- Ongoing (laufend): ${s.ongoing || 0}`);
+          console.log(`- Finished (abgeschlossen): ${s.finished || 0}`);
+          console.log(`- Checked editions: ${s.checkedEditions || 0}`);
+          console.log(`- Applied changes: ${s.appliedChanges || 0}`);
+          console.log(`- Blocked/unmapped: ${s.blockedOrUnmapped || 0}`);
+          console.log('');
+          console.log('Only public technical metadata (DE publication status) is written. No private owner data, notes, read status or possession details are part of this PR. Writing the status into the Supabase collection is a separate, gated step and is NOT part of this automated PR.');
+          NODE
+
+      - name: Detect publication status changes
+        id: changes
+        shell: bash
+        run: |
+          if git diff --quiet -- data/series-publication-status.json data/series-publication-status-report.json; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "No publication-status changes detected."
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            git diff --stat -- data/series-publication-status.json data/series-publication-status-report.json
+          fi
+
+      - name: Create publication status PR
+        if: steps.changes.outputs.changed == 'true'
+        uses: peter-evans/create-pull-request@v8
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "chore: update series publication status"
+          branch: automated/series-publication-status
+          delete-branch: true
+          title: "chore: update series publication status"
+          body-path: ${{ runner.temp }}/series-publication-status-pr-body.md
+          labels: phase-57, series-publication-status, automated
+          add-paths: |
+            data/series-publication-status.json
+            data/series-publication-status-report.json
+
+      - name: Upload Phase 57 report artifact
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: series-publication-status-report
+          path: data/series-publication-status-report.json
+          if-no-files-found: ignore

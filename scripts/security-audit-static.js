@@ -741,6 +741,48 @@ if (!releaseVolumeMail) {
 } else {
   pass('Check 39e: Phase-43 Status-Mail-Writer enthält keinen Env-Dump');
 }
+
+// ── Check 57: Phase 57 publication-status is public-only and read-only in app ──
+const pubStatusValidator = readFile('scripts/validate-series-publication-status.js');
+const pubStatusRunner = readFile('scripts/run-series-publication-status.js');
+const pubStatusWorkflow = readFile('.github/workflows/update-series-publication-status.yml');
+if (!fileExists('data/series-publication-status.json') || !pubStatusValidator || !pubStatusRunner) {
+  fail('Check 57a: Phase-57 publication-status data/runner/validator missing');
+} else {
+  pass('Check 57a: Phase-57 publication-status data/runner/validator vorhanden');
+}
+
+if (!appJs) {
+  fail('Check 57b: src/app.js nicht gefunden (Phase-57 Read-only-Block nicht prüfbar)');
+} else {
+  const p57Start = appJs.indexOf('async function loadSeriesPublicationStatus');
+  const p57End = appJs.indexOf('function findPublicationStatusForSeries', p57Start);
+  const p57Code = p57Start >= 0 && p57End > p57Start ? appJs.slice(p57Start, p57End) : '';
+  if (!p57Code || !p57Code.includes('series-publication-status.json')) {
+    fail('Check 57b: Phase-57 App-Read-only-Integration fehlt');
+  } else if (/pushCloud\s*\(|persist\s*\(|patchCollectionPayload|localStorage\.setItem|supabase\.(from|rpc)|api\.github\.com/i.test(p57Code)) {
+    fail('Check 57b: Phase-57 App-Block enthält mutierenden Schreibpfad');
+  } else {
+    pass('Check 57b: Phase-57 App-Integration lädt series-publication-status read-only');
+  }
+}
+
+if (!pubStatusValidator) {
+  fail('Check 57c: Phase-57 Validator nicht prüfbar');
+} else if (!pubStatusValidator.includes('ALLOWED_ONGOING') || !pubStatusValidator.includes('ALLOWED_SOURCE_STATUS')) {
+  fail('Check 57c: Phase-57 Validator enthält keine Wert-Allowlist');
+} else {
+  pass('Check 57c: Phase-57 Validator nutzt strikte Wert-Allowlist (ongoing/sourceStatus)');
+}
+
+if (!pubStatusWorkflow) {
+  fail('Check 57d: update-series-publication-status.yml nicht gefunden');
+} else if (!pubStatusWorkflow.includes('node scripts/test-public-private-diff.js')) {
+  fail('Check 57d: Phase-57 Workflow enthält Privacy-Gate nicht');
+} else {
+  pass('Check 57d: Phase-57 Workflow enthält Privacy-Gate');
+}
+
 const passed = totalChecks - totalFailed - totalWarns;
 console.log('');
 if (totalWarns > 0) {

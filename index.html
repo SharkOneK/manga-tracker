@@ -162,12 +162,11 @@
           </select>
         </div>
         <div class="form-group">
-          <label>Deutschsprachige Veröffentlichung</label>
-          <select id="f-ongoing" title="Status der deutschsprachigen Veröffentlichung. Nicht des japanischen Originals.">
-            <option value="true" title="Im deutschsprachigen Raum erscheinen voraussichtlich noch weitere reguläre Bände.">Laufend 🔄 – weitere DE-Bände erwartet</option>
-            <option value="false" title="Die deutschsprachige Ausgabe ist vollständig erschienen oder offiziell beendet.">Abgeschlossen ✓ – DE-Ausgabe komplett</option>
-            <option value="unknown" title="Der deutschsprachige Veröffentlichungsstatus ist nicht belastbar geklärt.">Unbekannt ? – DE-Status unklar</option>
-          </select>
+          <label>Deutschsprachige Veröffentlichung <span class="form-label-hint small">– automatisch</span></label>
+          <div id="f-ongoing-auto" class="automation-readout" data-empty="Noch kein automatischer Status vorhanden.">
+            <span class="automation-readout-empty">Noch kein automatischer Status vorhanden.</span>
+          </div>
+          <input id="f-ongoing" type="hidden" value="true">
         </div>
       </div>
       <div class="row2">
