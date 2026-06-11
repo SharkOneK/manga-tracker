@@ -6,17 +6,17 @@ Stand: automatisch synchronisiert aus aktuellem Audit gegen `data/release-watchl
 
 | Kennzahl | Wert |
 |---|---:|
-| Aktivierte Watchlist-Eintraege | 50 |
-| Expandierte Watchlist-Bandkandidaten | 204 |
+| Aktivierte Watchlist-Eintraege | 51 |
+| Expandierte Watchlist-Bandkandidaten | 205 |
 | Release-Cache-Eintraege | 194 |
 | Gefundene Cache-Eintraege | 175 |
-| Verbleibende Luecken | 29 |
-| Betroffene Serien | 11 |
+| Verbleibende Luecken | 30 |
+| Betroffene Serien | 12 |
 | Betroffene Verlage | 8 |
 
 ## Klassifikation
 
-Alle 29 verbleibenden Luecken sind als `source-data-gap` klassifiziert.
+Alle 30 verbleibenden Luecken sind als `source-data-gap` klassifiziert.
 
 Bedeutung: Der Watchlist-Band wurde nach dem Cache-Update weiterhin nicht in `data/release-cache.json` gefunden. Diese Faelle sind Quellen-/Datenqualitaetsfaelle und duerfen nicht durch Fake-Daten geschlossen werden.
 
@@ -37,13 +37,14 @@ Empfohlener Umgang: manuell in verlaesslicher Quelle pruefen, erst danach echte 
 | Neck mich nicht, Nagatoro-san | dani books | 6-7 | 2 | source-data-gap |
 | Tokyo Revengers – Doppelband-Edition | Carlsen Manga | 16 | 1 | source-data-gap |
 | Death Note - Diamond Edition | Tokyopop | 1 | 1 | source-data-gap |
+| Solo Leveling: Ragnarok | Altraverse | 1 | 1 | source-data-gap |
 
 ## Luecken nach Verlag
 
 | Verlag | Luecken | Serien |
 |---|---:|---:|
+| Altraverse | 7 | 3 |
 | MANGAMOON | 7 | 2 |
-| Altraverse | 6 | 2 |
 | Panini Manga | 6 | 1 |
 | Egmont Manga | 4 | 1 |
 | dani books | 2 | 1 |
@@ -91,7 +92,7 @@ Der normale Workflow scheitert weiterhin nicht an bekannten `source-data-gap`-Lu
 
 ## Phase 23a: Ursachenanalyse
 
-Die 29 `source-data-gap`-Einzelluecken sind in `docs/release-cache-source-gap-analysis.md` strukturiert analysiert.
+Die 30 `source-data-gap`-Einzelluecken sind in `docs/release-cache-source-gap-analysis.md` strukturiert analysiert.
 
 Die Analyse dokumentiert pro Gap:
 

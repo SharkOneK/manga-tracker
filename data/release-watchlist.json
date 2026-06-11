@@ -614,7 +614,15 @@
       "sourceUrl": null,
       "notes": "Aus Release-Intake-Staging übernommen.",
       "enabled": true
+    },
+    {
+      "seriesTitle": "Solo Leveling: Ragnarok",
+      "publisher": "Altraverse",
+      "volumeNumber": 1,
+      "sourceUrl": null,
+      "notes": "Aus Release-Intake-Staging übernommen.",
+      "enabled": true
     }
   ],
-  "generatedAt": "2026-06-04T17:29:16.852Z"
+  "generatedAt": "2026-06-11T08:50:53.046Z"
 }
