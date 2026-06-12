@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-06-11T08:58:25.836Z",
+  "generatedAt": "2026-06-12T08:45:44.562Z",
   "source": "run-release-volume-counts.js",
   "providerMode": "enabled",
   "policy": {
@@ -27,34 +27,25 @@
     "seriesInVolumeCounts": 45,
     "probeCandidates": 61,
     "checkedCandidates": 61,
-    "detectedChanges": 11,
-    "appliedHighConfidenceChanges": 11,
-    "blockedOrUnsafe": 75
+    "detectedChanges": 10,
+    "appliedHighConfidenceChanges": 10,
+    "blockedOrUnsafe": 76
   },
   "changes": [
     {
       "seriesTitle": "Arifureta – Der Kampf zurück in meine Welt",
       "publisher": "altraverse",
-      "oldPublishedVolumesDE": 11,
-      "newPublishedVolumesDE": 12,
+      "oldPublishedVolumesDE": 12,
+      "newPublishedVolumesDE": 13,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/302",
       "confidence": "high"
     },
     {
-      "seriesTitle": "Dai Dark",
-      "publisher": "Manga Cult",
-      "oldPublishedVolumesDE": 8,
-      "newPublishedVolumesDE": 9,
-      "source": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/2177",
-      "confidence": "high"
-    },
-    {
       "seriesTitle": "DARLING in the FRANXX",
       "publisher": "Manga Cult",
-      "oldPublishedVolumesDE": 6,
-      "newPublishedVolumesDE": 7,
+      "oldPublishedVolumesDE": 7,
+      "newPublishedVolumesDE": 8,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/2936",
       "confidence": "high"
@@ -62,8 +53,8 @@
     {
       "seriesTitle": "Frieren – Nach dem Ende der Reise",
       "publisher": "altraverse",
-      "oldPublishedVolumesDE": 11,
-      "newPublishedVolumesDE": 12,
+      "oldPublishedVolumesDE": 12,
+      "newPublishedVolumesDE": 13,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/1697",
       "confidence": "high"
@@ -71,8 +62,8 @@
     {
       "seriesTitle": "Meine Wiedergeburt als Schleim in einer anderen Welt",
       "publisher": "altraverse",
-      "oldPublishedVolumesDE": 6,
-      "newPublishedVolumesDE": 7,
+      "oldPublishedVolumesDE": 7,
+      "newPublishedVolumesDE": 8,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/249",
       "confidence": "high"
@@ -80,8 +71,8 @@
     {
       "seriesTitle": "Mushoku Tensei – In dieser Welt mach ich alles anders",
       "publisher": "Panini Manga",
-      "oldPublishedVolumesDE": 6,
-      "newPublishedVolumesDE": 7,
+      "oldPublishedVolumesDE": 7,
+      "newPublishedVolumesDE": 8,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/1314",
       "confidence": "high"
@@ -89,8 +80,8 @@
     {
       "seriesTitle": "One Piece",
       "publisher": "Carlsen Manga!",
-      "oldPublishedVolumesDE": 6,
-      "newPublishedVolumesDE": 7,
+      "oldPublishedVolumesDE": 7,
+      "newPublishedVolumesDE": 8,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/87",
       "confidence": "high"
@@ -98,8 +89,8 @@
     {
       "seriesTitle": "The Rising of the Shield Hero",
       "publisher": "TOKYOPOP",
-      "oldPublishedVolumesDE": 11,
-      "newPublishedVolumesDE": 12,
+      "oldPublishedVolumesDE": 12,
+      "newPublishedVolumesDE": 13,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/210",
       "confidence": "high"
@@ -107,8 +98,8 @@
     {
       "seriesTitle": "Tokyo Ghoul",
       "publisher": "KAZÉ Manga",
-      "oldPublishedVolumesDE": 6,
-      "newPublishedVolumesDE": 7,
+      "oldPublishedVolumesDE": 7,
+      "newPublishedVolumesDE": 8,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/951",
       "confidence": "high"
@@ -116,8 +107,8 @@
     {
       "seriesTitle": "Tokyo Ghoul:re",
       "publisher": "KAZÉ Manga",
-      "oldPublishedVolumesDE": 6,
-      "newPublishedVolumesDE": 7,
+      "oldPublishedVolumesDE": 7,
+      "newPublishedVolumesDE": 8,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/952",
       "confidence": "high"
@@ -125,8 +116,8 @@
     {
       "seriesTitle": "Vinland Saga",
       "publisher": "Carlsen Manga!",
-      "oldPublishedVolumesDE": 6,
-      "newPublishedVolumesDE": 7,
+      "oldPublishedVolumesDE": 7,
+      "newPublishedVolumesDE": 8,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/223",
       "confidence": "high"
@@ -464,7 +455,6 @@
         "missing-source-publisher",
         "missing-source-volume-number",
         "missing-release-date",
-        "source-fetch-failed",
         "not-yet-released"
       ]
     },
@@ -625,6 +615,16 @@
       "seriesTitle": "Colorless",
       "publisher": "Manga Cult",
       "volumeNumber": 8,
+      "reasonCodes": [
+        "missing-source-volume-number",
+        "missing-release-date",
+        "not-yet-released"
+      ]
+    },
+    {
+      "seriesTitle": "Dai Dark",
+      "publisher": "Manga Cult",
+      "volumeNumber": 10,
       "reasonCodes": [
         "missing-source-volume-number",
         "missing-release-date",
@@ -960,8 +960,8 @@
       "seriesTitle": "Isekai Soapland",
       "publisher": "MANGAMOON",
       "volumeNumber": 3,
-      "source": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de",
+      "source": "carlsen",
+      "sourceUrl": "https://www.carlsen.de",
       "confidence": "low",
       "released": false,
       "reasonCodes": [
@@ -969,8 +969,7 @@
         "missing-source-edition-title",
         "missing-source-publisher",
         "missing-source-volume-number",
-        "missing-release-date",
-        "source-fetch-failed"
+        "missing-release-date"
       ]
     },
     {
@@ -1095,7 +1094,7 @@
     {
       "seriesTitle": "Arifureta – Der Kampf zurück in meine Welt",
       "publisher": "altraverse",
-      "volumeNumber": 12,
+      "volumeNumber": 13,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/302",
       "confidence": "high",
@@ -1191,17 +1190,20 @@
     {
       "seriesTitle": "Dai Dark",
       "publisher": "Manga Cult",
-      "volumeNumber": 9,
+      "volumeNumber": 10,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/2177",
-      "confidence": "high",
-      "released": true,
-      "reasonCodes": []
+      "confidence": "low",
+      "released": false,
+      "reasonCodes": [
+        "missing-source-volume-number",
+        "missing-release-date"
+      ]
     },
     {
       "seriesTitle": "DARLING in the FRANXX",
       "publisher": "Manga Cult",
-      "volumeNumber": 7,
+      "volumeNumber": 8,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/2936",
       "confidence": "high",
@@ -1263,7 +1265,7 @@
     {
       "seriesTitle": "Frieren – Nach dem Ende der Reise",
       "publisher": "altraverse",
-      "volumeNumber": 12,
+      "volumeNumber": 13,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/1697",
       "confidence": "high",
@@ -1365,7 +1367,7 @@
     {
       "seriesTitle": "Meine Wiedergeburt als Schleim in einer anderen Welt",
       "publisher": "altraverse",
-      "volumeNumber": 7,
+      "volumeNumber": 8,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/249",
       "confidence": "high",
@@ -1391,7 +1393,7 @@
     {
       "seriesTitle": "Mushoku Tensei – In dieser Welt mach ich alles anders",
       "publisher": "Panini Manga",
-      "volumeNumber": 7,
+      "volumeNumber": 8,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/1314",
       "confidence": "high",
@@ -1401,7 +1403,7 @@
     {
       "seriesTitle": "One Piece",
       "publisher": "Carlsen Manga!",
-      "volumeNumber": 7,
+      "volumeNumber": 8,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/87",
       "confidence": "high",
@@ -1453,7 +1455,7 @@
     {
       "seriesTitle": "The Rising of the Shield Hero",
       "publisher": "TOKYOPOP",
-      "volumeNumber": 12,
+      "volumeNumber": 13,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/210",
       "confidence": "high",
@@ -1463,7 +1465,7 @@
     {
       "seriesTitle": "Tokyo Ghoul",
       "publisher": "KAZÉ Manga",
-      "volumeNumber": 7,
+      "volumeNumber": 8,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/951",
       "confidence": "high",
@@ -1483,7 +1485,7 @@
     {
       "seriesTitle": "Tokyo Ghoul:re",
       "publisher": "KAZÉ Manga",
-      "volumeNumber": 7,
+      "volumeNumber": 8,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/952",
       "confidence": "high",
@@ -1493,7 +1495,7 @@
     {
       "seriesTitle": "Vinland Saga",
       "publisher": "Carlsen Manga!",
-      "volumeNumber": 7,
+      "volumeNumber": 8,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/223",
       "confidence": "high",
