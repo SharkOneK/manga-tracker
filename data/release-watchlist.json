@@ -622,7 +622,31 @@
       "sourceUrl": null,
       "notes": "Aus Release-Intake-Staging übernommen.",
       "enabled": true
+    },
+    {
+      "seriesTitle": "The Eminence in Shadow",
+      "publisher": "Tokyopop",
+      "volumeNumber": 10,
+      "sourceUrl": null,
+      "notes": "Aus Release-Intake-Staging übernommen.",
+      "enabled": true
+    },
+    {
+      "seriesTitle": "Solo Leveling: Ragnarok",
+      "publisher": "Altraverse",
+      "volumeNumber": 2,
+      "sourceUrl": null,
+      "notes": "Aus Release-Intake-Staging übernommen.",
+      "enabled": true
+    },
+    {
+      "seriesTitle": "Tokyo Ghoul GIGANTIK",
+      "publisher": "Crunchyroll Manga",
+      "volumeNumber": 2,
+      "sourceUrl": null,
+      "notes": "Aus Release-Intake-Staging übernommen.",
+      "enabled": true
     }
   ],
-  "generatedAt": "2026-06-11T08:50:53.046Z"
+  "generatedAt": "2026-06-13T07:53:06.438Z"
 }
