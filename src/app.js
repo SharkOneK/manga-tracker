@@ -498,10 +498,30 @@ function updateViewToggleVisibility() {
   if (toggle) toggle.style.display = NO_TOGGLE_TABS.includes(tab) ? 'none' : 'flex';
 }
 
+// Phase 60: Standard-Bandansicht für reading/completed/owned.
+// Solange der Nutzer den Umschalter nicht aktiv benutzt hat (viewModeUserSet),
+// starten diese Tabs in der Bändenansicht (☰); übrige Tabs in Serienansicht (⊞).
+// Sobald der Nutzer einmal manuell umschaltet, gilt der globale viewMode überall
+// (bewahrt das globale viewMode-Modell aus Phase 52).
+let viewModeUserSet = false;
+const DEFAULT_VOLUME_TABS = ['reading', 'completed', 'owned'];
+function applyDefaultViewMode() {
+  if (viewModeUserSet) return;
+  viewMode = DEFAULT_VOLUME_TABS.includes(tab) ? 'volumes' : 'series';
+}
+// Umschalter-Buttons aus dem effektiven viewMode ableiten (auch bei Default-
+// Wechsel ohne Klick).
+function syncViewToggleButtons() {
+  const sBtn = document.getElementById('vbtn-series');
+  const vBtn = document.getElementById('vbtn-volumes');
+  if (sBtn) sBtn.classList.toggle('active', viewMode === 'series');
+  if (vBtn) vBtn.classList.toggle('active', viewMode === 'volumes');
+}
+
 function setView(mode) {
   viewMode = mode;
-  document.getElementById('vbtn-series').classList.toggle('active', mode === 'series');
-  document.getElementById('vbtn-volumes').classList.toggle('active', mode === 'volumes');
+  viewModeUserSet = true;
+  syncViewToggleButtons();
   render();
 }
 
@@ -1112,12 +1132,21 @@ function renderDashboard() {
       const d = new Date(item.releaseDate + 'T00:00:00');
       return !isNaN(d.getTime()) && d >= today && d <= in30Days;
     }).length;
+    // Phase 60 (Backlog 3.3): Cache-Alter in Tagen für Frische-Warnung im Dashboard.
+    let ageDays = null;
+    if (releaseCache.generatedAt) {
+      const gen = new Date(releaseCache.generatedAt);
+      if (!isNaN(gen.getTime())) {
+        ageDays = Math.max(0, Math.floor((today.getTime() - gen.getTime()) / 86400000));
+      }
+    }
     return {
       seriesWithNextDate: db.m.filter(m => !!m.nextDate).length,
       upcoming30,
       seriesWithReleaseIds: db.m.filter(m => !!m.isbn13 || (!!m.mpEditionId && m.mpEditionId !== 'none')).length,
       itemCount: releaseCache.items.length,
       generatedAt: releaseCache.generatedAt || null,
+      ageDays,
     };
   })() : null;
   const coverSyncDisabledAttr = canEditLocal() ? '' : ' disabled title="Öffentliche Ansicht – lokale Cover-Aktion deaktiviert"';
@@ -1270,7 +1299,20 @@ function renderDashboard() {
         <div class="stat-big-card"><div class="stat-big-n">${releaseStats.upcoming30}</div><div class="stat-big-l">Releases in 30 Tagen</div></div>
         <div class="stat-big-card"><div class="stat-big-n">${releaseStats.seriesWithReleaseIds}</div><div class="stat-big-l">Serien mit ISBN/MP-ID</div></div>
       </div>
-      <p class="stats-empty-note">Cache: ${releaseStats.itemCount} Einträge${releaseStats.generatedAt ? ` · Stand ${new Date(releaseStats.generatedAt).toLocaleString('de-DE')}` : ''}</p>
+      <p class="stats-empty-note">Cache: ${releaseStats.itemCount} Einträge${releaseStats.generatedAt ? (() => {
+        const STALE_DAYS = 14;
+        const stand = new Date(releaseStats.generatedAt).toLocaleString('de-DE');
+        const d = releaseStats.ageDays;
+        let rel = '';
+        if (d !== null) {
+          const phrase = d === 0 ? 'heute' : (d === 1 ? 'vor 1 Tag' : `vor ${d} Tagen`);
+          rel = ` (${phrase})`;
+        }
+        const warn = (d !== null && d >= STALE_DAYS)
+          ? ` <span class="cache-age-warn" title="Release-Cache seit ${d} Tagen nicht aktualisiert">⚠️ veraltet</span>`
+          : '';
+        return ` · Stand ${stand}${rel}${warn}`;
+      })() : ''}</p>
     </div>` : ''}
     <div class="stats-section">
       <h3>Jahresrückblick ${year}</h3>
@@ -1817,6 +1859,8 @@ function render() {
 
   // Phase 52: Umschalter-Sichtbarkeit zentral aus dem aktuellen Tab ableiten.
   updateViewToggleVisibility();
+  // Phase 60: Umschalter-Buttons mit dem effektiven viewMode synchronisieren.
+  syncViewToggleButtons();
 
   if (tab === 'dashboard') { renderDashboard(); return; }
 
@@ -1918,6 +1962,8 @@ const TAB_TITLES = {
 };
 function setTab(t) {
   tab = t;
+  // Phase 60: Standard-viewMode für den neuen Tab anwenden (sofern nicht manuell gesetzt).
+  applyDefaultViewMode();
   const inLibrary = LIBRARY_TABS.includes(t);
   // Segmentierte Regal-Leiste (nur in der Bibliothek)
   document.querySelectorAll('#tabs .tab').forEach(el => {
@@ -4725,6 +4771,9 @@ bindDelegatedEvents();
 // Phase 51 (Etappe 7): strict gate — without a session, do not render cached data.
 const _bootLocked = isLocked();
 if (_bootLocked) { db = { m: [] }; }
+// Phase 60: Standard-viewMode für den Start-Tab anwenden (Boot ruft render() direkt,
+// nicht setTab) — der Start-Tab 'reading' startet damit in der Bändenansicht.
+applyDefaultViewMode();
 render();
 // Deferred-Style-Mechanik aktivieren: wendet data-style-background/-width/-height
 // CSP-konform per CSSOM an (Cover-Farb-Fallbacks, Fortschrittsbalken-Breiten,
