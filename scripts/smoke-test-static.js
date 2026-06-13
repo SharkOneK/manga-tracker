@@ -230,6 +230,24 @@ if (fs.existsSync(appJsPath)) {
     pass('src/app.js: stats-buy-section-head vorhanden');
   }
 
+  // Phase 60: Standard-Bandansicht für reading/completed/owned
+  if (!appJs.includes('DEFAULT_VOLUME_TABS')) {
+    fail('src/app.js: Phase-60-Marker DEFAULT_VOLUME_TABS fehlt');
+  } else {
+    pass('src/app.js: Phase-60-Marker DEFAULT_VOLUME_TABS vorhanden');
+  }
+  if (!appJs.includes('applyDefaultViewMode')) {
+    fail('src/app.js: Phase-60-Marker applyDefaultViewMode fehlt');
+  } else {
+    pass('src/app.js: Phase-60-Marker applyDefaultViewMode vorhanden');
+  }
+  // Phase 60 (Backlog 3.3): Cache-Alter-Warnung im Dashboard
+  if (!appJs.includes('cache-age-warn')) {
+    fail('src/app.js: Phase-60-Marker cache-age-warn (Cache-Alter) fehlt');
+  } else {
+    pass('src/app.js: Phase-60-Marker cache-age-warn (Cache-Alter) vorhanden');
+  }
+
   // Keine neuen externen Script-Tags durch Phase 18f
   const scriptTagRe = /<script[^>]+src=["'][^"']*["']/g;
   const matches = appJs.match(scriptTagRe) || [];

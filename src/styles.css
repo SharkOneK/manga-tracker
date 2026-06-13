@@ -290,6 +290,8 @@ header h1 .jp { color: #e8405a; }
 .buy-pub { font-size: 0.72rem; color: var(--text-muted); margin-top: 1px; }
 .buy-date { font-size: 0.72rem; color: var(--warning); font-weight: 600; margin-top: 3px; }
 .buy-date.avail { color: var(--success); }
+/* Phase 60 (Backlog 3.3): Frische-Warnung für veralteten Release-Cache im Dashboard */
+.cache-age-warn { color: var(--warning); font-weight: 700; white-space: nowrap; }
 .buy-btns { display: flex; flex-direction: column; gap: 5px; flex-shrink: 0; }
 .btn-xs {
   padding: 5px 11px;
