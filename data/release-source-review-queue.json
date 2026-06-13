@@ -4,10 +4,10 @@
   "generatedFrom": "docs/release-cache-source-gap-analysis.md",
   "reviewPolicy": "docs/release-cache-manual-source-review.md",
   "summary": {
-    "knownSourceGaps": 30,
-    "totalGaps": 93,
+    "knownSourceGaps": 33,
+    "totalGaps": 96,
     "safeToPatch": 62,
-    "pendingManualReview": 31,
+    "pendingManualReview": 34,
     "autoReviewed": 24,
     "patched": 62
   },
@@ -3034,6 +3034,84 @@
       "seriesTitle": "Solo Leveling: Ragnarok",
       "publisher": "Altraverse",
       "volumeNumber": 1,
+      "classification": "source-data-gap",
+      "suspectedCause": "manual-source-required",
+      "priority": "mittel",
+      "recommendedFix": "manual-source-review",
+      "manualSourceReviewNeeded": true,
+      "checkedSources": [
+        {
+          "name": "Release-Intake-Staging / Release-Cache-Audit",
+          "url": "data/release-watchlist.json",
+          "result": "Nach Release-Intake in der Watchlist vorhanden; kein passender Eintrag in data/release-cache.json."
+        }
+      ],
+      "sourceAnalysisEvidence": "Der Band wurde per Release-Intake in die Watchlist uebernommen. Der Release-Cache enthaelt noch kein belegtes Datum; kein Cache-Patch ohne verifizierte Quelle.",
+      "safeToPatch": false,
+      "reviewStatus": "pending",
+      "sourceUrl": "",
+      "releaseDate": null,
+      "checkedAt": null,
+      "evidence": "",
+      "notes": "Automatisch aus aktueller Source-Gap-Analyse ergänzt; manuelle Quellenprüfung erforderlich."
+    },
+    {
+      "queueKey": "The Eminence in Shadow|Tokyopop|10",
+      "seriesTitle": "The Eminence in Shadow",
+      "publisher": "Tokyopop",
+      "volumeNumber": 10,
+      "classification": "source-data-gap",
+      "suspectedCause": "manual-source-required",
+      "priority": "mittel",
+      "recommendedFix": "manual-source-review",
+      "manualSourceReviewNeeded": true,
+      "checkedSources": [
+        {
+          "name": "Release-Intake-Staging / Release-Cache-Audit",
+          "url": "data/release-watchlist.json",
+          "result": "Nach Release-Intake in der Watchlist vorhanden; kein passender Eintrag in data/release-cache.json."
+        }
+      ],
+      "sourceAnalysisEvidence": "Der Band wurde per Release-Intake in die Watchlist uebernommen. Der Release-Cache enthaelt noch kein belegtes Datum; kein Cache-Patch ohne verifizierte Quelle.",
+      "safeToPatch": false,
+      "reviewStatus": "pending",
+      "sourceUrl": "",
+      "releaseDate": null,
+      "checkedAt": null,
+      "evidence": "",
+      "notes": "Automatisch aus aktueller Source-Gap-Analyse ergänzt; manuelle Quellenprüfung erforderlich."
+    },
+    {
+      "queueKey": "Solo Leveling: Ragnarok|Altraverse|2",
+      "seriesTitle": "Solo Leveling: Ragnarok",
+      "publisher": "Altraverse",
+      "volumeNumber": 2,
+      "classification": "source-data-gap",
+      "suspectedCause": "manual-source-required",
+      "priority": "mittel",
+      "recommendedFix": "manual-source-review",
+      "manualSourceReviewNeeded": true,
+      "checkedSources": [
+        {
+          "name": "Release-Intake-Staging / Release-Cache-Audit",
+          "url": "data/release-watchlist.json",
+          "result": "Nach Release-Intake in der Watchlist vorhanden; kein passender Eintrag in data/release-cache.json."
+        }
+      ],
+      "sourceAnalysisEvidence": "Der Band wurde per Release-Intake in die Watchlist uebernommen. Der Release-Cache enthaelt noch kein belegtes Datum; kein Cache-Patch ohne verifizierte Quelle.",
+      "safeToPatch": false,
+      "reviewStatus": "pending",
+      "sourceUrl": "",
+      "releaseDate": null,
+      "checkedAt": null,
+      "evidence": "",
+      "notes": "Automatisch aus aktueller Source-Gap-Analyse ergänzt; manuelle Quellenprüfung erforderlich."
+    },
+    {
+      "queueKey": "Tokyo Ghoul GIGANTIK|Crunchyroll Manga|2",
+      "seriesTitle": "Tokyo Ghoul GIGANTIK",
+      "publisher": "Crunchyroll Manga",
+      "volumeNumber": 2,
       "classification": "source-data-gap",
       "suspectedCause": "manual-source-required",
       "priority": "mittel",
