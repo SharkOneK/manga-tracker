@@ -4,11 +4,11 @@
   "generatedFrom": "docs/release-cache-source-gap-analysis.md",
   "reviewPolicy": "docs/release-cache-manual-source-review.md",
   "summary": {
-    "knownSourceGaps": 33,
-    "totalGaps": 96,
+    "knownSourceGaps": 30,
+    "totalGaps": 93,
     "safeToPatch": 62,
-    "pendingManualReview": 34,
-    "autoReviewed": 24,
+    "pendingManualReview": 31,
+    "autoReviewed": 26,
     "patched": 62
   },
   "sortOrder": "priority(sehr hoch, hoch, mittel, niedrig), seriesTitle, publisher, volumeNumber",
@@ -2346,47 +2346,6 @@
       "providerId": "manga-passion"
     },
     {
-      "queueKey": "Gushing over Magical Girls|MangaMoon|4",
-      "seriesTitle": "Gushing over Magical Girls",
-      "publisher": "MangaMoon",
-      "volumeNumber": 4,
-      "classification": "source-data-gap",
-      "suspectedCause": "not-yet-released",
-      "priority": "mittel",
-      "recommendedFix": "manual-source-review",
-      "manualSourceReviewNeeded": true,
-      "checkedSources": [
-        {
-          "name": "Manga Passion API",
-          "url": "https://www.manga-passion.de",
-          "result": "Edition 5407 vorhanden; Band 4 ohne valides Release-Datum."
-        }
-      ],
-      "sourceAnalysisEvidence": "Manga-Passion-Edition 5407 fuehrt Band 4 nur mit Platzhalterdatum 2999-12-31; MangaMoon/MANGAMOON ist ein Normalisierungsfall.",
-      "safeToPatch": false,
-      "reviewStatus": "deferred",
-      "sourceUrl": "https://www.manga-passion.de/editions/5407",
-      "releaseDate": null,
-      "checkedAt": "2026-05-29T14:22:14.386Z",
-      "evidence": "Phase-33-Pruefung: Quelle belegt Edition/Band im Review-Kontext, aber kein reales Release-Datum.",
-      "notes": "Phase 33: MangaMoon/MANGAMOON normalisiert konsistent; fuer Band 4 liegt nur ein Platzhalter-/kein valides Release-Datum vor. Nicht patchen.",
-      "sourceConfidence": "low",
-      "sourceName": "Carlsen Manga",
-      "sourceEditionId": null,
-      "sourceEditionTitle": null,
-      "sourcePublisher": null,
-      "sourceVolumeNumber": null,
-      "sourceResult": "publisher-not-supported",
-      "confidenceReasons": [
-        "source-url-not-specific",
-        "missing-source-edition-title",
-        "missing-source-publisher",
-        "missing-source-volume-number",
-        "missing-release-date"
-      ],
-      "providerId": "carlsen"
-    },
-    {
       "queueKey": "Kaiju No.8|Crunchyroll Manga|16",
       "seriesTitle": "Kaiju No.8",
       "publisher": "Crunchyroll Manga",
@@ -2520,6 +2479,47 @@
       "sourceUrl": "https://www.carlsen.de",
       "releaseDate": null,
       "checkedAt": "2026-05-29T14:22:14.386Z",
+      "evidence": "Automatische Quellenprüfung: publisher-not-supported. Confidence: low. Gruende: source-url-not-specific, missing-source-edition-title, missing-source-publisher, missing-source-volume-number, missing-release-date.",
+      "notes": "Automatisch geprüft; nicht sicher genug für den öffentlichen Cache.",
+      "sourceConfidence": "low",
+      "sourceName": "Carlsen Manga",
+      "providerId": "carlsen",
+      "sourceEditionId": null,
+      "sourceEditionTitle": null,
+      "sourcePublisher": null,
+      "sourceVolumeNumber": null,
+      "sourceResult": "publisher-not-supported",
+      "confidenceReasons": [
+        "source-url-not-specific",
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date"
+      ]
+    },
+    {
+      "queueKey": "Solo Leveling: Ragnarok|Altraverse|2",
+      "seriesTitle": "Solo Leveling: Ragnarok",
+      "publisher": "Altraverse",
+      "volumeNumber": 2,
+      "classification": "source-data-gap",
+      "suspectedCause": "manual-source-required",
+      "priority": "mittel",
+      "recommendedFix": "manual-source-review",
+      "manualSourceReviewNeeded": true,
+      "checkedSources": [
+        {
+          "name": "Release-Intake-Staging / Release-Cache-Audit",
+          "url": "data/release-watchlist.json",
+          "result": "Nach Release-Intake in der Watchlist vorhanden; kein passender Eintrag in data/release-cache.json."
+        }
+      ],
+      "sourceAnalysisEvidence": "Der Band wurde per Release-Intake in die Watchlist uebernommen. Der Release-Cache enthaelt noch kein belegtes Datum; kein Cache-Patch ohne verifizierte Quelle.",
+      "safeToPatch": false,
+      "reviewStatus": "auto-low-confidence",
+      "sourceUrl": "https://www.carlsen.de",
+      "releaseDate": null,
+      "checkedAt": "2026-06-14T08:21:13.292Z",
       "evidence": "Automatische Quellenprüfung: publisher-not-supported. Confidence: low. Gruende: source-url-not-specific, missing-source-edition-title, missing-source-publisher, missing-source-volume-number, missing-release-date.",
       "notes": "Automatisch geprüft; nicht sicher genug für den öffentlichen Cache.",
       "sourceConfidence": "low",
@@ -2887,6 +2887,47 @@
       "providerId": "manga-passion"
     },
     {
+      "queueKey": "The Eminence in Shadow|Tokyopop|10",
+      "seriesTitle": "The Eminence in Shadow",
+      "publisher": "Tokyopop",
+      "volumeNumber": 10,
+      "classification": "source-data-gap",
+      "suspectedCause": "manual-source-required",
+      "priority": "mittel",
+      "recommendedFix": "manual-source-review",
+      "manualSourceReviewNeeded": true,
+      "checkedSources": [
+        {
+          "name": "Release-Intake-Staging / Release-Cache-Audit",
+          "url": "data/release-watchlist.json",
+          "result": "Nach Release-Intake in der Watchlist vorhanden; kein passender Eintrag in data/release-cache.json."
+        }
+      ],
+      "sourceAnalysisEvidence": "Der Band wurde per Release-Intake in die Watchlist uebernommen. Der Release-Cache enthaelt noch kein belegtes Datum; kein Cache-Patch ohne verifizierte Quelle.",
+      "safeToPatch": false,
+      "reviewStatus": "auto-low-confidence",
+      "sourceUrl": "https://www.carlsen.de",
+      "releaseDate": null,
+      "checkedAt": "2026-06-14T08:21:13.292Z",
+      "evidence": "Automatische Quellenprüfung: publisher-not-supported. Confidence: low. Gruende: source-url-not-specific, missing-source-edition-title, missing-source-publisher, missing-source-volume-number, missing-release-date.",
+      "notes": "Automatisch geprüft; nicht sicher genug für den öffentlichen Cache.",
+      "sourceConfidence": "low",
+      "sourceName": "Carlsen Manga",
+      "providerId": "carlsen",
+      "sourceEditionId": null,
+      "sourceEditionTitle": null,
+      "sourcePublisher": null,
+      "sourceVolumeNumber": null,
+      "sourceResult": "publisher-not-supported",
+      "confidenceReasons": [
+        "source-url-not-specific",
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date"
+      ]
+    },
+    {
       "queueKey": "Tokyo Revengers – Doppelband-Edition|Carlsen Manga|16",
       "seriesTitle": "Tokyo Revengers – Doppelband-Edition",
       "publisher": "Carlsen Manga",
@@ -3028,110 +3069,6 @@
         "missing-release-date"
       ],
       "providerId": "carlsen"
-    },
-    {
-      "queueKey": "Solo Leveling: Ragnarok|Altraverse|1",
-      "seriesTitle": "Solo Leveling: Ragnarok",
-      "publisher": "Altraverse",
-      "volumeNumber": 1,
-      "classification": "source-data-gap",
-      "suspectedCause": "manual-source-required",
-      "priority": "mittel",
-      "recommendedFix": "manual-source-review",
-      "manualSourceReviewNeeded": true,
-      "checkedSources": [
-        {
-          "name": "Release-Intake-Staging / Release-Cache-Audit",
-          "url": "data/release-watchlist.json",
-          "result": "Nach Release-Intake in der Watchlist vorhanden; kein passender Eintrag in data/release-cache.json."
-        }
-      ],
-      "sourceAnalysisEvidence": "Der Band wurde per Release-Intake in die Watchlist uebernommen. Der Release-Cache enthaelt noch kein belegtes Datum; kein Cache-Patch ohne verifizierte Quelle.",
-      "safeToPatch": false,
-      "reviewStatus": "pending",
-      "sourceUrl": "",
-      "releaseDate": null,
-      "checkedAt": null,
-      "evidence": "",
-      "notes": "Automatisch aus aktueller Source-Gap-Analyse ergänzt; manuelle Quellenprüfung erforderlich."
-    },
-    {
-      "queueKey": "The Eminence in Shadow|Tokyopop|10",
-      "seriesTitle": "The Eminence in Shadow",
-      "publisher": "Tokyopop",
-      "volumeNumber": 10,
-      "classification": "source-data-gap",
-      "suspectedCause": "manual-source-required",
-      "priority": "mittel",
-      "recommendedFix": "manual-source-review",
-      "manualSourceReviewNeeded": true,
-      "checkedSources": [
-        {
-          "name": "Release-Intake-Staging / Release-Cache-Audit",
-          "url": "data/release-watchlist.json",
-          "result": "Nach Release-Intake in der Watchlist vorhanden; kein passender Eintrag in data/release-cache.json."
-        }
-      ],
-      "sourceAnalysisEvidence": "Der Band wurde per Release-Intake in die Watchlist uebernommen. Der Release-Cache enthaelt noch kein belegtes Datum; kein Cache-Patch ohne verifizierte Quelle.",
-      "safeToPatch": false,
-      "reviewStatus": "pending",
-      "sourceUrl": "",
-      "releaseDate": null,
-      "checkedAt": null,
-      "evidence": "",
-      "notes": "Automatisch aus aktueller Source-Gap-Analyse ergänzt; manuelle Quellenprüfung erforderlich."
-    },
-    {
-      "queueKey": "Solo Leveling: Ragnarok|Altraverse|2",
-      "seriesTitle": "Solo Leveling: Ragnarok",
-      "publisher": "Altraverse",
-      "volumeNumber": 2,
-      "classification": "source-data-gap",
-      "suspectedCause": "manual-source-required",
-      "priority": "mittel",
-      "recommendedFix": "manual-source-review",
-      "manualSourceReviewNeeded": true,
-      "checkedSources": [
-        {
-          "name": "Release-Intake-Staging / Release-Cache-Audit",
-          "url": "data/release-watchlist.json",
-          "result": "Nach Release-Intake in der Watchlist vorhanden; kein passender Eintrag in data/release-cache.json."
-        }
-      ],
-      "sourceAnalysisEvidence": "Der Band wurde per Release-Intake in die Watchlist uebernommen. Der Release-Cache enthaelt noch kein belegtes Datum; kein Cache-Patch ohne verifizierte Quelle.",
-      "safeToPatch": false,
-      "reviewStatus": "pending",
-      "sourceUrl": "",
-      "releaseDate": null,
-      "checkedAt": null,
-      "evidence": "",
-      "notes": "Automatisch aus aktueller Source-Gap-Analyse ergänzt; manuelle Quellenprüfung erforderlich."
-    },
-    {
-      "queueKey": "Tokyo Ghoul GIGANTIK|Crunchyroll Manga|2",
-      "seriesTitle": "Tokyo Ghoul GIGANTIK",
-      "publisher": "Crunchyroll Manga",
-      "volumeNumber": 2,
-      "classification": "source-data-gap",
-      "suspectedCause": "manual-source-required",
-      "priority": "mittel",
-      "recommendedFix": "manual-source-review",
-      "manualSourceReviewNeeded": true,
-      "checkedSources": [
-        {
-          "name": "Release-Intake-Staging / Release-Cache-Audit",
-          "url": "data/release-watchlist.json",
-          "result": "Nach Release-Intake in der Watchlist vorhanden; kein passender Eintrag in data/release-cache.json."
-        }
-      ],
-      "sourceAnalysisEvidence": "Der Band wurde per Release-Intake in die Watchlist uebernommen. Der Release-Cache enthaelt noch kein belegtes Datum; kein Cache-Patch ohne verifizierte Quelle.",
-      "safeToPatch": false,
-      "reviewStatus": "pending",
-      "sourceUrl": "",
-      "releaseDate": null,
-      "checkedAt": null,
-      "evidence": "",
-      "notes": "Automatisch aus aktueller Source-Gap-Analyse ergänzt; manuelle Quellenprüfung erforderlich."
     }
   ]
 }
