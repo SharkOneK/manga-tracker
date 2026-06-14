@@ -2,23 +2,23 @@
 
 Stand: automatisch synchronisiert aus aktuellem Audit gegen `data/release-watchlist.json` und `data/release-cache.json`.
 
-Diese Datei dokumentiert die 33 bekannten `source-data-gap`-Luecken aus `docs/release-cache-coverage-gaps.md`. Sie ist bewusst eine Analyse- und Entscheidungsdatei: Es werden keine Release-Daten geraten, keine privaten Sammlungsdaten ergaenzt und `data/release-cache.json` bleibt unangetastet.
+Diese Datei dokumentiert die 30 bekannten `source-data-gap`-Luecken aus `docs/release-cache-coverage-gaps.md`. Sie ist bewusst eine Analyse- und Entscheidungsdatei: Es werden keine Release-Daten geraten, keine privaten Sammlungsdaten ergaenzt und `data/release-cache.json` bleibt unangetastet.
 
 ## Ergebnis
 
 | Kennzahl | Wert |
 |---|---:|
-| Analysierte Gaps | 33 |
-| Betroffene Serien | 14 |
+| Analysierte Gaps | 30 |
+| Betroffene Serien | 12 |
 | Sichere direkte Cache-Patches | 0 |
-| Manuelle Quellenpruefung noetig | 33 |
+| Manuelle Quellenpruefung noetig | 30 |
 
 ## Ursachencluster
 
 | Vermutete Ursache | Gaps |
 |---|---:|
-| not-yet-released | 25 |
-| manual-source-required | 6 |
+| not-yet-released | 24 |
+| manual-source-required | 4 |
 | source-missing | 1 |
 | volume-numbering-mismatch | 1 |
 
@@ -34,7 +34,7 @@ Interpretation:
 
 | Empfohlener Fix | Gaps |
 |---|---:|
-| manual-source-review | 33 |
+| manual-source-review | 30 |
 
 Der einzige sichere naechste Schritt ist aktuell `manual-source-review`: offizielle Verlagsseite oder bereits erlaubte vertrauenswuerdige Quelle pruefen und erst danach echte Release-Daten mit Source-URL uebernehmen.
 
@@ -48,14 +48,12 @@ Der einzige sichere naechste Schritt ist aktuell `manual-source-review`: offizie
 | Adou | Altraverse | 12 | 1 | source-missing | manual-source-review | nein |
 | Arifureta: Der Kampf zurück in meine Welt – Zero | Altraverse | 4-8 | 5 | not-yet-released | manual-source-review | nein |
 | Berserk Master Edition | Panini Manga | 9-14 | 6 | not-yet-released | manual-source-review | nein |
-| Gushing over Magical Girls | MangaMoon | 4 | 1 | not-yet-released | manual-source-review | nein |
 | Isekai Soapland | MANGAMOON | 3-8 | 6 | not-yet-released | manual-source-review | nein |
 | Neck mich nicht, Nagatoro-san | dani books | 6-7 | 2 | manual-source-required | manual-source-review | nein |
 | Tokyo Revengers – Doppelband-Edition | Carlsen Manga | 16 | 1 | volume-numbering-mismatch | manual-source-review | nein |
 | Death Note - Diamond Edition | Tokyopop | 1 | 1 | manual-source-required | manual-source-review | nein |
-| Solo Leveling: Ragnarok | Altraverse | 1-2 | 2 | manual-source-required | manual-source-review | nein |
 | The Eminence in Shadow | Tokyopop | 10 | 1 | manual-source-required | manual-source-review | nein |
-| Tokyo Ghoul GIGANTIK | Crunchyroll Manga | 2 | 1 | manual-source-required | manual-source-review | nein |
+| Solo Leveling: Ragnarok | Altraverse | 2 | 1 | manual-source-required | manual-source-review | nein |
 
 ## Einzelgap-Matrix
 
@@ -79,7 +77,6 @@ Der einzige sichere naechste Schritt ist aktuell `manual-source-review`: offizie
 | Berserk Master Edition | Panini Manga | 12 | not-yet-released | manual-source-review | nein | ja |
 | Berserk Master Edition | Panini Manga | 13 | not-yet-released | manual-source-review | nein | ja |
 | Berserk Master Edition | Panini Manga | 14 | not-yet-released | manual-source-review | nein | ja |
-| Gushing over Magical Girls | MangaMoon | 4 | not-yet-released | manual-source-review | nein | ja |
 | Isekai Soapland | MANGAMOON | 3 | not-yet-released | manual-source-review | nein | ja |
 | Isekai Soapland | MANGAMOON | 4 | not-yet-released | manual-source-review | nein | ja |
 | Isekai Soapland | MANGAMOON | 5 | not-yet-released | manual-source-review | nein | ja |
@@ -90,10 +87,8 @@ Der einzige sichere naechste Schritt ist aktuell `manual-source-review`: offizie
 | Tokyo Revengers – Doppelband-Edition | Carlsen Manga | 16 | volume-numbering-mismatch | manual-source-review | nein | ja |
 | Neck mich nicht, Nagatoro-san | dani books | 7 | manual-source-required | manual-source-review | nein | ja |
 | Death Note - Diamond Edition | Tokyopop | 1 | manual-source-required | manual-source-review | nein | ja |
-| Solo Leveling: Ragnarok | Altraverse | 1 | manual-source-required | manual-source-review | nein | ja |
 | The Eminence in Shadow | Tokyopop | 10 | manual-source-required | manual-source-review | nein | ja |
 | Solo Leveling: Ragnarok | Altraverse | 2 | manual-source-required | manual-source-review | nein | ja |
-| Tokyo Ghoul GIGANTIK | Crunchyroll Manga | 2 | manual-source-required | manual-source-review | nein | ja |
 
 ## Maschinenlesbare Analyse
 
@@ -446,25 +441,6 @@ Der einzige sichere naechste Schritt ist aktuell `manual-source-review`: offizie
       "manualSourceReviewNeeded": true
     },
     {
-      "seriesTitle": "Gushing over Magical Girls",
-      "publisher": "MangaMoon",
-      "volumeNumber": 4,
-      "classification": "source-data-gap",
-      "priority": "mittel",
-      "suspectedCause": "not-yet-released",
-      "checkedSources": [
-        {
-          "name": "Manga Passion API",
-          "url": "https://www.manga-passion.de",
-          "result": "Edition 5407 vorhanden; Band 4 ohne valides Release-Datum."
-        }
-      ],
-      "evidence": "Manga-Passion-Edition 5407 fuehrt Band 4 nur mit Platzhalterdatum 2999-12-31; MangaMoon/MANGAMOON ist ein Normalisierungsfall.",
-      "recommendedFix": "manual-source-review",
-      "safeToPatch": false,
-      "manualSourceReviewNeeded": true
-    },
-    {
       "seriesTitle": "Isekai Soapland",
       "publisher": "MANGAMOON",
       "volumeNumber": 3,
@@ -655,25 +631,6 @@ Der einzige sichere naechste Schritt ist aktuell `manual-source-review`: offizie
       "manualSourceReviewNeeded": true
     },
     {
-      "seriesTitle": "Solo Leveling: Ragnarok",
-      "publisher": "Altraverse",
-      "volumeNumber": 1,
-      "classification": "source-data-gap",
-      "priority": "mittel",
-      "suspectedCause": "manual-source-required",
-      "checkedSources": [
-        {
-          "name": "Release-Intake-Staging / Release-Cache-Audit",
-          "url": "data/release-watchlist.json",
-          "result": "Nach Release-Intake in der Watchlist vorhanden; kein passender Eintrag in data/release-cache.json."
-        }
-      ],
-      "evidence": "Der Band wurde per Release-Intake in die Watchlist uebernommen. Der Release-Cache enthaelt noch kein belegtes Datum; kein Cache-Patch ohne verifizierte Quelle.",
-      "recommendedFix": "manual-source-review",
-      "safeToPatch": false,
-      "manualSourceReviewNeeded": true
-    },
-    {
       "seriesTitle": "The Eminence in Shadow",
       "publisher": "Tokyopop",
       "volumeNumber": 10,
@@ -710,25 +667,6 @@ Der einzige sichere naechste Schritt ist aktuell `manual-source-review`: offizie
       "recommendedFix": "manual-source-review",
       "safeToPatch": false,
       "manualSourceReviewNeeded": true
-    },
-    {
-      "seriesTitle": "Tokyo Ghoul GIGANTIK",
-      "publisher": "Crunchyroll Manga",
-      "volumeNumber": 2,
-      "classification": "source-data-gap",
-      "priority": "mittel",
-      "suspectedCause": "manual-source-required",
-      "checkedSources": [
-        {
-          "name": "Release-Intake-Staging / Release-Cache-Audit",
-          "url": "data/release-watchlist.json",
-          "result": "Nach Release-Intake in der Watchlist vorhanden; kein passender Eintrag in data/release-cache.json."
-        }
-      ],
-      "evidence": "Der Band wurde per Release-Intake in die Watchlist uebernommen. Der Release-Cache enthaelt noch kein belegtes Datum; kein Cache-Patch ohne verifizierte Quelle.",
-      "recommendedFix": "manual-source-review",
-      "safeToPatch": false,
-      "manualSourceReviewNeeded": true
     }
   ]
 }
@@ -738,15 +676,14 @@ Der einzige sichere naechste Schritt ist aktuell `manual-source-review`: offizie
 
 | Verlag | Gaps | Serien | Strategie |
 |---|---:|---:|---|
-| Altraverse | 8 | 3 | Offizielle Verlags-/Produktquelle manuell pruefen; kein Cache-Patch ohne belegtes tagesgenaues Release-Datum. |
+| Altraverse | 7 | 3 | Offizielle Verlags-/Produktquelle manuell pruefen; kein Cache-Patch ohne belegtes tagesgenaues Release-Datum. |
 | MANGAMOON | 7 | 2 | Offizielle Verlags-/Produktquelle manuell pruefen; kein Cache-Patch ohne belegtes tagesgenaues Release-Datum. |
 | Panini Manga | 6 | 1 | Offizielle Verlags-/Produktquelle manuell pruefen; kein Cache-Patch ohne belegtes tagesgenaues Release-Datum. |
 | Egmont Manga | 4 | 1 | Offizielle Verlags-/Produktquelle manuell pruefen; kein Cache-Patch ohne belegtes tagesgenaues Release-Datum. |
 | dani books | 2 | 1 | Offizielle Verlags-/Produktquelle manuell pruefen; kein Cache-Patch ohne belegtes tagesgenaues Release-Datum. |
-| MangaMoon | 2 | 2 | Offizielle Verlags-/Produktquelle manuell pruefen; kein Cache-Patch ohne belegtes tagesgenaues Release-Datum. |
 | Tokyopop | 2 | 2 | Offizielle Verlags-/Produktquelle manuell pruefen; kein Cache-Patch ohne belegtes tagesgenaues Release-Datum. |
 | Carlsen Manga | 1 | 1 | Offizielle Verlags-/Produktquelle manuell pruefen; kein Cache-Patch ohne belegtes tagesgenaues Release-Datum. |
-| Crunchyroll Manga | 1 | 1 | Offizielle Verlags-/Produktquelle manuell pruefen; kein Cache-Patch ohne belegtes tagesgenaues Release-Datum. |
+| MangaMoon | 1 | 1 | Offizielle Verlags-/Produktquelle manuell pruefen; kein Cache-Patch ohne belegtes tagesgenaues Release-Datum. |
 
 ## Konkrete naechste Fixes
 

@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-06-05T08:16:18.014Z",
+  "generatedAt": "2026-06-14T08:21:13.292Z",
   "source": "run-release-cache-pipeline.js",
-  "itemCount": 194,
+  "itemCount": 197,
   "items": [
     {
       "seriesTitle": "Adou",
@@ -1589,6 +1589,23 @@
       "checkedAt": "2026-05-19T15:26:34.180Z"
     },
     {
+      "seriesTitle": "Gushing over Magical Girls",
+      "normalizedSeriesTitle": "gushing over magical girls",
+      "publisher": "MANGAMOON",
+      "normalizedPublisher": "mangamoon",
+      "volumeNumber": 4,
+      "releaseDate": "2026-07-31",
+      "isbn13": null,
+      "coverUrl": "https://media.manga-passion.de/volume/cover/2026/0610/1934/bb690b3c3a6d143489baf69951fe29fa.webp",
+      "sourceUrl": "https://www.manga-passion.de/editions/5407",
+      "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
+      "evidence": "Manga Passion Edition, Verlag und Bandnummer wurden gegen die Bandliste abgeglichen.",
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 5407, Band 4). Ursprung: watchlist.",
+      "checkedAt": "2026-06-14T08:21:13.292Z"
+    },
+    {
       "seriesTitle": "I Was Reincarnated as the 7th Prince So I Can Take My Time Perfecting My Magical Ability",
       "normalizedSeriesTitle": "i was reincarnated as the 7th prince so i can take my time perfecting my magical ability",
       "publisher": "Dokico",
@@ -2458,6 +2475,23 @@
       "checkedAt": "2026-05-19T15:26:34.180Z"
     },
     {
+      "seriesTitle": "Solo Leveling: Ragnarok",
+      "normalizedSeriesTitle": "solo leveling ragnarok",
+      "publisher": "altraverse",
+      "normalizedPublisher": "altraverse",
+      "volumeNumber": 1,
+      "releaseDate": "2026-06-15",
+      "isbn13": null,
+      "coverUrl": "https://media.manga-passion.de/volume/cover/2026/0522/1641/fd107fa9546a6f83cb5d90c0095090c7.jpg",
+      "sourceUrl": "https://www.manga-passion.de/editions/6125",
+      "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
+      "evidence": "Manga Passion Edition, Verlag und Bandnummer wurden gegen die Bandliste abgeglichen.",
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 6125, Band 1). Ursprung: watchlist.",
+      "checkedAt": "2026-06-14T08:21:13.292Z"
+    },
+    {
       "seriesTitle": "Spy x Family",
       "normalizedSeriesTitle": "spy x family",
       "publisher": "KAZÉ Manga",
@@ -2726,6 +2760,23 @@
       "confidence": "high",
       "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 4962, Band 1). Ursprung: watchlist.",
       "checkedAt": "2026-05-30T10:30:29.037Z"
+    },
+    {
+      "seriesTitle": "Tokyo Ghoul GIGANTIK",
+      "normalizedSeriesTitle": "tokyo ghoul gigantik",
+      "publisher": "KAZÉ Manga",
+      "normalizedPublisher": "crunchyroll manga",
+      "volumeNumber": 2,
+      "releaseDate": "2025-10-03",
+      "isbn13": null,
+      "coverUrl": "https://media.manga-passion.de/volume/cover/2025/0918/1706/f6dcfb8dcea65342a4b8352b5fa8d6af.jpg",
+      "sourceUrl": "https://www.manga-passion.de/editions/4962",
+      "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
+      "evidence": "Manga Passion Edition, Verlag und Bandnummer wurden gegen die Bandliste abgeglichen.",
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 4962, Band 2). Ursprung: watchlist.",
+      "checkedAt": "2026-06-14T08:21:13.292Z"
     },
     {
       "seriesTitle": "Tokyo Ghoul:re",

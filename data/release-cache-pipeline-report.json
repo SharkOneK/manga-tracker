@@ -1,11 +1,11 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-06-06T07:24:32.336Z",
+  "generatedAt": "2026-06-14T08:21:13.292Z",
   "source": "run-release-cache-pipeline.js",
   "inputs": {
     "cacheItems": 194,
-    "watchlistCandidates": 204,
-    "reviewQueueCandidates": 92,
+    "watchlistCandidates": 208,
+    "reviewQueueCandidates": 96,
     "appSeedCandidates": 5
   },
   "policy": {
@@ -44,20 +44,57 @@
     ]
   },
   "summary": {
-    "candidatesDiscovered": 209,
-    "candidatesChecked": 30,
+    "candidatesDiscovered": 213,
+    "candidatesChecked": 34,
     "skippedAlreadyCached": 179,
     "skippedDueToLimit": 0,
-    "highConfidence": 0,
+    "highConfidence": 3,
     "mediumConfidence": 0,
-    "lowConfidence": 30,
+    "lowConfidence": 31,
     "blocked": 0,
-    "cachePatches": 0,
-    "reviewQueueWrites": 30,
+    "cachePatches": 3,
+    "reviewQueueWrites": 31,
     "invalidExistingCache": 0
   },
   "autoMergeEligible": false,
-  "cachePatches": [],
+  "cachePatches": [
+    {
+      "action": "add",
+      "key": "gushing over magical girls|mangamoon|4",
+      "seriesTitle": "Gushing over Magical Girls",
+      "publisher": "MANGAMOON",
+      "volumeNumber": 4,
+      "releaseDate": "2026-07-31",
+      "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
+      "sourceUrl": "https://www.manga-passion.de/editions/5407",
+      "confidence": "high"
+    },
+    {
+      "action": "add",
+      "key": "solo leveling ragnarok|altraverse|1",
+      "seriesTitle": "Solo Leveling: Ragnarok",
+      "publisher": "altraverse",
+      "volumeNumber": 1,
+      "releaseDate": "2026-06-15",
+      "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
+      "sourceUrl": "https://www.manga-passion.de/editions/6125",
+      "confidence": "high"
+    },
+    {
+      "action": "add",
+      "key": "tokyo ghoul gigantik|crunchyroll manga|2",
+      "seriesTitle": "Tokyo Ghoul GIGANTIK",
+      "publisher": "KAZÉ Manga",
+      "volumeNumber": 2,
+      "releaseDate": "2025-10-03",
+      "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
+      "sourceUrl": "https://www.manga-passion.de/editions/4962",
+      "confidence": "high"
+    }
+  ],
   "reviewQueueWrites": [
     {
       "key": "berserk master edition|panini manga|9",
@@ -540,27 +577,6 @@
       "sourceResult": "publisher-not-supported"
     },
     {
-      "key": "gushing over magical girls|mangamoon|4",
-      "queueKey": "Gushing over Magical Girls|MangaMoon|4",
-      "seriesTitle": "Gushing over Magical Girls",
-      "publisher": "MangaMoon",
-      "volumeNumber": 4,
-      "confidence": "low",
-      "reviewStatus": "auto-low-confidence",
-      "reasonCodes": [
-        "source-url-not-specific",
-        "missing-source-edition-title",
-        "missing-source-publisher",
-        "missing-source-volume-number",
-        "missing-release-date"
-      ],
-      "sourceName": "Carlsen Manga",
-      "providerId": "carlsen",
-      "sourceUrl": "https://www.carlsen.de",
-      "releaseDate": null,
-      "sourceResult": "publisher-not-supported"
-    },
-    {
       "key": "meine chefin kommt immer zuerst|mangamoon|2",
       "queueKey": "Meine Chefin kommt immer zuerst!!|MangaMoon|2",
       "seriesTitle": "Meine Chefin kommt immer zuerst!!",
@@ -668,6 +684,48 @@
       "seriesTitle": "Die letzte Elfe",
       "publisher": "Yomeru",
       "volumeNumber": 3,
+      "confidence": "low",
+      "reviewStatus": "auto-low-confidence",
+      "reasonCodes": [
+        "source-url-not-specific",
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date"
+      ],
+      "sourceName": "Carlsen Manga",
+      "providerId": "carlsen",
+      "sourceUrl": "https://www.carlsen.de",
+      "releaseDate": null,
+      "sourceResult": "publisher-not-supported"
+    },
+    {
+      "key": "the eminence in shadow|tokyopop|10",
+      "queueKey": "The Eminence in Shadow|Tokyopop|10",
+      "seriesTitle": "The Eminence in Shadow",
+      "publisher": "Tokyopop",
+      "volumeNumber": 10,
+      "confidence": "low",
+      "reviewStatus": "auto-low-confidence",
+      "reasonCodes": [
+        "source-url-not-specific",
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date"
+      ],
+      "sourceName": "Carlsen Manga",
+      "providerId": "carlsen",
+      "sourceUrl": "https://www.carlsen.de",
+      "releaseDate": null,
+      "sourceResult": "publisher-not-supported"
+    },
+    {
+      "key": "solo leveling ragnarok|altraverse|2",
+      "queueKey": "Solo Leveling: Ragnarok|Altraverse|2",
+      "seriesTitle": "Solo Leveling: Ragnarok",
+      "publisher": "Altraverse",
+      "volumeNumber": 2,
       "confidence": "low",
       "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
