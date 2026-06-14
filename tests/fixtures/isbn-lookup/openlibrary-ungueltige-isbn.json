@@ -1,0 +1,19 @@
+{
+  "numFound": 1,
+  "start": 0,
+  "docs": [
+    {
+      "title": "Fairy Tail 16",
+      "isbn": [
+        "3551796165",
+        "1234567890"
+      ],
+      "publisher": [
+        "Carlsen Manga"
+      ],
+      "language": [
+        "ger"
+      ]
+    }
+  ]
+}
