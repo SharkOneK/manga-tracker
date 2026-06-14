@@ -1293,6 +1293,74 @@ test('Phase 33: MangaMoon und MANGAMOON normalisieren gleich', () => {
   );
 });
 
+test('Phase 3.2: DEFAULT-Aliase decken Manga Cult / MangaCult ab', () => {
+  const { normalizePublisher } = require('./release-confidence');
+  assert.strictEqual(
+    normalizePublisher('Manga Cult'),
+    normalizePublisher('MangaCult'),
+    'Manga Cult und MangaCult muessen ohne aliasMap gleich normalisieren',
+  );
+});
+
+test('Phase 3.2: Animoon Publishing wird zu mangamoon kanonisiert (Vermeil-in-Gold-Fall)', () => {
+  const { normalizePublisher } = require('./release-confidence');
+  assert.strictEqual(
+    normalizePublisher('Animoon Publishing'),
+    normalizePublisher('MANGAMOON'),
+    'Animoon Publishing und MANGAMOON muessen gleich normalisieren',
+  );
+  assert.strictEqual(
+    normalizePublisher('Animoon Publishing'),
+    normalizePublisher('MangaMoon'),
+    'Animoon Publishing und MangaMoon muessen gleich normalisieren',
+  );
+});
+
+test('Phase 3.2: Egmont und Egmont Manga normalisieren gleich', () => {
+  const { normalizePublisher } = require('./release-confidence');
+  assert.strictEqual(
+    normalizePublisher('Egmont'),
+    normalizePublisher('Egmont Manga'),
+    'Egmont und Egmont Manga muessen ohne aliasMap gleich normalisieren',
+  );
+});
+
+test('Phase 3.2: hasPublisherConflict false fuer aliasierte Verlags-Paare (DEFAULT-Fallback)', () => {
+  const { hasPublisherConflict } = require('./release-confidence');
+  assert.strictEqual(
+    hasPublisherConflict({ publisher: 'MANGAMOON', sourcePublisher: 'Animoon Publishing' }),
+    false,
+    'MANGAMOON vs Animoon Publishing darf kein Konflikt sein',
+  );
+  assert.strictEqual(
+    hasPublisherConflict({ publisher: 'Egmont', sourcePublisher: 'Egmont Manga' }),
+    false,
+    'Egmont vs Egmont Manga darf kein Konflikt sein',
+  );
+});
+
+test('Phase 3.2: Hayabusa loest in beiden Maps eigenstaendig auf (nicht carlsen manga)', () => {
+  const fs = require('fs');
+  const { normalizePublisher, buildPublisherAliasMap } = require('./release-confidence');
+  const sources = JSON.parse(fs.readFileSync('data/release-sources.json', 'utf8'));
+  const sourceMap = buildPublisherAliasMap(sources);
+  assert.strictEqual(
+    normalizePublisher('Hayabusa'),
+    'hayabusa',
+    'DEFAULT-Map muss Hayabusa eigenstaendig (hayabusa) aufloesen',
+  );
+  assert.strictEqual(
+    normalizePublisher('Hayabusa', sourceMap),
+    'hayabusa',
+    'Source-basierte Map muss Hayabusa eigenstaendig (hayabusa) aufloesen',
+  );
+  assert.notStrictEqual(
+    normalizePublisher('Hayabusa', sourceMap),
+    'carlsen manga',
+    'Hayabusa darf in der Source-Map nicht mehr auf carlsen manga mappen',
+  );
+});
+
 test('Phase 33: Review-Queue erlaubt manuelle deferred/needs-source Klassifizierung', () => {
   const fs = require('fs');
   const queue = JSON.parse(fs.readFileSync('data/release-source-review-queue.json', 'utf8')).queue;

@@ -34,6 +34,22 @@ const DEFAULT_PUBLISHER_ALIASES = new Map([
   ['planet manga', 'panini manga'],
   ['panini', 'panini manga'],
   ['panini manga', 'panini manga'],
+  // Phase 3.2 (Backlog): DEFAULT-Map an source-basierte Map (release-sources.json) angleichen.
+  ['manga cult', 'manga cult'],
+  ['mangacult', 'manga cult'],
+  ['cross cult', 'manga cult'],
+  ['mangamoon', 'mangamoon'],
+  ['animoon publishing', 'mangamoon'],
+  ['altraverse', 'altraverse'],
+  ['egmont', 'egmont manga'],
+  ['egmont manga', 'egmont manga'],
+  ['egmont shop', 'egmont manga'],
+  // Hayabusa: eigenständiger Verlag mit eigener Source (release-sources.json).
+  ['hayabusa', 'hayabusa'],
+  ['dani books', 'dani books'],
+  ['dokico', 'dokico'],
+  ['yomeru', 'yomeru'],
+  ['kaze online', 'crunchyroll manga'],
 ]);
 
 function normalizeBase(value) {
@@ -248,6 +264,7 @@ module.exports = {
   DEFAULT_PUBLISHER_ALIASES,
   buildPublisherAliasMap,
   evaluateReleaseCandidate,
+  hasPublisherConflict,
   isAllowedSourceUrl,
   isBareLandingPageUrl,
   isRealReleaseDate,
