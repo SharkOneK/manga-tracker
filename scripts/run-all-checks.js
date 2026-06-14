@@ -89,6 +89,8 @@ const SYNTAX_FILES = [
   'scripts/audit-release-cache-coverage.js',
   'scripts/test-audit-json-contract.js',
   'scripts/test-audit-json-pipe-truncation.js',
+  'scripts/lookup-isbn13.js',
+  'scripts/test-isbn13-lookup.js',
 ];
 
 // ── Phase 2: Ausgeführte Checks (deckt CI ab + ergänzt fehlende Validatoren) ──
@@ -115,6 +117,7 @@ const RUN_CHECKS = [
   { label: 'Manga Passion backfill tests (Phase 48)', cmd: 'node', cmdArgs: ['scripts/test-manga-passion-backfill.js'] },
   { label: 'Audit JSON-Output contract (Phase 49)',   cmd: 'node', cmdArgs: ['scripts/test-audit-json-contract.js'] },
   { label: 'Audit JSON pipe-truncation guard (Phase 54b)', cmd: 'node', cmdArgs: ['scripts/test-audit-json-pipe-truncation.js'] },
+  { label: 'ISBN-13 lookup tests (Backlog 3.1)',     cmd: 'node', cmdArgs: ['scripts/test-isbn13-lookup.js'] },
   { label: 'Auto-merge gate tests',                 cmd: 'node', cmdArgs: ['scripts/test-automerge-gate.js'] },
   { label: 'Intake auto-merge gate tests',          cmd: 'node', cmdArgs: ['scripts/test-intake-automerge-gate.js'] },
   { label: 'Security audit (static)',               cmd: 'node', cmdArgs: ['scripts/security-audit-static.js'] },
