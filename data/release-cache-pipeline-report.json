@@ -1,11 +1,11 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-06-14T08:21:13.292Z",
+  "generatedAt": "2026-06-15T10:32:33.317Z",
   "source": "run-release-cache-pipeline.js",
   "inputs": {
-    "cacheItems": 194,
+    "cacheItems": 197,
     "watchlistCandidates": 208,
-    "reviewQueueCandidates": 96,
+    "reviewQueueCandidates": 93,
     "appSeedCandidates": 5
   },
   "policy": {
@@ -45,56 +45,19 @@
   },
   "summary": {
     "candidatesDiscovered": 213,
-    "candidatesChecked": 34,
-    "skippedAlreadyCached": 179,
+    "candidatesChecked": 31,
+    "skippedAlreadyCached": 182,
     "skippedDueToLimit": 0,
-    "highConfidence": 3,
+    "highConfidence": 0,
     "mediumConfidence": 0,
     "lowConfidence": 31,
     "blocked": 0,
-    "cachePatches": 3,
+    "cachePatches": 0,
     "reviewQueueWrites": 31,
     "invalidExistingCache": 0
   },
   "autoMergeEligible": false,
-  "cachePatches": [
-    {
-      "action": "add",
-      "key": "gushing over magical girls|mangamoon|4",
-      "seriesTitle": "Gushing over Magical Girls",
-      "publisher": "MANGAMOON",
-      "volumeNumber": 4,
-      "releaseDate": "2026-07-31",
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/5407",
-      "confidence": "high"
-    },
-    {
-      "action": "add",
-      "key": "solo leveling ragnarok|altraverse|1",
-      "seriesTitle": "Solo Leveling: Ragnarok",
-      "publisher": "altraverse",
-      "volumeNumber": 1,
-      "releaseDate": "2026-06-15",
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/6125",
-      "confidence": "high"
-    },
-    {
-      "action": "add",
-      "key": "tokyo ghoul gigantik|crunchyroll manga|2",
-      "seriesTitle": "Tokyo Ghoul GIGANTIK",
-      "publisher": "KAZÉ Manga",
-      "volumeNumber": 2,
-      "releaseDate": "2025-10-03",
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/4962",
-      "confidence": "high"
-    }
-  ],
+  "cachePatches": [],
   "reviewQueueWrites": [
     {
       "key": "berserk master edition|panini manga|9",
@@ -640,6 +603,48 @@
       "sourceResult": "publisher-not-supported"
     },
     {
+      "key": "solo leveling ragnarok|altraverse|2",
+      "queueKey": "Solo Leveling: Ragnarok|Altraverse|2",
+      "seriesTitle": "Solo Leveling: Ragnarok",
+      "publisher": "Altraverse",
+      "volumeNumber": 2,
+      "confidence": "low",
+      "reviewStatus": "auto-low-confidence",
+      "reasonCodes": [
+        "source-url-not-specific",
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date"
+      ],
+      "sourceName": "Carlsen Manga",
+      "providerId": "carlsen",
+      "sourceUrl": "https://www.carlsen.de",
+      "releaseDate": null,
+      "sourceResult": "publisher-not-supported"
+    },
+    {
+      "key": "the eminence in shadow|tokyopop|10",
+      "queueKey": "The Eminence in Shadow|Tokyopop|10",
+      "seriesTitle": "The Eminence in Shadow",
+      "publisher": "Tokyopop",
+      "volumeNumber": 10,
+      "confidence": "low",
+      "reviewStatus": "auto-low-confidence",
+      "reasonCodes": [
+        "source-url-not-specific",
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date"
+      ],
+      "sourceName": "Carlsen Manga",
+      "providerId": "carlsen",
+      "sourceUrl": "https://www.carlsen.de",
+      "releaseDate": null,
+      "sourceResult": "publisher-not-supported"
+    },
+    {
       "key": "tokyo revengers doppelband edition|carlsen manga|16",
       "queueKey": "Tokyo Revengers – Doppelband-Edition|Carlsen Manga|16",
       "seriesTitle": "Tokyo Revengers – Doppelband-Edition",
@@ -684,48 +689,6 @@
       "seriesTitle": "Die letzte Elfe",
       "publisher": "Yomeru",
       "volumeNumber": 3,
-      "confidence": "low",
-      "reviewStatus": "auto-low-confidence",
-      "reasonCodes": [
-        "source-url-not-specific",
-        "missing-source-edition-title",
-        "missing-source-publisher",
-        "missing-source-volume-number",
-        "missing-release-date"
-      ],
-      "sourceName": "Carlsen Manga",
-      "providerId": "carlsen",
-      "sourceUrl": "https://www.carlsen.de",
-      "releaseDate": null,
-      "sourceResult": "publisher-not-supported"
-    },
-    {
-      "key": "the eminence in shadow|tokyopop|10",
-      "queueKey": "The Eminence in Shadow|Tokyopop|10",
-      "seriesTitle": "The Eminence in Shadow",
-      "publisher": "Tokyopop",
-      "volumeNumber": 10,
-      "confidence": "low",
-      "reviewStatus": "auto-low-confidence",
-      "reasonCodes": [
-        "source-url-not-specific",
-        "missing-source-edition-title",
-        "missing-source-publisher",
-        "missing-source-volume-number",
-        "missing-release-date"
-      ],
-      "sourceName": "Carlsen Manga",
-      "providerId": "carlsen",
-      "sourceUrl": "https://www.carlsen.de",
-      "releaseDate": null,
-      "sourceResult": "publisher-not-supported"
-    },
-    {
-      "key": "solo leveling ragnarok|altraverse|2",
-      "queueKey": "Solo Leveling: Ragnarok|Altraverse|2",
-      "seriesTitle": "Solo Leveling: Ragnarok",
-      "publisher": "Altraverse",
-      "volumeNumber": 2,
       "confidence": "low",
       "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
@@ -805,7 +768,7 @@
     "spy x family|crunchyroll manga|13",
     "spy x family|crunchyroll manga|14",
     "spy x family|crunchyroll manga|15",
-    "august 9th i will be eaten by you|carlsen manga|6",
+    "august 9th i will be eaten by you|hayabusa|6",
     "vagabond master edition|egmont manga|8",
     "vagabond master edition|egmont manga|9",
     "vagabond master edition|egmont manga|10",
@@ -823,11 +786,11 @@
     "adou|altraverse|9",
     "adou|altraverse|10",
     "adou|altraverse|11",
-    "august 9th i will be eaten by you|carlsen manga|5",
+    "august 9th i will be eaten by you|hayabusa|5",
     "berserk master edition|panini manga|5",
     "berserk master edition|panini manga|7",
     "berserk master edition|panini manga|8",
-    "blood blade|carlsen manga|4",
+    "blood blade|hayabusa|4",
     "brynhildr in the darkness|tokyopop|12",
     "brynhildr in the darkness|tokyopop|13",
     "brynhildr in the darkness|tokyopop|14",
@@ -845,6 +808,7 @@
     "from the red fog|manga cult|4",
     "from the red fog|manga cult|5",
     "gushing over magical girls|mangamoon|3",
+    "gushing over magical girls|mangamoon|4",
     "jujutsu kaisen|crunchyroll manga|3",
     "jujutsu kaisen|crunchyroll manga|4",
     "jujutsu kaisen|crunchyroll manga|5",
@@ -920,6 +884,8 @@
     "darling in the franxx|manga cult|1",
     "meine wiedergeburt als schleim in einer anderen welt|altraverse|1",
     "mushoku tensei in dieser welt mach ich alles anders|panini manga|1",
+    "solo leveling ragnarok|altraverse|1",
+    "tokyo ghoul gigantik|crunchyroll manga|2",
     "the eminence in shadow|tokyopop|9",
     "dai dark|manga cult|9",
     "arifureta der kampf zuruck in meine welt zero|altraverse|1"
