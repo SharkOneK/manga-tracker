@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-06-14T08:32:14.894Z",
+  "generatedAt": "2026-06-15T10:45:05.308Z",
   "source": "run-series-publication-status.js",
   "networkMode": "enabled",
   "summary": {
@@ -8,38 +8,17 @@
     "ongoing": 32,
     "finished": 11,
     "checkedEditions": 41,
-    "appliedChanges": 5,
+    "appliedChanges": 2,
     "overridesApplied": 1,
     "blockedOrUnmapped": 4
   },
   "changes": [
-    {
-      "seriesTitle": "DARLING in the FRANXX",
-      "publisher": "Manga Cult",
-      "oldOngoing": "true",
-      "newOngoing": "false",
-      "editionId": 2936
-    },
-    {
-      "seriesTitle": "Maria's Judgement",
-      "publisher": "Egmont Manga",
-      "oldOngoing": null,
-      "newOngoing": "true",
-      "editionId": 4618
-    },
     {
       "seriesTitle": "Real Account",
       "publisher": "TOKYOPOP",
       "oldOngoing": "false",
       "newOngoing": "true",
       "editionId": 819
-    },
-    {
-      "seriesTitle": "The Eminence in Shadow",
-      "publisher": "TOKYOPOP",
-      "oldOngoing": null,
-      "newOngoing": "true",
-      "editionId": 2790
     },
     {
       "seriesTitle": "Real Account",
