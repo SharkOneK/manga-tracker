@@ -25,6 +25,7 @@
   },
   "homepage": "https://github.com/SharkOneK/manga-tracker#readme",
   "devDependencies": {
+    "jszip": "3.10.1",
     "playwright": "^1.60.0"
   }
 }

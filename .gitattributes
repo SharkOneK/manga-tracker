@@ -1,0 +1,2 @@
+# Vendor-Dateien als binary behandeln, damit CRLF-Konvertierung den SRI-Hash nicht verfälscht
+vendor/jszip.min.js binary

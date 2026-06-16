@@ -794,6 +794,27 @@ if (!fileExists('data/series-status-overrides.json')) {
   pass('Check 57e: Phase-58 Overrides werden validiert und in der Pipeline angewandt');
 }
 
+// ── Check 40: Phase-64 — vendor/jszip.min.js Script-Tag enthält SRI-Hash ───
+if (!html) {
+  fail('Check 40: index.html nicht gefunden (SRI-Check nicht möglich)');
+} else {
+  const jszipTagMatch = html.match(/<script[^>]+vendor\/jszip\.min\.js[^>]*>/i);
+  if (!jszipTagMatch) {
+    fail('Check 40: Kein vendor/jszip.min.js Script-Tag in index.html gefunden');
+  } else {
+    const tag = jszipTagMatch[0];
+    const hasIntegrity  = /integrity=["']sha384-[A-Za-z0-9+/]+=*["']/.test(tag);
+    const hasCrossorigin = /crossorigin=["']anonymous["']/.test(tag);
+    if (!hasIntegrity) {
+      fail('Check 40: vendor/jszip.min.js Script-Tag enthält kein integrity="sha384-..." Attribut');
+    } else if (!hasCrossorigin) {
+      fail('Check 40: vendor/jszip.min.js Script-Tag enthält kein crossorigin="anonymous" Attribut');
+    } else {
+      pass('Check 40: vendor/jszip.min.js Script-Tag enthält SRI-Hash (sha384) und crossorigin');
+    }
+  }
+}
+
 const passed = totalChecks - totalFailed - totalWarns;
 console.log('');
 if (totalWarns > 0) {

@@ -25,6 +25,12 @@ jobs:
         with:
           node-version: '24'
 
+      - name: Install dependencies (for audit)
+        run: npm ci
+
+      - name: Dependency audit (high+)
+        run: npm audit --audit-level=high
+
       # ── Einheitlicher Validierungs-Runner (Phase 46a) ───────────────────────
       # Single Source of Truth: scripts/run-all-checks.js bündelt Syntax-Checks,
       # Validatoren, Tests und Security-Audit. Lokal identisch über
