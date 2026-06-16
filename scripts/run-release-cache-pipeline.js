@@ -38,6 +38,7 @@ const sourcesFile = path.join(dataDir, 'release-sources.json');
 const watchlistFile = path.join(dataDir, 'release-watchlist.json');
 const queueFile = path.join(dataDir, 'release-source-review-queue.json');
 const reportFile = path.join(dataDir, 'release-cache-pipeline-report.json');
+const isbnLookupCacheFile = path.join(dataDir, 'isbn-lookup-cache.json');
 
 const ISO_RE = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/;
 const PRIORITY_ORDER = new Map([
@@ -67,6 +68,29 @@ function normalizeIsbn13(value) {
   const digits = String(value).replace(/[^0-9Xx]/g, '');
   if (/^(978|979)\d{10}$/.test(digits)) return digits;
   return null;
+}
+
+// Backlog 3.x: high-confidence ISBN-13 aus data/isbn-lookup-cache.json einlesen
+// (best effort: fehlende/leere/kaputte Datei darf die Pipeline nicht crashen).
+// Liefert eine Map cacheKey -> normalisierte ISBN-13; nur 'high'-Items zählen.
+function loadHighIsbnMap(filePath, aliasMap) {
+  const map = new Map();
+  let doc;
+  try {
+    doc = readJson(filePath);
+  } catch (_) {
+    return map;
+  }
+  const items = doc && Array.isArray(doc.items) ? doc.items : [];
+  for (const item of items) {
+    if (!item || typeof item !== 'object') continue;
+    if (item.confidence !== 'high') continue;
+    const isbn13 = normalizeIsbn13(item.isbn13);
+    if (!isbn13) continue;
+    const key = cacheKeyFromParts(item.seriesTitle, item.publisher, item.volumeNumber, aliasMap);
+    map.set(key, isbn13); // last-wins, deterministisch nach Cache-Reihenfolge
+  }
+  return map;
 }
 
 function cacheKeyFromParts(seriesTitle, publisher, volumeNumber, aliasMap) {
@@ -443,6 +467,8 @@ async function main() {
   const existingCache = readJson(cacheFile);
   const existingQueue = readJson(queueFile);
   const aliasMap = buildPublisherAliasMap(sources);
+  // Backlog 3.x: high-confidence ISBN-13 aus dem Lookup-Cache (best effort).
+  const highIsbnByKey = loadHighIsbnMap(isbnLookupCacheFile, aliasMap);
   const policy = {
     minDelayMs: Number(process.env.RELEASE_PIPELINE_MIN_DELAY_MS || (sources.requestPolicy && sources.requestPolicy.minDelayMs) || 1200),
     timeoutMs: Number(process.env.RELEASE_PIPELINE_TIMEOUT_MS || (sources.requestPolicy && sources.requestPolicy.timeoutMs) || 12000),
@@ -502,6 +528,11 @@ async function main() {
   console.log(`Release-Cache-Pipeline: pruefe ${boundedCandidates.length} Kandidat(en), Limit ${policy.maxItemsPerSource}`);
 
   for (const seed of boundedCandidates) {
+    // Backlog 3.x: high-confidence ISBN-13 aus dem Lookup-Cache an den Seed
+    // anhängen, damit evaluateReleaseCandidate sie gegen die Provider-ISBN
+    // abgleichen kann. Nur 'high'; ohne Treffer bleibt das Feld ungesetzt.
+    const expectedIsbn13 = highIsbnByKey.get(cacheKey(seed, aliasMap));
+    if (expectedIsbn13) seed.expectedIsbn13 = expectedIsbn13;
     const checked = await checkCandidateSource(seed, { sources, aliasMap, policy, checkedAt: startedAt });
     const evaluation = evaluateReleaseCandidate(checked, { sources, aliasMap });
     const key = cacheKey(checked, aliasMap);
