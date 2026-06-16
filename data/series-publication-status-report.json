@@ -1,16 +1,16 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-06-15T10:45:05.308Z",
+  "generatedAt": "2026-06-16T09:58:16.606Z",
   "source": "run-series-publication-status.js",
   "networkMode": "enabled",
   "summary": {
-    "seriesWithStatus": 43,
-    "ongoing": 32,
+    "seriesWithStatus": 44,
+    "ongoing": 33,
     "finished": 11,
     "checkedEditions": 41,
-    "appliedChanges": 2,
+    "appliedChanges": 3,
     "overridesApplied": 1,
-    "blockedOrUnmapped": 4
+    "blockedOrUnmapped": 5
   },
   "changes": [
     {
@@ -19,6 +19,13 @@
       "oldOngoing": "false",
       "newOngoing": "true",
       "editionId": 819
+    },
+    {
+      "seriesTitle": "Solo Leveling: Ragnarok",
+      "publisher": "altraverse",
+      "oldOngoing": null,
+      "newOngoing": "true",
+      "editionId": 6125
     },
     {
       "seriesTitle": "Real Account",
@@ -37,6 +44,13 @@
     }
   ],
   "blocked": [
+    {
+      "seriesTitle": "Berserk Master Edition",
+      "publisher": "Panini Manga",
+      "reasonCodes": [
+        "no-manga-passion-edition"
+      ]
+    },
     {
       "seriesTitle": "Colorless",
       "publisher": "Manga Cult",
@@ -89,12 +103,6 @@
       "seriesTitle": "August 9th, I will be eaten by you",
       "publisher": "Hayabusa",
       "editionId": 2015,
-      "sourceStatus": 1
-    },
-    {
-      "seriesTitle": "Berserk Master Edition",
-      "publisher": "Panini Manga",
-      "editionId": 5211,
       "sourceStatus": 1
     },
     {
@@ -239,6 +247,12 @@
       "seriesTitle": "Reincarnated as a Sword: Another Wish",
       "publisher": "Dokico",
       "editionId": 5351,
+      "sourceStatus": 1
+    },
+    {
+      "seriesTitle": "Solo Leveling: Ragnarok",
+      "publisher": "altraverse",
+      "editionId": 6125,
       "sourceStatus": 1
     },
     {
