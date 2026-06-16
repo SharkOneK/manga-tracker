@@ -163,6 +163,23 @@ function hasEditionConflict(candidate) {
   return expected !== editionTitle;
 }
 
+// Backlog 3.x: ISBN-13 aus dem Lookup-Cache (high-confidence) gegen die vom
+// Provider gelieferte ISBN abgleichen. Rein additiv: greift nur, wenn beide
+// Werte als gültige ISBN-13 vorliegen. Ergebnis 'match' | 'mismatch' | 'none'.
+function normalizeIsbn13(value) {
+  if (value === null || value === undefined || value === '') return null;
+  const digits = String(value).replace(/[^0-9Xx]/g, '');
+  if (/^(978|979)\d{10}$/.test(digits)) return digits;
+  return null;
+}
+
+function isbnMatch(candidate) {
+  const expected = normalizeIsbn13(candidate && candidate.expectedIsbn13);
+  const actual = normalizeIsbn13(candidate && candidate.isbn13);
+  if (!expected || !actual) return 'none';
+  return expected === actual ? 'match' : 'mismatch';
+}
+
 function hasVolumeConflict(candidate) {
   const expected = Number(candidate.volumeNumber);
   const sourceVolume = Number(candidate.sourceVolumeNumber == null ? candidate.volumeNumber : candidate.sourceVolumeNumber);
@@ -218,6 +235,13 @@ function evaluateReleaseCandidate(candidate, context = {}) {
   if (candidate.sourceFetchFailed === true) reasonCodes.push('source-fetch-failed');
   if (candidate.providerConflict === true) reasonCodes.push('provider-conflict');
 
+  // Backlog 3.x: high-confidence ISBN-13 aus dem Lookup-Cache (candidate.expectedIsbn13)
+  // mit der Provider-ISBN (candidate.isbn13) abgleichen. Wirkt NUR, wenn eine gültige
+  // expectedIsbn13 vorliegt; ohne sie bleibt das Verhalten bit-identisch (kein Regress).
+  const hasExpectedIsbn = Boolean(normalizeIsbn13(candidate.expectedIsbn13));
+  const isbnVerdict = hasExpectedIsbn ? isbnMatch(candidate) : 'none';
+  if (isbnVerdict === 'mismatch') reasonCodes.push('isbn-conflict');
+
   const blockedReasons = new Set([
     'placeholder-release-date',
     'invalid-release-date',
@@ -227,12 +251,33 @@ function evaluateReleaseCandidate(candidate, context = {}) {
     'volume-number-conflict',
     'ambiguous-edition',
     'provider-conflict',
+    'isbn-conflict',
   ]);
-  const blocked = reasonCodes.some(code => blockedReasons.has(code));
+  let blocked = reasonCodes.some(code => blockedReasons.has(code));
+
+  // Bei bestätigter ISBN (high-Match) darf ein ausschließlich edition-/ambiguity-bedingter
+  // Block aufgehoben werden — alle anderen Block-Gründe bleiben blockierend.
+  const ISBN_OVERRIDABLE = new Set(['edition-title-conflict', 'ambiguous-edition']);
+  const isbnConfirmedHighEligible =
+    isbnVerdict === 'match' &&
+    blocked &&
+    reasonCodes.every(code => !blockedReasons.has(code) || ISBN_OVERRIDABLE.has(code)) &&
+    sourcePublisher &&
+    hasSourceVolumeNumber &&
+    !publisherConflict &&
+    !volumeConflict &&
+    realDate &&
+    hasSourceUrl &&
+    sourceUrlAllowed &&
+    !bareLandingPage &&
+    candidate.sourceName;
+  if (isbnConfirmedHighEligible) blocked = false;
 
   let confidence = 'low';
   if (blocked) {
     confidence = 'blocked';
+  } else if (isbnConfirmedHighEligible) {
+    confidence = 'high';
   } else if (
     exactTitle &&
     sourcePublisher &&
@@ -266,10 +311,12 @@ module.exports = {
   evaluateReleaseCandidate,
   hasPublisherConflict,
   isAllowedSourceUrl,
+  isbnMatch,
   isBareLandingPageUrl,
   isRealReleaseDate,
   isValidDate,
   isValidHttpUrl,
+  normalizeIsbn13,
   normalizePublisher,
   normalizeTitle,
 };
