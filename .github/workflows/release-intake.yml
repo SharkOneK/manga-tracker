@@ -74,9 +74,16 @@ jobs:
           node scripts/smoke-test-static.js
           node scripts/test-stats.js
           node scripts/test-data-integrity.js
-          node scripts/test-intake-automerge-gate.js
           node scripts/test-audit-json-contract.js
           git diff --check
+
+      # Backlog 2.2: Das Intake-Auto-Merge-Gate (Phase 46g) als eigenstaendigen,
+      # sichtbaren CI-Check absichern, damit ein Regress in der Gate-Logik den
+      # Intake-Workflow rot macht und Intake-PRs den Gate-Stand nicht korrumpieren.
+      # Offline, kein Secret/Netz noetig. Cache-Gate-Test (test-automerge-gate.js)
+      # bewusst NICHT hier — der gehoert zu update-release-cache.yml.
+      - name: Intake auto-merge gate tests
+        run: node scripts/test-intake-automerge-gate.js
 
       - name: Run release intake
         env:
