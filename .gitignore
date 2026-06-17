@@ -1,3 +1,4 @@
 artifacts/
+coverage/
 .tmp.driveupload/
 node_modules/
