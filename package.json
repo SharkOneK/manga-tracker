@@ -10,7 +10,8 @@
     "validate": "node scripts/run-all-checks.js",
     "validate:syntax": "node scripts/run-all-checks.js --syntax-only",
     "validate:run": "node scripts/run-all-checks.js --run-only",
-    "test": "node scripts/run-all-checks.js"
+    "test": "node scripts/run-all-checks.js",
+    "coverage": "c8 node scripts/run-all-checks.js"
   },
   "repository": {
     "type": "git",
@@ -25,6 +26,7 @@
   },
   "homepage": "https://github.com/SharkOneK/manga-tracker#readme",
   "devDependencies": {
+    "c8": "11.0.0",
     "jszip": "3.10.1",
     "playwright": "^1.60.0"
   }

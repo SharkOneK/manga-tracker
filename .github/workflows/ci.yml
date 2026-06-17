@@ -38,6 +38,28 @@ jobs:
       - name: Run all checks (syntax, validators, tests, security)
         run: node scripts/run-all-checks.js
 
+      # ── Test-Coverage-Report (Phase 66, informativ, kein Gate) ─────────────
+      - name: Test coverage report
+        if: always()
+        continue-on-error: true
+        run: npm run coverage
+
+      - name: Write coverage summary to GitHub step summary
+        continue-on-error: true
+        if: always()
+        run: |
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+          npx c8 report --reporter=text-summary >> "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload test coverage report
+        uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: test-coverage-report
+          path: coverage/
+          if-no-files-found: warn
+
       # Expliziter Syntax-Check der Coverage-Writer — der Runner deckt dies
       # bereits ab; diese Zeilen erhalten zusätzlich den Phase-22e/22f-Contract
       # (test-stats prüft, dass ci.yml die Coverage-Writer syntaktisch prüft).
