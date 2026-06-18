@@ -539,7 +539,12 @@ function clearSearch() {
 }
 function applySearch(list) {
   if (!searchQ) return list;
-  return list.filter(m => m.title.toLowerCase().includes(searchQ) || (m.pub||'').toLowerCase().includes(searchQ));
+  return list.filter(m =>
+    m.title.toLowerCase().includes(searchQ) ||
+    (m.pub||'').toLowerCase().includes(searchQ) ||
+    (m.genres||[]).some(g => (g||'').toLowerCase().includes(searchQ)) ||
+    (m.notes||'').toLowerCase().includes(searchQ)
+  );
 }
 
 // ─── Computed ─────────────────────────────────────────────────────────────
@@ -1358,7 +1363,7 @@ function renderDashboard() {
 }
 
 // ─── Genre / Tags ─────────────────────────────────────────────────────────
-let filterGenre = '';
+let filterGenres = [];
 
 function resolveProtectedGenres(existing) {
   return Array.isArray(existing?.genres) ? [...existing.genres] : [];
@@ -1403,19 +1408,29 @@ function updateGenreFilter() {
     wrap.style.display = 'none'; return;
   }
   wrap.style.display = 'flex';
-  wrap.innerHTML = ['', ...usedGenres].map(g =>
-    `<span class="genre-filter-chip${filterGenre===g?' on':''}" data-action="set-genre-filter" data-genre="${escapeHtml(g)}">${g||'Alle'}</span>`
-  ).join('');
+  wrap.innerHTML = ['', ...usedGenres].map(g => {
+    const isActive = g === '' ? filterGenres.length === 0 : filterGenres.includes(g);
+    return `<span class="genre-filter-chip${isActive?' on':''}" data-action="set-genre-filter" data-genre="${escapeHtml(g)}">${g||'Alle'}</span>`;
+  }).join('');
 }
 
 function setGenreFilter(g) {
-  filterGenre = g;
+  if (g === '') {
+    filterGenres = [];
+  } else {
+    const idx = filterGenres.indexOf(g);
+    if (idx === -1) {
+      filterGenres = [...filterGenres, g];
+    } else {
+      filterGenres = filterGenres.filter(x => x !== g);
+    }
+  }
   render();
 }
 
 function applyGenreFilter(list) {
-  if (!filterGenre) return list;
-  return list.filter(m => (m.genres||[]).includes(filterGenre));
+  if (filterGenres.length === 0) return list;
+  return list.filter(m => (m.genres||[]).some(g => filterGenres.includes(g)));
 }
 
 // ─── Publisher Filter ────────────────────────────────────────────────────
