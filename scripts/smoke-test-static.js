@@ -590,6 +590,34 @@ if (!fs.existsSync(coverageGapsMdPath)) {
   }
 }
 
+// ── Phase 69: PWA / Service Worker ─────────────────────────────────────────
+console.log('\nPrüfe: Phase 69 — PWA-Dateien (sw.js, manifest.json, sw-register.js)\n');
+
+[
+  'sw.js',
+  'manifest.json',
+  'src/sw-register.js',
+].forEach(function (rel) {
+  var target = path.join(repoRoot, rel);
+  if (!fs.existsSync(target)) {
+    fail(rel + ' nicht gefunden');
+  } else {
+    pass(rel + ' vorhanden');
+  }
+});
+
+if (!html.includes('./manifest.json')) {
+  fail('index.html: <link rel="manifest" href="./manifest.json"> fehlt');
+} else {
+  pass('index.html: ./manifest.json korrekt referenziert');
+}
+
+if (!html.includes('src/sw-register.js')) {
+  fail('index.html: <script src="./src/sw-register.js"> fehlt');
+} else {
+  pass('index.html: ./src/sw-register.js korrekt referenziert');
+}
+
 // ── Ergebnis ───────────────────────────────────────────────────────────────
 // ── Phase 26: Release-Provider und Dashboard-Aktionszentrale ───────────────
 console.log('\nPruefe: Phase 26 - Release-Provider und Dashboard-Aktionszentrale\n');
