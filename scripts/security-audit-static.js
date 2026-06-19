@@ -815,6 +815,117 @@ if (!html) {
   }
 }
 
+// ── Phase-69-Checks: Service Worker / Manifest ────────────────────────────────
+
+const swJs = readFile('sw.js');
+const manifestJson = readFile('manifest.json');
+const swRegisterJs = readFile('src/sw-register.js');
+
+// ── Check 69a: sw.js existiert und enthält fetch-Handler ─────────────────────
+if (!swJs) {
+  fail("Check 69a: sw.js nicht gefunden");
+} else if (!swJs.includes("addEventListener('fetch'")) {
+  fail("Check 69a: sw.js enthält keinen fetch-Handler (addEventListener('fetch'))");
+} else {
+  pass("Check 69a: sw.js vorhanden und enthält fetch-Handler");
+}
+
+// ── Check 69b: sw.js enthält Cross-Origin-Bypass (kein Caching von Supabase/MP)
+if (!swJs) {
+  fail("Check 69b: sw.js nicht prüfbar");
+} else if (!swJs.includes('self.location.origin')) {
+  fail("Check 69b: sw.js enthält keinen Cross-Origin-Bypass (self.location.origin fehlt)");
+} else {
+  pass("Check 69b: sw.js enthält Cross-Origin-Bypass (self.location.origin)");
+}
+
+// ── Check 69c: sw.js fängt nur GET ab ────────────────────────────────────────
+if (!swJs) {
+  fail("Check 69c: sw.js nicht prüfbar");
+} else if (!swJs.includes("method !== 'GET'")) {
+  fail("Check 69c: sw.js enthält keinen Non-GET-Guard (method !== 'GET')");
+} else {
+  pass("Check 69c: sw.js fängt nur GET-Requests ab (method !== 'GET' Guard vorhanden)");
+}
+
+// ── Check 69d: sw.js berührt kein localStorage / keine Token-Keys ─────────────
+if (!swJs) {
+  fail("Check 69d: sw.js nicht prüfbar");
+} else {
+  const tokenPatterns = ['localStorage', 'mtOwnerToken', 'mtCollId', 'sb-', 'owner_token'];
+  const found = tokenPatterns.filter(function (p) { return swJs.includes(p); });
+  if (found.length > 0) {
+    fail("Check 69d: sw.js berührt Token-/localStorage-Keys: " + found.join(', '));
+  } else {
+    pass("Check 69d: sw.js enthält kein localStorage und keine Token-Keys");
+  }
+}
+
+// ── Check 69e: sw.js enthält CACHE_VERSION und activate-Cleanup ──────────────
+if (!swJs) {
+  fail("Check 69e: sw.js nicht prüfbar");
+} else if (!swJs.includes('CACHE_VERSION')) {
+  fail("Check 69e: sw.js enthält keine CACHE_VERSION-Konstante");
+} else if (!swJs.includes('caches.delete')) {
+  fail("Check 69e: sw.js enthält keinen activate-Cleanup (caches.delete fehlt)");
+} else {
+  pass("Check 69e: sw.js enthält CACHE_VERSION und activate-Cleanup (caches.delete)");
+}
+
+// ── Check 69f: index.html referenziert ./manifest.json (kein data:-Manifest) ──
+if (!html) {
+  fail("Check 69f: index.html nicht prüfbar");
+} else if (html.includes('data:application/manifest+json')) {
+  fail("Check 69f: index.html enthält noch ein inline data:-Manifest — muss durch ./manifest.json ersetzt sein");
+} else if (!html.includes('./manifest.json')) {
+  fail("Check 69f: index.html referenziert manifest.json nicht");
+} else {
+  pass("Check 69f: index.html referenziert ./manifest.json (kein inline data:-Manifest)");
+}
+
+// ── Check 69g: index.html lädt ./src/sw-register.js ─────────────────────────
+if (!html) {
+  fail("Check 69g: index.html nicht prüfbar");
+} else if (!html.includes('src/sw-register.js')) {
+  fail("Check 69g: index.html lädt ./src/sw-register.js nicht");
+} else {
+  pass("Check 69g: index.html lädt ./src/sw-register.js");
+}
+
+// ── Check 69h: manifest.json existiert, ist valides JSON, hat relative start_url/scope
+if (!manifestJson) {
+  fail("Check 69h: manifest.json nicht gefunden");
+} else {
+  var manifestParsed = null;
+  try {
+    manifestParsed = JSON.parse(manifestJson);
+  } catch (e) {
+    fail("Check 69h: manifest.json ist kein valides JSON: " + e.message);
+  }
+  if (manifestParsed !== null) {
+    if (!manifestParsed.start_url) {
+      fail("Check 69h: manifest.json enthält kein start_url");
+    } else if (manifestParsed.start_url.startsWith('/')) {
+      fail("Check 69h: manifest.json start_url ist absolut (beginnt mit '/') — muss relativ sein");
+    } else if (!manifestParsed.display) {
+      fail("Check 69h: manifest.json enthält kein display-Feld");
+    } else if (manifestParsed.scope && manifestParsed.scope.startsWith('/')) {
+      fail("Check 69h: manifest.json scope ist absolut (beginnt mit '/') — muss relativ sein");
+    } else {
+      pass("Check 69h: manifest.json ist valides JSON mit relativer start_url und display");
+    }
+  }
+}
+
+// ── Check 69i: sw.js cacht keine Supabase/Manga-Passion-URLs im precache-Array
+if (!swJs) {
+  fail("Check 69i: sw.js nicht prüfbar");
+} else if (/supabase\.co|manga-passion/i.test(swJs.replace(/\/\/.*/g, ''))) {
+  fail("Check 69i: sw.js enthält supabase.co oder manga-passion in nicht-kommen­tierten Zeilen (darf nicht gecacht werden)");
+} else {
+  pass("Check 69i: sw.js enthält keine Supabase/Manga-Passion-URLs im Code");
+}
+
 const passed = totalChecks - totalFailed - totalWarns;
 console.log('');
 if (totalWarns > 0) {

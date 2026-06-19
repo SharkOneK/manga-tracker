@@ -95,6 +95,8 @@ const SYNTAX_FILES = [
   'scripts/test-release-confidence-isbn.js',
   'scripts/test-filter-phase67.js',
   'scripts/test-rpc-contracts.js',
+  'sw.js',
+  'src/sw-register.js',
 ];
 
 // ── Phase 2: Ausgeführte Checks (deckt CI ab + ergänzt fehlende Validatoren) ──
