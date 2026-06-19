@@ -94,6 +94,7 @@ const SYNTAX_FILES = [
   'scripts/validate-isbn-lookup-cache.js',
   'scripts/test-release-confidence-isbn.js',
   'scripts/test-filter-phase67.js',
+  'scripts/test-rpc-contracts.js',
 ];
 
 // ── Phase 2: Ausgeführte Checks (deckt CI ab + ergänzt fehlende Validatoren) ──
@@ -124,6 +125,7 @@ const RUN_CHECKS = [
   { label: 'Validate ISBN lookup cache',             cmd: 'node', cmdArgs: ['scripts/validate-isbn-lookup-cache.js'] },
   { label: 'Release-confidence ISBN tests',          cmd: 'node', cmdArgs: ['scripts/test-release-confidence-isbn.js'] },
   { label: 'Filter/Suche tests (Phase 67)',          cmd: 'node', cmdArgs: ['scripts/test-filter-phase67.js'] },
+  { label: 'RPC contract tests (Phase 68)',          cmd: 'node', cmdArgs: ['scripts/test-rpc-contracts.js'] },
   { label: 'Auto-merge gate tests',                 cmd: 'node', cmdArgs: ['scripts/test-automerge-gate.js'] },
   { label: 'Intake auto-merge gate tests',          cmd: 'node', cmdArgs: ['scripts/test-intake-automerge-gate.js'] },
   { label: 'Security audit (static)',               cmd: 'node', cmdArgs: ['scripts/security-audit-static.js'] },
