@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-06-19T09:18:36.358Z",
+  "generatedAt": "2026-06-20T08:01:35.121Z",
   "source": "run-release-volume-counts.js",
   "providerMode": "enabled",
   "policy": {
@@ -29,14 +29,14 @@
     "checkedCandidates": 61,
     "detectedChanges": 6,
     "appliedHighConfidenceChanges": 6,
-    "blockedOrUnsafe": 80
+    "blockedOrUnsafe": 79
   },
   "changes": [
     {
       "seriesTitle": "Meine Wiedergeburt als Schleim in einer anderen Welt",
       "publisher": "altraverse",
-      "oldPublishedVolumesDE": 14,
-      "newPublishedVolumesDE": 15,
+      "oldPublishedVolumesDE": 15,
+      "newPublishedVolumesDE": 16,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/249",
       "confidence": "high"
@@ -44,8 +44,8 @@
     {
       "seriesTitle": "Mushoku Tensei – In dieser Welt mach ich alles anders",
       "publisher": "Panini Manga",
-      "oldPublishedVolumesDE": 14,
-      "newPublishedVolumesDE": 15,
+      "oldPublishedVolumesDE": 15,
+      "newPublishedVolumesDE": 16,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/1314",
       "confidence": "high"
@@ -53,8 +53,8 @@
     {
       "seriesTitle": "One Piece",
       "publisher": "Carlsen Manga!",
-      "oldPublishedVolumesDE": 14,
-      "newPublishedVolumesDE": 15,
+      "oldPublishedVolumesDE": 15,
+      "newPublishedVolumesDE": 16,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/87",
       "confidence": "high"
@@ -62,8 +62,8 @@
     {
       "seriesTitle": "The Rising of the Shield Hero",
       "publisher": "TOKYOPOP",
-      "oldPublishedVolumesDE": 19,
-      "newPublishedVolumesDE": 20,
+      "oldPublishedVolumesDE": 20,
+      "newPublishedVolumesDE": 21,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/210",
       "confidence": "high"
@@ -71,8 +71,8 @@
     {
       "seriesTitle": "Tokyo Ghoul:re",
       "publisher": "KAZÉ Manga",
-      "oldPublishedVolumesDE": 14,
-      "newPublishedVolumesDE": 15,
+      "oldPublishedVolumesDE": 15,
+      "newPublishedVolumesDE": 16,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/952",
       "confidence": "high"
@@ -80,8 +80,8 @@
     {
       "seriesTitle": "Vinland Saga",
       "publisher": "Carlsen Manga!",
-      "oldPublishedVolumesDE": 14,
-      "newPublishedVolumesDE": 15,
+      "oldPublishedVolumesDE": 15,
+      "newPublishedVolumesDE": 16,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/223",
       "confidence": "high"
@@ -141,14 +141,6 @@
       "seriesTitle": "Chainsaw Man",
       "publisher": "Egmont Manga",
       "volumeNumber": 23,
-      "reasonCodes": [
-        "not-yet-released-or-invalid-date"
-      ]
-    },
-    {
-      "seriesTitle": "Dai Dark",
-      "publisher": "Manga Cult",
-      "volumeNumber": 9,
       "reasonCodes": [
         "not-yet-released-or-invalid-date"
       ]
@@ -1429,7 +1421,7 @@
     {
       "seriesTitle": "Meine Wiedergeburt als Schleim in einer anderen Welt",
       "publisher": "altraverse",
-      "volumeNumber": 15,
+      "volumeNumber": 16,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/249",
       "confidence": "high",
@@ -1455,7 +1447,7 @@
     {
       "seriesTitle": "Mushoku Tensei – In dieser Welt mach ich alles anders",
       "publisher": "Panini Manga",
-      "volumeNumber": 15,
+      "volumeNumber": 16,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/1314",
       "confidence": "high",
@@ -1465,7 +1457,7 @@
     {
       "seriesTitle": "One Piece",
       "publisher": "Carlsen Manga!",
-      "volumeNumber": 15,
+      "volumeNumber": 16,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/87",
       "confidence": "high",
@@ -1501,7 +1493,7 @@
     {
       "seriesTitle": "The Rising of the Shield Hero",
       "publisher": "TOKYOPOP",
-      "volumeNumber": 20,
+      "volumeNumber": 21,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/210",
       "confidence": "high",
@@ -1534,7 +1526,7 @@
     {
       "seriesTitle": "Tokyo Ghoul:re",
       "publisher": "KAZÉ Manga",
-      "volumeNumber": 15,
+      "volumeNumber": 16,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/952",
       "confidence": "high",
@@ -1544,7 +1536,7 @@
     {
       "seriesTitle": "Vinland Saga",
       "publisher": "Carlsen Manga!",
-      "volumeNumber": 15,
+      "volumeNumber": 16,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/223",
       "confidence": "high",
