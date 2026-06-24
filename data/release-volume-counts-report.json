@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-06-23T08:02:32.643Z",
+  "generatedAt": "2026-06-24T07:58:25.473Z",
   "source": "run-release-volume-counts.js",
   "providerMode": "enabled",
   "policy": {
@@ -35,8 +35,8 @@
     {
       "seriesTitle": "Meine Wiedergeburt als Schleim in einer anderen Welt",
       "publisher": "altraverse",
-      "oldPublishedVolumesDE": 18,
-      "newPublishedVolumesDE": 19,
+      "oldPublishedVolumesDE": 19,
+      "newPublishedVolumesDE": 20,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/249",
       "confidence": "high"
@@ -44,8 +44,8 @@
     {
       "seriesTitle": "Mushoku Tensei – In dieser Welt mach ich alles anders",
       "publisher": "Panini Manga",
-      "oldPublishedVolumesDE": 18,
-      "newPublishedVolumesDE": 19,
+      "oldPublishedVolumesDE": 19,
+      "newPublishedVolumesDE": 20,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/1314",
       "confidence": "high"
@@ -53,8 +53,8 @@
     {
       "seriesTitle": "One Piece",
       "publisher": "Carlsen Manga!",
-      "oldPublishedVolumesDE": 18,
-      "newPublishedVolumesDE": 19,
+      "oldPublishedVolumesDE": 19,
+      "newPublishedVolumesDE": 20,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/87",
       "confidence": "high"
@@ -62,8 +62,8 @@
     {
       "seriesTitle": "The Rising of the Shield Hero",
       "publisher": "TOKYOPOP",
-      "oldPublishedVolumesDE": 23,
-      "newPublishedVolumesDE": 24,
+      "oldPublishedVolumesDE": 24,
+      "newPublishedVolumesDE": 25,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/210",
       "confidence": "high"
@@ -71,8 +71,8 @@
     {
       "seriesTitle": "Vinland Saga",
       "publisher": "Carlsen Manga!",
-      "oldPublishedVolumesDE": 18,
-      "newPublishedVolumesDE": 19,
+      "oldPublishedVolumesDE": 19,
+      "newPublishedVolumesDE": 20,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/223",
       "confidence": "high"
@@ -1422,7 +1422,7 @@
     {
       "seriesTitle": "Meine Wiedergeburt als Schleim in einer anderen Welt",
       "publisher": "altraverse",
-      "volumeNumber": 19,
+      "volumeNumber": 20,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/249",
       "confidence": "high",
@@ -1448,7 +1448,7 @@
     {
       "seriesTitle": "Mushoku Tensei – In dieser Welt mach ich alles anders",
       "publisher": "Panini Manga",
-      "volumeNumber": 19,
+      "volumeNumber": 20,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/1314",
       "confidence": "high",
@@ -1458,7 +1458,7 @@
     {
       "seriesTitle": "One Piece",
       "publisher": "Carlsen Manga!",
-      "volumeNumber": 19,
+      "volumeNumber": 20,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/87",
       "confidence": "high",
@@ -1494,7 +1494,7 @@
     {
       "seriesTitle": "The Rising of the Shield Hero",
       "publisher": "TOKYOPOP",
-      "volumeNumber": 24,
+      "volumeNumber": 25,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/210",
       "confidence": "high",
@@ -1540,7 +1540,7 @@
     {
       "seriesTitle": "Vinland Saga",
       "publisher": "Carlsen Manga!",
-      "volumeNumber": 19,
+      "volumeNumber": 20,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/223",
       "confidence": "high",
