@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-06-26T08:06:15.889Z",
+  "generatedAt": "2026-06-27T07:33:47.054Z",
   "source": "run-release-volume-counts.js",
   "providerMode": "enabled",
   "policy": {
@@ -27,34 +27,25 @@
     "seriesInVolumeCounts": 46,
     "probeCandidates": 61,
     "checkedCandidates": 61,
-    "detectedChanges": 4,
-    "appliedHighConfidenceChanges": 4,
-    "blockedOrUnsafe": 81
+    "detectedChanges": 3,
+    "appliedHighConfidenceChanges": 3,
+    "blockedOrUnsafe": 82
   },
   "changes": [
     {
       "seriesTitle": "Meine Wiedergeburt als Schleim in einer anderen Welt",
       "publisher": "altraverse",
-      "oldPublishedVolumesDE": 21,
-      "newPublishedVolumesDE": 22,
+      "oldPublishedVolumesDE": 22,
+      "newPublishedVolumesDE": 23,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/249",
       "confidence": "high"
     },
     {
-      "seriesTitle": "Mushoku Tensei – In dieser Welt mach ich alles anders",
-      "publisher": "Panini Manga",
-      "oldPublishedVolumesDE": 21,
-      "newPublishedVolumesDE": 22,
-      "source": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/1314",
-      "confidence": "high"
-    },
-    {
       "seriesTitle": "One Piece",
       "publisher": "Carlsen Manga!",
-      "oldPublishedVolumesDE": 21,
-      "newPublishedVolumesDE": 22,
+      "oldPublishedVolumesDE": 22,
+      "newPublishedVolumesDE": 23,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/87",
       "confidence": "high"
@@ -62,8 +53,8 @@
     {
       "seriesTitle": "Vinland Saga",
       "publisher": "Carlsen Manga!",
-      "oldPublishedVolumesDE": 21,
-      "newPublishedVolumesDE": 22,
+      "oldPublishedVolumesDE": 22,
+      "newPublishedVolumesDE": 23,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/223",
       "confidence": "high"
@@ -744,6 +735,19 @@
       ]
     },
     {
+      "seriesTitle": "Mushoku Tensei – In dieser Welt mach ich alles anders",
+      "publisher": "Panini Manga",
+      "volumeNumber": 23,
+      "reasonCodes": [
+        "source-url-not-specific",
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date",
+        "not-yet-released"
+      ]
+    },
+    {
       "seriesTitle": "Real Account",
       "publisher": "TOKYOPOP",
       "volumeNumber": 15,
@@ -1405,7 +1409,7 @@
     {
       "seriesTitle": "Meine Wiedergeburt als Schleim in einer anderen Welt",
       "publisher": "altraverse",
-      "volumeNumber": 22,
+      "volumeNumber": 23,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/249",
       "confidence": "high",
@@ -1425,17 +1429,23 @@
     {
       "seriesTitle": "Mushoku Tensei – In dieser Welt mach ich alles anders",
       "publisher": "Panini Manga",
-      "volumeNumber": 22,
-      "source": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/1314",
-      "confidence": "high",
-      "released": true,
-      "reasonCodes": []
+      "volumeNumber": 23,
+      "source": "carlsen",
+      "sourceUrl": "https://www.carlsen.de",
+      "confidence": "low",
+      "released": false,
+      "reasonCodes": [
+        "source-url-not-specific",
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date"
+      ]
     },
     {
       "seriesTitle": "One Piece",
       "publisher": "Carlsen Manga!",
-      "volumeNumber": 22,
+      "volumeNumber": 23,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/87",
       "confidence": "high",
@@ -1517,7 +1527,7 @@
     {
       "seriesTitle": "Vinland Saga",
       "publisher": "Carlsen Manga!",
-      "volumeNumber": 22,
+      "volumeNumber": 23,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/223",
       "confidence": "high",
