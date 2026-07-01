@@ -50,6 +50,13 @@ const REPORT_QUEUE_ONLY_ALLOWLIST = new Set([
   ...ALLOWED_GENERATED_DOCS,
 ]);
 
+// Files permitted in a pure volume-count refresh PR (no cache change).
+// Exactly these two paths and nothing else → volume-count-refresh-only gate.
+const VOLUME_COUNT_REFRESH_ONLY_ALLOWLIST = new Set([
+  'data/release-volume-counts.json',
+  'data/release-volume-counts-report.json',
+]);
+
 const BLOCKED_EXACT = new Set([
   'data/release-watchlist.json',
   'data/release-sources.json',
@@ -431,6 +438,66 @@ function validateReleaseCachePatches({ report, beforeCache, afterCache, sources 
   return { ok: errors.length === 0, errors, diff };
 }
 
+/**
+ * Gate for PRs that touch ONLY data/release-volume-counts.json and/or
+ * data/release-volume-counts-report.json (no data/release-cache.json change).
+ *
+ * This covers the "pure counts-drift" case (30 June scenario): the volume-count
+ * workflow ran, found a stale entry, and produced a PR with only the two counts
+ * files. All existing safety checks remain in force:
+ *  - Strict file-list check: any unexpected file → deny (fail-closed).
+ *  - Schema / privacy gate: privacyGateRequired must be true, schemaVersion=1.
+ *  - Consistency check: cache/counts must be consistent after this PR.
+ */
+function evaluateVolumeCountRefreshOnlyGate({ normalizedChangedFiles, countsDoc, reportDoc, sources, cacheDoc, base }) {
+  // Fail-closed: every changed file must be in the exact allowlist.
+  for (const file of normalizedChangedFiles) {
+    if (!VOLUME_COUNT_REFRESH_ONLY_ALLOWLIST.has(file)) {
+      return deny(`Blocked because ${file} is not in the volume-count-refresh-only allowlist.`, base);
+    }
+  }
+
+  // Privacy / schema gate (same checks as in validateReleaseVolumeArtifacts).
+  const countsValidation = validateReleaseVolumeCounts(countsDoc, { sources });
+  if (!countsValidation.ok) {
+    return deny('Blocked because release-volume-counts failed schema/privacy validation.', {
+      ...base,
+      errors: countsValidation.errors.map(e => `release-volume-counts: ${e}`),
+    });
+  }
+
+  if (!reportDoc || typeof reportDoc !== 'object' || Array.isArray(reportDoc)) {
+    return deny('Blocked because release-volume-counts-report is not a JSON object.', base);
+  }
+  if (reportDoc.schemaVersion !== 1) {
+    return deny('Blocked because release-volume-counts-report.schemaVersion must be 1.', base);
+  }
+  if (reportDoc.privacyGateRequired !== true) {
+    return deny('Blocked because release-volume-counts-report.privacyGateRequired must be true.', base);
+  }
+
+  // Consistency gate: the refreshed counts must be consistent with the current cache.
+  const consistency = validateReleaseCacheVolumeCountsConsistency({
+    cacheDoc,
+    countsDoc,
+    reportDoc,
+    sourcesDoc: sources,
+  });
+  if (!consistency.ok) {
+    return deny('Blocked because refreshed volume counts are inconsistent with the release cache.', {
+      ...base,
+      errors: consistency.errors.map(e => `cache/volume-count consistency: ${e}`),
+    });
+  }
+
+  return {
+    allowed: true,
+    class: 'volume-count-refresh-only',
+    reason: 'Only volume-count artifacts changed; schema/privacy gate passed and counts are consistent with the release cache.',
+    ...base,
+  };
+}
+
 function evaluateReportQueueOnlyGate({ normalizedChangedFiles, report, beforeQueue, afterQueue, base }) {
   for (const file of normalizedChangedFiles) {
     if (!REPORT_QUEUE_ONLY_ALLOWLIST.has(file)) {
@@ -564,6 +631,18 @@ function evaluateAutoMergeGate({
 
     const releaseCacheChanged = normalizedChangedFiles.includes('data/release-cache.json');
     if (!releaseCacheChanged) {
+      // Pure volume-count refresh: only the two counts files and nothing else.
+      const onlyVolumeCountFiles = normalizedChangedFiles.every(f => VOLUME_COUNT_REFRESH_ONLY_ALLOWLIST.has(f));
+      if (onlyVolumeCountFiles) {
+        return evaluateVolumeCountRefreshOnlyGate({
+          normalizedChangedFiles,
+          countsDoc: parseJsonInput(countsDoc, 'Release volume counts'),
+          reportDoc: parseJsonInput(reportDoc, 'Release volume counts report'),
+          sources: parseJsonInput(sources, 'Release sources'),
+          cacheDoc: parseJsonInput(afterCache, 'After release cache'),
+          base,
+        });
+      }
       return evaluateReportQueueOnlyGate({ normalizedChangedFiles, report, beforeQueue, afterQueue, base });
     }
 

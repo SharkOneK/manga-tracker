@@ -61,12 +61,13 @@ jobs:
       - name: Run automated release-cache pipeline
         run: node scripts/run-release-cache-pipeline.js
 
-      # Volume-count files are owned by the separate "Update Release Volume Counts"
-      # workflow. We still regenerate them here so the in-workflow consistency
-      # validator below can run, but they are NOT committed to this PR (see the
-      # add-paths and change-detection steps). This avoids two workflows fighting
-      # over data/release-volume-counts*.json and the resulting merge conflicts.
-      - name: Refresh volume counts from cache (consistency check only, not committed)
+      # Volume-count ownership is split by value domain:
+      # - This workflow (cache-PR) writes the cache-proven lower bound via
+      #   --from-cache-only (monotone: never lowers an existing count).
+      # - The "Update Release Volume Counts" workflow owns probe-driven increases
+      #   (higher values). Because mergeExistingCounts keeps the higher value,
+      #   both workflows converge without conflict regardless of merge order.
+      - name: Refresh volume counts from cache (included in this PR)
         run: node scripts/run-release-volume-counts.js --from-cache-only
 
       - name: Validate release-cache artifacts
@@ -112,7 +113,7 @@ jobs:
           console.log(`- Auto-merge eligible: ${report.autoMergeEligible ? 'yes' : 'no'}`);
           console.log('');
           console.log('Unsafe or ambiguous candidates are kept in `data/release-source-review-queue.json`; only `confidence: "high"` cache patches are written to `data/release-cache.json`.');
-          console.log('Volume-count artifacts (`data/release-volume-counts*.json`) are owned by the separate "Update Release Volume Counts" workflow and are intentionally not part of this PR.');
+          console.log('Cache-derived volume counts (`data/release-volume-counts*.json`) are included in this PR via `--from-cache-only` (monotone, never lowers an existing count). Probe-driven increases remain the responsibility of the "Update Release Volume Counts" workflow.');
           NODE
 
       - name: Detect release-cache pipeline changes
@@ -123,6 +124,8 @@ jobs:
             data/release-cache.json \
             data/release-source-review-queue.json \
             data/release-cache-pipeline-report.json \
+            data/release-volume-counts.json \
+            data/release-volume-counts-report.json \
             docs/release-cache-coverage-gaps.md \
             docs/release-cache-source-gap-analysis.md; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
@@ -133,6 +136,8 @@ jobs:
               data/release-cache.json \
               data/release-source-review-queue.json \
               data/release-cache-pipeline-report.json \
+              data/release-volume-counts.json \
+              data/release-volume-counts-report.json \
               docs/release-cache-coverage-gaps.md \
               docs/release-cache-source-gap-analysis.md
           fi
@@ -153,6 +158,8 @@ jobs:
             data/release-cache.json
             data/release-source-review-queue.json
             data/release-cache-pipeline-report.json
+            data/release-volume-counts.json
+            data/release-volume-counts-report.json
             docs/release-cache-coverage-gaps.md
             docs/release-cache-source-gap-analysis.md
 
