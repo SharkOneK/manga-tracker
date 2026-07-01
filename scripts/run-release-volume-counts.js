@@ -358,4 +358,5 @@ module.exports = {
   buildBaselineFromReleaseCache,
   buildChanges,
   isPastOrToday,
+  mergeExistingCounts,
 };
