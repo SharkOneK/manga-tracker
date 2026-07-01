@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-06-29T09:14:22.528Z",
+  "generatedAt": "2026-07-01T08:36:09.141Z",
   "items": [
     {
       "seriesTitle": "Adou",
@@ -59,11 +59,11 @@
     {
       "seriesTitle": "Blood Blade",
       "publisher": "Hayabusa",
-      "publishedVolumesDE": 4,
+      "publishedVolumesDE": 5,
       "source": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/5098",
+      "sourceUrl": "https://www.manga-passion.de",
       "confidence": "high",
-      "checkedAt": "2026-05-19T15:26:34.180Z"
+      "checkedAt": "2026-05-17T10:56:39.041Z"
     },
     {
       "seriesTitle": "Brynhildr in the Darkness",
@@ -239,11 +239,11 @@
     {
       "seriesTitle": "Meine Wiedergeburt als Schleim in einer anderen Welt",
       "publisher": "altraverse",
-      "publishedVolumesDE": 25,
+      "publishedVolumesDE": 26,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/249",
       "confidence": "high",
-      "checkedAt": "2026-06-29T09:14:22.528Z"
+      "checkedAt": "2026-07-01T08:36:09.141Z"
     },
     {
       "seriesTitle": "Mirai Nikki – New Edition",
@@ -275,11 +275,11 @@
     {
       "seriesTitle": "One Piece",
       "publisher": "Carlsen Manga!",
-      "publishedVolumesDE": 25,
+      "publishedVolumesDE": 26,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/87",
       "confidence": "high",
-      "checkedAt": "2026-06-29T09:14:22.528Z"
+      "checkedAt": "2026-07-01T08:36:09.141Z"
     },
     {
       "seriesTitle": "Real Account",
@@ -383,11 +383,11 @@
     {
       "seriesTitle": "Vinland Saga",
       "publisher": "Carlsen Manga!",
-      "publishedVolumesDE": 25,
+      "publishedVolumesDE": 26,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/223",
       "confidence": "high",
-      "checkedAt": "2026-06-29T09:14:22.528Z"
+      "checkedAt": "2026-07-01T08:36:09.141Z"
     },
     {
       "seriesTitle": "Witch and Hound",
