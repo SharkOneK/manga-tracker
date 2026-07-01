@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-06-29T09:14:22.528Z",
+  "generatedAt": "2026-07-01T08:36:09.141Z",
   "source": "run-release-volume-counts.js",
   "providerMode": "enabled",
   "policy": {
@@ -29,14 +29,14 @@
     "checkedCandidates": 61,
     "detectedChanges": 3,
     "appliedHighConfidenceChanges": 3,
-    "blockedOrUnsafe": 82
+    "blockedOrUnsafe": 81
   },
   "changes": [
     {
       "seriesTitle": "Meine Wiedergeburt als Schleim in einer anderen Welt",
       "publisher": "altraverse",
-      "oldPublishedVolumesDE": 24,
-      "newPublishedVolumesDE": 25,
+      "oldPublishedVolumesDE": 25,
+      "newPublishedVolumesDE": 26,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/249",
       "confidence": "high"
@@ -44,8 +44,8 @@
     {
       "seriesTitle": "One Piece",
       "publisher": "Carlsen Manga!",
-      "oldPublishedVolumesDE": 24,
-      "newPublishedVolumesDE": 25,
+      "oldPublishedVolumesDE": 25,
+      "newPublishedVolumesDE": 26,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/87",
       "confidence": "high"
@@ -53,8 +53,8 @@
     {
       "seriesTitle": "Vinland Saga",
       "publisher": "Carlsen Manga!",
-      "oldPublishedVolumesDE": 24,
-      "newPublishedVolumesDE": 25,
+      "oldPublishedVolumesDE": 25,
+      "newPublishedVolumesDE": 26,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/223",
       "confidence": "high"
@@ -90,14 +90,6 @@
       "seriesTitle": "Berserk Master Edition",
       "publisher": "Panini Manga",
       "volumeNumber": 8,
-      "reasonCodes": [
-        "not-yet-released-or-invalid-date"
-      ]
-    },
-    {
-      "seriesTitle": "Blood Blade",
-      "publisher": "Hayabusa",
-      "volumeNumber": 5,
       "reasonCodes": [
         "not-yet-released-or-invalid-date"
       ]
@@ -550,8 +542,10 @@
     {
       "seriesTitle": "Blood Blade",
       "publisher": "Hayabusa",
-      "volumeNumber": 5,
+      "volumeNumber": 6,
       "reasonCodes": [
+        "missing-source-volume-number",
+        "missing-release-date",
         "not-yet-released"
       ]
     },
@@ -608,6 +602,9 @@
       "publisher": "Egmont Manga",
       "volumeNumber": 5,
       "reasonCodes": [
+        "source-url-not-specific",
+        "missing-source-edition-title",
+        "missing-source-publisher",
         "missing-source-volume-number",
         "missing-release-date",
         "not-yet-released"
@@ -1180,12 +1177,15 @@
     {
       "seriesTitle": "Blood Blade",
       "publisher": "Hayabusa",
-      "volumeNumber": 5,
+      "volumeNumber": 6,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/5098",
-      "confidence": "high",
+      "confidence": "low",
       "released": false,
-      "reasonCodes": []
+      "reasonCodes": [
+        "missing-source-volume-number",
+        "missing-release-date"
+      ]
     },
     {
       "seriesTitle": "Brynhildr in the Darkness",
@@ -1253,11 +1253,14 @@
       "seriesTitle": "Demon King of God Killing",
       "publisher": "Egmont Manga",
       "volumeNumber": 5,
-      "source": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/2485",
+      "source": "carlsen",
+      "sourceUrl": "https://www.carlsen.de",
       "confidence": "low",
       "released": false,
       "reasonCodes": [
+        "source-url-not-specific",
+        "missing-source-edition-title",
+        "missing-source-publisher",
         "missing-source-volume-number",
         "missing-release-date"
       ]
@@ -1409,7 +1412,7 @@
     {
       "seriesTitle": "Meine Wiedergeburt als Schleim in einer anderen Welt",
       "publisher": "altraverse",
-      "volumeNumber": 25,
+      "volumeNumber": 26,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/249",
       "confidence": "high",
@@ -1445,7 +1448,7 @@
     {
       "seriesTitle": "One Piece",
       "publisher": "Carlsen Manga!",
-      "volumeNumber": 25,
+      "volumeNumber": 26,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/87",
       "confidence": "high",
@@ -1527,7 +1530,7 @@
     {
       "seriesTitle": "Vinland Saga",
       "publisher": "Carlsen Manga!",
-      "volumeNumber": 25,
+      "volumeNumber": 26,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/223",
       "confidence": "high",
