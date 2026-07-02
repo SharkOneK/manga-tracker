@@ -4,9 +4,6 @@ on:
   workflow_dispatch:
   schedule:
     - cron: '27 4 * * *'
-  workflow_run:
-    workflows: ["Update Release Cache"]
-    types: [completed]
 
 permissions:
   contents: write
