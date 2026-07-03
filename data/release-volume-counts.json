@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-02T07:49:28.978Z",
+  "generatedAt": "2026-07-03T07:44:45.208Z",
   "items": [
     {
       "seriesTitle": "Adou",
@@ -100,6 +100,15 @@
       "sourceUrl": "https://www.manga-passion.de/editions/2177",
       "confidence": "high",
       "checkedAt": "2026-05-19T15:26:34.180Z"
+    },
+    {
+      "seriesTitle": "Dandadan",
+      "publisher": "KAZÉ Manga",
+      "publishedVolumesDE": 21,
+      "source": "manga-passion",
+      "sourceUrl": "https://www.manga-passion.de",
+      "confidence": "high",
+      "checkedAt": "2026-05-17T10:56:39.041Z"
     },
     {
       "seriesTitle": "DARLING in the FRANXX",
@@ -239,11 +248,11 @@
     {
       "seriesTitle": "Meine Wiedergeburt als Schleim in einer anderen Welt",
       "publisher": "altraverse",
-      "publishedVolumesDE": 27,
+      "publishedVolumesDE": 28,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/249",
       "confidence": "high",
-      "checkedAt": "2026-07-02T07:49:28.978Z"
+      "checkedAt": "2026-07-03T07:44:45.208Z"
     },
     {
       "seriesTitle": "Mirai Nikki – New Edition",
@@ -275,11 +284,11 @@
     {
       "seriesTitle": "One Piece",
       "publisher": "Carlsen Manga!",
-      "publishedVolumesDE": 27,
+      "publishedVolumesDE": 28,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/87",
       "confidence": "high",
-      "checkedAt": "2026-07-02T07:49:28.978Z"
+      "checkedAt": "2026-07-03T07:44:45.208Z"
     },
     {
       "seriesTitle": "Real Account",
@@ -383,11 +392,11 @@
     {
       "seriesTitle": "Vinland Saga",
       "publisher": "Carlsen Manga!",
-      "publishedVolumesDE": 27,
+      "publishedVolumesDE": 28,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/223",
       "confidence": "high",
-      "checkedAt": "2026-07-02T07:49:28.978Z"
+      "checkedAt": "2026-07-03T07:44:45.208Z"
     },
     {
       "seriesTitle": "Witch and Hound",
