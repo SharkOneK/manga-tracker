@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-03T07:44:45.208Z",
+  "generatedAt": "2026-07-04T07:20:35.278Z",
   "source": "run-release-volume-counts.js",
   "providerMode": "enabled",
   "policy": {
@@ -27,16 +27,16 @@
     "seriesInVolumeCounts": 47,
     "probeCandidates": 62,
     "checkedCandidates": 62,
-    "detectedChanges": 3,
-    "appliedHighConfidenceChanges": 3,
-    "blockedOrUnsafe": 81
+    "detectedChanges": 2,
+    "appliedHighConfidenceChanges": 2,
+    "blockedOrUnsafe": 82
   },
   "changes": [
     {
       "seriesTitle": "Meine Wiedergeburt als Schleim in einer anderen Welt",
       "publisher": "altraverse",
-      "oldPublishedVolumesDE": 27,
-      "newPublishedVolumesDE": 28,
+      "oldPublishedVolumesDE": 28,
+      "newPublishedVolumesDE": 29,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/249",
       "confidence": "high"
@@ -44,19 +44,10 @@
     {
       "seriesTitle": "One Piece",
       "publisher": "Carlsen Manga!",
-      "oldPublishedVolumesDE": 27,
-      "newPublishedVolumesDE": 28,
+      "oldPublishedVolumesDE": 28,
+      "newPublishedVolumesDE": 29,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/87",
-      "confidence": "high"
-    },
-    {
-      "seriesTitle": "Vinland Saga",
-      "publisher": "Carlsen Manga!",
-      "oldPublishedVolumesDE": 27,
-      "newPublishedVolumesDE": 28,
-      "source": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/223",
       "confidence": "high"
     }
   ],
@@ -802,6 +793,14 @@
       ]
     },
     {
+      "seriesTitle": "Vinland Saga",
+      "publisher": "Carlsen Manga!",
+      "volumeNumber": 29,
+      "reasonCodes": [
+        "not-yet-released"
+      ]
+    },
+    {
       "seriesTitle": "Yandere Dark Elf",
       "publisher": "MANGAMOON",
       "volumeNumber": 4,
@@ -1422,7 +1421,7 @@
     {
       "seriesTitle": "Meine Wiedergeburt als Schleim in einer anderen Welt",
       "publisher": "altraverse",
-      "volumeNumber": 28,
+      "volumeNumber": 29,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/249",
       "confidence": "high",
@@ -1458,7 +1457,7 @@
     {
       "seriesTitle": "One Piece",
       "publisher": "Carlsen Manga!",
-      "volumeNumber": 28,
+      "volumeNumber": 29,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/87",
       "confidence": "high",
@@ -1540,11 +1539,11 @@
     {
       "seriesTitle": "Vinland Saga",
       "publisher": "Carlsen Manga!",
-      "volumeNumber": 28,
+      "volumeNumber": 29,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/223",
       "confidence": "high",
-      "released": true,
+      "released": false,
       "reasonCodes": []
     },
     {
