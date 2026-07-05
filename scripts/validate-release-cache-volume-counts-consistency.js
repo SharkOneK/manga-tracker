@@ -37,12 +37,27 @@ function isPastOrToday(dateValue, today = new Date()) {
   return d.getTime() <= t.getTime();
 }
 
+function isStrictlyPast(dateValue, today = new Date()) {
+  if (!isRealReleaseDate(dateValue)) return false;
+  const d = new Date(`${dateValue}T00:00:00Z`);
+  const t = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()));
+  return d.getTime() < t.getTime();
+}
+
+function isSameDay(dateValue, today = new Date()) {
+  if (!isRealReleaseDate(dateValue)) return false;
+  const d = new Date(`${dateValue}T00:00:00Z`);
+  const t = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()));
+  return d.getTime() === t.getTime();
+}
+
 function countKey(title, publisher, aliasMap) {
   return `${normalizeTitle(title)}|${normalizePublisher(publisher, aliasMap)}`;
 }
 
 function eligibleCacheBaselines(cacheDoc, sourcesDoc, aliasMap, today = new Date()) {
-  const byKey = new Map();
+  const stale = new Map();
+  const graceToday = new Map();
   const items = Array.isArray(cacheDoc && cacheDoc.items) ? cacheDoc.items : [];
 
   for (const entry of items) {
@@ -54,22 +69,25 @@ function eligibleCacheBaselines(cacheDoc, sourcesDoc, aliasMap, today = new Date
     if (!Number.isInteger(volumeNumber) || volumeNumber < 1) continue;
     if (entry.confidence !== 'high') continue;
     if (!isAllowedSourceUrl(entry.sourceUrl, sourcesDoc)) continue;
-    if (!isPastOrToday(entry.releaseDate, today)) continue;
 
     const key = countKey(title, publisher, aliasMap);
-    const current = byKey.get(key);
-    if (!current || volumeNumber > current.volumeNumber) {
-      byKey.set(key, {
-        key,
-        seriesTitle: title,
-        publisher,
-        volumeNumber,
-        sourceUrl: entry.sourceUrl,
-      });
+    const entryObj = { key, seriesTitle: title, publisher, volumeNumber, sourceUrl: entry.sourceUrl };
+
+    if (isStrictlyPast(entry.releaseDate, today)) {
+      const current = stale.get(key);
+      if (!current || volumeNumber > current.volumeNumber) {
+        stale.set(key, entryObj);
+      }
+    } else if (isSameDay(entry.releaseDate, today)) {
+      const current = graceToday.get(key);
+      if (!current || volumeNumber > current.volumeNumber) {
+        graceToday.set(key, entryObj);
+      }
     }
+    // releaseDate > today: ignored in both maps (no error, no warning)
   }
 
-  return byKey;
+  return { stale, graceToday };
 }
 
 function mapCounts(countsDoc, aliasMap) {
@@ -98,10 +116,11 @@ function validateReleaseCacheVolumeCountsConsistency({
   const errors = [];
   const warnings = [];
   const aliasMap = buildPublisherAliasMap(sourcesDoc || { sources: [] });
-  const baselines = eligibleCacheBaselines(cacheDoc, sourcesDoc || { sources: [] }, aliasMap, today);
+  const { stale, graceToday } = eligibleCacheBaselines(cacheDoc, sourcesDoc || { sources: [] }, aliasMap, today);
   const countsByKey = mapCounts(countsDoc, aliasMap);
 
-  for (const baseline of baselines.values()) {
+  // Error-Zweig: nur stale-Baselines (releaseDate < today) → Exit 1 wenn counts fehlen/zu niedrig
+  for (const baseline of stale.values()) {
     const countItem = countsByKey.get(baseline.key);
     const countValue = Number(countItem && countItem.publishedVolumesDE);
     if (!countItem || !Number.isInteger(countValue) || countValue < baseline.volumeNumber) {
@@ -109,6 +128,18 @@ function validateReleaseCacheVolumeCountsConsistency({
         `${baseline.seriesTitle} / ${baseline.publisher}: release-volume-counts is stale; ` +
         `high-confidence cache proves volume ${baseline.volumeNumber}, ` +
         `counts has ${Number.isInteger(countValue) ? countValue : 'missing'}.`,
+      );
+    }
+  }
+
+  // Warning-Zweig: heute erschienene Bände (releaseDate == today) → nur WARNING, kein Error
+  for (const baseline of graceToday.values()) {
+    const countItem = countsByKey.get(baseline.key);
+    const countValue = Number(countItem && countItem.publishedVolumesDE);
+    if (!countItem || !Number.isInteger(countValue) || countValue < baseline.volumeNumber) {
+      warnings.push(
+        `${baseline.seriesTitle} / ${baseline.publisher} volume ${baseline.volumeNumber}: ` +
+        `released today; counts not yet caught up (grace window, no error).`,
       );
     }
   }
@@ -121,11 +152,19 @@ function validateReleaseCacheVolumeCountsConsistency({
     if (!title || !publisher || !Number.isInteger(volumeNumber)) continue;
     if (!reasonCodes.includes('not-high-confidence')) continue;
 
-    const baseline = baselines.get(countKey(title, publisher, aliasMap));
-    if (baseline && baseline.volumeNumber >= volumeNumber) {
+    const key = countKey(title, publisher, aliasMap);
+    const staleBaseline = stale.get(key);
+    const graceTodayBaseline = graceToday.get(key);
+
+    if (staleBaseline && staleBaseline.volumeNumber >= volumeNumber) {
       errors.push(
         `${title} / ${publisher} volume ${volumeNumber}: report is stale; ` +
         '`not-high-confidence` is blocked even though release-cache contains an eligible high-confidence entry.',
+      );
+    } else if (graceTodayBaseline && graceTodayBaseline.volumeNumber >= volumeNumber) {
+      warnings.push(
+        `${title} / ${publisher} volume ${volumeNumber}: report may be stale; ` +
+        '`not-high-confidence` is blocked but release-cache entry was released today (grace window, no error).',
       );
     }
   }
@@ -134,7 +173,7 @@ function validateReleaseCacheVolumeCountsConsistency({
     ok: errors.length === 0,
     errors,
     warnings,
-    highConfidenceBaselines: baselines.size,
+    highConfidenceBaselines: stale.size + graceToday.size,
   };
 }
 
@@ -190,5 +229,7 @@ if (require.main === module) main();
 module.exports = {
   eligibleCacheBaselines,
   isPastOrToday,
+  isStrictlyPast,
+  isSameDay,
   validateReleaseCacheVolumeCountsConsistency,
 };
