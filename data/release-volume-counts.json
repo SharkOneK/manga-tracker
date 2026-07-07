@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-06T08:45:34.626Z",
+  "generatedAt": "2026-07-07T07:57:10.122Z",
   "items": [
     {
       "seriesTitle": "Adou",
@@ -50,11 +50,11 @@
     {
       "seriesTitle": "Bitte zieh dich an, Takamine!",
       "publisher": "Egmont Manga",
-      "publishedVolumesDE": 1,
+      "publishedVolumesDE": 2,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/5858",
       "confidence": "high",
-      "checkedAt": "2026-05-26T14:17:36.296Z"
+      "checkedAt": "2026-07-07T07:57:10.122Z"
     },
     {
       "seriesTitle": "Blood Blade",
@@ -284,11 +284,11 @@
     {
       "seriesTitle": "One Piece",
       "publisher": "Carlsen Manga!",
-      "publishedVolumesDE": 31,
+      "publishedVolumesDE": 32,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/87",
       "confidence": "high",
-      "checkedAt": "2026-07-06T08:45:34.626Z"
+      "checkedAt": "2026-07-07T07:57:10.122Z"
     },
     {
       "seriesTitle": "Real Account",

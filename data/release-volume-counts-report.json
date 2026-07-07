@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-06T08:45:34.626Z",
+  "generatedAt": "2026-07-07T07:57:10.122Z",
   "source": "run-release-volume-counts.js",
   "providerMode": "enabled",
   "policy": {
@@ -27,16 +27,25 @@
     "seriesInVolumeCounts": 47,
     "probeCandidates": 62,
     "checkedCandidates": 62,
-    "detectedChanges": 1,
-    "appliedHighConfidenceChanges": 1,
-    "blockedOrUnsafe": 83
+    "detectedChanges": 2,
+    "appliedHighConfidenceChanges": 2,
+    "blockedOrUnsafe": 82
   },
   "changes": [
     {
+      "seriesTitle": "Bitte zieh dich an, Takamine!",
+      "publisher": "Egmont Manga",
+      "oldPublishedVolumesDE": 1,
+      "newPublishedVolumesDE": 2,
+      "source": "manga-passion",
+      "sourceUrl": "https://www.manga-passion.de/editions/5858",
+      "confidence": "high"
+    },
+    {
       "seriesTitle": "One Piece",
       "publisher": "Carlsen Manga!",
-      "oldPublishedVolumesDE": 30,
-      "newPublishedVolumesDE": 31,
+      "oldPublishedVolumesDE": 31,
+      "newPublishedVolumesDE": 32,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/87",
       "confidence": "high"
@@ -501,14 +510,6 @@
       "seriesTitle": "August 9th, I will be eaten by you",
       "publisher": "Hayabusa",
       "volumeNumber": 6,
-      "reasonCodes": [
-        "not-yet-released"
-      ]
-    },
-    {
-      "seriesTitle": "Bitte zieh dich an, Takamine!",
-      "publisher": "Egmont Manga",
-      "volumeNumber": 2,
       "reasonCodes": [
         "not-yet-released"
       ]
@@ -1169,7 +1170,7 @@
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/5858",
       "confidence": "high",
-      "released": false,
+      "released": true,
       "reasonCodes": []
     },
     {
@@ -1456,7 +1457,7 @@
     {
       "seriesTitle": "One Piece",
       "publisher": "Carlsen Manga!",
-      "volumeNumber": 31,
+      "volumeNumber": 32,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/87",
       "confidence": "high",
