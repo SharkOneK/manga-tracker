@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-07T07:57:10.122Z",
+  "generatedAt": "2026-07-08T06:44:03.387Z",
   "source": "run-release-volume-counts.js",
   "providerMode": "enabled",
   "policy": {
@@ -33,21 +33,21 @@
   },
   "changes": [
     {
-      "seriesTitle": "Bitte zieh dich an, Takamine!",
-      "publisher": "Egmont Manga",
-      "oldPublishedVolumesDE": 1,
-      "newPublishedVolumesDE": 2,
+      "seriesTitle": "One Piece",
+      "publisher": "Carlsen Manga!",
+      "oldPublishedVolumesDE": 32,
+      "newPublishedVolumesDE": 33,
       "source": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/5858",
+      "sourceUrl": "https://www.manga-passion.de/editions/87",
       "confidence": "high"
     },
     {
-      "seriesTitle": "One Piece",
-      "publisher": "Carlsen Manga!",
-      "oldPublishedVolumesDE": 31,
-      "newPublishedVolumesDE": 32,
+      "seriesTitle": "The Rising of the Shield Hero",
+      "publisher": "TOKYOPOP",
+      "oldPublishedVolumesDE": 26,
+      "newPublishedVolumesDE": 27,
       "source": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/87",
+      "sourceUrl": "https://www.manga-passion.de/editions/210",
       "confidence": "high"
     }
   ],
@@ -515,6 +515,14 @@
       ]
     },
     {
+      "seriesTitle": "Bitte zieh dich an, Takamine!",
+      "publisher": "Egmont Manga",
+      "volumeNumber": 3,
+      "reasonCodes": [
+        "not-yet-released"
+      ]
+    },
+    {
       "seriesTitle": "Blood Blade",
       "publisher": "Hayabusa",
       "volumeNumber": 6,
@@ -752,14 +760,6 @@
       "seriesTitle": "Spy x Family",
       "publisher": "KAZÉ Manga",
       "volumeNumber": 16,
-      "reasonCodes": [
-        "not-yet-released"
-      ]
-    },
-    {
-      "seriesTitle": "The Rising of the Shield Hero",
-      "publisher": "TOKYOPOP",
-      "volumeNumber": 27,
       "reasonCodes": [
         "not-yet-released"
       ]
@@ -1166,11 +1166,11 @@
     {
       "seriesTitle": "Bitte zieh dich an, Takamine!",
       "publisher": "Egmont Manga",
-      "volumeNumber": 2,
+      "volumeNumber": 3,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/5858",
       "confidence": "high",
-      "released": true,
+      "released": false,
       "reasonCodes": []
     },
     {
@@ -1457,7 +1457,7 @@
     {
       "seriesTitle": "One Piece",
       "publisher": "Carlsen Manga!",
-      "volumeNumber": 32,
+      "volumeNumber": 33,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/87",
       "confidence": "high",
@@ -1497,7 +1497,7 @@
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/210",
       "confidence": "high",
-      "released": false,
+      "released": true,
       "reasonCodes": []
     },
     {
