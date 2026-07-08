@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-07T07:57:10.122Z",
+  "generatedAt": "2026-07-08T06:44:03.387Z",
   "items": [
     {
       "seriesTitle": "Adou",
@@ -284,11 +284,11 @@
     {
       "seriesTitle": "One Piece",
       "publisher": "Carlsen Manga!",
-      "publishedVolumesDE": 32,
+      "publishedVolumesDE": 33,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/87",
       "confidence": "high",
-      "checkedAt": "2026-07-07T07:57:10.122Z"
+      "checkedAt": "2026-07-08T06:44:03.387Z"
     },
     {
       "seriesTitle": "Real Account",
@@ -338,11 +338,11 @@
     {
       "seriesTitle": "The Rising of the Shield Hero",
       "publisher": "TOKYOPOP",
-      "publishedVolumesDE": 26,
+      "publishedVolumesDE": 27,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/210",
       "confidence": "high",
-      "checkedAt": "2026-06-25T07:58:58.867Z"
+      "checkedAt": "2026-07-08T06:44:03.387Z"
     },
     {
       "seriesTitle": "Tokyo Ghoul",
