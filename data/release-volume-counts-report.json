@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-08T06:44:03.387Z",
+  "generatedAt": "2026-07-09T07:58:13.270Z",
   "source": "run-release-volume-counts.js",
   "providerMode": "enabled",
   "policy": {
@@ -27,27 +27,18 @@
     "seriesInVolumeCounts": 47,
     "probeCandidates": 62,
     "checkedCandidates": 62,
-    "detectedChanges": 2,
-    "appliedHighConfidenceChanges": 2,
-    "blockedOrUnsafe": 82
+    "detectedChanges": 1,
+    "appliedHighConfidenceChanges": 1,
+    "blockedOrUnsafe": 83
   },
   "changes": [
     {
       "seriesTitle": "One Piece",
       "publisher": "Carlsen Manga!",
-      "oldPublishedVolumesDE": 32,
-      "newPublishedVolumesDE": 33,
+      "oldPublishedVolumesDE": 33,
+      "newPublishedVolumesDE": 34,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/87",
-      "confidence": "high"
-    },
-    {
-      "seriesTitle": "The Rising of the Shield Hero",
-      "publisher": "TOKYOPOP",
-      "oldPublishedVolumesDE": 26,
-      "newPublishedVolumesDE": 27,
-      "source": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/210",
       "confidence": "high"
     }
   ],
@@ -765,6 +756,14 @@
       ]
     },
     {
+      "seriesTitle": "The Rising of the Shield Hero",
+      "publisher": "TOKYOPOP",
+      "volumeNumber": 28,
+      "reasonCodes": [
+        "not-yet-released"
+      ]
+    },
+    {
       "seriesTitle": "Tokyo Ghoul",
       "publisher": "KAZÉ Manga",
       "volumeNumber": 15,
@@ -1457,7 +1456,7 @@
     {
       "seriesTitle": "One Piece",
       "publisher": "Carlsen Manga!",
-      "volumeNumber": 33,
+      "volumeNumber": 34,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/87",
       "confidence": "high",
@@ -1493,11 +1492,11 @@
     {
       "seriesTitle": "The Rising of the Shield Hero",
       "publisher": "TOKYOPOP",
-      "volumeNumber": 27,
+      "volumeNumber": 28,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/210",
       "confidence": "high",
-      "released": true,
+      "released": false,
       "reasonCodes": []
     },
     {
