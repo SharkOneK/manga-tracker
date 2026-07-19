@@ -456,16 +456,20 @@ const SESSION_KEY = 'sb-sssxiqtnkctvyghyrqff-auth-token';
         if (!/Zqx Serie Testserie/.test(gridHtml2)) throw new Error('Medienfilter "series" UND Genre-Filter "Drama" sollten Zqx Serie Testserie weiterhin zeigen. Grid: ' + gridHtml2.slice(0, 300));
       }
 
-      // Medienfilter zuruecksetzen, Genre zuruecksetzen
-      await page.selectOption('#media-filter', '');
-      await page.waitForTimeout(150);
+      // Genre-Filter zuruecksetzen. Der Medienfilter bleibt bewusst AKTIV auf "series" —
+      // genau das ist der von der Reviewer-Review (F1) verlangte Edge Case: "Filter aktiv,
+      // dann letzte Nicht-Manga-Serie geloescht" (spec.md:99). Ein vorzeitiger Reset des
+      // Medienfilters wuerde den zu pruefenden Zustand nie erreichen (das war der Fehler im
+      // vorherigen Testlauf, den der Reviewer bemaengelt hat).
       const allGenreChip = page.locator('[data-action="set-genre-filter"][data-genre=""]');
       if (await allGenreChip.count()) {
         await allGenreChip.click();
         await page.waitForTimeout(150);
       }
 
-      // Jetzt: letzte Nicht-Manga-Serien (series+anime) "loeschen" -> nur noch manga -> Filter muss verschwinden UND zurueckgesetzt sein
+      // Jetzt: letzte Nicht-Manga-Serien (series+anime) "loeschen", WAEHREND der Medienfilter
+      // noch aktiv auf "series" steht -> rawItems wuerde mit dem alten Filterwert leer sein,
+      // wenn der Reset (reconcileMediaFilterState()) nicht VOR der Filterkette laeuft.
       await page.evaluate(() => {
         const raw = JSON.parse(localStorage.getItem('mtDE'));
         raw.m = raw.m.filter((m) => m.mediaType === 'manga');
@@ -475,14 +479,31 @@ const SESSION_KEY = 'sb-sssxiqtnkctvyghyrqff-auth-token';
         render();
       });
       await page.waitForTimeout(200);
+
+      // (a) Die Bibliothek zeigt die verbliebene Manga-Serie -- NICHT leer, obwohl der
+      // (jetzt veraltete) Medienfilter "series" sonst rawItems auf 0 Eintraege reduzieren
+      // wuerde. Das ist die eigentliche Regression aus F1: ohne den vorgezogenen Reset
+      // waere hier der Empty-State-Pfad sichtbar, obwohl Mangas existieren.
+      const gridAfterDelete = await page.evaluate(() => document.getElementById('content').textContent);
+      if (!/Zqx Manga Testserie/.test(gridAfterDelete)) {
+        throw new Error(
+          'Nach Loeschen der letzten Nicht-Manga-Serie bei noch aktivem Medienfilter "series" muss die ' +
+          'verbliebene Manga-Serie "Zqx Manga Testserie" im Grid sichtbar sein -- die Bibliothek darf NICHT ' +
+          'leer erscheinen, obwohl Mangas vorhanden sind (spec.md:99, F1 aus dem Review). Grid: ' +
+          gridAfterDelete.slice(0, 300)
+        );
+      }
+
+      // (b) filterMedia wurde von der Produktivlogik selbst zurueckgesetzt (nicht vom Test).
+      const filterMediaResetValue = await page.evaluate(() => typeof filterMedia !== 'undefined' ? filterMedia : 'UNDEFINED');
+      if (filterMediaResetValue !== '') throw new Error('filterMedia sollte nach Verschwinden des Filters zurueckgesetzt sein ("" ), war: ' + JSON.stringify(filterMediaResetValue));
+
+      // (c) das Select ist unsichtbar (nur noch ein Medientyp vorhanden).
       const mediaFilterHiddenAfterDelete = await page.evaluate(() => {
         const sel = document.getElementById('media-filter');
         return !sel || window.getComputedStyle(sel).display === 'none';
       });
       if (!mediaFilterHiddenAfterDelete) throw new Error('Nach Loeschen der letzten Nicht-Manga-Serie muss der Medienfilter wieder unsichtbar sein');
-
-      const filterMediaResetValue = await page.evaluate(() => typeof filterMedia !== 'undefined' ? filterMedia : 'UNDEFINED');
-      if (filterMediaResetValue !== '') throw new Error('filterMedia sollte nach Verschwinden des Filters zurueckgesetzt sein ("" ), war: ' + JSON.stringify(filterMediaResetValue));
 
       await context.close();
     });

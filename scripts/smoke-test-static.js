@@ -850,6 +850,21 @@ if (authJsP53.includes("var container = document.getElementById('auth-controls')
   pass('src/auth.js: alter Einzel-Container-Pfad entfernt');
 }
 
+// ── Phase 72 (Fix-Durchlauf 2, F4): MEDIA_TYPES vs. lokale validMediaTypes-Whitelist ────
+// buildPublicCollectionData() haelt aus Test-Slice-Gruenden (test-public-projection.js)
+// eine eigene lokale Whitelist statt der globalen MEDIA_TYPES-Konstante zu referenzieren.
+// Ohne diesen Guard war das Auseinanderlaufen nur ueber die Playwright-Suite pruefbar,
+// die nicht in run-all-checks.js haengt — dieser Check laeuft dagegen in jedem Standardlauf.
+const mediaTypesMatch = appJs26.match(/const MEDIA_TYPES = (\[[^\]]*\]);/);
+const validMediaTypesMatch = appJs26.match(/const validMediaTypes = (\[[^\]]*\]);/);
+if (!mediaTypesMatch || !validMediaTypesMatch) {
+  fail('src/app.js: MEDIA_TYPES oder die lokale validMediaTypes-Whitelist in buildPublicCollectionData nicht gefunden');
+} else if (mediaTypesMatch[1] !== validMediaTypesMatch[1]) {
+  fail('src/app.js: MEDIA_TYPES ' + mediaTypesMatch[1] + ' und validMediaTypes ' + validMediaTypesMatch[1] + ' (buildPublicCollectionData) sind auseinandergelaufen');
+} else {
+  pass('src/app.js: MEDIA_TYPES und lokale validMediaTypes-Whitelist in buildPublicCollectionData sind deckungsgleich');
+}
+
 console.log('');
 if (totalErrors > 0) {
   console.error('❌ Smoke-Test fehlgeschlagen — ' + totalErrors + ' Fehler\n');

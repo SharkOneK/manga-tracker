@@ -158,6 +158,11 @@ async function loadFromCloud() {
           }
         }
       });
+      // Fix-Durchlauf 2 (F3): db = record (Zeile 125) übernimmt eine ggf. veraltete
+      // schemaVersion komplett — analog zur mediaType-Normalisierung oben muss auch dieser
+      // Ladepfad auf SCHEMA_VERSION anheben, sonst liefert buildPublicCollectionData()
+      // schemaVersion:2, obwohl mediaType/seasons bereits enthalten sind.
+      db.schemaVersion = SCHEMA_VERSION;
       const after = JSON.stringify(db);
       if (before !== after) {
         saveLoc();
@@ -739,6 +744,9 @@ function renderBandStatusList(status, el, hint) {
 // Extrahiert aus dem früheren completed-Serienpfad, damit alle vier Tabs
 // denselben Code nutzen.
 function renderSeriesGrid(status, el, hint) {
+  // Fix-Durchlauf 2 (F1): Reset-Zustand MUSS vor der Filterkette feststehen, sonst
+  // rechnet applyMediaFilter() unten noch mit dem alten filterMedia.
+  reconcileMediaFilterState();
   const rawItems = applySort(applyGenreFilter(applyPubFilter(applyMediaFilter(db.m.filter(m => mSeriesStatus(m) === status)))));
   const items = applySearch(rawItems);
 
@@ -1494,13 +1502,23 @@ function shouldShowMediaFilter(list) {
   return new Set((list || []).map(m => m.mediaType || 'manga')).size > 1;
 }
 
+// Zustandsschreibender Teil (Fix-Durchlauf 2, F1): muss VOR der Filterkette in
+// renderSeriesGrid() laufen, sonst wird rawItems dort noch mit dem alten filterMedia
+// berechnet, bevor der Reset greift — eine Render-Runde zu spät (leere Bibliothek ohne
+// sichtbaren Filter, der das erklärt). updateMediaFilter() selbst schreibt keinen
+// Zustand mehr, nur noch reines UI-Spiegeln (Sichtbarkeit/Wert des <select>).
+function reconcileMediaFilterState() {
+  if (filterMedia && !shouldShowMediaFilter(db.m)) {
+    // Letzte Nicht-Manga-Serie gelöscht (o.ä.): Filter zurücksetzen, sonst zeigt die
+    // Bibliothek eine leere Liste, ohne dass ein sichtbarer Filter das erklärt.
+    filterMedia = '';
+  }
+}
+
 function updateMediaFilter() {
   const sel = document.getElementById('media-filter');
   if (!sel) return;
   if (!shouldShowMediaFilter(db.m)) {
-    // Letzte Nicht-Manga-Serie gelöscht (o.ä.): Filter zurücksetzen, sonst zeigt die
-    // Bibliothek eine leere Liste, ohne dass ein sichtbarer Filter das erklärt.
-    if (filterMedia) filterMedia = '';
     sel.classList.add('hidden');
     return;
   }
