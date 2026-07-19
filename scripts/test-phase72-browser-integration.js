@@ -594,6 +594,209 @@ const SESSION_KEY = 'sb-sssxiqtnkctvyghyrqff-auth-token';
       if (m[1] !== 'mt-pwa-v2') throw new Error('CACHE_VERSION unerwarteter Wert: ' + m[1] + ' (Spec/Changes erwarten mt-pwa-v2)');
     });
 
+    // ── Nachtest Fix-Durchlauf 1: Regressionsrisiko der renderSeriesGrid()-Umstellung ──
+    // Die drei update*Filter()-Aufrufe wurden vor die beiden fruehen Returns gezogen.
+    // Das betrifft nicht nur den neuen Medienfilter, sondern auch die vorbestehenden
+    // Verlags-/Genre-Filter. Tests 12-14 pruefen das gezielt gegen das echte DOM.
+
+    // ── Test 12: Genre-/Publikations-Filter-UI bleibt im Leer-Pfad (Suche ohne Treffer)
+    // korrekt befuellt — nicht leer, nicht dupliziert ─────────────────────────────────
+    await runTest('Regression: Verlags-/Genre-Filter-UI bleibt im Suche-ohne-Treffer-Pfad korrekt befuellt (kein Leerlaufen, keine Duplikate)', async () => {
+      const context = await browser.newContext();
+      const page = await context.newPage();
+
+      await page.route('**/rpc/get_my_collection_ids', async (route) => {
+        await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify([]) });
+      });
+
+      const seedDb = {
+        schemaVersion: 3,
+        m: [
+          { id: 'r1', title: 'Zqx Regress Eins', pub: 'Zqx Verlag Eins', genres: ['Zqx-Genre-A'], bands: { 1: 'owned' }, status: 'owned' },
+          { id: 'r2', title: 'Zqx Regress Zwei', pub: 'Zqx Verlag Zwei', genres: ['Zqx-Genre-B'], bands: { 1: 'owned' }, status: 'owned' },
+        ],
+      };
+      await page.addInitScript((seed) => {
+        localStorage.setItem('sb-sssxiqtnkctvyghyrqff-auth-token', seed.session);
+        localStorage.setItem('mtDE', JSON.stringify(seed.db));
+      }, { session: freshSession(), db: seedDb });
+
+      await page.goto(base, { waitUntil: 'load' });
+      await page.waitForTimeout(500);
+      await page.click('.tab[data-tab="owned"]');
+      await page.waitForTimeout(150);
+      await page.click('#vbtn-series');
+      await page.waitForTimeout(250);
+
+      const before = await page.evaluate(() => ({
+        pubOptions: Array.from(document.getElementById('pub-filter').options).map((o) => o.value),
+        genreChips: Array.from(document.getElementById('genre-filter-wrap').querySelectorAll('[data-genre]')).map((e) => e.dataset.genre),
+      }));
+      if (!before.pubOptions.includes('Zqx Verlag Eins') || !before.pubOptions.includes('Zqx Verlag Zwei')) {
+        throw new Error('Verlags-Filter sollte beide neuen Verlage vor der Suche enthalten. Optionen: ' + JSON.stringify(before.pubOptions));
+      }
+      if (!before.genreChips.includes('Zqx-Genre-A') || !before.genreChips.includes('Zqx-Genre-B')) {
+        throw new Error('Genre-Filter sollte beide neuen Genres vor der Suche enthalten. Chips: ' + JSON.stringify(before.genreChips));
+      }
+
+      // Suche eingeben, die NICHTS trifft -> items.length === 0, rawItems.length > 0
+      // (der zweite fruehe Return in renderSeriesGrid()). Vorher lief updatePubFilter()/
+      // updateGenreFilter() hier gar nicht mehr (nur beim naechsten Treffer-Render).
+      await page.fill('#search-input', 'xyz-garantiert-kein-treffer-zqx');
+      await page.evaluate(() => onSearch(document.getElementById('search-input').value));
+      await page.waitForTimeout(250);
+
+      const emptyHtml = await page.evaluate(() => document.getElementById('content').textContent);
+      if (!/Keine Treffer/.test(emptyHtml)) throw new Error('Erwarteter Leer-Zustand "Keine Treffer" nicht angezeigt. Content: ' + emptyHtml.slice(0, 200));
+
+      const duringEmptySearch = await page.evaluate(() => ({
+        pubOptions: Array.from(document.getElementById('pub-filter').options).map((o) => o.value),
+        genreChips: Array.from(document.getElementById('genre-filter-wrap').querySelectorAll('[data-genre]')).map((e) => e.dataset.genre),
+        pubWrapDisplay: window.getComputedStyle(document.getElementById('genre-filter-wrap')).display,
+      }));
+      if (!duringEmptySearch.pubOptions.includes('Zqx Verlag Eins') || !duringEmptySearch.pubOptions.includes('Zqx Verlag Zwei')) {
+        throw new Error('Verlags-Filter darf im Leer-Pfad (Suche ohne Treffer) nicht leerlaufen. Optionen: ' + JSON.stringify(duringEmptySearch.pubOptions));
+      }
+      // keine Duplikate: jede Option genau einmal
+      const dupCheck = duringEmptySearch.pubOptions.filter((v, i, arr) => arr.indexOf(v) !== i);
+      if (dupCheck.length) throw new Error('Verlags-Filter enthaelt Duplikate nach dem Leer-Pfad-Render: ' + JSON.stringify(dupCheck));
+      if (!duringEmptySearch.genreChips.includes('Zqx-Genre-A') || !duringEmptySearch.genreChips.includes('Zqx-Genre-B')) {
+        throw new Error('Genre-Filter darf im Leer-Pfad (Suche ohne Treffer) nicht leerlaufen. Chips: ' + JSON.stringify(duringEmptySearch.genreChips));
+      }
+      const dupGenreCheck = duringEmptySearch.genreChips.filter((v, i, arr) => arr.indexOf(v) !== i);
+      if (dupGenreCheck.length) throw new Error('Genre-Filter enthaelt Duplikate nach dem Leer-Pfad-Render: ' + JSON.stringify(dupGenreCheck));
+
+      // Suche zuruecksetzen -> beide Serien wieder sichtbar, UI weiterhin konsistent (kein Rest-Duplikat)
+      await page.evaluate(() => { document.getElementById('search-input').value = ''; onSearch(''); });
+      await page.waitForTimeout(200);
+      const afterReset = await page.evaluate(() => ({
+        pubOptions: Array.from(document.getElementById('pub-filter').options).map((o) => o.value),
+        grid: document.getElementById('content').textContent,
+      }));
+      const dupAfterReset = afterReset.pubOptions.filter((v, i, arr) => arr.indexOf(v) !== i);
+      if (dupAfterReset.length) throw new Error('Verlags-Filter enthaelt Duplikate nach Reset der Suche: ' + JSON.stringify(dupAfterReset));
+      if (!/Zqx Regress Eins/.test(afterReset.grid) || !/Zqx Regress Zwei/.test(afterReset.grid)) {
+        throw new Error('Nach Reset der Suche sollten beide Serien wieder sichtbar sein. Grid: ' + afterReset.grid.slice(0, 300));
+      }
+
+      await context.close();
+    });
+
+    // ── Test 13: Vollstaendig leerer Tab (rawItems.length === 0) — kein Crash, ────────
+    // Genre-Wrap korrekt versteckt, Verlags-Filter bleibt konsistent (kein Restzustand) ─
+    await runTest('Regression: vollstaendig leerer Tab crasht nicht und haelt Filter-UI konsistent (rawItems.length === 0 Pfad)', async () => {
+      const context = await browser.newContext();
+      const page = await context.newPage();
+      const pageErrors = [];
+      page.on('pageerror', (e) => pageErrors.push(e));
+
+      await page.route('**/rpc/get_my_collection_ids', async (route) => {
+        await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify([]) });
+      });
+
+      // Alle Bände "completed" und Serie im wishlist-Status ausser einer -> "completed"-Tab
+      // enthaelt garantiert nichts aus unserer eigenen Testdaten-Menge (Seeds koennten dort
+      // theoretisch landen, das ist unabhaengig vom hier getesteten Pfad).
+      const seedDb = {
+        schemaVersion: 3,
+        m: [
+          { id: 'w1', title: 'Zqx Wunsch Eins', pub: 'Zqx Verlag Drei', genres: ['Zqx-Genre-C'], bands: {}, status: 'wishlist' },
+        ],
+      };
+      await page.addInitScript((seed) => {
+        localStorage.setItem('sb-sssxiqtnkctvyghyrqff-auth-token', seed.session);
+        localStorage.setItem('mtDE', JSON.stringify(seed.db));
+      }, { session: freshSession(), db: seedDb });
+
+      await page.goto(base, { waitUntil: 'load' });
+      await page.waitForTimeout(500);
+      await page.click('.tab[data-tab="wishlist"]');
+      await page.waitForTimeout(150);
+      await page.click('#vbtn-series');
+      await page.waitForTimeout(200);
+
+      // Wunschlisten-Tab sollte unseren Eintrag zeigen (Kontrollzustand).
+      const wishlistHtml = await page.evaluate(() => document.getElementById('content').textContent);
+      if (!/Zqx Wunsch Eins/.test(wishlistHtml)) throw new Error('Wunschlisten-Tab sollte den Testeintrag zeigen. Content: ' + wishlistHtml.slice(0, 200));
+
+      await page.click('.tab[data-tab="completed"]');
+      await page.waitForTimeout(150);
+      await page.click('#vbtn-series');
+      await page.waitForTimeout(250);
+
+      if (pageErrors.length) throw new Error('pageerror im leeren "completed"-Tab: ' + pageErrors.map(String).join(' | '));
+
+      const emptyTabState = await page.evaluate(() => {
+        const wrap = document.getElementById('genre-filter-wrap');
+        const pubSel = document.getElementById('pub-filter');
+        return {
+          contentText: document.getElementById('content').textContent,
+          pubOptionsCount: pubSel.options.length,
+          wrapDisplay: window.getComputedStyle(wrap).display,
+        };
+      });
+      // Kein Crash, ein Leer-Zustand wird gerendert (nicht die alte Wunschlisten-Ansicht).
+      if (/Zqx Wunsch Eins/.test(emptyTabState.contentText)) {
+        throw new Error('"completed"-Tab zeigt faelschlich den Wunschlisten-Eintrag (Filter-UI-Umbau haette das nicht aendern duerfen).');
+      }
+      if (emptyTabState.pubOptionsCount < 1) throw new Error('Verlags-Filter sollte mindestens die "Alle Verlage"-Option behalten, hat aber ' + emptyTabState.pubOptionsCount);
+
+      await context.close();
+    });
+
+    // ── Test 14: Genre-Mehrfachauswahl (OR-Semantik, Phase 67) unveraendert korrekt ──
+    // ueber das echte DOM nach der renderSeriesGrid()-Umstellung ──────────────────────
+    await runTest('Regression: Genre-Mehrfachauswahl (OR-Semantik) funktioniert nach der Filter-Reihenfolge-Aenderung unveraendert im echten DOM', async () => {
+      const context = await browser.newContext();
+      const page = await context.newPage();
+
+      await page.route('**/rpc/get_my_collection_ids', async (route) => {
+        await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify([]) });
+      });
+
+      const seedDb = {
+        schemaVersion: 3,
+        m: [
+          { id: 'g1', title: 'Zqx Genre Action', pub: 'Zqx Verlag Vier', genres: ['Zqx-Action'], bands: { 1: 'owned' }, status: 'owned' },
+          { id: 'g2', title: 'Zqx Genre Drama', pub: 'Zqx Verlag Vier', genres: ['Zqx-Drama'], bands: { 1: 'owned' }, status: 'owned' },
+          { id: 'g3', title: 'Zqx Genre Horror', pub: 'Zqx Verlag Vier', genres: ['Zqx-Horror'], bands: { 1: 'owned' }, status: 'owned' },
+        ],
+      };
+      await page.addInitScript((seed) => {
+        localStorage.setItem('sb-sssxiqtnkctvyghyrqff-auth-token', seed.session);
+        localStorage.setItem('mtDE', JSON.stringify(seed.db));
+      }, { session: freshSession(), db: seedDb });
+
+      await page.goto(base, { waitUntil: 'load' });
+      await page.waitForTimeout(500);
+      await page.click('.tab[data-tab="owned"]');
+      await page.waitForTimeout(150);
+      await page.click('#vbtn-series');
+      await page.waitForTimeout(250);
+
+      await page.click('[data-action="set-genre-filter"][data-genre="Zqx-Action"]');
+      await page.waitForTimeout(150);
+      await page.click('[data-action="set-genre-filter"][data-genre="Zqx-Drama"]');
+      await page.waitForTimeout(200);
+
+      const gridHtml = await page.evaluate(() => document.getElementById('content').textContent);
+      if (!/Zqx Genre Action/.test(gridHtml) || !/Zqx Genre Drama/.test(gridHtml)) {
+        throw new Error('OR-Semantik: bei aktiven Genres Action+Drama sollten beide Serien sichtbar sein. Grid: ' + gridHtml.slice(0, 300));
+      }
+      if (/Zqx Genre Horror/.test(gridHtml)) {
+        throw new Error('OR-Semantik: Horror-Serie darf bei Filter Action+Drama nicht sichtbar sein. Grid: ' + gridHtml.slice(0, 300));
+      }
+
+      // Ein Genre wieder abwaehlen -> nur noch Action sichtbar
+      await page.click('[data-action="set-genre-filter"][data-genre="Zqx-Drama"]');
+      await page.waitForTimeout(200);
+      const gridHtml2 = await page.evaluate(() => document.getElementById('content').textContent);
+      if (!/Zqx Genre Action/.test(gridHtml2)) throw new Error('Nach Abwahl von Drama sollte Action weiterhin sichtbar sein. Grid: ' + gridHtml2.slice(0, 300));
+      if (/Zqx Genre Drama/.test(gridHtml2)) throw new Error('Nach Abwahl von Drama darf Drama nicht mehr sichtbar sein. Grid: ' + gridHtml2.slice(0, 300));
+
+      await context.close();
+    });
+
   } finally {
     await browser.close();
     server.close();
