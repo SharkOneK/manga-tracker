@@ -142,6 +142,8 @@ async function loadFromCloud() {
             genresAdded = true;
           }
         }
+        // mediaType-Migration (Phase 72): Cloud-Records durchlaufen migrateBands() nicht
+        if (!MEDIA_TYPES.includes(m.mediaType)) m.mediaType = 'manga';
         // Bands-Migration falls Cloud-Daten noch im alten Format
         if (!m.bands) {
           m.bands = {};
@@ -156,6 +158,11 @@ async function loadFromCloud() {
           }
         }
       });
+      // Fix-Durchlauf 2 (F3): db = record (Zeile 125) übernimmt eine ggf. veraltete
+      // schemaVersion komplett — analog zur mediaType-Normalisierung oben muss auch dieser
+      // Ladepfad auf SCHEMA_VERSION anheben, sonst liefert buildPublicCollectionData()
+      // schemaVersion:2, obwohl mediaType/seasons bereits enthalten sind.
+      db.schemaVersion = SCHEMA_VERSION;
       const after = JSON.stringify(db);
       if (before !== after) {
         saveLoc();
@@ -171,6 +178,13 @@ async function loadFromCloud() {
   }
 }
 
+
+// ─── Phase 72: Schema-/Medientyp-Konstanten ───────────────────────────────
+// Müssen vor migrateBands() stehen: die IIFE unten läuft synchron beim Boot,
+// noch bevor das Skript weiter unten ankommt — eine spätere const-Deklaration
+// (TDZ) würde hier einen ReferenceError auslösen.
+const MEDIA_TYPES = ['manga', 'series', 'anime'];
+const SCHEMA_VERSION = 3;
 
 // ─── Migration: owned/current/status → bands ──────────────────────────────
 // Boot-Phase: ein einziger persist() am Ende statt ~58 (Migration + Seeds)
@@ -193,6 +207,12 @@ _seeding = true;
     if (m.ongoing === false) m.ongoing = 'false';
   });
 
+  // Migration (Phase 72): mediaType Default — additiv, kein Pflichtfeld (siehe entryError)
+  db.m.forEach(m => {
+    if (m === null || typeof m !== 'object') return;
+    if (!MEDIA_TYPES.includes(m.mediaType)) m.mediaType = 'manga';
+  });
+
   // Migration: owned/current/status → bands
   db.m.forEach(m => {
     if (m === null || typeof m !== 'object') return;
@@ -213,6 +233,8 @@ _seeding = true;
       }
     }
   });
+
+  db.schemaVersion = SCHEMA_VERSION;
 })();
 
 // ─── Per-manga helpers (use bands as source of truth) ─────────────────────
@@ -722,11 +744,22 @@ function renderBandStatusList(status, el, hint) {
 // Extrahiert aus dem früheren completed-Serienpfad, damit alle vier Tabs
 // denselben Code nutzen.
 function renderSeriesGrid(status, el, hint) {
-  const rawItems = applySort(applyGenreFilter(applyPubFilter(db.m.filter(m => mSeriesStatus(m) === status))));
+  // Fix-Durchlauf 2 (F1): Reset-Zustand MUSS vor der Filterkette feststehen, sonst
+  // rechnet applyMediaFilter() unten noch mit dem alten filterMedia.
+  reconcileMediaFilterState();
+  const rawItems = applySort(applyGenreFilter(applyPubFilter(applyMediaFilter(db.m.filter(m => mSeriesStatus(m) === status)))));
   const items = applySearch(rawItems);
 
   if (searchQ) hint.textContent = `${items.length} von ${rawItems.length} Ergebnis${items.length!==1?'se':''}`;
   else hint.textContent = '';
+
+  // Filter-UI (Verlag/Genre/Medientyp) muss in JEDEM Render-Pfad aktualisiert werden,
+  // auch in den beiden Leer-Pfaden unten — sonst bleibt z.B. updateMediaFilter()s
+  // Rücksetzlogik ("letzte Nicht-Manga-Serie gelöscht") unerreichbar, weil genau dieser
+  // Fall meist zu rawItems.length === 0 führt.
+  updatePubFilter();
+  updateGenreFilter();
+  updateMediaFilter();
 
   if (!rawItems.length) {
     const info = {
@@ -749,8 +782,6 @@ function renderSeriesGrid(status, el, hint) {
     return;
   }
   el.innerHTML = `<div class="manga-grid">${items.map(mangaCard).join('')}</div>`;
-  updatePubFilter();
-  updateGenreFilter();
 }
 
 // Phase 52 (Option A): Bändenansicht (☰) der Wunschliste.
@@ -1044,6 +1075,7 @@ function renderDashboard() {
   const MONATE = ['Jan','Feb','Mär','Apr','Mai','Jun','Jul','Aug','Sep','Okt','Nov','Dez'];
   const el = document.getElementById('content');
   updateGenreFilter();
+  updateMediaFilter();
 
   // Sammlung gesamt
   const totalSeries  = db.m.length;
@@ -1364,6 +1396,8 @@ function renderDashboard() {
 
 // ─── Genre / Tags ─────────────────────────────────────────────────────────
 let filterGenres = [];
+// Phase 72: Medientyp-Filter, siehe applyMediaFilter()/updateMediaFilter() weiter unten.
+let filterMedia = '';
 
 function resolveProtectedGenres(existing) {
   return Array.isArray(existing?.genres) ? [...existing.genres] : [];
@@ -1452,6 +1486,55 @@ function applyPubFilter(list) {
   return list.filter(m => m.pub === filterPub);
 }
 
+// ─── Medientyp-Filter (Phase 72) ──────────────────────────────────────────
+// Optionen (Manga/Serie/Anime) sind statisch in index.html hinterlegt (#media-filter,
+// #f-mediatype) — analog zu #sort-select, kein dynamisches Befüllen nötig.
+
+function setMediaFilter(val) {
+  filterMedia = val;
+  render();
+}
+
+// Pure Sichtbarkeitsregel (auch aus Tests aufgerufen): der Filter ist nur relevant,
+// solange die Sammlung mehr als einen Medientyp enthält — reine Manga-Sammlungen
+// sehen nie einen leeren/nutzlosen Filter.
+function shouldShowMediaFilter(list) {
+  return new Set((list || []).map(m => m.mediaType || 'manga')).size > 1;
+}
+
+// Zustandsschreibender Teil (Fix-Durchlauf 2, F1): muss VOR der Filterkette in
+// renderSeriesGrid() laufen, sonst wird rawItems dort noch mit dem alten filterMedia
+// berechnet, bevor der Reset greift — eine Render-Runde zu spät (leere Bibliothek ohne
+// sichtbaren Filter, der das erklärt). updateMediaFilter() selbst schreibt keinen
+// Zustand mehr, nur noch reines UI-Spiegeln (Sichtbarkeit/Wert des <select>).
+function reconcileMediaFilterState() {
+  if (filterMedia && !shouldShowMediaFilter(db.m)) {
+    // Letzte Nicht-Manga-Serie gelöscht (o.ä.): Filter zurücksetzen, sonst zeigt die
+    // Bibliothek eine leere Liste, ohne dass ein sichtbarer Filter das erklärt.
+    filterMedia = '';
+  }
+}
+
+function updateMediaFilter() {
+  const sel = document.getElementById('media-filter');
+  if (!sel) return;
+  if (!shouldShowMediaFilter(db.m)) {
+    sel.classList.add('hidden');
+    return;
+  }
+  if (['buy','kalender','dashboard'].includes(tab)) {
+    sel.classList.add('hidden');
+    return;
+  }
+  sel.classList.remove('hidden');
+  sel.value = filterMedia;
+}
+
+function applyMediaFilter(list) {
+  if (!filterMedia) return list;
+  return list.filter(m => (m.mediaType || 'manga') === filterMedia);
+}
+
 // ─── Manual Sync ─────────────────────────────────────────────────────────
 async function manualSync() {
   await loadFromCloud();
@@ -1459,7 +1542,7 @@ async function manualSync() {
 }
 
 // ─── Import / Export ──────────────────────────────────────────────────────
-const SCHEMA_VERSION = 2;
+// SCHEMA_VERSION (jetzt 3, Phase 72) ist weiter oben deklariert (vor migrateBands, s. dort).
 
 function renderImportExport() {
   return `<div class="stats-section">
@@ -1519,6 +1602,8 @@ function validateImportEntry(entry, i) {
     return `Eintrag ${i}: title fehlt oder leer`;
   if (entry.status && !_VALID_IMPORT_STATUSES.includes(entry.status))
     return `Eintrag ${i} (\"${entry.title}\"): ungültiger Status \"${entry.status}\"`;
+  if (entry.mediaType !== undefined && !MEDIA_TYPES.includes(entry.mediaType))
+    return `Eintrag ${i} (\"${entry.title}\"): ungültiger mediaType \"${entry.mediaType}\"`;
   if (entry.startedAt && !_DATE_RE.test(entry.startedAt))
     return `Eintrag ${i} (\"${entry.title}\"): startedAt kein ISO-Datum (YYYY-MM-DD)`;
   if (entry.finishedAt && !_DATE_RE.test(entry.finishedAt))
@@ -1601,6 +1686,8 @@ async function handleImportFile(input) {
     delete m.wishlist;
     if (m.ongoing === true)  m.ongoing = 'true';
     if (m.ongoing === false) m.ongoing = 'false';
+    // mediaType-Migration (Phase 72): dritter Migrationspfad neben Boot und Cloud
+    if (!MEDIA_TYPES.includes(m.mediaType)) m.mediaType = 'manga';
     if (!m.bands) {
       m.bands = {};
       const n   = Number(m.owned)   || 0;
@@ -2095,6 +2182,7 @@ function openAdd() {
   document.getElementById('modal-title').textContent = 'Manga hinzufügen';
   document.getElementById('f-title').value = '';
   document.getElementById('f-publisher').value = '';
+  document.getElementById('f-mediatype').value = 'manga';
   document.getElementById('f-total').value = '';
   document.getElementById('f-ongoing').value = 'true';
   document.getElementById('f-nextdate').value = '';
@@ -2125,6 +2213,7 @@ function openEdit(id, e) {
   document.getElementById('modal-title').textContent = 'Manga bearbeiten';
   document.getElementById('f-title').value = m.title||'';
   document.getElementById('f-publisher').value = m.pub||'';
+  document.getElementById('f-mediatype').value = MEDIA_TYPES.includes(m.mediaType) ? m.mediaType : 'manga';
   document.getElementById('f-total').value = (m.total ?? '') === null ? '' : (m.total ?? '');
   document.getElementById('f-ongoing').value = m.ongoing??'true';
   document.getElementById('f-nextdate').value = m.nextDate??'';
@@ -2195,8 +2284,13 @@ function safeHttpsUrl(v) {
  */
 function buildPublicCollectionData(db) {
   if (!db || !Array.isArray(db.m)) return { m: [] };
+  // Phase 72: eigene Whitelist statt der globalen MEDIA_TYPES-Konstante — diese Funktion
+  // wird von scripts/test-public-projection.js per Quelltext-Ausschnitt isoliert ausgeführt
+  // (zwischen safeHttpsUrl und mergePreservedFields), ohne Zugriff auf weiter oben im
+  // Skript deklarierte Konstanten.
+  const validMediaTypes = ['manga', 'series', 'anime'];
   return {
-    schemaVersion: db.schemaVersion || 2,
+    schemaVersion: db.schemaVersion || 3,
     m: db.m.map(function(m) {
       return {
         id: m.id,
@@ -2214,6 +2308,13 @@ function buildPublicCollectionData(db) {
         ),
         genres: Array.isArray(m.genres) ? m.genres : [],
         status: m.status === 'wishlist' ? 'wishlist' : (m.status || ''),
+        mediaType: validMediaTypes.includes(m.mediaType) ? m.mediaType : 'manga',
+        // Nur Schlüssel mit endlicher Zahl (Number.isFinite statt Truthiness, damit season:0 nicht verloren geht)
+        seasons: Object.fromEntries(
+          Object.entries(m.seasons || {})
+            .filter(function([, v]) { return v !== null && Number.isFinite(Number(v)); })
+            .map(function([k, v]) { return [k, Number(v)]; })
+        ),
       };
     }),
   };
@@ -2225,6 +2326,7 @@ function mergePreservedFields(existing, entry) {
   const keys = [
     'isbn13', 'editionFingerprint', 'coverManuallySet', 'mpEditionId', 'mpVerifiedAt',
     'releaseSource', 'releaseCheckedAt', 'releaseConfidence', 'externalIds', 'volumeMeta',
+    'seasons',
   ];
   keys.forEach(function(k) {
     if (existing[k] !== undefined && entry[k] === undefined) entry[k] = existing[k];
@@ -2349,10 +2451,15 @@ function doSave() {
     if ((bandExists || isCoverWithoutBand) && v) bandCovers[k] = v;
   });
 
+  // Phase 72: mediaType — aktives Nutzerfeld, Whitelist-Fallback auf 'manga'
+  const mediaTypeInput = document.getElementById('f-mediatype').value;
+  const mediaType = MEDIA_TYPES.includes(mediaTypeInput) ? mediaTypeInput : 'manga';
+
   const entry = {
     id: editId || uid(),
     title,
     pub: document.getElementById('f-publisher').value,
+    mediaType,
     bands,
     bandCovers,
     owned: Object.keys(bands).length,           // Rückwärtskompatibilität
@@ -4625,6 +4732,9 @@ function bindStaticEvents() {
   // Filters
   document.getElementById('pub-filter')?.addEventListener('change', function(event) {
     setPubFilter(event.target.value);
+  });
+  document.getElementById('media-filter')?.addEventListener('change', function(event) {
+    setMediaFilter(event.target.value);
   });
   document.getElementById('sort-select')?.addEventListener('change', function(event) {
     setSort(event.target.value);

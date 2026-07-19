@@ -98,6 +98,13 @@
         <select class="sort-select" id="pub-filter" title="Verlag filtern">
           <option value="">Alle Verlage</option>
         </select>
+        <!-- Phase 72: nur sichtbar, solange die Sammlung mehr als einen Medientyp enthält (updateMediaFilter()) -->
+        <select class="sort-select hidden" id="media-filter" title="Medientyp filtern">
+          <option value="">Alle Medientypen</option>
+          <option value="manga">Manga</option>
+          <option value="series">Serie</option>
+          <option value="anime">Anime</option>
+        </select>
         <select class="sort-select" id="sort-select" title="Sortierung">
           <option value="az">A–Z</option>
           <option value="za">Z–A</option>
@@ -159,6 +166,14 @@
             <option>Tokyopop</option>
             <option>Yomeru</option>
             <option value="Anderer">Anderer</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Medientyp</label>
+          <select id="f-mediatype">
+            <option value="manga">Manga</option>
+            <option value="series">Serie</option>
+            <option value="anime">Anime</option>
           </select>
         </div>
         <div class="form-group">
