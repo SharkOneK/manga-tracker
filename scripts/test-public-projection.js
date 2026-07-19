@@ -127,6 +127,8 @@ console.log('\nPhase 27b - Public Projection/RLS Tests\n');
         },
         genres: ['Drama'],
         status: 'reading',
+        mediaType: 'series',
+        seasons: { 1: 2, 2: null, 3: 0 },
         notes: 'privat',
         isbn13: '9780000000000',
         startedAt: '2026-01-01',
@@ -137,8 +139,8 @@ console.log('\nPhase 27b - Public Projection/RLS Tests\n');
 
     const projection = buildPublicCollectionData(input);
     assert.deepStrictEqual(Object.keys(projection.m[0]).sort(), [
-      'bandCovers', 'bands', 'cover', 'genres', 'id', 'nextDate',
-      'ongoing', 'pub', 'status', 'title', 'total',
+      'bandCovers', 'bands', 'cover', 'genres', 'id', 'mediaType', 'nextDate',
+      'ongoing', 'pub', 'seasons', 'status', 'title', 'total',
     ].sort());
     assert.strictEqual(projection.schemaVersion, 3);
     assert.strictEqual(projection.m[0].cover, '');
@@ -146,6 +148,34 @@ console.log('\nPhase 27b - Public Projection/RLS Tests\n');
     assert.strictEqual(Object.prototype.hasOwnProperty.call(projection.m[0], 'notes'), false);
     assert.strictEqual(Object.prototype.hasOwnProperty.call(projection.m[0], 'isbn13'), false);
     assert.strictEqual(Object.prototype.hasOwnProperty.call(projection.m[0], 'mpEditionId'), false);
+    assert.strictEqual(Object.prototype.hasOwnProperty.call(projection.m[0], 'startedAt'), false);
+    assert.strictEqual(Object.prototype.hasOwnProperty.call(projection.m[0], 'finishedAt'), false);
+    assert.strictEqual(projection.m[0].mediaType, 'series');
+    // season:0 ist ein legitimer Wert (Number.isFinite statt Truthiness) — season:null (Band 2)
+    // hat keinen Wert und wird herausgefiltert, endliche Zahlen (auch 0) bleiben erhalten.
+    assert.deepStrictEqual(projection.m[0].seasons, { 1: 2, 3: 0 });
+  });
+
+  await runTest('buildPublicCollectionData: Eintrag ohne mediaType wird als "manga" ausgegeben', function() {
+    const buildPublicCollectionData = loadPublicProjectionHelpers();
+    const input = { schemaVersion: 3, m: [{ id: 'm2', title: 'Unmigriert', bands: {} }] };
+    const projection = buildPublicCollectionData(input);
+    assert.strictEqual(projection.m[0].mediaType, 'manga');
+    assert.deepStrictEqual(projection.m[0].seasons, {});
+  });
+
+  await runTest('buildPublicCollectionData: ungültiger mediaType wird als "manga" ausgegeben', function() {
+    const buildPublicCollectionData = loadPublicProjectionHelpers();
+    const input = { schemaVersion: 3, m: [{ id: 'm3', title: 'Kaputt', bands: {}, mediaType: 'movie' }] };
+    const projection = buildPublicCollectionData(input);
+    assert.strictEqual(projection.m[0].mediaType, 'manga');
+  });
+
+  await runTest('buildPublicCollectionData: schemaVersion-Fallback ohne Input ist 3', function() {
+    const buildPublicCollectionData = loadPublicProjectionHelpers();
+    const input = { m: [{ id: 'm4', title: 'Ohne schemaVersion', bands: {} }] };
+    const projection = buildPublicCollectionData(input);
+    assert.strictEqual(projection.schemaVersion, 3);
   });
 
   await runTest('Cloud-Push (Session) sendet data + public_data via JWT, ohne x-owner-token', async function() {

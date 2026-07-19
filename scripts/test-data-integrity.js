@@ -51,11 +51,24 @@ function mergePreservedFields(existing, entry) {
   const keys = [
     'isbn13', 'editionFingerprint', 'coverManuallySet', 'mpEditionId', 'mpVerifiedAt',
     'releaseSource', 'releaseCheckedAt', 'releaseConfidence', 'externalIds', 'volumeMeta',
+    'seasons',
   ];
   keys.forEach(function(k) {
     if (existing[k] !== undefined && entry[k] === undefined) entry[k] = existing[k];
   });
   return entry;
+}
+
+// Phase 72: mediaType-Migration (Spiegel des neuen migrateBands()-Blocks in src/app.js)
+const MEDIA_TYPES = ['manga', 'series', 'anime'];
+function migrateMediaType(db) {
+  if (!Array.isArray(db.m)) return db;
+  db.m.forEach(function(m) {
+    if (m === null || typeof m !== 'object') return;
+    if (!MEDIA_TYPES.includes(m.mediaType)) m.mediaType = 'manga';
+  });
+  db.schemaVersion = 3;
+  return db;
 }
 
 // escapeHtml
@@ -795,6 +808,74 @@ runTest('Phase 42c: write-release-source-review-queue.js entfernt veraltete Sour
   const writerPath = path2.resolve(__dirname, 'write-release-source-review-queue.js');
   const src = fs2.readFileSync(writerPath, 'utf-8');
   assert.ok(src.includes("entry.classification === 'automated-source-check'"), 'Writer must only preserve non-analysis automated-source-check entries');
+});
+
+// ─── Phase 72: mediaType-Fundament (Migration v2→v3, seasons-Roundtrip) ───
+
+runTest('Phase 72: Migration v2→v3 setzt mediaType default und schemaVersion', function() {
+  const db = { m: [{ id: '1', title: 'Ohne Typ' }] };
+  migrateMediaType(db);
+  assert.strictEqual(db.m[0].mediaType, 'manga');
+  assert.strictEqual(db.schemaVersion, 3);
+});
+
+runTest('Phase 72: Migration ist idempotent (zweiter Lauf ändert nichts)', function() {
+  const db = { m: [{ id: '1', title: 'Serie', mediaType: 'series' }] };
+  migrateMediaType(db);
+  const after1 = JSON.stringify(db);
+  migrateMediaType(db);
+  const after2 = JSON.stringify(db);
+  assert.strictEqual(after1, after2);
+});
+
+runTest('Phase 72: Migration überschreibt bereits gesetzten gültigen Wert nicht', function() {
+  const db = { m: [{ id: '1', title: 'Serie', mediaType: 'series' }] };
+  migrateMediaType(db);
+  assert.strictEqual(db.m[0].mediaType, 'series');
+});
+
+runTest('Phase 72: ungültiger mediaType wird auf "manga" korrigiert', function() {
+  const db = {
+    m: [
+      { id: '1', title: 'A', mediaType: 'movie' },
+      { id: '2', title: 'B', mediaType: null },
+      { id: '3', title: 'C', mediaType: 42 },
+    ],
+  };
+  migrateMediaType(db);
+  assert.strictEqual(db.m[0].mediaType, 'manga');
+  assert.strictEqual(db.m[1].mediaType, 'manga');
+  assert.strictEqual(db.m[2].mediaType, 'manga');
+});
+
+runTest('Phase 72: migrateMediaType wirft nicht bei null-Einträgen (Guard)', function() {
+  const db = { m: [null, { id: '1', title: 'X' }] };
+  assert.doesNotThrow(() => migrateMediaType(db));
+  assert.strictEqual(db.m[1].mediaType, 'manga');
+});
+
+runTest('Phase 72: mergePreservedFields erhält seasons aus existing', function() {
+  const existing = { id: '1', seasons: { 1: 1, 2: 2 } };
+  const entry = { id: '1', title: 'Test' };
+  mergePreservedFields(existing, entry);
+  assert.deepStrictEqual(entry.seasons, { 1: 1, 2: 2 });
+});
+
+runTest('Phase 72: mergePreservedFields überschreibt bereits gesetztes entry.seasons nicht', function() {
+  const existing = { id: '1', seasons: { 1: 1 } };
+  const entry = { id: '1', seasons: { 1: 9 } };
+  mergePreservedFields(existing, entry);
+  assert.deepStrictEqual(entry.seasons, { 1: 9 });
+});
+
+runTest('Phase 72: season-Roundtrip — Save ohne seasons im Formular erhält bestehende seasons', function() {
+  // Simuliert doSave(): existing hat seasons, das Formular liefert kein eigenes
+  // seasons-Feld (keine dritte Modellebene in der Maske) → entry bekommt es über
+  // mergePreservedFields zurück.
+  const existing = { id: '1', title: 'Serie', mediaType: 'series', seasons: { 1: 1, 2: 2 } };
+  const entry = { id: '1', title: 'Serie', mediaType: 'series' }; // kein seasons gesetzt
+  mergePreservedFields(existing, entry);
+  assert.deepStrictEqual(entry.seasons, { 1: 1, 2: 2 });
 });
 
 console.log('');

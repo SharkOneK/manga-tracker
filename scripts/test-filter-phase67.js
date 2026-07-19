@@ -42,6 +42,16 @@ function applyGenreFilter(list, filterGenres) {
   return list.filter(m => (m.genres||[]).some(g => filterGenres.includes(g)));
 }
 
+// Phase 72: Medientyp-Filter — filterMedia als Parameter übergeben, analog applyGenreFilter.
+function applyMediaFilter(list, filterMedia) {
+  if (!filterMedia) return list;
+  return list.filter(m => (m.mediaType || 'manga') === filterMedia);
+}
+
+function shouldShowMediaFilter(list) {
+  return new Set((list || []).map(m => m.mediaType || 'manga')).size > 1;
+}
+
 // Toggle-Logik aus setGenreFilter
 function toggleGenre(filterGenres, g) {
   if (g === '') return [];
@@ -98,6 +108,15 @@ const SERIES_MINIMAL = [
 // Serie mit genres = null und notes = null
 const SERIES_NULL_FIELDS = [
   { id: '7', title: 'NullFelder', pub: 'TestVerlag', genres: null, notes: null },
+];
+
+// Phase 72: gemischte Sammlung aus manga/series/anime (inkl. unmigrierter Eintrag ohne mediaType)
+const SERIES_MIXED_MEDIA = [
+  { id: '1', title: 'Berserk', mediaType: 'manga', genres: ['Action', 'Fantasy'] },
+  { id: '2', title: 'Attack on Titan (Anime)', mediaType: 'anime', genres: ['Action'] },
+  { id: '3', title: 'The Boys (Serie)', mediaType: 'series', genres: ['Action', 'Drama'] },
+  { id: '4', title: 'One Piece', mediaType: 'manga', genres: ['Adventure'] },
+  { id: '8', title: 'Unmigriert', genres: ['Action'] }, // kein mediaType → Fallback 'manga'
 ];
 
 // ─── Tests: applySearch ────────────────────────────────────────────────────
@@ -265,6 +284,43 @@ runTest('T12b: Serie mit genres=null verursacht keinen Crash', function() {
   let result;
   assert.doesNotThrow(() => { result = applyGenreFilter(SERIES_NULL_FIELDS, ['Action']); });
   assert.strictEqual(result.length, 0);
+});
+
+// ─── Tests: applyMediaFilter (Phase 72) ───────────────────────────────────
+
+console.log('\n── applyMediaFilter ───────────────────────────────────────');
+
+runTest('T_media1: applyMediaFilter("") gibt die Liste unverändert zurück (Identität)', function() {
+  const result = applyMediaFilter(SERIES_MIXED_MEDIA, '');
+  assert.strictEqual(result, SERIES_MIXED_MEDIA);
+});
+
+runTest('T_media2: Filter "series" liefert genau die Serien der gemischten Liste', function() {
+  const result = applyMediaFilter(SERIES_MIXED_MEDIA, 'series');
+  assert.strictEqual(result.length, 1);
+  assert.strictEqual(result[0].id, '3');
+});
+
+runTest('T_media3: Einträge ohne mediaType werden von Filter "manga" erfasst (Fallback-Semantik)', function() {
+  const result = applyMediaFilter(SERIES_MIXED_MEDIA, 'manga');
+  const ids = result.map(m => m.id).sort();
+  // '1' und '4' sind explizit mediaType:'manga', '8' hat gar kein mediaType (Fallback)
+  assert.deepStrictEqual(ids, ['1', '4', '8']);
+});
+
+runTest('T_media4: Zusammenspiel Phase 67 — Medienfilter UND Genre-Filter (OR innerhalb der Genres)', function() {
+  const result = applyGenreFilter(applyMediaFilter(SERIES_MIXED_MEDIA, 'series'), ['Action']);
+  assert.strictEqual(result.length, 1);
+  assert.strictEqual(result[0].id, '3');
+});
+
+runTest('T_media5: Sichtbarkeitsregel — nur "manga" vorhanden → Filter inaktiv', function() {
+  const onlyManga = [{ id: '1', title: 'A', mediaType: 'manga' }, { id: '2', title: 'B' }];
+  assert.strictEqual(shouldShowMediaFilter(onlyManga), false);
+});
+
+runTest('T_media6: Sichtbarkeitsregel — mehr als ein Medientyp → Filter aktiv', function() {
+  assert.strictEqual(shouldShowMediaFilter(SERIES_MIXED_MEDIA), true);
 });
 
 // ─── Tests: setGenreFilter Toggle-Logik ───────────────────────────────────

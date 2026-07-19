@@ -349,6 +349,7 @@ if (fs.existsSync(appJsPath)) {
     ['mergePreservedFields', 'mergePreservedFields'],
     ['safeHttpsUrl',         'safeHttpsUrl'],
     ['isUuid',               'isUuid'],
+    ['applyMediaFilter',     'applyMediaFilter'],
   ];
 
   checks.forEach(function(pair) {

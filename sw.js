@@ -6,7 +6,7 @@
 
 'use strict';
 
-const CACHE_VERSION = 'mt-pwa-v1';
+const CACHE_VERSION = 'mt-pwa-v2';
 
 // App-Shell: statische Dateien, die nach dem ersten Online-Besuch offline
 // verfügbar sein sollen. Relative Pfade (./…) damit GitHub-Pages-Sub-Pfad
