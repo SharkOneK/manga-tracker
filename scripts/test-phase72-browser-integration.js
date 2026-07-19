@@ -52,7 +52,9 @@ function startServer() {
       const filePath = path.join(repoRoot, reqPath);
       if (!filePath.startsWith(repoRoot)) { res.writeHead(403); res.end(); return; }
       fs.readFile(filePath, (err, data) => {
-        if (err) { res.writeHead(404); res.end('not found: ' + reqPath); return; }
+        // Angefragten Pfad NICHT in die Antwort spiegeln (CodeQL js/reflected-xss):
+        // fuer die Testdiagnose reicht der Konsolen-Log, der Response-Body braucht ihn nicht.
+        if (err) { console.error('[test-server] 404:', reqPath); res.writeHead(404, { 'Content-Type': 'text/plain' }); res.end('not found'); return; }
         const ext = path.extname(filePath);
         res.writeHead(200, { 'Content-Type': MIME[ext] || 'application/octet-stream' });
         res.end(data);
