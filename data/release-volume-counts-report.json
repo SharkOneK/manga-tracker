@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-18T06:26:48.892Z",
+  "generatedAt": "2026-07-19T07:03:15.246Z",
   "source": "run-release-volume-counts.js",
   "providerMode": "enabled",
   "policy": {
@@ -24,19 +24,28 @@
     ]
   },
   "summary": {
-    "seriesInVolumeCounts": 47,
-    "probeCandidates": 62,
-    "checkedCandidates": 62,
-    "detectedChanges": 1,
-    "appliedHighConfidenceChanges": 1,
-    "blockedOrUnsafe": 83
+    "seriesInVolumeCounts": 48,
+    "probeCandidates": 65,
+    "checkedCandidates": 65,
+    "detectedChanges": 2,
+    "appliedHighConfidenceChanges": 2,
+    "blockedOrUnsafe": 85
   },
   "changes": [
     {
+      "seriesTitle": "My Tiny Senpai",
+      "publisher": "Dokico",
+      "oldPublishedVolumesDE": 0,
+      "newPublishedVolumesDE": 2,
+      "source": "manga-passion",
+      "sourceUrl": "https://www.manga-passion.de/editions/3116",
+      "confidence": "high"
+    },
+    {
       "seriesTitle": "One Piece",
       "publisher": "Carlsen Manga!",
-      "oldPublishedVolumesDE": 42,
-      "newPublishedVolumesDE": 43,
+      "oldPublishedVolumesDE": 43,
+      "newPublishedVolumesDE": 44,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/87",
       "confidence": "high"
@@ -480,6 +489,27 @@
     {
       "seriesTitle": "Solo Leveling: Ragnarok",
       "publisher": "Altraverse",
+      "volumeNumber": 2,
+      "reasonCodes": [
+        "source-url-not-specific",
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date",
+        "not-yet-released"
+      ]
+    },
+    {
+      "seriesTitle": "This Year’s Hot Ace-chan",
+      "publisher": "Dokico",
+      "volumeNumber": 2,
+      "reasonCodes": [
+        "not-yet-released"
+      ]
+    },
+    {
+      "seriesTitle": "Eguchi-san’s Pure-hearted Succubus",
+      "publisher": "Dokico",
       "volumeNumber": 2,
       "reasonCodes": [
         "source-url-not-specific",
@@ -1146,6 +1176,42 @@
       ]
     },
     {
+      "seriesTitle": "This Year’s Hot Ace-chan",
+      "publisher": "Dokico",
+      "volumeNumber": 2,
+      "source": "manga-passion",
+      "sourceUrl": "https://www.manga-passion.de/editions/5677",
+      "confidence": "high",
+      "released": false,
+      "reasonCodes": []
+    },
+    {
+      "seriesTitle": "My Tiny Senpai",
+      "publisher": "Dokico",
+      "volumeNumber": 2,
+      "source": "manga-passion",
+      "sourceUrl": "https://www.manga-passion.de/editions/3116",
+      "confidence": "high",
+      "released": true,
+      "reasonCodes": []
+    },
+    {
+      "seriesTitle": "Eguchi-san’s Pure-hearted Succubus",
+      "publisher": "Dokico",
+      "volumeNumber": 2,
+      "source": "carlsen",
+      "sourceUrl": "https://www.carlsen.de",
+      "confidence": "low",
+      "released": false,
+      "reasonCodes": [
+        "source-url-not-specific",
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date"
+      ]
+    },
+    {
       "seriesTitle": "Arifureta – Der Kampf zurück in meine Welt",
       "publisher": "altraverse",
       "volumeNumber": 17,
@@ -1462,7 +1528,7 @@
     {
       "seriesTitle": "One Piece",
       "publisher": "Carlsen Manga!",
-      "volumeNumber": 43,
+      "volumeNumber": 44,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/87",
       "confidence": "high",
