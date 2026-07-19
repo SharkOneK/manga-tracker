@@ -745,6 +745,14 @@ function renderSeriesGrid(status, el, hint) {
   if (searchQ) hint.textContent = `${items.length} von ${rawItems.length} Ergebnis${items.length!==1?'se':''}`;
   else hint.textContent = '';
 
+  // Filter-UI (Verlag/Genre/Medientyp) muss in JEDEM Render-Pfad aktualisiert werden,
+  // auch in den beiden Leer-Pfaden unten — sonst bleibt z.B. updateMediaFilter()s
+  // Rücksetzlogik ("letzte Nicht-Manga-Serie gelöscht") unerreichbar, weil genau dieser
+  // Fall meist zu rawItems.length === 0 führt.
+  updatePubFilter();
+  updateGenreFilter();
+  updateMediaFilter();
+
   if (!rawItems.length) {
     const info = {
       reading:   ['📖', 'Noch nichts in Bearbeitung', 'Füge Mangas hinzu, die du gerade liest.'],
@@ -766,9 +774,6 @@ function renderSeriesGrid(status, el, hint) {
     return;
   }
   el.innerHTML = `<div class="manga-grid">${items.map(mangaCard).join('')}</div>`;
-  updatePubFilter();
-  updateGenreFilter();
-  updateMediaFilter();
 }
 
 // Phase 52 (Option A): Bändenansicht (☰) der Wunschliste.
@@ -1496,14 +1501,14 @@ function updateMediaFilter() {
     // Letzte Nicht-Manga-Serie gelöscht (o.ä.): Filter zurücksetzen, sonst zeigt die
     // Bibliothek eine leere Liste, ohne dass ein sichtbarer Filter das erklärt.
     if (filterMedia) filterMedia = '';
-    sel.style.display = 'none';
+    sel.classList.add('hidden');
     return;
   }
   if (['buy','kalender','dashboard'].includes(tab)) {
-    sel.style.display = 'none';
+    sel.classList.add('hidden');
     return;
   }
-  sel.style.display = '';
+  sel.classList.remove('hidden');
   sel.value = filterMedia;
 }
 
