@@ -646,7 +646,31 @@
       "sourceUrl": null,
       "notes": "Aus Release-Intake-Staging übernommen.",
       "enabled": true
+    },
+    {
+      "seriesTitle": "This Year’s Hot Ace-chan",
+      "publisher": "Dokico",
+      "volumeNumber": 2,
+      "sourceUrl": null,
+      "notes": "Aus Release-Intake-Staging übernommen.",
+      "enabled": true
+    },
+    {
+      "seriesTitle": "My Tiny Senpai",
+      "publisher": "Dokico",
+      "volumeNumber": 2,
+      "sourceUrl": null,
+      "notes": "Aus Release-Intake-Staging übernommen.",
+      "enabled": true
+    },
+    {
+      "seriesTitle": "Eguchi-san’s Pure-hearted Succubus",
+      "publisher": "Dokico",
+      "volumeNumber": 2,
+      "sourceUrl": null,
+      "notes": "Aus Release-Intake-Staging übernommen.",
+      "enabled": true
     }
   ],
-  "generatedAt": "2026-06-13T07:53:06.438Z"
+  "generatedAt": "2026-07-19T06:37:20.287Z"
 }
