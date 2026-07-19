@@ -4,10 +4,10 @@
   "generatedFrom": "docs/release-cache-source-gap-analysis.md",
   "reviewPolicy": "docs/release-cache-manual-source-review.md",
   "summary": {
-    "knownSourceGaps": 30,
-    "totalGaps": 93,
+    "knownSourceGaps": 33,
+    "totalGaps": 96,
     "safeToPatch": 62,
-    "pendingManualReview": 31,
+    "pendingManualReview": 34,
     "autoReviewed": 26,
     "patched": 62
   },
@@ -3069,6 +3069,84 @@
         "missing-release-date"
       ],
       "providerId": "carlsen"
+    },
+    {
+      "queueKey": "This Year’s Hot Ace-chan|Dokico|2",
+      "seriesTitle": "This Year’s Hot Ace-chan",
+      "publisher": "Dokico",
+      "volumeNumber": 2,
+      "classification": "source-data-gap",
+      "suspectedCause": "manual-source-required",
+      "priority": "mittel",
+      "recommendedFix": "manual-source-review",
+      "manualSourceReviewNeeded": true,
+      "checkedSources": [
+        {
+          "name": "Release-Intake-Staging / Release-Cache-Audit",
+          "url": "data/release-watchlist.json",
+          "result": "Nach Release-Intake in der Watchlist vorhanden; kein passender Eintrag in data/release-cache.json."
+        }
+      ],
+      "sourceAnalysisEvidence": "Der Band wurde per Release-Intake in die Watchlist uebernommen. Der Release-Cache enthaelt noch kein belegtes Datum; kein Cache-Patch ohne verifizierte Quelle.",
+      "safeToPatch": false,
+      "reviewStatus": "pending",
+      "sourceUrl": "",
+      "releaseDate": null,
+      "checkedAt": null,
+      "evidence": "",
+      "notes": "Automatisch aus aktueller Source-Gap-Analyse ergänzt; manuelle Quellenprüfung erforderlich."
+    },
+    {
+      "queueKey": "My Tiny Senpai|Dokico|2",
+      "seriesTitle": "My Tiny Senpai",
+      "publisher": "Dokico",
+      "volumeNumber": 2,
+      "classification": "source-data-gap",
+      "suspectedCause": "manual-source-required",
+      "priority": "mittel",
+      "recommendedFix": "manual-source-review",
+      "manualSourceReviewNeeded": true,
+      "checkedSources": [
+        {
+          "name": "Release-Intake-Staging / Release-Cache-Audit",
+          "url": "data/release-watchlist.json",
+          "result": "Nach Release-Intake in der Watchlist vorhanden; kein passender Eintrag in data/release-cache.json."
+        }
+      ],
+      "sourceAnalysisEvidence": "Der Band wurde per Release-Intake in die Watchlist uebernommen. Der Release-Cache enthaelt noch kein belegtes Datum; kein Cache-Patch ohne verifizierte Quelle.",
+      "safeToPatch": false,
+      "reviewStatus": "pending",
+      "sourceUrl": "",
+      "releaseDate": null,
+      "checkedAt": null,
+      "evidence": "",
+      "notes": "Automatisch aus aktueller Source-Gap-Analyse ergänzt; manuelle Quellenprüfung erforderlich."
+    },
+    {
+      "queueKey": "Eguchi-san’s Pure-hearted Succubus|Dokico|2",
+      "seriesTitle": "Eguchi-san’s Pure-hearted Succubus",
+      "publisher": "Dokico",
+      "volumeNumber": 2,
+      "classification": "source-data-gap",
+      "suspectedCause": "manual-source-required",
+      "priority": "mittel",
+      "recommendedFix": "manual-source-review",
+      "manualSourceReviewNeeded": true,
+      "checkedSources": [
+        {
+          "name": "Release-Intake-Staging / Release-Cache-Audit",
+          "url": "data/release-watchlist.json",
+          "result": "Nach Release-Intake in der Watchlist vorhanden; kein passender Eintrag in data/release-cache.json."
+        }
+      ],
+      "sourceAnalysisEvidence": "Der Band wurde per Release-Intake in die Watchlist uebernommen. Der Release-Cache enthaelt noch kein belegtes Datum; kein Cache-Patch ohne verifizierte Quelle.",
+      "safeToPatch": false,
+      "reviewStatus": "pending",
+      "sourceUrl": "",
+      "releaseDate": null,
+      "checkedAt": null,
+      "evidence": "",
+      "notes": "Automatisch aus aktueller Source-Gap-Analyse ergänzt; manuelle Quellenprüfung erforderlich."
     }
   ]
 }
