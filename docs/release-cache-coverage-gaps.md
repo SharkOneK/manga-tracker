@@ -6,17 +6,17 @@ Stand: automatisch synchronisiert aus aktuellem Audit gegen `data/release-watchl
 
 | Kennzahl | Wert |
 |---|---:|
-| Aktivierte Watchlist-Eintraege | 57 |
-| Expandierte Watchlist-Bandkandidaten | 211 |
+| Aktivierte Watchlist-Eintraege | 58 |
+| Expandierte Watchlist-Bandkandidaten | 212 |
 | Release-Cache-Eintraege | 197 |
 | Gefundene Cache-Eintraege | 178 |
-| Verbleibende Luecken | 33 |
-| Betroffene Serien | 15 |
+| Verbleibende Luecken | 34 |
+| Betroffene Serien | 16 |
 | Betroffene Verlage | 9 |
 
 ## Klassifikation
 
-Alle 33 verbleibenden Luecken sind als `source-data-gap` klassifiziert.
+Alle 34 verbleibenden Luecken sind als `source-data-gap` klassifiziert.
 
 Bedeutung: Der Watchlist-Band wurde nach dem Cache-Update weiterhin nicht in `data/release-cache.json` gefunden. Diese Faelle sind Quellen-/Datenqualitaetsfaelle und duerfen nicht durch Fake-Daten geschlossen werden.
 
@@ -41,6 +41,7 @@ Empfohlener Umgang: manuell in verlaesslicher Quelle pruefen, erst danach echte 
 | This Year’s Hot Ace-chan | Dokico | 2 | 1 | source-data-gap |
 | My Tiny Senpai | Dokico | 2 | 1 | source-data-gap |
 | Eguchi-san’s Pure-hearted Succubus | Dokico | 2 | 1 | source-data-gap |
+| I Was Reincarnated as the 7th Prince So I Can Take My Time Perfecting My Magical Ability | Dokico | 2 | 1 | source-data-gap |
 
 ## Luecken nach Verlag
 
@@ -49,8 +50,8 @@ Empfohlener Umgang: manuell in verlaesslicher Quelle pruefen, erst danach echte 
 | Altraverse | 7 | 3 |
 | MANGAMOON | 7 | 2 |
 | Panini Manga | 6 | 1 |
+| Dokico | 4 | 4 |
 | Egmont Manga | 4 | 1 |
-| Dokico | 3 | 3 |
 | dani books | 2 | 1 |
 | Tokyopop | 2 | 2 |
 | Carlsen Manga | 1 | 1 |
@@ -96,7 +97,7 @@ Der normale Workflow scheitert weiterhin nicht an bekannten `source-data-gap`-Lu
 
 ## Phase 23a: Ursachenanalyse
 
-Die 33 `source-data-gap`-Einzelluecken sind in `docs/release-cache-source-gap-analysis.md` strukturiert analysiert.
+Die 34 `source-data-gap`-Einzelluecken sind in `docs/release-cache-source-gap-analysis.md` strukturiert analysiert.
 
 Die Analyse dokumentiert pro Gap:
 
