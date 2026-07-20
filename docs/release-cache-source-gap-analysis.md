@@ -2,23 +2,23 @@
 
 Stand: automatisch synchronisiert aus aktuellem Audit gegen `data/release-watchlist.json` und `data/release-cache.json`.
 
-Diese Datei dokumentiert die 33 bekannten `source-data-gap`-Luecken aus `docs/release-cache-coverage-gaps.md`. Sie ist bewusst eine Analyse- und Entscheidungsdatei: Es werden keine Release-Daten geraten, keine privaten Sammlungsdaten ergaenzt und `data/release-cache.json` bleibt unangetastet.
+Diese Datei dokumentiert die 34 bekannten `source-data-gap`-Luecken aus `docs/release-cache-coverage-gaps.md`. Sie ist bewusst eine Analyse- und Entscheidungsdatei: Es werden keine Release-Daten geraten, keine privaten Sammlungsdaten ergaenzt und `data/release-cache.json` bleibt unangetastet.
 
 ## Ergebnis
 
 | Kennzahl | Wert |
 |---|---:|
-| Analysierte Gaps | 33 |
-| Betroffene Serien | 15 |
+| Analysierte Gaps | 34 |
+| Betroffene Serien | 16 |
 | Sichere direkte Cache-Patches | 0 |
-| Manuelle Quellenpruefung noetig | 33 |
+| Manuelle Quellenpruefung noetig | 34 |
 
 ## Ursachencluster
 
 | Vermutete Ursache | Gaps |
 |---|---:|
 | not-yet-released | 24 |
-| manual-source-required | 7 |
+| manual-source-required | 8 |
 | source-missing | 1 |
 | volume-numbering-mismatch | 1 |
 
@@ -34,7 +34,7 @@ Interpretation:
 
 | Empfohlener Fix | Gaps |
 |---|---:|
-| manual-source-review | 33 |
+| manual-source-review | 34 |
 
 Der einzige sichere naechste Schritt ist aktuell `manual-source-review`: offizielle Verlagsseite oder bereits erlaubte vertrauenswuerdige Quelle pruefen und erst danach echte Release-Daten mit Source-URL uebernehmen.
 
@@ -57,6 +57,7 @@ Der einzige sichere naechste Schritt ist aktuell `manual-source-review`: offizie
 | This Year’s Hot Ace-chan | Dokico | 2 | 1 | manual-source-required | manual-source-review | nein |
 | My Tiny Senpai | Dokico | 2 | 1 | manual-source-required | manual-source-review | nein |
 | Eguchi-san’s Pure-hearted Succubus | Dokico | 2 | 1 | manual-source-required | manual-source-review | nein |
+| I Was Reincarnated as the 7th Prince So I Can Take My Time Perfecting My Magical Ability | Dokico | 2 | 1 | manual-source-required | manual-source-review | nein |
 
 ## Einzelgap-Matrix
 
@@ -95,6 +96,7 @@ Der einzige sichere naechste Schritt ist aktuell `manual-source-review`: offizie
 | This Year’s Hot Ace-chan | Dokico | 2 | manual-source-required | manual-source-review | nein | ja |
 | My Tiny Senpai | Dokico | 2 | manual-source-required | manual-source-review | nein | ja |
 | Eguchi-san’s Pure-hearted Succubus | Dokico | 2 | manual-source-required | manual-source-review | nein | ja |
+| I Was Reincarnated as the 7th Prince So I Can Take My Time Perfecting My Magical Ability | Dokico | 2 | manual-source-required | manual-source-review | nein | ja |
 
 ## Maschinenlesbare Analyse
 
@@ -730,6 +732,25 @@ Der einzige sichere naechste Schritt ist aktuell `manual-source-review`: offizie
       "recommendedFix": "manual-source-review",
       "safeToPatch": false,
       "manualSourceReviewNeeded": true
+    },
+    {
+      "seriesTitle": "I Was Reincarnated as the 7th Prince So I Can Take My Time Perfecting My Magical Ability",
+      "publisher": "Dokico",
+      "volumeNumber": 2,
+      "classification": "source-data-gap",
+      "priority": "mittel",
+      "suspectedCause": "manual-source-required",
+      "checkedSources": [
+        {
+          "name": "Release-Intake-Staging / Release-Cache-Audit",
+          "url": "data/release-watchlist.json",
+          "result": "Nach Release-Intake in der Watchlist vorhanden; kein passender Eintrag in data/release-cache.json."
+        }
+      ],
+      "evidence": "Der Band wurde per Release-Intake in die Watchlist uebernommen. Der Release-Cache enthaelt noch kein belegtes Datum; kein Cache-Patch ohne verifizierte Quelle.",
+      "recommendedFix": "manual-source-review",
+      "safeToPatch": false,
+      "manualSourceReviewNeeded": true
     }
   ]
 }
@@ -742,8 +763,8 @@ Der einzige sichere naechste Schritt ist aktuell `manual-source-review`: offizie
 | Altraverse | 7 | 3 | Offizielle Verlags-/Produktquelle manuell pruefen; kein Cache-Patch ohne belegtes tagesgenaues Release-Datum. |
 | MANGAMOON | 7 | 2 | Offizielle Verlags-/Produktquelle manuell pruefen; kein Cache-Patch ohne belegtes tagesgenaues Release-Datum. |
 | Panini Manga | 6 | 1 | Offizielle Verlags-/Produktquelle manuell pruefen; kein Cache-Patch ohne belegtes tagesgenaues Release-Datum. |
+| Dokico | 4 | 4 | Offizielle Verlags-/Produktquelle manuell pruefen; kein Cache-Patch ohne belegtes tagesgenaues Release-Datum. |
 | Egmont Manga | 4 | 1 | Offizielle Verlags-/Produktquelle manuell pruefen; kein Cache-Patch ohne belegtes tagesgenaues Release-Datum. |
-| Dokico | 3 | 3 | Offizielle Verlags-/Produktquelle manuell pruefen; kein Cache-Patch ohne belegtes tagesgenaues Release-Datum. |
 | dani books | 2 | 1 | Offizielle Verlags-/Produktquelle manuell pruefen; kein Cache-Patch ohne belegtes tagesgenaues Release-Datum. |
 | Tokyopop | 2 | 2 | Offizielle Verlags-/Produktquelle manuell pruefen; kein Cache-Patch ohne belegtes tagesgenaues Release-Datum. |
 | Carlsen Manga | 1 | 1 | Offizielle Verlags-/Produktquelle manuell pruefen; kein Cache-Patch ohne belegtes tagesgenaues Release-Datum. |
