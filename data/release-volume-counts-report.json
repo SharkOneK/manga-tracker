@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-19T07:03:15.246Z",
+  "generatedAt": "2026-07-20T07:39:43.860Z",
   "source": "run-release-volume-counts.js",
   "providerMode": "enabled",
   "policy": {
@@ -25,27 +25,18 @@
   },
   "summary": {
     "seriesInVolumeCounts": 48,
-    "probeCandidates": 65,
-    "checkedCandidates": 65,
-    "detectedChanges": 2,
-    "appliedHighConfidenceChanges": 2,
-    "blockedOrUnsafe": 85
+    "probeCandidates": 66,
+    "checkedCandidates": 66,
+    "detectedChanges": 1,
+    "appliedHighConfidenceChanges": 1,
+    "blockedOrUnsafe": 87
   },
   "changes": [
     {
-      "seriesTitle": "My Tiny Senpai",
-      "publisher": "Dokico",
-      "oldPublishedVolumesDE": 0,
-      "newPublishedVolumesDE": 2,
-      "source": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/3116",
-      "confidence": "high"
-    },
-    {
       "seriesTitle": "One Piece",
       "publisher": "Carlsen Manga!",
-      "oldPublishedVolumesDE": 43,
-      "newPublishedVolumesDE": 44,
+      "oldPublishedVolumesDE": 44,
+      "newPublishedVolumesDE": 45,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/87",
       "confidence": "high"
@@ -521,6 +512,14 @@
       ]
     },
     {
+      "seriesTitle": "I Was Reincarnated as the 7th Prince So I Can Take My Time Perfecting My Magical Ability",
+      "publisher": "Dokico",
+      "volumeNumber": 2,
+      "reasonCodes": [
+        "not-yet-released"
+      ]
+    },
+    {
       "seriesTitle": "Arifureta – Der Kampf zurück in meine Welt",
       "publisher": "altraverse",
       "volumeNumber": 17,
@@ -837,6 +836,19 @@
       "publisher": "MANGAMOON",
       "volumeNumber": 4,
       "reasonCodes": [
+        "not-yet-released"
+      ]
+    },
+    {
+      "seriesTitle": "My Tiny Senpai",
+      "publisher": "Dokico",
+      "volumeNumber": 3,
+      "reasonCodes": [
+        "source-url-not-specific",
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date",
         "not-yet-released"
       ]
     }
@@ -1186,16 +1198,6 @@
       "reasonCodes": []
     },
     {
-      "seriesTitle": "My Tiny Senpai",
-      "publisher": "Dokico",
-      "volumeNumber": 2,
-      "source": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/3116",
-      "confidence": "high",
-      "released": true,
-      "reasonCodes": []
-    },
-    {
       "seriesTitle": "Eguchi-san’s Pure-hearted Succubus",
       "publisher": "Dokico",
       "volumeNumber": 2,
@@ -1210,6 +1212,16 @@
         "missing-source-volume-number",
         "missing-release-date"
       ]
+    },
+    {
+      "seriesTitle": "I Was Reincarnated as the 7th Prince So I Can Take My Time Perfecting My Magical Ability",
+      "publisher": "Dokico",
+      "volumeNumber": 2,
+      "source": "manga-passion",
+      "sourceUrl": "https://www.manga-passion.de/editions/6021",
+      "confidence": "high",
+      "released": false,
+      "reasonCodes": []
     },
     {
       "seriesTitle": "Arifureta – Der Kampf zurück in meine Welt",
@@ -1528,7 +1540,7 @@
     {
       "seriesTitle": "One Piece",
       "publisher": "Carlsen Manga!",
-      "volumeNumber": 44,
+      "volumeNumber": 45,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/87",
       "confidence": "high",
@@ -1626,6 +1638,22 @@
       "confidence": "high",
       "released": false,
       "reasonCodes": []
+    },
+    {
+      "seriesTitle": "My Tiny Senpai",
+      "publisher": "Dokico",
+      "volumeNumber": 3,
+      "source": "carlsen",
+      "sourceUrl": "https://www.carlsen.de",
+      "confidence": "low",
+      "released": false,
+      "reasonCodes": [
+        "source-url-not-specific",
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date"
+      ]
     }
   ],
   "changedFilesAllowlist": [
