@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; connect-src 'self' https://sssxiqtnkctvyghyrqff.supabase.co https://api.manga-passion.de; img-src 'self' data: https:; script-src 'self'; style-src 'self'; upgrade-insecure-requests;">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; connect-src 'self' https://sssxiqtnkctvyghyrqff.supabase.co https://api.manga-passion.de https://graphql.anilist.co; img-src 'self' data: https:; script-src 'self'; style-src 'self'; upgrade-insecure-requests;">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Manga Tracker 🇩🇪</title>
@@ -143,6 +143,8 @@
       <div class="form-group">
         <label>Titel *</label>
         <input id="f-title" type="text" placeholder="z.B. Fullmetal Alchemist">
+        <!-- Phase 73: Einstieg in die AniList-Anime-Suche (nur im Hinzufügen-Kontext sichtbar) -->
+        <button type="button" class="form-wide-action hidden" id="btn-anilist-search" data-action="open-anilist-search" title="Anime bei AniList suchen und übernehmen">🔍 Anime bei AniList suchen</button>
       </div>
       <div class="row2">
         <div class="form-group">
@@ -271,6 +273,29 @@
   </div>
 </div>
 
+<!-- AniList-Such-Overlay (Phase 73) — nutzt dieselbe Modal-/Overlay-CSS wie das
+     Release-Preview-Overlay, keine neuen Designprimitive. Sichtbarkeit ausschließlich
+     über die Klasse `hidden` (siehe openAniListSearch()/closeAniListSearch()). -->
+<div class="overlay anilist-overlay hidden" id="anilist-overlay">
+  <div class="modal" id="anilist-modal">
+    <div class="modal-header">
+      <h2>Anime bei AniList suchen</h2>
+      <button class="close-btn" data-action="close-anilist-search">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Titel</label>
+        <input id="anilist-search-input" type="search" placeholder="z.B. Attack on Titan" autocomplete="off">
+        <button type="button" class="form-wide-action" id="btn-anilist-run" data-action="run-anilist-search">🔍 Suchen</button>
+      </div>
+      <div class="release-preview-body" id="anilist-results"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-full btn-cancel-full" data-action="close-anilist-search">Schließen</button>
+    </div>
+  </div>
+</div>
+
 <!-- Phase 53 — Konto-Sheet (mobiler Login-Einstiegspunkt). Nutzt bestehende Modal/Overlay-CSS.
      Zweiter Auth-Render-Slot per KLASSE .auth-controls (keine doppelte ID); auth.js rendert
      dieselbe UI/State per querySelectorAll in alle Slots. -->
@@ -297,6 +322,7 @@
 <script src="./src/utils.js"></script>
 <script src="./src/supabase.js"></script>
 <script src="./src/release-utils.js"></script>
+<script src="./src/anilist-utils.js"></script>
 <script src="./src/auth.js"></script>
 <script src="./src/app.js"></script>
 <script src="./src/sw-register.js" defer></script>

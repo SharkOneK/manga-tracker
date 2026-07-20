@@ -51,7 +51,7 @@ function mergePreservedFields(existing, entry) {
   const keys = [
     'isbn13', 'editionFingerprint', 'coverManuallySet', 'mpEditionId', 'mpVerifiedAt',
     'releaseSource', 'releaseCheckedAt', 'releaseConfidence', 'externalIds', 'volumeMeta',
-    'seasons',
+    'seasons', 'anilistAiring',
   ];
   keys.forEach(function(k) {
     if (existing[k] !== undefined && entry[k] === undefined) entry[k] = existing[k];
@@ -876,6 +876,85 @@ runTest('Phase 72: season-Roundtrip — Save ohne seasons im Formular erhält be
   const entry = { id: '1', title: 'Serie', mediaType: 'series' }; // kein seasons gesetzt
   mergePreservedFields(existing, entry);
   assert.deepStrictEqual(entry.seasons, { 1: 1, 2: 2 });
+});
+
+// ─── Phase 73: AniList-Import (private Felder, Import-Validierung) ─────────
+
+const fs = require('fs');
+const path = require('path');
+const vm = require('vm');
+const _appJsPath = path.resolve(__dirname, '..', 'src', 'app.js');
+
+runTest('Phase 73: mergePreservedFields-Spiegelliste ist deckungsgleich mit src/app.js', function() {
+  // Die Liste oben in dieser Datei ist eine Kopie. Driftet sie, verliert der
+  // Save-Roundtrip in der echten App still Felder, ohne dass ein Test es merkt.
+  const appJs = fs.readFileSync(_appJsPath, 'utf8');
+  const fnStart = appJs.indexOf('function mergePreservedFields');
+  assert.ok(fnStart !== -1, 'mergePreservedFields in src/app.js nicht gefunden');
+  const arrStart = appJs.indexOf('[', fnStart);
+  const arrEnd = appJs.indexOf(']', arrStart);
+  assert.ok(arrStart !== -1 && arrEnd > arrStart, 'Keys-Array in mergePreservedFields nicht gefunden');
+  const appKeys = appJs.slice(arrStart + 1, arrEnd)
+    .split(',')
+    .map(function(s) { return s.trim().replace(/^'|'$/g, ''); })
+    .filter(Boolean);
+  const mirrorKeys = ['isbn13', 'editionFingerprint', 'coverManuallySet', 'mpEditionId', 'mpVerifiedAt',
+    'releaseSource', 'releaseCheckedAt', 'releaseConfidence', 'externalIds', 'volumeMeta',
+    'seasons', 'anilistAiring'];
+  assert.deepStrictEqual(appKeys.slice().sort(), mirrorKeys.slice().sort());
+});
+
+runTest('Phase 73: Save-Roundtrip erhält anilistAiring und externalIds (mergePreservedFields)', function() {
+  // Simuliert doSave(): die Maske kennt weder anilistAiring noch externalIds —
+  // ohne mergePreservedFields waeren die AniList-Rohdaten nach einem Speichern weg.
+  const existing = {
+    id: 'a1', title: 'Anime', mediaType: 'anime',
+    externalIds: { anilistId: 16498, anilistRootId: 16498 },
+    anilistAiring: { episode: 26, airingAt: 1770000000 },
+    seasons: { 1: 1 },
+  };
+  const entry = { id: 'a1', title: 'Anime', mediaType: 'anime' };
+  mergePreservedFields(existing, entry);
+  assert.deepStrictEqual(entry.externalIds, { anilistId: 16498, anilistRootId: 16498 });
+  assert.deepStrictEqual(entry.anilistAiring, { episode: 26, airingAt: 1770000000 });
+  assert.deepStrictEqual(entry.seasons, { 1: 1 });
+});
+
+// validateImportEntry wird als ECHTE Funktion aus src/app.js geladen (kein Mirror),
+// damit die Import-Toleranz gegenüber Anime-Backups nicht auseinanderdriften kann.
+function loadValidateImportEntry() {
+  const appJs = fs.readFileSync(_appJsPath, 'utf8');
+  const start = appJs.indexOf('const _VALID_IMPORT_STATUSES');
+  const end = appJs.indexOf('function parseImportPayload', start);
+  assert.ok(start !== -1 && end > start, 'validateImportEntry-Block in src/app.js nicht gefunden');
+  const sandbox = { MEDIA_TYPES: ['manga', 'series', 'anime'], Object };
+  vm.runInNewContext(appJs.slice(start, end) + '\nthis.validateImportEntry = validateImportEntry;', sandbox);
+  return sandbox.validateImportEntry;
+}
+
+runTest('Phase 73: validateImportEntry akzeptiert ein Anime-Backup mit externalIds/anilistAiring', function() {
+  const validateImportEntry = loadValidateImportEntry();
+  const entry = {
+    id: 'a1', title: 'Attack on Titan Season 2', mediaType: 'anime', status: 'owned',
+    bands: {}, total: 12, ongoing: 'true', nextDate: '2026-08-01',
+    seasons: { 1: 2, 2: 2 },
+    externalIds: { anilistId: 25777, anilistRootId: 16498 },
+    anilistAiring: { episode: 13, airingAt: 1770000000 },
+  };
+  assert.strictEqual(validateImportEntry(entry, 1), null);
+});
+
+runTest('Phase 73: validateImportEntry toleriert fehlende/null private Anime-Felder', function() {
+  const validateImportEntry = loadValidateImportEntry();
+  assert.strictEqual(validateImportEntry({ id: 'a2', title: 'Anime', mediaType: 'anime' }, 1), null);
+  assert.strictEqual(validateImportEntry({ id: 'a3', title: 'Anime', externalIds: null, anilistAiring: null }, 1), null);
+});
+
+runTest('Phase 73: validateImportEntry weist klar falsche Typen der privaten Felder ab', function() {
+  const validateImportEntry = loadValidateImportEntry();
+  assert.ok(/externalIds/.test(validateImportEntry({ id: 'a4', title: 'X', externalIds: 'nope' }, 1)));
+  assert.ok(/externalIds/.test(validateImportEntry({ id: 'a5', title: 'X', externalIds: [] }, 1)));
+  assert.ok(/anilistAiring/.test(validateImportEntry({ id: 'a6', title: 'X', anilistAiring: 42 }, 1)));
 });
 
 console.log('');

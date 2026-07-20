@@ -49,6 +49,7 @@ const SYNTAX_FILES = [
   'src/utils.js',
   'src/supabase.js',
   'src/release-utils.js',
+  'src/anilist-utils.js',
   'scripts/run-all-checks.js',
   'scripts/validate-release-cache.js',
   'scripts/update-release-cache.js',
@@ -97,6 +98,7 @@ const SYNTAX_FILES = [
   'scripts/test-rpc-contracts.js',
   'scripts/test-ci-race-volume-count-fix.js',
   'scripts/test-consistency-grace-window.js',
+  'scripts/test-anilist-provider.js',
   'sw.js',
   'src/sw-register.js',
 ];
@@ -132,6 +134,7 @@ const RUN_CHECKS = [
   { label: 'RPC contract tests (Phase 68)',          cmd: 'node', cmdArgs: ['scripts/test-rpc-contracts.js'] },
   { label: 'CI-Race volume-count fix tests (Phase 70)', cmd: 'node', cmdArgs: ['scripts/test-ci-race-volume-count-fix.js'] },
   { label: 'Consistency grace-window tests (Phase 71)', cmd: 'node', cmdArgs: ['scripts/test-consistency-grace-window.js'] },
+  { label: 'AniList provider tests (Phase 73)',     cmd: 'node', cmdArgs: ['scripts/test-anilist-provider.js'] },
   { label: 'Auto-merge gate tests',                 cmd: 'node', cmdArgs: ['scripts/test-automerge-gate.js'] },
   { label: 'Intake auto-merge gate tests',          cmd: 'node', cmdArgs: ['scripts/test-intake-automerge-gate.js'] },
   { label: 'Security audit (static)',               cmd: 'node', cmdArgs: ['scripts/security-audit-static.js'] },

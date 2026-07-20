@@ -614,7 +614,14 @@ const SESSION_KEY = 'sb-sssxiqtnkctvyghyrqff-auth-token';
       const m = swJs.match(/const CACHE_VERSION = '([^']+)'/);
       if (!m) throw new Error('CACHE_VERSION-Konstante in sw.js nicht gefunden');
       if (m[1] === 'mt-pwa-v1') throw new Error('CACHE_VERSION wurde nicht erhoeht (steht noch auf v1)');
-      if (m[1] !== 'mt-pwa-v2') throw new Error('CACHE_VERSION unerwarteter Wert: ' + m[1] + ' (Spec/Changes erwarten mt-pwa-v2)');
+      // Phase 73 bumpt weiter auf mt-pwa-v3 (neue CSP in der cache-first ausgelieferten
+      // index.html). Die urspruenglich exakte Gleichheitspruefung auf 'mt-pwa-v2' wuerde
+      // damit jeden kuenftigen, fachlich notwendigen Bump rot faerben. Der Test prueft
+      // deshalb ab hier die Monotonie (>= 2) statt eines Fixwerts — die Aussage
+      // "Phase 72 hat gebumpt" bleibt erhalten.
+      const versionNr = Number((m[1].match(/^mt-pwa-v(\d+)$/) || [])[1]);
+      if (!Number.isFinite(versionNr)) throw new Error('CACHE_VERSION hat nicht das Format mt-pwa-vN: ' + m[1]);
+      if (versionNr < 2) throw new Error('CACHE_VERSION unerwarteter Wert: ' + m[1] + ' (Phase 72 erwartet mindestens mt-pwa-v2)');
     });
 
     // ── Nachtest Fix-Durchlauf 1: Regressionsrisiko der renderSeriesGrid()-Umstellung ──
