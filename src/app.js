@@ -1698,7 +1698,7 @@ function updateGenreFilter() {
   wrap.style.display = 'flex';
   wrap.innerHTML = ['', ...usedGenres].map(g => {
     const isActive = g === '' ? filterGenres.length === 0 : filterGenres.includes(g);
-    return `<span class="genre-filter-chip${isActive?' on':''}" data-action="set-genre-filter" data-genre="${escapeHtml(g)}">${g||'Alle'}</span>`;
+    return `<span class="genre-filter-chip${isActive?' on':''}" data-action="set-genre-filter" data-genre="${escapeHtml(g)}">${escapeHtml(g||'Alle')}</span>`;
   }).join('');
 }
 
@@ -2262,7 +2262,7 @@ function render() {
           </div>
           ${coverEl(m,'mini',next)}
           <div class="kal-info">
-            <div class="kal-title">${m.title}</div>
+            <div class="kal-title">${escapeHtml(m.title)}</div>
             <div class="kal-sub">Band ${next} · ${m.pub||'Unbekannt'}</div>
           </div>
         </div>`;

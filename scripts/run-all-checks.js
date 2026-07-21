@@ -99,6 +99,11 @@ const SYNTAX_FILES = [
   'scripts/test-ci-race-volume-count-fix.js',
   'scripts/test-consistency-grace-window.js',
   'scripts/test-anilist-provider.js',
+  // Playwright-Suiten laufen mangels Browser nicht in RUN_CHECKS. Sie werden hier
+  // aber syntax-geprueft — sonst rottet genau der Code still vor sich hin, den in
+  // CI nie etwas ausfuehrt.
+  'scripts/test-phase73-browser-integration.js',
+  'scripts/test-phase73-tester-xss-followup.js',
   'sw.js',
   'src/sw-register.js',
 ];

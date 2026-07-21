@@ -926,6 +926,101 @@ if (!swJs) {
   pass("Check 69i: sw.js enthält keine Supabase/Manga-Passion-URLs im Code");
 }
 
+// ── Check 73a: Kein ungeschütztes Rendern von Titel-/Genre-Feldern ────────
+//
+// Hintergrund (Phase 73): Mit dem AniList-Import schreibt erstmals eine
+// oeffentliche Drittquelle freien Text nach m.title und m.genres. Zwei
+// vorbestehende Render-Pfade (kal-title im Kalender, Genre-Filter-Chip) gaben
+// diese Felder unescaped in innerHTML aus. Dieser Check verhindert, dass
+// Phase 75 (TMDB) oder eine spaetere Importquelle dieselbe Klasse erneut oeffnet.
+//
+// ERKANNT WIRD: eine Template-Interpolation ${…} in einer Zeile, die HTML-Markup
+// baut, deren Ausdruck einen Property-Zugriff auf .title/.genre/.genres enthaelt
+// und die KEINE der bekannten Schutzfunktionen (escapeHtml, escapeYamlString,
+// safeHttpsUrl, encodeURIComponent, JSON.stringify) verwendet.
+//
+// BEWUSST NICHT ERKANNT (dokumentierte Grenzen, keine Luecke im Check selbst):
+//   - Bare Bezeichner ohne Property-Zugriff (z. B. `${g}` fuer ein Genre in
+//     updateGenreFilter()). Ob `g` Fremdtext ist, laesst sich statisch nicht
+//     entscheiden; ein solcher Check wuerde auf ~4950 Zeilen Fehlalarme werfen.
+//     Deshalb sind genau die beiden real betroffenen Stellen zusaetzlich als
+//     FAIL-CLOSED-Anker unten verdrahtet.
+//   - Andere Freitextfelder (pub, notes). `pub` wird vom AniList-Import hart auf
+//     '' gesetzt und ist ueber diesen Pfad nicht erreichbar; eine Aufnahme haette
+//     hier einen Fehlalarm auf src/app.js `kal-sub` erzeugt, der ausserhalb des
+//     Phase-73-Auftrags liegt. Bei einer kuenftigen Quelle, die `pub` befuellt,
+//     ist diese Liste zu erweitern.
+//   - Mehrzeilige Interpolationen (Ausdruck ueber Zeilenumbruch verteilt).
+if (!appJs) {
+  fail('Check 73a: src/app.js nicht gefunden (Titel-/Genre-Escaping nicht prüfbar)');
+} else {
+  const RISKY_FIELD  = /\.(title|genres?)\b/;
+  const SAFE_WRAPPER = /escapeHtml\s*\(|escapeYamlString\s*\(|safeHttpsUrl\s*\(|encodeURIComponent\s*\(|JSON\.stringify\s*\(/;
+  const MARKUP_LINE  = /<\/?[a-zA-Z]/;
+  const INTERPOLATION = /\$\{([^{}]*(?:\{[^{}]*\}[^{}]*)*)\}/g;
+
+  const unescaped = [];
+  appJs.split(/\r?\n/).forEach(function (line, idx) {
+    if (!MARKUP_LINE.test(line)) return;
+    let m;
+    INTERPOLATION.lastIndex = 0;
+    while ((m = INTERPOLATION.exec(line)) !== null) {
+      const expr = m[1];
+      if (!RISKY_FIELD.test(expr)) continue;
+      if (SAFE_WRAPPER.test(expr)) continue;
+      unescaped.push('  src/app.js:' + (idx + 1) + '  ${' + expr.trim().slice(0, 80) + '}');
+    }
+  });
+
+  if (unescaped.length) {
+    fail('Check 73a: Titel-/Genre-Feld wird ungeschützt in HTML interpoliert (escapeHtml() fehlt):\n' + unescaped.join('\n'));
+  } else {
+    pass('Check 73a: keine ungeschützte Titel-/Genre-Interpolation in HTML-Templates');
+  }
+}
+
+// ── Check 73b: Fail-closed-Anker für die zwei in Phase 73 geschlossenen Sinks
+//
+// Bewusst als Anker und nicht generisch: der Genre-Chip interpoliert einen bare
+// Bezeichner (`g`), den Check 73a strukturell nicht sehen kann. Findet die Regex
+// ihre Ankerstelle nicht mehr, schlaegt dieser Check FEHL statt still
+// durchzuwinken (Vorbild: MEDIA_TYPES-Divergenz-Guard aus Phase 72) — dann wurde
+// der Code umgebaut und der Anker muss bewusst nachgezogen werden.
+if (!appJs) {
+  fail('Check 73b: src/app.js nicht gefunden (Escaping-Anker nicht prüfbar)');
+} else {
+  const anchors = [
+    {
+      label: 'kal-title (Kalender-Tab)',
+      locate: /<div class="kal-title">([\s\S]{0,60}?)<\/div>/,
+      expect: /escapeHtml\s*\(/,
+    },
+    {
+      label: 'genre-filter-chip (sichtbarer Chip-Text)',
+      locate: /<span class="genre-filter-chip[\s\S]{0,160}?>([\s\S]{0,40}?)<\/span>/,
+      expect: /escapeHtml\s*\(/,
+    },
+  ];
+  const anchorProblems = [];
+  anchors.forEach(function (a) {
+    const found = appJs.match(a.locate);
+    if (!found) {
+      // FAIL-CLOSED: lieber ein lauter Fehlalarm nach einem Refactoring als ein
+      // still gewordener Sicherheits-Check.
+      anchorProblems.push(a.label + ': Ankerstelle nicht mehr gefunden — Regex veraltet oder Markup umgebaut. Check bewusst fail-closed, bitte Anker nachziehen.');
+      return;
+    }
+    if (!a.expect.test(found[1])) {
+      anchorProblems.push(a.label + ': sichtbarer Text ohne escapeHtml() — ' + JSON.stringify(found[1].trim().slice(0, 80)));
+    }
+  });
+  if (anchorProblems.length) {
+    fail('Check 73b: Escaping-Anker verletzt:\n  ' + anchorProblems.join('\n  '));
+  } else {
+    pass('Check 73b: kal-title und genre-filter-chip rendern über escapeHtml()');
+  }
+}
+
 const passed = totalChecks - totalFailed - totalWarns;
 console.log('');
 if (totalWarns > 0) {
