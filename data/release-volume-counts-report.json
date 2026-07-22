@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-21T07:04:37.409Z",
+  "generatedAt": "2026-07-22T07:06:12.281Z",
   "source": "run-release-volume-counts.js",
   "providerMode": "enabled",
   "policy": {
@@ -35,8 +35,8 @@
     {
       "seriesTitle": "One Piece",
       "publisher": "Carlsen Manga!",
-      "oldPublishedVolumesDE": 45,
-      "newPublishedVolumesDE": 46,
+      "oldPublishedVolumesDE": 46,
+      "newPublishedVolumesDE": 47,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/87",
       "confidence": "high"
@@ -290,11 +290,6 @@
       "publisher": "Altraverse",
       "volumeNumber": 4,
       "reasonCodes": [
-        "source-url-not-specific",
-        "missing-source-edition-title",
-        "missing-source-publisher",
-        "missing-source-volume-number",
-        "missing-release-date",
         "not-yet-released"
       ]
     },
@@ -936,17 +931,11 @@
       "seriesTitle": "Arifureta: Der Kampf zurück in meine Welt – Zero",
       "publisher": "Altraverse",
       "volumeNumber": 4,
-      "source": "carlsen",
-      "sourceUrl": "https://www.carlsen.de",
-      "confidence": "low",
+      "source": "manga-passion",
+      "sourceUrl": "https://www.manga-passion.de/editions/5807",
+      "confidence": "high",
       "released": false,
-      "reasonCodes": [
-        "source-url-not-specific",
-        "missing-source-edition-title",
-        "missing-source-publisher",
-        "missing-source-volume-number",
-        "missing-release-date"
-      ]
+      "reasonCodes": []
     },
     {
       "seriesTitle": "Arifureta: Der Kampf zurück in meine Welt – Zero",
@@ -1540,7 +1529,7 @@
     {
       "seriesTitle": "One Piece",
       "publisher": "Carlsen Manga!",
-      "volumeNumber": 46,
+      "volumeNumber": 47,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/87",
       "confidence": "high",
