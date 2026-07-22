@@ -642,11 +642,11 @@ if (!html.includes('./src/anilist-utils.js')) {
 var cspMatch = html.match(/connect-src ([^;]*);/);
 if (!cspMatch) {
   fail('index.html: connect-src-Direktive nicht gefunden');
-} else if (cspMatch[1].trim().split(/\s+/).indexOf('https://graphql.anilist.co') === -1) {
-  // Exakter Token-Vergleich statt Substring-Suche: eine connect-src-Direktive ist eine
-  // whitespace-getrennte Source-Liste. indexOf() auf dem Gesamtstring wuerde auch einen
-  // Host wie https://graphql.anilist.co.evil.example als Treffer werten (CodeQL
-  // js/incomplete-url-substring-sanitization). Der Split prueft die exakte Source.
+} else if (!cspMatch[1].trim().split(/\s+/).some(function (src) { return src === 'https://graphql.anilist.co'; })) {
+  // Exakte Gleichheit je Source-Token statt Substring-Suche: eine connect-src-Direktive
+  // ist eine whitespace-getrennte Source-Liste. Ein indexOf()/includes() mit dem URL-Literal
+  // wuerde auch einen Host wie https://graphql.anilist.co.evil.example als Treffer werten
+  // (CodeQL js/incomplete-url-substring-sanitization) — deshalb === je Token.
   fail('index.html: connect-src erlaubt https://graphql.anilist.co nicht — AniList-Suche waere blockiert');
 } else {
   pass('index.html: connect-src erlaubt https://graphql.anilist.co');
