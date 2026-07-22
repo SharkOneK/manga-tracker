@@ -1627,7 +1627,7 @@ function renderDashboard() {
       <h3>Verlage</h3>
       <div class="bar-chart">
         ${pubEntries.map(([p,n])=>`<div class="bar-row">
-          <div class="bar-label">${p}</div>
+          <div class="bar-label">${escapeHtml(p)}</div>
           <div class="bar-track"><div class="bar-fill" data-style-width="${Math.round(n/maxPub*100)}%"></div></div>
           <div class="bar-val">${n}</div>
         </div>`).join('')}
@@ -1638,7 +1638,7 @@ function renderDashboard() {
       <h3>Genre-Verteilung</h3>
       <div class="bar-chart">
         ${genreEntries.map(([g,n])=>`<div class="bar-row">
-          <div class="bar-label">${g}</div>
+          <div class="bar-label">${escapeHtml(g)}</div>
           <div class="bar-track"><div class="bar-fill bar-fill-purple" data-style-width="${Math.round(n/maxGenre*100)}%"></div></div>
           <div class="bar-val">${n}</div>
         </div>`).join('')}
@@ -1732,7 +1732,7 @@ function updatePubFilter() {
   const cur = sel.value;
   const pubs = [...new Set(db.m.map(m => m.pub).filter(Boolean))].sort((a,b) => a.localeCompare(b,'de'));
   sel.innerHTML = '<option value="">Alle Verlage</option>' +
-    pubs.map(p => `<option value="${p}"${p===cur?' selected':''}>${p}</option>`).join('');
+    pubs.map(p => `<option value="${escapeHtml(p)}"${p===cur?' selected':''}>${escapeHtml(p)}</option>`).join('');
 }
 
 function applyPubFilter(list) {
@@ -2263,7 +2263,7 @@ function render() {
           ${coverEl(m,'mini',next)}
           <div class="kal-info">
             <div class="kal-title">${escapeHtml(m.title)}</div>
-            <div class="kal-sub">Band ${next} · ${m.pub||'Unbekannt'}</div>
+            <div class="kal-sub">Band ${next} · ${escapeHtml(m.pub||'Unbekannt')}</div>
           </div>
         </div>`;
       });

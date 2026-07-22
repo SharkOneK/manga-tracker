@@ -222,6 +222,77 @@ async function openSearchAndQuery(page, q) {
       await context.close();
     });
 
+    // ── Finding 3 (Nachtest 1): Dashboard „Genre-Verteilung" rendert g unescaped ─
+    await runTest('Dashboard Genre-Verteilung: importiertes Anime-Genre mit HTML wird ESCAPED gerendert (bar-label)', async () => {
+      const context = await browser.newContext();
+      const page = await context.newPage();
+      page.on('dialog', (d) => d.accept());
+
+      const evilGenre = '<img src=x onerror="window.__xssDash=1">';
+      // Die Dashboard-Genre-Verteilung zeigt nur die TOP 8 Genres (src/app.js:1360,
+      // slice(0,8)). Die eingebaute Startsammlung liefert bereits 8 Genres mit hoher
+      // Frequenz (Action=30 … Romance=8). Damit das boese Genre garantiert in den
+      // Balken landet und nicht vom Top-8-Cap verdraengt wird, wird die Sammlung mit
+      // genug Traegern vorbelegt (count ~15). Der spaetere AniList-Import fuegt
+      // demselben Feld einen weiteren Treffer hinzu und beweist die Erreichbarkeit
+      // ueber den Importpfad; das Ranking haengt aber nicht allein an diesem +1.
+      const primerEntries = [];
+      for (let i = 0; i < 15; i++) {
+        primerEntries.push({
+          id: 'zq-primer-' + i, title: 'Zqx Dashboard Primer ' + i, pub: '',
+          mediaType: 'manga', genres: [evilGenre], bands: { 1: 'owned' }, status: 'owned',
+        });
+      }
+      await seedPage(page, { schemaVersion: 3, m: primerEntries });
+      await page.route('https://graphql.anilist.co', async (route) => {
+        await route.fulfill({
+          status: 200, contentType: 'application/json',
+          body: anilistBody([{
+            id: 990003,
+            title: { english: 'Harmless Dashboard Test', romaji: null, native: null },
+            episodes: 12, status: 'FINISHED', format: 'TV', seasonYear: 2026, season: 'SPRING',
+            coverImage: { large: null }, genres: [evilGenre],
+            nextAiringEpisode: null,
+            relations: { edges: [] },
+          }]),
+        });
+      });
+
+      await page.goto(base, { waitUntil: 'load' });
+      await page.waitForTimeout(500);
+      await openSearchAndQuery(page, 'harmless dashboard test');
+      await page.waitForSelector('[data-action="anilist-import"]', { timeout: 5000 });
+      await page.click('[data-action="anilist-import"]');
+      await page.waitForTimeout(400);
+
+      const entryGenres = await page.evaluate(() => (db.m.find((m) => m.mediaType === 'anime') || {}).genres);
+      if (!entryGenres || !entryGenres.length) throw new Error('Testvoraussetzung verletzt: importierter Eintrag hat keine genres, Dashboard-Pfad nicht erreichbar');
+
+      // Dashboard-Tab oeffnen → renderDashboard() baut die Genre-Verteilungs-Balken.
+      await page.click('[data-action="set-tab"][data-tab="dashboard"]');
+      await page.waitForTimeout(400);
+
+      const injectedImgCount = await page.evaluate(() => document.querySelectorAll('#content .bar-label img').length);
+      const xssFired = await page.evaluate(() => !!window.__xssDash);
+      if (injectedImgCount > 0 || xssFired) {
+        throw new Error(
+          'src/app.js renderDashboard() Genre-Verteilung (~Zeile 1641) baut `<div class="bar-label">${g}</div>` ' +
+          'OHNE escapeHtml(). Ein importiertes Anime-Genre mit HTML wird als DOM-Knoten gerendert statt als Text. ' +
+          'injectedImgCount=' + injectedImgCount + ', xssFired(window.__xssDash)=' + xssFired
+        );
+      }
+
+      // Zusatzpruefung: das Genre muss weiterhin als TEXT im bar-label erscheinen —
+      // sonst wuerde auch ein "Fix", der das Label weglaesst, gruen laufen.
+      const barLabelTexts = await page.evaluate(() =>
+        Array.from(document.querySelectorAll('#content .bar-label')).map((el) => el.textContent));
+      if (!barLabelTexts.some((t) => t.includes('<img src=x onerror='))) {
+        throw new Error('Das Genre muss escaped als sichtbarer TEXT im bar-label erscheinen, war: ' + JSON.stringify(barLabelTexts));
+      }
+
+      await context.close();
+    });
+
   } finally {
     await browser.close();
     server.close();
