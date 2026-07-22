@@ -619,6 +619,63 @@ if (!html.includes('src/sw-register.js')) {
   pass('index.html: ./src/sw-register.js korrekt referenziert');
 }
 
+// ── Phase 73: AniList-Provider (Struktur-Guards) ──────────────────────────
+console.log('\nPruefe: Phase 73 — AniList-Provider (Modul, CSP, Precache)\n');
+
+var anilistUtilsPath = path.join(repoRoot, 'src', 'anilist-utils.js');
+if (!fs.existsSync(anilistUtilsPath)) {
+  fail('src/anilist-utils.js nicht gefunden');
+} else {
+  pass('src/anilist-utils.js vorhanden');
+}
+
+if (!html.includes('./src/anilist-utils.js')) {
+  fail('index.html: <script src="./src/anilist-utils.js"> fehlt');
+} else if (html.indexOf('./src/anilist-utils.js') > html.indexOf('./src/app.js')) {
+  fail('index.html: anilist-utils.js muss VOR app.js geladen werden');
+} else {
+  pass('index.html: anilist-utils.js vor app.js eingebunden');
+}
+
+// CSP: genau ein zusaetzlicher Host, kein Wildcard (Check 16 in security-audit-static.js
+// prueft die Wildcard-Freiheit; hier geht es um die Praesenz des AniList-Hosts).
+var cspMatch = html.match(/connect-src ([^;]*);/);
+if (!cspMatch) {
+  fail('index.html: connect-src-Direktive nicht gefunden');
+} else if (!cspMatch[1].trim().split(/\s+/).some(function (src) { return src === 'https://graphql.anilist.co'; })) {
+  // Exakte Gleichheit je Source-Token statt Substring-Suche: eine connect-src-Direktive
+  // ist eine whitespace-getrennte Source-Liste. Ein indexOf()/includes() mit dem URL-Literal
+  // wuerde auch einen Host wie https://graphql.anilist.co.evil.example als Treffer werten
+  // (CodeQL js/incomplete-url-substring-sanitization) — deshalb === je Token.
+  fail('index.html: connect-src erlaubt https://graphql.anilist.co nicht — AniList-Suche waere blockiert');
+} else {
+  pass('index.html: connect-src erlaubt https://graphql.anilist.co');
+}
+
+var swJs73 = fs.readFileSync(path.join(repoRoot, 'sw.js'), 'utf-8');
+if (swJs73.indexOf("'./src/anilist-utils.js'") === -1) {
+  fail('sw.js: ./src/anilist-utils.js fehlt in PRECACHE_URLS');
+} else {
+  pass('sw.js: ./src/anilist-utils.js in PRECACHE_URLS');
+}
+
+// Der Bump ist zwingend: index.html wird cache-first ausgeliefert und traegt die
+// neue CSP — ohne Bump laufen Bestandsgeraete mit der alten CSP weiter.
+var cacheVersionMatch = swJs73.match(/const CACHE_VERSION = '(mt-pwa-v(\d+))'/);
+if (!cacheVersionMatch) {
+  fail('sw.js: CACHE_VERSION-Konstante nicht gefunden (Format mt-pwa-vN erwartet)');
+} else if (Number(cacheVersionMatch[2]) < 3) {
+  fail('sw.js: CACHE_VERSION wurde fuer Phase 73 nicht gebumpt (steht auf ' + cacheVersionMatch[1] + ', erwartet mindestens mt-pwa-v3)');
+} else {
+  pass('sw.js: CACHE_VERSION gebumpt (' + cacheVersionMatch[1] + ')');
+}
+
+if (!html.includes('id="anilist-overlay"') || !html.includes('data-action="open-anilist-search"')) {
+  fail('index.html: AniList-Such-Overlay oder Einstiegsbutton fehlt');
+} else {
+  pass('index.html: AniList-Such-Overlay und Einstiegsbutton vorhanden');
+}
+
 // ── Ergebnis ───────────────────────────────────────────────────────────────
 // ── Phase 26: Release-Provider und Dashboard-Aktionszentrale ───────────────
 console.log('\nPruefe: Phase 26 - Release-Provider und Dashboard-Aktionszentrale\n');

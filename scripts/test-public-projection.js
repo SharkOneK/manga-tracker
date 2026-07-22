@@ -171,6 +171,68 @@ console.log('\nPhase 27b - Public Projection/RLS Tests\n');
     assert.strictEqual(projection.m[0].mediaType, 'manga');
   });
 
+  // Phase 73: Anime-Einträge tragen private AniList-Rohdaten (externalIds, anilistAiring).
+  // Diese duerfen NICHT in der Projektion landen; das Key-Set oben bleibt unveraendert (E4).
+  await runTest('buildPublicCollectionData: Anime-Eintrag laesst externalIds/anilistAiring draussen, mediaType+seasons kommen durch', function() {
+    const buildPublicCollectionData = loadPublicProjectionHelpers();
+    const input = {
+      schemaVersion: 3,
+      m: [{
+        id: 'an1',
+        title: 'Attack on Titan Season 2',
+        pub: '',
+        bands: {},
+        total: 12,
+        ongoing: 'true',
+        nextDate: '2026-08-01',
+        cover: 'https://img.anili.st/cover.jpg',
+        bandCovers: {},
+        genres: ['Action', 'Drama'],
+        status: 'owned',
+        mediaType: 'anime',
+        seasons: { 1: 2, 2: 2, 3: 2 },
+        externalIds: { anilistId: 25777, anilistRootId: 16498 },
+        anilistAiring: { episode: 13, airingAt: 1770000000 },
+      }],
+    };
+
+    const projection = buildPublicCollectionData(input);
+    // Exakt dasselbe Key-Set wie fuer Manga — E4: keine neuen Felder in der Projektion.
+    assert.deepStrictEqual(Object.keys(projection.m[0]).sort(), [
+      'bandCovers', 'bands', 'cover', 'genres', 'id', 'mediaType', 'nextDate',
+      'ongoing', 'pub', 'seasons', 'status', 'title', 'total',
+    ].sort());
+    assert.strictEqual(Object.prototype.hasOwnProperty.call(projection.m[0], 'externalIds'), false);
+    assert.strictEqual(Object.prototype.hasOwnProperty.call(projection.m[0], 'anilistAiring'), false);
+    assert.strictEqual(projection.m[0].mediaType, 'anime');
+    assert.strictEqual(projection.m[0].total, 12);
+    assert.strictEqual(projection.m[0].ongoing, 'true');
+    assert.strictEqual(projection.m[0].nextDate, '2026-08-01');
+    assert.strictEqual(projection.m[0].cover, 'https://img.anili.st/cover.jpg');
+    assert.deepStrictEqual(projection.m[0].genres, ['Action', 'Drama']);
+    assert.deepStrictEqual(projection.m[0].seasons, { 1: 2, 2: 2, 3: 2 });
+  });
+
+  await runTest('buildPublicCollectionData: Anime ohne bekannte Episodenzahl (total null, seasons leer) bleibt konsistent', function() {
+    const buildPublicCollectionData = loadPublicProjectionHelpers();
+    const input = {
+      schemaVersion: 3,
+      m: [{
+        id: 'an2', title: 'Laufender Anime', bands: {}, total: null, ongoing: null,
+        mediaType: 'anime', seasons: {}, cover: null,
+        externalIds: { anilistId: 999, anilistRootId: 999 }, anilistAiring: null,
+      }],
+    };
+    const projection = buildPublicCollectionData(input);
+    assert.strictEqual(projection.m[0].mediaType, 'anime');
+    assert.strictEqual(projection.m[0].total, null);
+    assert.strictEqual(projection.m[0].ongoing, null);
+    assert.deepStrictEqual(projection.m[0].seasons, {});
+    assert.strictEqual(projection.m[0].cover, '');
+    assert.strictEqual(Object.prototype.hasOwnProperty.call(projection.m[0], 'externalIds'), false);
+    assert.strictEqual(Object.prototype.hasOwnProperty.call(projection.m[0], 'anilistAiring'), false);
+  });
+
   await runTest('buildPublicCollectionData: schemaVersion-Fallback ohne Input ist 3', function() {
     const buildPublicCollectionData = loadPublicProjectionHelpers();
     const input = { m: [{ id: 'm4', title: 'Ohne schemaVersion', bands: {} }] };

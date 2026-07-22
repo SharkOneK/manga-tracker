@@ -6,7 +6,10 @@
 
 'use strict';
 
-const CACHE_VERSION = 'mt-pwa-v2';
+// Phase 73: Bump auf v3 ist zwingend — index.html wird cache-first ausgeliefert und
+// trägt jetzt eine erweiterte CSP (connect-src + https://graphql.anilist.co). Ohne Bump
+// laufen Bestandsgeräte weiter mit der alten CSP und der AniList-Call scheitert dort.
+const CACHE_VERSION = 'mt-pwa-v3';
 
 // App-Shell: statische Dateien, die nach dem ersten Online-Besuch offline
 // verfügbar sein sollen. Relative Pfade (./…) damit GitHub-Pages-Sub-Pfad
@@ -20,6 +23,7 @@ const PRECACHE_URLS = [
   './src/utils.js',
   './src/supabase.js',
   './src/release-utils.js',
+  './src/anilist-utils.js',
   './src/auth.js',
   './src/app.js',
   './src/sw-register.js',

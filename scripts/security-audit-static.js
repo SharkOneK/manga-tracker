@@ -926,6 +926,194 @@ if (!swJs) {
   pass("Check 69i: sw.js enthält keine Supabase/Manga-Passion-URLs im Code");
 }
 
+// ── Check 73a: Ungeschützte Text-Senken in HTML-Templates ─────────────────
+//
+// Hintergrund (Phase 73): Mit dem AniList-Import schreibt erstmals eine
+// oeffentliche Drittquelle freien Text nach m.title, m.genres (und ab Phase 75
+// nach m.pub). Vorbestehende Render-Pfade gaben solche Felder unescaped in
+// innerHTML aus. Der erste Guard-Versuch (Property-Zugriff `.title`/`.genres`)
+// war zu eng: die Dashboard-Genre-Verteilung interpoliert einen NACKTEN
+// Bezeichner (`${g}`, aus `genreEntries.map(([g,n])=>…)`) — kein Property-
+// Zugriff, also unsichtbar fuer das alte Muster.
+//
+// NEUER, STRUKTURELLER ANSATZ (Fix-Durchlauf 2):
+// Erkannt wird jede Template-Interpolation `${expr}`, die
+//   (1) in einer Markup-bauenden Zeile steht,
+//   (2) in einer TEXT-SENKE sitzt — also als Element-Textinhalt (unmittelbar
+//       hinter einem `>`) ODER innerhalb eines doppelt gequoteten Attributwerts,
+//   (3) eine „einfache Wert-Form" hat (nackter Bezeichner, Property-Kette oder
+//       `ident||'literal'` / `ident??'literal'`) — Funktionsaufrufe, Ternaries
+//       und Arithmetik sind ausgenommen, weil sie hier praktisch nie roher
+//       Fremdtext sind und sonst die Fehlalarmrate auf ~4950 Zeilen explodiert,
+//   (4) KEINE bekannte Schutzfunktion nutzt (escapeHtml, escapeYamlString,
+//       safeHttpsUrl, encodeURIComponent, encodeURI, JSON.stringify),
+//   (5) NICHT in der Allowlist unbedenklicher Bezeichner (SAFE_SINK_EXPR) steht.
+//
+// Die Allowlist ist bewusst EXPLIZIT und nicht heuristisch: jeder Eintrag ist ein
+// nachweislich unbedenklicher Wert (Zahl/Zaehler, hartcodierte Konstante, oder ein
+// bereits an anderer Stelle escaptes vorgerendertes HTML-Fragment). Der Preis ist
+// gewollt: ein NEUER nackter Bezeichner in einer Text-Senke faellt auf, bis jemand
+// bewusst entscheidet „das ist Fremdtext → escapeHtml()" oder „das ist sicher →
+// Allowlist mit Begruendung". Genau diese erzwungene Entscheidung ist der Schutz,
+// den Phase 75 (TMDB) braucht.
+//
+// DOKUMENTIERTE GRENZEN (ehrlich benannt, keine stillen Luecken):
+//   - Ausdruecke mit Funktionsaufruf/Ternary/Arithmetik werden NICHT geprueft.
+//     Ein `${foo(bar)}` mit rohem Fremdtext im Ergebnis entginge dem Check. Solche
+//     Faelle sind selten und meist selbst-escapend (Sub-Render). Fuer die zwei real
+//     bekannten Sinks sichert Check 73b zusaetzlich per Anker ab.
+//   - Mehrzeilige Interpolationen (Ausdruck ueber Zeilenumbruch) werden nicht
+//     zusammengesetzt.
+//   - Attribut-Erkennung zaehlt Anfuehrungszeichen pro Zeile; exotisches Quoting
+//     (Template-Literale im Attribut o.ae.) kann theoretisch fehlklassifizieren.
+//   - Andere Dateien als src/app.js sind nicht abgedeckt (das UI-Rendering lebt
+//     dort; das Such-Overlay in app.js ist mit erfasst).
+if (!appJs) {
+  fail('Check 73a: src/app.js nicht gefunden (Text-Senken-Escaping nicht prüfbar)');
+} else {
+  // Allowlist unbedenklicher Text-Senken-Ausdruecke. Jede Gruppe mit Begruendung.
+  const SAFE_SINK_EXPR = new Set([
+    // — Zahlen / Zaehler / Prozentwerte (kein Freitext, rein numerisch) —
+    'n', 'buyCount', 'buyProgress', 'completeSeries', 'completedVols', 'finishedCount',
+    'ongoingCount', 'readingSeries', 'seriesWithMissing', 'totalKnown', 'totalMissing',
+    'totalSeries', 'totalVols', 'unknownCount', 'finishedYear', 'startedYear', 'year',
+    'totalAll', 'totalAvailAll', 'totalSoonAll', 'avail.length', 'gaps.length',
+    'upcoming.length', 'item.volumeNumber', 'idx',
+    'statusCounts.completed', 'statusCounts.owned', 'statusCounts.reading', 'statusCounts.wishlist',
+    'releaseStats.itemCount', 'releaseStats.seriesWithNextDate',
+    'releaseStats.seriesWithReleaseIds', 'releaseStats.upcoming30',
+    'next', 'nr', 'band',
+    // — Vorgerendertes, an der Quelle bereits escaptes HTML / interne IDs —
+    // (diese Bezeichner tragen entweder fertiges Markup oder App-generierte IDs,
+    //  nie rohen Fremdtext; die Escaping-Verantwortung liegt an der Baustelle)
+    'statusPill', 'volText', 'dateHtml', 'dateLabel', 'pubHtml', 'rows', 'meta',
+    'coverSyncNote', 'dropTag', 'id',
+    // — Hartcodierte Labels/Konstanten (Entwicklertext, kein Nutzer-/Fremdinput) —
+    'label', 'ic', 'tt', 'sub', 'st', 'cur', 'd', 'q', 'm',
+  ]);
+
+  const SAFE_WRAPPER = /escapeHtml\s*\(|escapeYamlString\s*\(|safeHttpsUrl\s*\(|encodeURIComponent\s*\(|encodeURI\s*\(|JSON\.stringify\s*\(/;
+  const MARKUP_LINE  = /<\/?[a-zA-Z]/;
+  // „einfache Wert-Form": nackter Bezeichner, Property-Kette, oder mit ||/??-Literal-Fallback
+  const BARE   = /^[A-Za-z_$][\w$]*$/;
+  const MEMBER = /^[A-Za-z_$][\w$]*(?:\.[A-Za-z_$][\w$]*)+$/;
+  const FALLBACK = /^([A-Za-z_$][\w$.]*)\s*(?:\|\||\?\?)\s*'[^']*'$/;
+
+  function isSimpleValueForm(e) {
+    if (BARE.test(e) || MEMBER.test(e)) return true;
+    const fb = e.match(FALLBACK);
+    return !!(fb && (BARE.test(fb[1]) || MEMBER.test(fb[1])));
+  }
+  // Basis-Bezeichner (ohne ||/??-Fallback) fuer den Allowlist-Vergleich.
+  function baseExpr(e) {
+    const fb = e.match(FALLBACK);
+    return fb ? fb[1] : e;
+  }
+
+  // Findet ${...}-Interpolationen mit korrektem Klammer-Matching (verschachtelte {} ok).
+  function findInterps(line) {
+    const out = [];
+    for (let i = 0; i < line.length - 1; i++) {
+      if (line[i] === '$' && line[i + 1] === '{') {
+        let depth = 1, j = i + 2;
+        while (j < line.length && depth > 0) {
+          if (line[j] === '{') depth++;
+          else if (line[j] === '}') depth--;
+          j++;
+        }
+        out.push({ start: i, expr: line.slice(i + 2, j - 1) });
+        i = j - 1;
+      }
+    }
+    return out;
+  }
+  // Textinhalt-Senke: naechstes ungeklammertes Zeichen links ist '>' (nicht '<').
+  function inTextSink(line, start) {
+    for (let k = start - 1; k >= 0; k--) {
+      if (line[k] === '>') return true;
+      if (line[k] === '<') return false;
+    }
+    return false;
+  }
+  // Attribut-Senke: ungerade Zahl doppelter Anfuehrungszeichen vor der Position.
+  function inAttrSink(line, start) {
+    let q = 0;
+    for (let k = 0; k < start; k++) if (line[k] === '"') q++;
+    return q % 2 === 1;
+  }
+
+  const unescaped = [];
+  appJs.split(/\r?\n/).forEach(function (line, idx) {
+    if (!MARKUP_LINE.test(line)) return;
+    findInterps(line).forEach(function (it) {
+      if (!(inTextSink(line, it.start) || inAttrSink(line, it.start))) return;
+      const expr = it.expr.trim();
+      if (SAFE_WRAPPER.test(expr)) return;
+      if (!isSimpleValueForm(expr)) return;
+      if (SAFE_SINK_EXPR.has(baseExpr(expr))) return;
+      unescaped.push('  src/app.js:' + (idx + 1) + '  ${' + expr.slice(0, 80) + '}');
+    });
+  });
+
+  if (unescaped.length) {
+    fail('Check 73a: einfacher Wert wird ungeschützt in eine HTML-Text-Senke interpoliert '
+      + '(escapeHtml() fehlt, oder — falls nachweislich unbedenklich — in SAFE_SINK_EXPR mit Begründung aufnehmen):\n'
+      + unescaped.join('\n'));
+  } else {
+    pass('Check 73a: keine ungeschützte einfache Text-Senken-Interpolation in src/app.js');
+  }
+}
+
+// ── Check 73b: Fail-closed-Anker für die in Phase 73 geschlossenen Sinks ───
+//
+// Ergaenzt 73a: dessen struktureller Scan haengt an einer Allowlist und an der
+// Sink-Heuristik. 73b verankert die vier real behobenen Stellen zusaetzlich hart.
+// Findet ein Anker seine Stelle nicht mehr, schlaegt der Check FEHL statt still
+// durchzuwinken (Vorbild: MEDIA_TYPES-Divergenz-Guard aus Phase 72) — nach einem
+// Markup-Umbau muss der Anker bewusst nachgezogen werden.
+if (!appJs) {
+  fail('Check 73b: src/app.js nicht gefunden (Escaping-Anker nicht prüfbar)');
+} else {
+  // Manche Markup-Muster kommen mehrfach vor (z. B. zwei bar-label: Verlage +
+  // Genre-Verteilung). Deshalb ALLE Vorkommen pruefen, nicht nur das erste.
+  const anchors = [
+    { label: 'kal-title (Kalender-Tab)',            locate: /<div class="kal-title">([\s\S]{0,60}?)<\/div>/g,             expect: /escapeHtml\s*\(/ },
+    { label: 'kal-sub (Kalender-Tab, Verlag)',      locate: /<div class="kal-sub">([\s\S]{0,80}?)<\/div>/g,               expect: /escapeHtml\s*\(/ },
+    { label: 'genre-filter-chip (Chip-Text)',       locate: /<span class="genre-filter-chip[\s\S]{0,160}?>([\s\S]{0,40}?)<\/span>/g, expect: /escapeHtml\s*\(/ },
+    // Nur INTERPOLIERTE bar-labels (Verlage + Genre-Verteilung); die hartcodierten
+    // Status-Labels ("Zu lesen" etc.) tragen kein ${…} und sind bewusst ausgenommen.
+    { label: 'bar-label (Dashboard: Verlage + Genre-Verteilung)', locate: /<div class="bar-label">(\$\{[\s\S]{0,40}?\})<\/div>/g, expect: /escapeHtml\s*\(/, minCount: 2 },
+    { label: 'pub-filter <option> (value + Text)',  locate: /<option value="(\$\{[\s\S]{0,40}?)"[\s\S]{0,40}?>([\s\S]{0,40}?)<\/option>/g, expect: /escapeHtml\s*\(/, bothGroups: true },
+  ];
+  const anchorProblems = [];
+  anchors.forEach(function (a) {
+    const matches = [...appJs.matchAll(a.locate)];
+    if (!matches.length) {
+      // FAIL-CLOSED: lieber ein lauter Fehlalarm nach einem Refactoring als ein
+      // still gewordener Sicherheits-Check.
+      anchorProblems.push(a.label + ': Ankerstelle nicht mehr gefunden — Regex veraltet oder Markup umgebaut. Check bewusst fail-closed, bitte Anker nachziehen.');
+      return;
+    }
+    if (a.minCount && matches.length < a.minCount) {
+      anchorProblems.push(a.label + ': erwartete mindestens ' + a.minCount + ' Vorkommen, fand ' + matches.length + ' — Markup umgebaut, Anker pruefen.');
+      return;
+    }
+    matches.forEach(function (found) {
+      const groups = a.bothGroups ? [found[1], found[2]] : [found[1]];
+      groups.forEach(function (g) {
+        if (!a.expect.test(g)) {
+          anchorProblems.push(a.label + ': sichtbarer Text/Attribut ohne escapeHtml() — ' + JSON.stringify(String(g).trim().slice(0, 80)));
+        }
+      });
+    });
+  });
+  if (anchorProblems.length) {
+    fail('Check 73b: Escaping-Anker verletzt:\n  ' + anchorProblems.join('\n  '));
+  } else {
+    pass('Check 73b: alle verankerten Titel-/Genre-/Verlags-Senken rendern über escapeHtml()');
+  }
+}
+
 const passed = totalChecks - totalFailed - totalWarns;
 console.log('');
 if (totalWarns > 0) {

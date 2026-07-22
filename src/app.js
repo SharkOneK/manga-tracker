@@ -485,6 +485,260 @@ async function mpSyncAll() {
   _mpBusy = false;
 }
 
+// ─── AniList (Anime-Import, Phase 73) ────────────────────────────────────
+// Mapping-/Normalisierungslogik liegt in src/anilist-utils.js (UMD, offline in Node
+// testbar). Hier nur der Fetch-Glue und die UI — analog zum Manga-Passion-Muster
+// oben, das ebenfalls direkt aus dem Browser gegen eine öffentliche API spricht.
+const AniListUtils = window.MangaTrackerAniListUtils;
+const ANILIST_ENDPOINT = 'https://graphql.anilist.co';
+const ANILIST_TIMEOUT_MS = 8000;
+const ANILIST_PER_PAGE = 10;
+
+const ANILIST_ERROR_LABEL = {
+  'timeout':      '⏱ AniList antwortet nicht (Zeitüberschreitung). Bitte später erneut versuchen.',
+  'rate-limited': '⏳ AniList bremst gerade zu viele Anfragen aus (Rate Limit).',
+  'http':         '⚠️ AniList meldet einen Fehler. Bitte später erneut versuchen.',
+  'malformed':    '⚠️ Unerwartete Antwort von AniList — Suche abgebrochen.',
+  'empty':        'ℹ️ Keine Treffer bei AniList.',
+  'network':      '⚠️ Keine Verbindung zu AniList möglich.',
+};
+
+const ANILIST_STATUS_LABEL = {
+  RELEASING: 'läuft',
+  FINISHED: 'abgeschlossen',
+  NOT_YET_RELEASED: 'noch nicht gestartet',
+  CANCELLED: 'abgebrochen',
+  HIATUS: 'pausiert',
+};
+
+/**
+ * POST auf die AniList-GraphQL-API. `fetchImpl` ist injizierbar, damit die
+ * Fehlerpfade ohne Netzzugriff getestet werden können.
+ * Rückgabe: { ok:true, list } oder { ok:false, reason, retryAfter }.
+ */
+async function anilistFetch(payload, opts) {
+  opts = opts || {};
+  const fetchImpl = opts.fetchImpl || (typeof fetch === 'function' ? fetch.bind(window) : null);
+  const timeoutMs = Number.isFinite(Number(opts.timeoutMs)) ? Number(opts.timeoutMs) : ANILIST_TIMEOUT_MS;
+  if (!fetchImpl) return { ok: false, reason: 'network', retryAfter: null };
+  let res;
+  try {
+    res = await fetchImpl(ANILIST_ENDPOINT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify(payload),
+      // Öffentlicher, lesender Endpunkt: niemals Cookies oder Auth-Header mitschicken.
+      credentials: 'omit',
+      signal: AbortSignal.timeout(timeoutMs),
+    });
+  } catch (e) {
+    return { ok: false, reason: AniListUtils.classifyError(e), retryAfter: null };
+  }
+  let retryAfter = null;
+  try {
+    const raw = res.headers && res.headers.get ? res.headers.get('Retry-After') : null;
+    if (raw !== null && raw !== undefined && String(raw).trim() !== '' && Number.isFinite(Number(raw))) {
+      retryAfter = Number(raw);
+    }
+  } catch (_) { retryAfter = null; }
+  let body = null;
+  try { body = await res.json(); } catch (_) { body = null; }
+  // AniList antwortet auf Fachfehler mit HTTP 200 + errors-Array — res.ok allein
+  // ist deshalb kein Erfolgssignal, classifyError() prüft den Body mit.
+  const reason = AniListUtils.classifyError(null, res.status, body);
+  if (reason) return { ok: false, reason, retryAfter };
+  return { ok: true, list: AniListUtils.extractMediaList(body), retryAfter: null };
+}
+
+// ── Zustand (schreibend) ──────────────────────────────────────────────────
+// Bewusst getrennt von der UI-Spiegelung (Lehre aus Phase 72): reconcile* schreibt
+// nur Zustand und fasst kein DOM an, renderAniListResults() liest nur.
+let _anilistBusy = false;
+let _anilistResults = [];   // aktuelle Trefferliste (rohe AniList-Media-Objekte)
+let _anilistBestId = null;  // id des besten Treffers (nur Hervorhebung, nie Auto-Import)
+let _anilistMessage = '';   // Status-/Fehlermeldung für die Trefferliste
+
+function reconcileAniListSearchState(patch) {
+  const p = patch || {};
+  if (p.results !== undefined) _anilistResults = Array.isArray(p.results) ? p.results : [];
+  if (p.bestId !== undefined) _anilistBestId = p.bestId;
+  if (p.message !== undefined) _anilistMessage = p.message;
+}
+
+// ── UI-Spiegelung (liest Zustand, schreibt keinen) ────────────────────────
+function renderAniListResults() {
+  const el = document.getElementById('anilist-results');
+  if (!el) return;
+  if (!_anilistResults.length) {
+    el.innerHTML = `<div class="release-preview-empty">${escapeHtml(_anilistMessage || 'Titel eingeben und suchen.')}</div>`;
+    return;
+  }
+  // Alle Felder stammen aus einer fremden Quelle → ausschließlich über escapeHtml()
+  // bzw. safeHttpsUrl() in den DOM.
+  const head = _anilistMessage
+    ? `<div class="release-preview-empty">${escapeHtml(_anilistMessage)}</div>`
+    : '';
+  const items = _anilistResults.map(function(media, idx) {
+    const title = AniListUtils.pickTitle(media) || '(ohne Titel)';
+    const total = AniListUtils.normalizeTotal(media.episodes);
+    const meta = [
+      media.seasonYear != null ? String(media.seasonYear) : null,
+      media.format ? String(media.format) : null,
+      total !== null ? `${total} Episoden` : 'Episodenzahl unbekannt',
+      ANILIST_STATUS_LABEL[media.status] || (media.status ? String(media.status) : null),
+    ].filter(Boolean).join(' · ');
+    const cover = AniListUtils.safeCoverUrl(media.coverImage && media.coverImage.large);
+    const isBest = _anilistBestId !== null && Number(media.id) === Number(_anilistBestId);
+    return `<div class="release-match-item">
+      <div class="anilist-hit">
+        ${cover ? `<img class="anilist-hit-cover" src="${escapeHtml(cover)}" alt="" data-remove-on-error>` : ''}
+        <div class="anilist-hit-text">
+          <div class="release-match-title">${escapeHtml(title)}${isBest ? ' <span class="release-preview-small">(bester Treffer)</span>' : ''}</div>
+          <div class="release-match-source">${escapeHtml(meta)}</div>
+        </div>
+      </div>
+      <button type="button" class="add-btn" data-action="anilist-import" data-anilist-index="${escapeHtml(idx)}">＋ Übernehmen</button>
+    </div>`;
+  }).join('<hr class="release-match-separator">');
+  el.innerHTML = head + items;
+}
+
+// Spiegelt nur das Busy-Flag auf den Suchen-Button (Doppelklickschutz).
+function updateAniListBusyUi() {
+  const btn = document.getElementById('btn-anilist-run');
+  if (!btn) return;
+  btn.disabled = _anilistBusy;
+  btn.textContent = _anilistBusy ? '⏳ Suche läuft…' : '🔍 Suchen';
+}
+
+function openAniListSearch() {
+  if (!canEditLocal()) {
+    toast('🔒 Öffentliche Ansicht – Änderungen sind deaktiviert.');
+    return;
+  }
+  const ov = document.getElementById('anilist-overlay');
+  if (!ov) return;
+  reconcileAniListSearchState({ results: [], bestId: null, message: 'Titel eingeben und suchen.' });
+  const input = document.getElementById('anilist-search-input');
+  if (input) input.value = '';
+  renderAniListResults();
+  updateAniListBusyUi();
+  // Sichtbarkeit über die Klasse, nicht über style.display (Lehre aus Phase 72).
+  ov.classList.remove('hidden');
+  setTimeout(function() {
+    const i = document.getElementById('anilist-search-input');
+    if (i) i.focus();
+  }, 50);
+}
+
+function closeAniListSearch() {
+  const ov = document.getElementById('anilist-overlay');
+  if (ov) ov.classList.add('hidden');
+  reconcileAniListSearchState({ results: [], bestId: null, message: '' });
+}
+
+function overlayClickAniList(e) {
+  if (e.target === document.getElementById('anilist-overlay')) closeAniListSearch();
+}
+
+async function runAniListSearch() {
+  if (!canEditLocal()) {
+    toast('🔒 Öffentliche Ansicht – Änderungen sind deaktiviert.');
+    return;
+  }
+  if (_anilistBusy) return;
+  const input = document.getElementById('anilist-search-input');
+  const q = input ? input.value.trim() : '';
+  if (!q) {
+    reconcileAniListSearchState({ results: [], bestId: null, message: '⚠️ Bitte einen Titel eingeben.' });
+    renderAniListResults();
+    return;
+  }
+  _anilistBusy = true;
+  updateAniListBusyUi();
+  reconcileAniListSearchState({ results: [], bestId: null, message: '🔍 Suche bei AniList…' });
+  renderAniListResults();
+  try {
+    const payload = AniListUtils.buildSearchQuery(q, ANILIST_PER_PAGE);
+    let res = await anilistFetch(payload);
+    // Genau ein verzögerter Zweitversuch bei 429, nie eine Retry-Schleife.
+    if (!res.ok && res.reason === 'rate-limited' && res.retryAfter !== null && res.retryAfter > 0 && res.retryAfter <= 5) {
+      reconcileAniListSearchState({ message: `⏳ Rate Limit — neuer Versuch in ${res.retryAfter} s…` });
+      renderAniListResults();
+      await new Promise(function(r) { setTimeout(r, res.retryAfter * 1000); });
+      res = await anilistFetch(payload);
+    }
+    if (!res.ok) {
+      let msg = ANILIST_ERROR_LABEL[res.reason] || ANILIST_ERROR_LABEL.network;
+      if (res.reason === 'rate-limited' && res.retryAfter !== null && res.retryAfter > 0) {
+        msg += ` Bitte ca. ${res.retryAfter} Sekunden warten.`;
+      }
+      reconcileAniListSearchState({ results: [], bestId: null, message: msg });
+      return;
+    }
+    if (!res.list.length) {
+      reconcileAniListSearchState({ results: [], bestId: null, message: ANILIST_ERROR_LABEL.empty });
+      return;
+    }
+    // Es wird NIE automatisch übernommen — die Auswahl bleibt immer beim Nutzer.
+    // pickBestCandidate() dient nur der Hervorhebung und dem Mehrdeutigkeitshinweis.
+    const pick = AniListUtils.pickBestCandidate(q, res.list);
+    reconcileAniListSearchState({
+      results: res.list,
+      bestId: pick.best ? pick.best.id : null,
+      message: pick.ambiguous ? 'ℹ️ Mehrere ähnliche Treffer (z. B. Staffeln/OVAs) — bitte genau prüfen.' : '',
+    });
+  } catch (e) {
+    console.warn('AniList error:', e);
+    reconcileAniListSearchState({ results: [], bestId: null, message: ANILIST_ERROR_LABEL.network });
+  } finally {
+    _anilistBusy = false;
+    updateAniListBusyUi();
+    renderAniListResults();
+  }
+}
+
+function findAniListDuplicate(anilistId) {
+  if (!Number.isFinite(Number(anilistId))) return null;
+  return db.m.find(function(m) {
+    return m && m.externalIds && Number(m.externalIds.anilistId) === Number(anilistId);
+  }) || null;
+}
+
+// Übernahme: schreibt den Eintrag DIREKT in db.m. Bewusst nicht über doSave() —
+// resolveProtectedGenres()/resolveProtectedCover() und die total-Übernahme dort lesen
+// ausschließlich aus `existing` und lieferten für einen neuen Eintrag []/null, womit
+// Genres, Cover und Episodenzahl beim Import lautlos verloren gingen.
+function importAniListMedia(index) {
+  if (!canEditLocal()) {
+    toast('🔒 Öffentliche Ansicht – Änderungen sind deaktiviert.');
+    return;
+  }
+  const i = Number(index);
+  const media = Number.isInteger(i) ? _anilistResults[i] : null;
+  if (!media) { toast('⚠️ Treffer nicht mehr verfügbar — bitte erneut suchen'); return; }
+  const dupe = findAniListDuplicate(media.id);
+  if (dupe) { toast(`⚠️ „${dupe.title}" ist bereits in der Sammlung`); return; }
+  const entry = AniListUtils.mapMediaToEntry(media, {
+    id: uid(),
+    now: Date.now(),
+    wishlist: tab === 'wishlist',
+  });
+  if (!entry) { toast('⚠️ Treffer ohne verwertbaren Titel — nicht übernommen'); return; }
+  // Ähnliche Titel nur warnen, nicht blocken: Staffeln heißen absichtlich ähnlich.
+  const dupes = findDuplicates(entry.title);
+  if (dupes.length > 0) {
+    const names = dupes.map(function(d) { return `„${d.title}"`; }).join('\n');
+    if (!confirm(`⚠️ Ähnlicher Eintrag vorhanden:\n${names}\n\nTrotzdem hinzufügen?`)) return;
+  }
+  db.m.push(entry);
+  persist();
+  closeAniListSearch();
+  closeModal();
+  render();
+  toast(`✅ „${entry.title}" als Anime hinzugefügt`);
+}
+
 // ─── State ────────────────────────────────────────────────────────────────
 let tab = 'reading';
 let editId = null;
@@ -1373,7 +1627,7 @@ function renderDashboard() {
       <h3>Verlage</h3>
       <div class="bar-chart">
         ${pubEntries.map(([p,n])=>`<div class="bar-row">
-          <div class="bar-label">${p}</div>
+          <div class="bar-label">${escapeHtml(p)}</div>
           <div class="bar-track"><div class="bar-fill" data-style-width="${Math.round(n/maxPub*100)}%"></div></div>
           <div class="bar-val">${n}</div>
         </div>`).join('')}
@@ -1384,7 +1638,7 @@ function renderDashboard() {
       <h3>Genre-Verteilung</h3>
       <div class="bar-chart">
         ${genreEntries.map(([g,n])=>`<div class="bar-row">
-          <div class="bar-label">${g}</div>
+          <div class="bar-label">${escapeHtml(g)}</div>
           <div class="bar-track"><div class="bar-fill bar-fill-purple" data-style-width="${Math.round(n/maxGenre*100)}%"></div></div>
           <div class="bar-val">${n}</div>
         </div>`).join('')}
@@ -1444,7 +1698,7 @@ function updateGenreFilter() {
   wrap.style.display = 'flex';
   wrap.innerHTML = ['', ...usedGenres].map(g => {
     const isActive = g === '' ? filterGenres.length === 0 : filterGenres.includes(g);
-    return `<span class="genre-filter-chip${isActive?' on':''}" data-action="set-genre-filter" data-genre="${escapeHtml(g)}">${g||'Alle'}</span>`;
+    return `<span class="genre-filter-chip${isActive?' on':''}" data-action="set-genre-filter" data-genre="${escapeHtml(g)}">${escapeHtml(g||'Alle')}</span>`;
   }).join('');
 }
 
@@ -1478,7 +1732,7 @@ function updatePubFilter() {
   const cur = sel.value;
   const pubs = [...new Set(db.m.map(m => m.pub).filter(Boolean))].sort((a,b) => a.localeCompare(b,'de'));
   sel.innerHTML = '<option value="">Alle Verlage</option>' +
-    pubs.map(p => `<option value="${p}"${p===cur?' selected':''}>${p}</option>`).join('');
+    pubs.map(p => `<option value="${escapeHtml(p)}"${p===cur?' selected':''}>${escapeHtml(p)}</option>`).join('');
 }
 
 function applyPubFilter(list) {
@@ -1616,6 +1870,14 @@ function validateImportEntry(entry, i) {
         return `Eintrag ${i} (\"${entry.title}\"): Band ${bandNr} hat ungültigen Status \"${status}\"`;
     }
   }
+  // Phase 73: private Anime-Felder werden toleriert; nur klar falsche Typen (Array,
+  // Primitive) werden abgewiesen, damit Anime-Backups nicht am Import scheitern.
+  if (entry.externalIds !== undefined && entry.externalIds !== null
+      && (typeof entry.externalIds !== 'object' || Array.isArray(entry.externalIds)))
+    return `Eintrag ${i} (\"${entry.title}\"): externalIds ist kein Objekt`;
+  if (entry.anilistAiring !== undefined && entry.anilistAiring !== null
+      && (typeof entry.anilistAiring !== 'object' || Array.isArray(entry.anilistAiring)))
+    return `Eintrag ${i} (\"${entry.title}\"): anilistAiring ist kein Objekt`;
   return null;
 }
 
@@ -2000,8 +2262,8 @@ function render() {
           </div>
           ${coverEl(m,'mini',next)}
           <div class="kal-info">
-            <div class="kal-title">${m.title}</div>
-            <div class="kal-sub">Band ${next} · ${m.pub||'Unbekannt'}</div>
+            <div class="kal-title">${escapeHtml(m.title)}</div>
+            <div class="kal-sub">Band ${next} · ${escapeHtml(m.pub||'Unbekannt')}</div>
           </div>
         </div>`;
       });
@@ -2199,6 +2461,8 @@ function openAdd() {
   // Phase 15c: Release-Check-Button im Hinzufügen-Dialog ausblenden (nur bei Bearbeitung sinnvoll)
   const _btnRcAdd = document.getElementById('btn-release-check');
   if (_btnRcAdd) _btnRcAdd.style.display = 'none';
+  // Phase 73: AniList-Einstieg nur im Hinzufügen-Kontext (legt einen NEUEN Eintrag an).
+  document.getElementById('btn-anilist-search')?.classList.remove('hidden');
   document.getElementById('overlay').style.display = 'flex';
   setTimeout(() => document.getElementById('f-title').focus(), 50);
 }
@@ -2230,6 +2494,8 @@ function openEdit(id, e) {
   // Phase 15c: Release-Check-Button einblenden und Status aktualisieren
   const _btnRcEdit = document.getElementById('btn-release-check');
   if (_btnRcEdit) { _btnRcEdit.style.display = 'block'; updateReleaseCacheButton(); }
+  // Phase 73: im Bearbeiten-Kontext kein AniList-Einstieg (er würde einen neuen Eintrag anlegen).
+  document.getElementById('btn-anilist-search')?.classList.add('hidden');
   document.getElementById('overlay').style.display = 'flex';
 }
 
@@ -2326,7 +2592,7 @@ function mergePreservedFields(existing, entry) {
   const keys = [
     'isbn13', 'editionFingerprint', 'coverManuallySet', 'mpEditionId', 'mpVerifiedAt',
     'releaseSource', 'releaseCheckedAt', 'releaseConfidence', 'externalIds', 'volumeMeta',
-    'seasons',
+    'seasons', 'anilistAiring',
   ];
   keys.forEach(function(k) {
     if (existing[k] !== undefined && entry[k] === undefined) entry[k] = existing[k];
@@ -4750,6 +5016,10 @@ function bindStaticEvents() {
   // Modal buttons / overlays
   document.getElementById('overlay')?.addEventListener('click', overlayClick);
   document.getElementById('release-preview-overlay')?.addEventListener('click', overlayClickReleasePreview);
+  document.getElementById('anilist-overlay')?.addEventListener('click', overlayClickAniList);
+  document.getElementById('anilist-search-input')?.addEventListener('keydown', function(event) {
+    if (event.key === 'Enter') runAniListSearch();
+  });
   document.getElementById('account-overlay')?.addEventListener('click', overlayClickAccount);
   document.getElementById('import-file-input')?.addEventListener('change', function(event) {
     handleImportFile(event.target);
@@ -4816,6 +5086,18 @@ function bindDelegatedEvents() {
         break;
       case 'close-release-preview':
         closeReleasePreview();
+        break;
+      case 'open-anilist-search':
+        openAniListSearch();
+        break;
+      case 'close-anilist-search':
+        closeAniListSearch();
+        break;
+      case 'run-anilist-search':
+        runAniListSearch();
+        break;
+      case 'anilist-import':
+        importAniListMedia(target.dataset.anilistIndex);
         break;
       case 'apply-release-updates':
         applySelectedReleaseUpdates();
