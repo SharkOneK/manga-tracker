@@ -922,6 +922,61 @@ if (!mediaTypesMatch || !validMediaTypesMatch) {
   pass('src/app.js: MEDIA_TYPES und lokale validMediaTypes-Whitelist in buildPublicCollectionData sind deckungsgleich');
 }
 
+// ── Phase 74 (fail-closed): jeder MEDIA_TYPES-Eintrag genau EINEM Modus zugeordnet ──
+// Analog zum Phase-72-F4-Guard: verhindert, dass ein künftiger Medientyp durch die
+// Modus-Trennung unerreichbar wird (weder Manga- noch Serien-Modus zeigt ihn). Meldet
+// „nicht gefunden“ statt still durchzuwinken.
+console.log('\nPruefe: Phase 74 — Modus/Medientyp-Zuordnung (MODE_MEDIA_TYPES deckt MEDIA_TYPES)\n');
+
+if (fs.existsSync(appJsPath)) {
+  const appJs74 = fs.readFileSync(appJsPath, 'utf-8');
+  const mediaTypes74Match = appJs74.match(/const MEDIA_TYPES = \[([^\]]*)\];/);
+  // Die gesamte (einzeilige) Objekt-Literal-Deklaration einlesen (verschachtelte Arrays).
+  const modeMapLineMatch = appJs74.match(/const MODE_MEDIA_TYPES = (\{.*\});/);
+
+  if (!mediaTypes74Match) {
+    fail('src/app.js: MEDIA_TYPES-Konstante nicht gefunden (Phase 74)');
+  } else if (!modeMapLineMatch) {
+    fail('src/app.js: MODE_MEDIA_TYPES-Konstante nicht gefunden (Phase 74)');
+  } else {
+    const mediaTypes = mediaTypes74Match[1]
+      .split(',').map(s => s.trim().replace(/^['"]|['"]$/g, '')).filter(Boolean);
+    // Alle in MODE_MEDIA_TYPES gelisteten Typen aus dem Objekt-Literal extrahieren.
+    // Modus-Keys (manga:/series:) sind UNQUOTED und werden hier nicht erfasst — nur die
+    // quotierten Array-Werte ('manga','series','anime') zählen als Medientyp-Zuordnung.
+    const mappedTypes = (modeMapLineMatch[1].match(/'([^']+)'|"([^"]+)"/g) || [])
+      .map(s => s.replace(/['"]/g, ''));
+
+    let mapErrors = 0;
+    mediaTypes.forEach(t => {
+      // Jeder Medientyp muss in mindestens einem Modus-Array auftauchen.
+      const occurrences = mappedTypes.filter(v => v === t).length;
+      if (occurrences === 0) {
+        fail('src/app.js: Medientyp "' + t + '" ist KEINEM Modus in MODE_MEDIA_TYPES zugeordnet — er waere in der App unerreichbar');
+        mapErrors++;
+      } else if (occurrences > 1) {
+        fail('src/app.js: Medientyp "' + t + '" ist mehreren Modi zugeordnet (' + occurrences + 'x) — Modus-Zuordnung muss disjunkt sein');
+        mapErrors++;
+      }
+    });
+    if (mapErrors === 0) {
+      pass('src/app.js: MODE_MEDIA_TYPES ordnet alle ' + mediaTypes.length + ' MEDIA_TYPES-Einträge genau einem Modus zu');
+    }
+  }
+} else {
+  fail('src/app.js nicht gefunden (Phase 74)');
+}
+
+// index.html: Modus-Umschalter mit beiden Modi vorhanden, CSP-konform (data-action)
+if (!html.includes('id="mode-switch"')
+    || !html.includes('data-action="set-mode"')
+    || !html.includes('data-mode="manga"')
+    || !html.includes('data-mode="series"')) {
+  fail('index.html: Modus-Umschalter (#mode-switch mit data-action="set-mode" für manga/series) fehlt');
+} else {
+  pass('index.html: Modus-Umschalter (#mode-switch) vorhanden und CSP-konform verdrahtet');
+}
+
 console.log('');
 if (totalErrors > 0) {
   console.error('❌ Smoke-Test fehlgeschlagen — ' + totalErrors + ' Fehler\n');

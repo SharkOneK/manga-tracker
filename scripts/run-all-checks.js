@@ -104,6 +104,7 @@ const SYNTAX_FILES = [
   // CI nie etwas ausfuehrt.
   'scripts/test-phase73-browser-integration.js',
   'scripts/test-phase73-tester-xss-followup.js',
+  'scripts/test-phase74-browser-integration.js',
   'sw.js',
   'src/sw-register.js',
 ];

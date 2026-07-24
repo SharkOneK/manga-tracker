@@ -1608,7 +1608,7 @@ function renderDashboard() {
       <h3>Bände nach Sammlungsstatus</h3>
       <div class="bar-chart">
         <div class="bar-row">
-          <div class="bar-label">${term('toRead')}</div>
+          <div class="bar-label">${escapeHtml(term('toRead'))}</div>
           <div class="bar-track"><div class="bar-fill" data-style-width="${Math.round(statusCounts.owned/statusMax*100)}%"></div></div>
           <div class="bar-val">${statusCounts.owned}</div>
         </div>
