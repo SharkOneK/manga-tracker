@@ -1040,13 +1040,13 @@ function volumeActions(v) {
   const band = escapeHtml(v._band);
   const buttons = [];
   if (v._bandStatus !== 'reading') {
-    buttons.push(`<button class="btn-xs btn-edit" data-action="set-band-status" data-manga-id="${id}" data-band-nr="${band}" data-status="reading">Lese ich</button>`);
+    buttons.push(`<button class="btn-xs btn-edit" data-action="set-band-status" data-manga-id="${id}" data-band-nr="${band}" data-status="reading">${stWord('reading')}</button>`);
   }
   if (v._bandStatus !== 'owned') {
-    buttons.push(`<button class="btn-xs btn-edit" data-action="set-band-status" data-manga-id="${id}" data-band-nr="${band}" data-status="owned">Zu lesen</button>`);
+    buttons.push(`<button class="btn-xs btn-edit" data-action="set-band-status" data-manga-id="${id}" data-band-nr="${band}" data-status="owned">${stWord('owned')}</button>`);
   }
   if (v._bandStatus !== 'completed') {
-    buttons.push(`<button class="btn-xs btn-buy" data-action="set-band-status" data-manga-id="${id}" data-band-nr="${band}" data-status="completed">Gelesen ✓</button>`);
+    buttons.push(`<button class="btn-xs btn-buy" data-action="set-band-status" data-manga-id="${id}" data-band-nr="${band}" data-status="completed">${stWord('completed')} ✓</button>`);
   }
   buttons.push(`<button class="btn-xs btn-edit" data-action="open-edit" data-manga-id="${id}">Bearbeiten</button>`);
   return `<div class="vol-actions">${buttons.join('')}</div>`;
@@ -2934,7 +2934,7 @@ function markBought(id, e) {
   maybeRunLocalReleaseCoverageCheck(m);
   maybeSeedCatalogFromCollection(m);
   render();
-  toast(`✅ Band ${nextBand} von „${m.title}" zu „Zu lesen" hinzugefügt`);
+  toast(`✅ Band ${nextBand} von „${m.title}" zu „${stWord('owned')}" hinzugefügt`);
 }
 
 function setBandStatus(id, bandNr, status, e) {
