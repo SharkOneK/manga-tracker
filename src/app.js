@@ -344,8 +344,12 @@ const MODE_STATUS = {
   manga:  { owned: { e: '📚', w: 'Zu lesen' },      reading: { e: '📖', w: 'Lese ich' },   completed: { e: '✅', w: 'Gelesen' } },
   series: { owned: { e: '📺', w: 'Weiterschauen' }, reading: { e: '📺', w: 'Schaue ich' }, completed: { e: '✅', w: 'Gesehen' } },
 };
-function stLabel(st) { const x = (MODE_STATUS[appMode] || MODE_STATUS.manga)[st]; return x ? x.e + ' ' + x.w : st; }
-function stWord(st)  { const x = (MODE_STATUS[appMode] || MODE_STATUS.manga)[st]; return x ? x.w : st; }
+// Fallback bewusst `undefined` (nicht der rohe Eingabewert): erhält die alte
+// ST_LABEL[x]-Semantik, damit die nachgelagerten `|| escapeHtml(...)`-Fallbacks an den
+// DOM-Sinks weiter greifen. Ein roher Rückgabewert würde diese Escaping-Fallbacks
+// aushebeln (manipulierter m.bands-Status → Markup-Injektion).
+function stLabel(st) { const x = (MODE_STATUS[appMode] || MODE_STATUS.manga)[st]; return x ? x.e + ' ' + x.w : undefined; }
+function stWord(st)  { const x = (MODE_STATUS[appMode] || MODE_STATUS.manga)[st]; return x ? x.w : undefined; }
 const ST_CYCLE = { owned: 'reading', reading: 'completed', completed: 'owned' };
 
 function renderBandMgr() {
@@ -361,7 +365,7 @@ function renderBandMgr() {
     const tip = hasCov ? ('Cover ändern – aktuell: ' + cov) : ('Cover-URL für Band ' + nr + ' setzen');
     return `<div class="band-row">
       <span class="band-nr">Band ${nr}</span>
-      <button type="button" class="band-status-btn st-${st}" data-action="cycle-band" data-band-nr="${escapeHtml(nr)}">${stLabel(st)}</button>
+      <button type="button" class="band-status-btn st-${escapeHtml(st)}" data-action="cycle-band" data-band-nr="${escapeHtml(nr)}">${escapeHtml(stLabel(st) || st)}</button>
       <button type="button" class="band-cover-btn${hasCov ? ' has-cover' : ''}" data-action="edit-band-cover" data-band-nr="${escapeHtml(nr)}" title="${tip.replace(/"/g,'&quot;')}">🖼️</button>
       <button type="button" class="band-remove-btn" data-action="remove-band" data-band-nr="${escapeHtml(nr)}" title="Entfernen">✕</button>
     </div>`;
