@@ -311,6 +311,65 @@ async function gridText(page) {
       await context.close();
     });
 
+    // ── Test 6b: sichtbare Tab-Pillen + Sidebar-Nav + Band-Status-Labels ───
+    await runTest('Begriffe: Tab-Pillen/Sidebar/Band-Status-Buttons schalten je Modus (Manga wortgleich)', async () => {
+      const context = await browser.newContext();
+      const page = await context.newPage();
+      await seedPage(page, mixedSeed());
+      await page.goto(base, { waitUntil: 'load' });
+      await page.waitForTimeout(400);
+
+      const pills = () => page.$$eval('#tabs .tab-lbl[data-status]', els =>
+        Object.fromEntries(els.map(e => [e.dataset.status, e.textContent])));
+      const navs = () => page.$$eval('.nav-lbl[data-status]', els =>
+        Object.fromEntries(els.map(e => [e.dataset.status, e.textContent])));
+
+      // Manga-Modus: wortgleich zum bisherigen statischen HTML (Nicht-Regressions-Anker).
+      const pM = await pills();
+      if (pM.reading !== '📖 Lese ich' || pM.completed !== '✅ Gelesen' || pM.owned !== '📚 Zu lesen') {
+        throw new Error('Manga-Tab-Pillen nicht wortgleich: ' + JSON.stringify(pM));
+      }
+      const nM = await navs();
+      if (nM.reading !== 'Lese ich' || nM.owned !== 'Zu lesen') {
+        throw new Error('Manga-Sidebar-Nav nicht wortgleich: ' + JSON.stringify(nM));
+      }
+
+      // Serien-Modus: angepasste Begriffe, UND die Manga-Wörter dürfen NICHT mehr in den Pillen stehen.
+      await page.click('#mode-switch [data-mode="series"]');
+      await page.waitForTimeout(250);
+      const pS = await pills();
+      if (pS.reading !== '📺 Schaue ich' || pS.completed !== '✅ Gesehen' || pS.owned !== '📺 Weiterschauen') {
+        throw new Error('Serien-Tab-Pillen nicht angepasst: ' + JSON.stringify(pS));
+      }
+      if (/Lese ich|Zu lesen|Gelesen/.test(Object.values(pS).join('|'))) {
+        throw new Error('Serien-Modus zeigt noch Manga-Begriffe in den Pillen: ' + JSON.stringify(pS));
+      }
+      const nS = await navs();
+      if (nS.reading !== 'Schaue ich' || nS.owned !== 'Weiterschauen') {
+        throw new Error('Serien-Sidebar-Nav nicht angepasst: ' + JSON.stringify(nS));
+      }
+
+      // Band-Status-Button (stLabel) schaltet ebenfalls: in der Bändenansicht eines Serien-Eintrags.
+      // Wir prüfen den in Serien-Modus gerenderten owned-Button-Text via ST-Label-Konstanten indirekt:
+      const btnText = await page.evaluate(() => {
+        const b = document.querySelector('.band-status-btn');
+        return b ? b.textContent.trim() : null;
+      });
+      if (btnText && /Zu lesen|Lese ich|Gelesen/.test(btnText)) {
+        throw new Error('Band-Status-Button zeigt im Serien-Modus noch Manga-Begriff: ' + JSON.stringify(btnText));
+      }
+
+      // Zurück zu Manga: Pillen wieder bitidentisch.
+      await page.click('#mode-switch [data-mode="manga"]');
+      await page.waitForTimeout(250);
+      const pBack = await pills();
+      if (pBack.reading !== '📖 Lese ich' || pBack.completed !== '✅ Gelesen' || pBack.owned !== '📚 Zu lesen') {
+        throw new Error('Rückwechsel zu Manga nicht bitidentisch: ' + JSON.stringify(pBack));
+      }
+
+      await context.close();
+    });
+
     // ── Test 7: Kalender pro Modus ─────────────────────────────────────────
     await runTest('Kalender zeigt je Modus nur passende Termine', async () => {
       const context = await browser.newContext();

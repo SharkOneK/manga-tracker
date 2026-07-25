@@ -337,7 +337,15 @@ function mCollectionStatus(m) {
 // ─── Modal Band-Manager state ──────────────────────────────────────────────
 let modalBands = {};
 let modalBandCovers = {};
-const ST_LABEL = { owned: '📚 Zu lesen', reading: '📖 Lese ich', completed: '✅ Gelesen' };
+// Phase 74: Sammlungsstatus-Labels modusabhängig. Manga-Werte wortgleich zum bisherigen
+// ST_LABEL (Nicht-Regressions-Anker), Serien-Modus mit passenden Begriffen. stLabel() liefert
+// „Emoji Wort", stWord() nur das Wort (Sidebar-Nav hat Emoji separat in .nav-ic).
+const MODE_STATUS = {
+  manga:  { owned: { e: '📚', w: 'Zu lesen' },      reading: { e: '📖', w: 'Lese ich' },   completed: { e: '✅', w: 'Gelesen' } },
+  series: { owned: { e: '📺', w: 'Weiterschauen' }, reading: { e: '📺', w: 'Schaue ich' }, completed: { e: '✅', w: 'Gesehen' } },
+};
+function stLabel(st) { const x = (MODE_STATUS[appMode] || MODE_STATUS.manga)[st]; return x ? x.e + ' ' + x.w : st; }
+function stWord(st)  { const x = (MODE_STATUS[appMode] || MODE_STATUS.manga)[st]; return x ? x.w : st; }
 const ST_CYCLE = { owned: 'reading', reading: 'completed', completed: 'owned' };
 
 function renderBandMgr() {
@@ -353,7 +361,7 @@ function renderBandMgr() {
     const tip = hasCov ? ('Cover ändern – aktuell: ' + cov) : ('Cover-URL für Band ' + nr + ' setzen');
     return `<div class="band-row">
       <span class="band-nr">Band ${nr}</span>
-      <button type="button" class="band-status-btn st-${st}" data-action="cycle-band" data-band-nr="${escapeHtml(nr)}">${ST_LABEL[st]}</button>
+      <button type="button" class="band-status-btn st-${st}" data-action="cycle-band" data-band-nr="${escapeHtml(nr)}">${stLabel(st)}</button>
       <button type="button" class="band-cover-btn${hasCov ? ' has-cover' : ''}" data-action="edit-band-cover" data-band-nr="${escapeHtml(nr)}" title="${tip.replace(/"/g,'&quot;')}">🖼️</button>
       <button type="button" class="band-remove-btn" data-action="remove-band" data-band-nr="${escapeHtml(nr)}" title="Entfernen">✕</button>
     </div>`;
@@ -881,6 +889,15 @@ function updateModeSwitch() {
   document.querySelectorAll('#mode-switch [data-mode]').forEach(btn => {
     btn.classList.toggle('active', btn.dataset.mode === appMode);
   });
+  // Phase 74: sichtbare Sammlungsstatus-Labels modusabhängig spiegeln — Tab-Pillen
+  // (Emoji + Wort) und Sidebar-Nav (nur Wort, Emoji liegt separat in .nav-ic). Reiner
+  // UI-Spiegel (liest appMode, schreibt nur DOM-Text), kein Zustandsschreiben (E4).
+  document.querySelectorAll('#tabs .tab-lbl[data-status]').forEach(el => {
+    el.textContent = stLabel(el.dataset.status);
+  });
+  document.querySelectorAll('.nav-lbl[data-status]').forEach(el => {
+    el.textContent = stWord(el.dataset.status);
+  });
 }
 
 function onSearch(val) {
@@ -1045,7 +1062,7 @@ function volumeRow(v) {
     <div class="vol-info">
       <div class="vol-title">${escapeHtml(v.title)}</div>
       <div class="vol-pub">${escapeHtml(v.pub || 'Unbekannt')}</div>
-      <div class="vol-status-pill st-${escapeHtml(status)}">${ST_LABEL[status] || escapeHtml(status)}</div>
+      <div class="vol-status-pill st-${escapeHtml(status)}">${stLabel(status) || escapeHtml(status)}</div>
       ${volumeActions({ ...v, _bandStatus: status })}
     </div>
   </div>`;
@@ -2109,7 +2126,7 @@ function buildSeriesMd(m) {
 
   const bandLines = Object.entries(m.bands || {})
     .sort((a, b) => Number(a[0]) - Number(b[0]))
-    .map(([nr, st]) => `- [[${sanitizeFilename(m.title)} Band ${nr}]] — ${ST_LABEL[st] || st}`)
+    .map(([nr, st]) => `- [[${sanitizeFilename(m.title)} Band ${nr}]] — ${stLabel(st) || st}`)
     .join('\n');
 
   const lines = [
@@ -2164,7 +2181,7 @@ function buildVolumeMd(m, bandNr, bandStatus) {
     `# ${m.title} Band ${nr}`,
     '',
     `**Serie:** [[${sanitizeFilename(m.title)}]]`,
-    `**Status:** ${ST_LABEL[bandStatus] || bandStatus}`,
+    `**Status:** ${stLabel(bandStatus) || bandStatus}`,
   ].join('\n');
 }
 
@@ -2935,7 +2952,7 @@ function setBandStatus(id, bandNr, status, e) {
   persist();
   maybeSeedCatalogFromCollection(m);
   render();
-  toast(`✅ Band ${nr} von „${m.title}" ist jetzt „${ST_LABEL[status] || status}"`);
+  toast(`✅ Band ${nr} von „${m.title}" ist jetzt „${stLabel(status) || status}"`);
 }
 // ─── Toast ───────────────────────────────────────────────────────────────
 function toast(msg) {

@@ -39,10 +39,10 @@
     </button>
     <div class="nav-group-label">Schnellzugriff</div>
     <button class="nav-item" data-action="set-tab" data-tab="reading">
-      <span class="nav-ic">📖</span><span>Lese ich</span><span class="nav-count" id="nav-c-reading">0</span>
+      <span class="nav-ic">📖</span><span class="nav-lbl" data-status="reading">Lese ich</span><span class="nav-count" id="nav-c-reading">0</span>
     </button>
     <button class="nav-item" data-action="set-tab" data-tab="owned">
-      <span class="nav-ic">📚</span><span>Zu lesen</span><span class="nav-count" id="nav-c-owned">0</span>
+      <span class="nav-ic">📚</span><span class="nav-lbl" data-status="owned">Zu lesen</span><span class="nav-count" id="nav-c-owned">0</span>
     </button>
     <button class="nav-item" data-action="set-tab" data-tab="wishlist">
       <span class="nav-ic">💜</span><span>Wunschliste</span><span class="nav-count" id="nav-c-wishlist">0</span>
@@ -95,9 +95,9 @@
       </div>
 
       <div class="tabs segmented" id="tabs">
-        <div class="tab active" data-tab="reading">📖 Lese ich <span class="badge" id="c-reading">0</span></div>
-        <div class="tab" data-tab="completed">✅ Gelesen <span class="badge" id="c-completed">0</span></div>
-        <div class="tab" data-tab="owned">📚 Zu lesen <span class="badge" id="c-owned">0</span></div>
+        <div class="tab active" data-tab="reading"><span class="tab-lbl" data-status="reading">📖 Lese ich</span> <span class="badge" id="c-reading">0</span></div>
+        <div class="tab" data-tab="completed"><span class="tab-lbl" data-status="completed">✅ Gelesen</span> <span class="badge" id="c-completed">0</span></div>
+        <div class="tab" data-tab="owned"><span class="tab-lbl" data-status="owned">📚 Zu lesen</span> <span class="badge" id="c-owned">0</span></div>
         <div class="tab" data-tab="wishlist">💜 Wunschliste <span class="badge" id="c-wishlist">0</span></div>
         <div class="tab" data-tab="buy">🛒 Zu kaufen <span class="badge" id="c-buy">0</span></div>
       </div>
