@@ -99,12 +99,18 @@ const SYNTAX_FILES = [
   'scripts/test-ci-race-volume-count-fix.js',
   'scripts/test-consistency-grace-window.js',
   'scripts/test-anilist-provider.js',
+  'scripts/tmdb-provider.js',
+  'scripts/update-tmdb-catalog.js',
+  'scripts/validate-tmdb-watchlist.js',
+  'scripts/validate-tmdb-series-catalog.js',
+  'scripts/test-tmdb-provider.js',
   // Playwright-Suiten laufen mangels Browser nicht in RUN_CHECKS. Sie werden hier
   // aber syntax-geprueft — sonst rottet genau der Code still vor sich hin, den in
   // CI nie etwas ausfuehrt.
   'scripts/test-phase73-browser-integration.js',
   'scripts/test-phase73-tester-xss-followup.js',
   'scripts/test-phase74-browser-integration.js',
+  'scripts/test-phase75-browser-integration.js',
   'sw.js',
   'src/sw-register.js',
 ];
@@ -141,6 +147,9 @@ const RUN_CHECKS = [
   { label: 'CI-Race volume-count fix tests (Phase 70)', cmd: 'node', cmdArgs: ['scripts/test-ci-race-volume-count-fix.js'] },
   { label: 'Consistency grace-window tests (Phase 71)', cmd: 'node', cmdArgs: ['scripts/test-consistency-grace-window.js'] },
   { label: 'AniList provider tests (Phase 73)',     cmd: 'node', cmdArgs: ['scripts/test-anilist-provider.js'] },
+  { label: 'Validate TMDB watchlist',               cmd: 'node', cmdArgs: ['scripts/validate-tmdb-watchlist.js'] },
+  { label: 'Validate TMDB series catalog',          cmd: 'node', cmdArgs: ['scripts/validate-tmdb-series-catalog.js'] },
+  { label: 'TMDB provider tests (Phase 75)',        cmd: 'node', cmdArgs: ['scripts/test-tmdb-provider.js'] },
   { label: 'Auto-merge gate tests',                 cmd: 'node', cmdArgs: ['scripts/test-automerge-gate.js'] },
   { label: 'Intake auto-merge gate tests',          cmd: 'node', cmdArgs: ['scripts/test-intake-automerge-gate.js'] },
   { label: 'Security audit (static)',               cmd: 'node', cmdArgs: ['scripts/security-audit-static.js'] },

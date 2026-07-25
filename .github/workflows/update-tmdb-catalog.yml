@@ -1,0 +1,99 @@
+name: Update TMDB Series Catalog
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '23 4 * * *'
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: update-tmdb-catalog
+  cancel-in-progress: false
+
+jobs:
+  update-tmdb-catalog:
+    runs-on: ubuntu-latest
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+      TMDB_API_KEY: ${{ secrets.TMDB_API_KEY }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+
+      - name: Check Phase 75 syntax
+        run: |
+          node --check scripts/tmdb-provider.js
+          node --check scripts/update-tmdb-catalog.js
+          node --check scripts/validate-tmdb-watchlist.js
+          node --check scripts/validate-tmdb-series-catalog.js
+          node --check scripts/test-tmdb-provider.js
+
+      - name: Fail fast if TMDB_API_KEY missing
+        run: |
+          if [ -z "$TMDB_API_KEY" ]; then
+            echo "::error::Phase 75 requires the TMDB_API_KEY secret."
+            exit 1
+          fi
+
+      - name: Run TMDB catalog pipeline
+        run: node scripts/update-tmdb-catalog.js
+
+      - name: Validate Phase 75 artifacts and gates
+        run: |
+          node scripts/validate-tmdb-watchlist.js
+          node scripts/validate-tmdb-series-catalog.js
+          node scripts/test-tmdb-provider.js
+          node scripts/test-public-private-diff.js
+          node scripts/check-secrets.js
+          node scripts/security-audit-static.js
+          git diff --check
+
+      - name: Detect catalog changes
+        id: changes
+        shell: bash
+        run: |
+          if git diff --quiet -- data/tmdb-series-catalog.json; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "No tmdb-series-catalog changes detected."
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            git diff --stat -- data/tmdb-series-catalog.json
+          fi
+
+      - name: Prepare Phase 75 PR body
+        if: steps.changes.outputs.changed == 'true'
+        shell: bash
+        run: |
+          node <<'NODE' > "$RUNNER_TEMP/tmdb-catalog-pr-body.md"
+          const fs = require('fs');
+          const catalog = JSON.parse(fs.readFileSync('data/tmdb-series-catalog.json', 'utf8'));
+          console.log('## Phase 75 TMDB Series Catalog Update');
+          console.log('');
+          console.log(`- Generated at: ${catalog.generatedAt}`);
+          console.log(`- Series in catalog: ${catalog.items.length}`);
+          console.log('');
+          console.log('Only public, sanitized TMDB metadata (title, network, episode/season counts, cover, genres, overview) is written. No API key, no raw TMDB response, no private collection data is part of this PR.');
+          NODE
+
+      - name: Create TMDB catalog PR
+        if: steps.changes.outputs.changed == 'true'
+        uses: peter-evans/create-pull-request@v8
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "chore: update tmdb series catalog"
+          branch: automated/tmdb-series-catalog
+          delete-branch: true
+          title: "chore: update tmdb series catalog"
+          body-path: ${{ runner.temp }}/tmdb-catalog-pr-body.md
+          labels: phase-75, tmdb-catalog, automated
+          add-paths: |
+            data/tmdb-series-catalog.json

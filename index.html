@@ -155,6 +155,8 @@
         <input id="f-title" type="text" placeholder="z.B. Fullmetal Alchemist">
         <!-- Phase 73: Einstieg in die AniList-Anime-Suche (nur im Hinzufügen-Kontext sichtbar) -->
         <button type="button" class="form-wide-action hidden" id="btn-anilist-search" data-action="open-anilist-search" title="Anime bei AniList suchen und übernehmen">🔍 Anime bei AniList suchen</button>
+        <!-- Phase 75: Einstieg in den TMDB-Serienkatalog (nur im Hinzufügen-Kontext, nur im Serien-Modus sichtbar) -->
+        <button type="button" class="form-wide-action hidden" id="btn-tmdb-search" data-action="open-tmdb-search" title="Realserie im TMDB-Katalog suchen und übernehmen">🔍 Serie im TMDB-Katalog suchen</button>
       </div>
       <div class="row2">
         <div class="form-group">
@@ -302,6 +304,31 @@
     </div>
     <div class="modal-footer">
       <button class="btn-full btn-cancel-full" data-action="close-anilist-search">Schließen</button>
+    </div>
+  </div>
+</div>
+
+<!-- TMDB-Such-Overlay (Phase 75) — nutzt dieselbe Modal-/Overlay-CSS wie das
+     AniList-Overlay, keine neuen Designprimitive. Anders als AniList findet hier
+     KEIN Netzzugriff statt: der Katalog (data/tmdb-series-catalog.json) ist beim
+     Öffnen bereits geladen, die Eingabe filtert nur clientseitig (siehe
+     filterTmdbResults()/renderTmdbResults()). Sichtbarkeit ausschließlich über
+     die Klasse `hidden` (siehe openTmdbSearch()/closeTmdbSearch()). -->
+<div class="overlay tmdb-overlay hidden" id="tmdb-overlay">
+  <div class="modal" id="tmdb-modal">
+    <div class="modal-header">
+      <h2>Serie im TMDB-Katalog suchen</h2>
+      <button class="close-btn" data-action="close-tmdb-search">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Titel</label>
+        <input id="tmdb-search-input" type="search" placeholder="z.B. Game of Thrones" autocomplete="off">
+      </div>
+      <div class="release-preview-body" id="tmdb-results"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-full btn-cancel-full" data-action="close-tmdb-search">Schließen</button>
     </div>
   </div>
 </div>
