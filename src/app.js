@@ -186,6 +186,63 @@ async function loadFromCloud() {
 const MEDIA_TYPES = ['manga', 'series', 'anime'];
 const SCHEMA_VERSION = 3;
 
+// ─── Phase 74: Anzeige-Modus Manga vs. Serien & Anime ─────────────────────
+// Der Modus ist eine reine ANZEIGESCHICHT (E1/E2): dieselbe db.m-Sammlung, nur
+// gefiltert. Es wird NICHTS getrennt gespeichert (Migration/Save/Import/Public
+// Projection/Delete/Dedup laufen weiter über das volle db.m).
+//
+// MODE_MEDIA_TYPES ordnet jeden MEDIA_TYPES-Eintrag genau EINEM Modus zu. Der
+// statische fail-closed Guard in smoke-test-static.js stellt sicher, dass kein
+// künftiger Medientyp unerreichbar wird (Analogon zum Phase-72-F4-Guard).
+const MODE_MEDIA_TYPES = { manga: ['manga'], series: ['series', 'anime'] };
+
+// E5 — zentrale Term-Mapping-Strategie statt verstreuter if/else. AUSSCHLIESSLICH
+// interne Konstanten (niemals Fremdtext wie m.title/genres/pub) → der Escaping-
+// Guard 73a/73b bleibt unberührt. Die Manga-Werte sind WORTGLEICH zu den heutigen
+// Strings (Nicht-Regressions-Anker).
+const MODE_TERMS = {
+  manga: {
+    volumeUnit:  'Bände',    // side-vol-total: „N Bände“
+    bandWord:    'Band',     // Kalender-/Kauf-Zeilen: „Band N“
+    bandSuffix:  'e',        // Plural: „Band“ → „Bande“ (bestehendes Verhalten)
+    buy:         'Zu kaufen',
+    toRead:      'Zu lesen',
+    publishers:  'Verlage',
+  },
+  series: {
+    volumeUnit:  'Folgen',
+    bandWord:    'Folge',
+    bandSuffix:  'n',        // „Folge“ → „Folgen“
+    buy:         'Zu kaufen',
+    toRead:      'Weiterschauen',
+    publishers:  'Anbieter',
+  },
+};
+
+// appMode ∈ 'manga' | 'series' ('series' bündelt Serien UND Anime). Persistenz
+// NUR in localStorage['mtMode'], Default 'manga'. KEIN Feld pro Eintrag. Der
+// tatsächliche Boot-Wert wird vor dem ersten render() aus localStorage gelesen
+// (initAppMode(), s. Init-Block ganz unten).
+let appMode = 'manga';
+
+// Ein Eintrag ohne mediaType zählt als Manga (|| 'manga') — deckt Alt-/Fremddaten.
+function inActiveMode(m) {
+  return MODE_MEDIA_TYPES[appMode].includes((m && m.mediaType) || 'manga');
+}
+
+// E1 — DER zentrale Accessor. ALLE Anzeige-/Zählpfade rechnen hierüber statt
+// direkt über db.m. Die Datenschicht bleibt bewusst am vollen db.m.
+function mediaModeItems() {
+  return db.m.filter(inActiveMode);
+}
+
+// Liefert das modusabhängige Label für `key` (reine Konstante). Fällt für
+// unbekannte Keys auf den Manga-Wert zurück (Nicht-Regressions-sicher).
+function term(key) {
+  const t = MODE_TERMS[appMode] || MODE_TERMS.manga;
+  return (key in t) ? t[key] : (MODE_TERMS.manga[key] || '');
+}
+
 // ─── Migration: owned/current/status → bands ──────────────────────────────
 // Boot-Phase: ein einziger persist() am Ende statt ~58 (Migration + Seeds)
 const bootDataBefore = JSON.stringify(db);
@@ -280,7 +337,19 @@ function mCollectionStatus(m) {
 // ─── Modal Band-Manager state ──────────────────────────────────────────────
 let modalBands = {};
 let modalBandCovers = {};
-const ST_LABEL = { owned: '📚 Zu lesen', reading: '📖 Lese ich', completed: '✅ Gelesen' };
+// Phase 74: Sammlungsstatus-Labels modusabhängig. Manga-Werte wortgleich zum bisherigen
+// ST_LABEL (Nicht-Regressions-Anker), Serien-Modus mit passenden Begriffen. stLabel() liefert
+// „Emoji Wort", stWord() nur das Wort (Sidebar-Nav hat Emoji separat in .nav-ic).
+const MODE_STATUS = {
+  manga:  { owned: { e: '📚', w: 'Zu lesen' },      reading: { e: '📖', w: 'Lese ich' },   completed: { e: '✅', w: 'Gelesen' } },
+  series: { owned: { e: '📺', w: 'Weiterschauen' }, reading: { e: '📺', w: 'Schaue ich' }, completed: { e: '✅', w: 'Gesehen' } },
+};
+// Fallback bewusst `undefined` (nicht der rohe Eingabewert): erhält die alte
+// ST_LABEL[x]-Semantik, damit die nachgelagerten `|| escapeHtml(...)`-Fallbacks an den
+// DOM-Sinks weiter greifen. Ein roher Rückgabewert würde diese Escaping-Fallbacks
+// aushebeln (manipulierter m.bands-Status → Markup-Injektion).
+function stLabel(st) { const x = (MODE_STATUS[appMode] || MODE_STATUS.manga)[st]; return x ? x.e + ' ' + x.w : undefined; }
+function stWord(st)  { const x = (MODE_STATUS[appMode] || MODE_STATUS.manga)[st]; return x ? x.w : undefined; }
 const ST_CYCLE = { owned: 'reading', reading: 'completed', completed: 'owned' };
 
 function renderBandMgr() {
@@ -296,7 +365,7 @@ function renderBandMgr() {
     const tip = hasCov ? ('Cover ändern – aktuell: ' + cov) : ('Cover-URL für Band ' + nr + ' setzen');
     return `<div class="band-row">
       <span class="band-nr">Band ${nr}</span>
-      <button type="button" class="band-status-btn st-${st}" data-action="cycle-band" data-band-nr="${escapeHtml(nr)}">${ST_LABEL[st]}</button>
+      <button type="button" class="band-status-btn st-${escapeHtml(st)}" data-action="cycle-band" data-band-nr="${escapeHtml(nr)}">${escapeHtml(stLabel(st) || st)}</button>
       <button type="button" class="band-cover-btn${hasCov ? ' has-cover' : ''}" data-action="edit-band-cover" data-band-nr="${escapeHtml(nr)}" title="${tip.replace(/"/g,'&quot;')}">🖼️</button>
       <button type="button" class="band-remove-btn" data-action="remove-band" data-band-nr="${escapeHtml(nr)}" title="Entfernen">✕</button>
     </div>`;
@@ -801,6 +870,40 @@ function setView(mode) {
   render();
 }
 
+// ─── Phase 74: Modus-Umschalter Manga ↔ Serien & Anime ─────────────────────
+// E4 — setMode() ist der EINZIGE Zustandsschreiber für appMode: validiert, setzt
+// die Variable + localStorage, reconciled den (nun modusabhängigen) Unterfilter
+// und rendert. updateModeSwitch() (weiter unten) spiegelt NUR die UI.
+function setMode(mode) {
+  if (!Object.prototype.hasOwnProperty.call(MODE_MEDIA_TYPES, mode)) return;
+  if (mode === appMode) return;
+  appMode = mode;
+  // Persistenz wie mtCollId: best effort, Fehler dürfen den Umschalter nicht brechen.
+  try { localStorage.setItem('mtMode', appMode); } catch (_) {}
+  // Unterfilter-Zustand VOR dem Rendern konsistent ziehen (idempotent; render()
+  // ruft reconcile ohnehin ganz oben nochmal auf).
+  reconcileMediaFilterState();
+  render();
+}
+
+// UI-Spiegel (E4): aktiven Button togglen. Der Umschalter ist IMMER sichtbar
+// (auch in Dashboard/Kalender, die Tabs/Toolbar ausblenden). Schreibt keinen
+// Zustand.
+function updateModeSwitch() {
+  document.querySelectorAll('#mode-switch [data-mode]').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.mode === appMode);
+  });
+  // Phase 74: sichtbare Sammlungsstatus-Labels modusabhängig spiegeln — Tab-Pillen
+  // (Emoji + Wort) und Sidebar-Nav (nur Wort, Emoji liegt separat in .nav-ic). Reiner
+  // UI-Spiegel (liest appMode, schreibt nur DOM-Text), kein Zustandsschreiben (E4).
+  document.querySelectorAll('#tabs .tab-lbl[data-status]').forEach(el => {
+    el.textContent = stLabel(el.dataset.status);
+  });
+  document.querySelectorAll('.nav-lbl[data-status]').forEach(el => {
+    el.textContent = stWord(el.dataset.status);
+  });
+}
+
 function onSearch(val) {
   searchQ = val.trim().toLowerCase();
   document.getElementById('search-clear').style.display = searchQ ? 'block' : 'none';
@@ -856,7 +959,8 @@ function compareBuyEntries(a, b, today) {
 
 function toBuyList() {
   const today = new Date(); today.setHours(0,0,0,0);
-  return db.m
+  // Phase 74: mode-scoped Quelle — propagiert in Buy-Tab, Badges, Dashboard.
+  return mediaModeItems()
     .filter(m => {
       const total = Number(m.total);
       const owned = mOwned(m);
@@ -903,7 +1007,8 @@ function bandStatus(m, bandNr) {
 
 function countBandStatuses() {
   const cnt = { owned: 0, reading: 0, completed: 0 };
-  db.m.forEach(m => {
+  // Phase 74: mode-scoped — Nav-/Tab-Zähler zeigen nur den aktiven Modus.
+  mediaModeItems().forEach(m => {
     Object.values(m.bands || {}).forEach(st => {
       if (cnt[st] !== undefined) cnt[st]++;
     });
@@ -935,13 +1040,13 @@ function volumeActions(v) {
   const band = escapeHtml(v._band);
   const buttons = [];
   if (v._bandStatus !== 'reading') {
-    buttons.push(`<button class="btn-xs btn-edit" data-action="set-band-status" data-manga-id="${id}" data-band-nr="${band}" data-status="reading">Lese ich</button>`);
+    buttons.push(`<button class="btn-xs btn-edit" data-action="set-band-status" data-manga-id="${id}" data-band-nr="${band}" data-status="reading">${stWord('reading')}</button>`);
   }
   if (v._bandStatus !== 'owned') {
-    buttons.push(`<button class="btn-xs btn-edit" data-action="set-band-status" data-manga-id="${id}" data-band-nr="${band}" data-status="owned">Zu lesen</button>`);
+    buttons.push(`<button class="btn-xs btn-edit" data-action="set-band-status" data-manga-id="${id}" data-band-nr="${band}" data-status="owned">${stWord('owned')}</button>`);
   }
   if (v._bandStatus !== 'completed') {
-    buttons.push(`<button class="btn-xs btn-buy" data-action="set-band-status" data-manga-id="${id}" data-band-nr="${band}" data-status="completed">Gelesen ✓</button>`);
+    buttons.push(`<button class="btn-xs btn-buy" data-action="set-band-status" data-manga-id="${id}" data-band-nr="${band}" data-status="completed">${stWord('completed')} ✓</button>`);
   }
   buttons.push(`<button class="btn-xs btn-edit" data-action="open-edit" data-manga-id="${id}">Bearbeiten</button>`);
   return `<div class="vol-actions">${buttons.join('')}</div>`;
@@ -961,7 +1066,7 @@ function volumeRow(v) {
     <div class="vol-info">
       <div class="vol-title">${escapeHtml(v.title)}</div>
       <div class="vol-pub">${escapeHtml(v.pub || 'Unbekannt')}</div>
-      <div class="vol-status-pill st-${escapeHtml(status)}">${ST_LABEL[status] || escapeHtml(status)}</div>
+      <div class="vol-status-pill st-${escapeHtml(status)}">${stLabel(status) || escapeHtml(status)}</div>
       ${volumeActions({ ...v, _bandStatus: status })}
     </div>
   </div>`;
@@ -970,8 +1075,8 @@ function volumeRow(v) {
 // Phase 52: Bändenansicht (☰) für reading/owned/completed — Phase-31-Verhalten.
 // Sichtbarkeit des Umschalters steuert updateViewToggleVisibility() zentral.
 function renderBandStatusList(status, el, hint) {
-  const all = bandEntriesForStatus(status, applyPubFilter(db.m));
-  const filtered = sortVolumeEntries(bandEntriesForStatus(status, applySearch(applyPubFilter(db.m))));
+  const all = bandEntriesForStatus(status, applyPubFilter(mediaModeItems()));
+  const filtered = sortVolumeEntries(bandEntriesForStatus(status, applySearch(applyPubFilter(mediaModeItems()))));
   if (searchQ) hint.textContent = `${filtered.length} von ${all.length} Band${all.length!==1?'e':''}`;
   else {
     const serienCount = new Set(all.map(v => v.id)).size;
@@ -1001,7 +1106,7 @@ function renderSeriesGrid(status, el, hint) {
   // Fix-Durchlauf 2 (F1): Reset-Zustand MUSS vor der Filterkette feststehen, sonst
   // rechnet applyMediaFilter() unten noch mit dem alten filterMedia.
   reconcileMediaFilterState();
-  const rawItems = applySort(applyGenreFilter(applyPubFilter(applyMediaFilter(db.m.filter(m => mSeriesStatus(m) === status)))));
+  const rawItems = applySort(applyGenreFilter(applyPubFilter(applyMediaFilter(mediaModeItems().filter(m => mSeriesStatus(m) === status)))));
   const items = applySearch(rawItems);
 
   if (searchQ) hint.textContent = `${items.length} von ${rawItems.length} Ergebnis${items.length!==1?'se':''}`;
@@ -1053,8 +1158,8 @@ function wishlistBandEntries(list) {
 }
 
 function renderWishlistVolumes(el, hint) {
-  const all = wishlistBandEntries(applyPubFilter(db.m));
-  const filtered = sortVolumeEntries(wishlistBandEntries(applySearch(applyPubFilter(db.m))));
+  const all = wishlistBandEntries(applyPubFilter(mediaModeItems()));
+  const filtered = sortVolumeEntries(wishlistBandEntries(applySearch(applyPubFilter(mediaModeItems()))));
   if (searchQ) hint.textContent = `${filtered.length} von ${all.length} Band${all.length!==1?'e':''}`;
   else {
     const serienCount = new Set(all.map(v => v.id)).size;
@@ -1331,41 +1436,46 @@ function renderDashboard() {
   updateGenreFilter();
   updateMediaFilter();
 
+  // Phase 74 (E1): Das Dashboard rechnet ausschließlich über die Modus-Teilmenge.
+  // Manga-Modus ist damit numerisch identisch zu vor Phase 74; Serien-Modus zeigt
+  // bei leerem Bestand Nullen/Empty-State statt Manga-Phantomzahlen.
+  const items = mediaModeItems();
+
   // Sammlung gesamt
-  const totalSeries  = db.m.length;
-  const totalVols    = db.m.reduce((s,m) => s + mOwned(m), 0);
-  const readingSeries = db.m.filter(m => mSeriesStatus(m) === 'reading').length;
+  const totalSeries  = items.length;
+  const totalVols    = items.reduce((s,m) => s + mOwned(m), 0);
+  const readingSeries = items.filter(m => mSeriesStatus(m) === 'reading').length;
   // Abgeschlossene BÄNDE (nicht Serien) — Status 'completed' im bands-Objekt
-  const completedVols = db.m.reduce((s,m) =>
+  const completedVols = items.reduce((s,m) =>
     s + Object.values(m.bands || {}).filter(v => v === 'completed').length, 0);
   const buyCount = toBuyList().length;
 
-  const startedYear = db.m.filter(m => m.startedAt && m.startedAt.startsWith(year)).length;
-  const finishedYear = db.m.filter(m => m.finishedAt && m.finishedAt.startsWith(year)).length;
+  const startedYear = items.filter(m => m.startedAt && m.startedAt.startsWith(year)).length;
+  const finishedYear = items.filter(m => m.finishedAt && m.finishedAt.startsWith(year)).length;
 
   // Monatliche Abschlüsse dieses Jahres
   const monthCount = Array(12).fill(0);
-  db.m.forEach(m => { if (m.finishedAt?.startsWith(year)) monthCount[new Date(m.finishedAt+'T00:00:00').getMonth()]++; });
+  items.forEach(m => { if (m.finishedAt?.startsWith(year)) monthCount[new Date(m.finishedAt+'T00:00:00').getMonth()]++; });
   const maxMonth = Math.max(...monthCount, 1);
 
   // Publisher-Verteilung
   const pubMap = {};
-  db.m.forEach(m => { if (m.pub) pubMap[m.pub] = (pubMap[m.pub]||0)+1; });
+  items.forEach(m => { if (m.pub) pubMap[m.pub] = (pubMap[m.pub]||0)+1; });
   const pubEntries = Object.entries(pubMap).sort((a,b)=>b[1]-a[1]).slice(0,6);
   const maxPub = pubEntries[0]?.[1] || 1;
 
   // Genre-Verteilung
   const genreMap = {};
-  db.m.forEach(m => (m.genres||[]).forEach(g => { genreMap[g]=(genreMap[g]||0)+1; }));
+  items.forEach(m => (m.genres||[]).forEach(g => { genreMap[g]=(genreMap[g]||0)+1; }));
   const genreEntries = Object.entries(genreMap).sort((a,b)=>b[1]-a[1]).slice(0,8);
   const maxGenre = genreEntries[0]?.[1] || 1;
 
   // Phase 17a: Fehlende Bände, Fortschritt, Vollständigkeit
-  const totalKnown = db.m.reduce((s, m) => {
+  const totalKnown = items.reduce((s, m) => {
     const t = Number(m.total);
     return s + (isNaN(t) || t <= 0 ? 0 : t);
   }, 0);
-  const totalMissing = db.m.reduce((s, m) => {
+  const totalMissing = items.reduce((s, m) => {
     const t = Number(m.total);
     if (isNaN(t) || t <= 0) return s;
     return s + Math.max(0, t - mOwned(m));
@@ -1373,23 +1483,23 @@ function renderDashboard() {
   const buyProgress = totalKnown > 0
     ? Math.round((totalVols / totalKnown) * 100)
     : null;
-  const completeSeries = db.m.filter(m => {
+  const completeSeries = items.filter(m => {
     const t = Number(m.total);
     return !isNaN(t) && t > 0 && mFirstMissingBand(m) === null;
   }).length;
-  const seriesWithMissing = db.m.filter(m => {
+  const seriesWithMissing = items.filter(m => {
     const t = Number(m.total);
     return !isNaN(t) && t > 0 && mFirstMissingBand(m) !== null;
   }).length;
 
   // Phase 17a: Publikationsstatus
-  const ongoingCount  = db.m.filter(m => m.ongoing === 'true').length;
-  const finishedCount = db.m.filter(m => m.ongoing === 'false').length;
-  const unknownCount  = db.m.filter(m => m.ongoing !== 'true' && m.ongoing !== 'false').length;
+  const ongoingCount  = items.filter(m => m.ongoing === 'true').length;
+  const finishedCount = items.filter(m => m.ongoing === 'false').length;
+  const unknownCount  = items.filter(m => m.ongoing !== 'true' && m.ongoing !== 'false').length;
 
   // Phase 18b: Sammlungsstatus-Verteilung nach Bänden
   const statusCounts = { reading: 0, completed: 0, owned: 0, wishlist: 0 };
-  db.m.forEach(m => {
+  items.forEach(m => {
     if (m.status === 'wishlist') {
       // Wishlist-Serien: Anzahl Bände als Wishlist zählen, mindestens 1
       statusCounts.wishlist += Math.max(Object.keys(m.bands || {}).length, 1);
@@ -1432,9 +1542,9 @@ function renderDashboard() {
       }
     }
     return {
-      seriesWithNextDate: db.m.filter(m => !!m.nextDate).length,
+      seriesWithNextDate: items.filter(m => !!m.nextDate).length,
       upcoming30,
-      seriesWithReleaseIds: db.m.filter(m => !!m.isbn13 || (!!m.mpEditionId && m.mpEditionId !== 'none')).length,
+      seriesWithReleaseIds: items.filter(m => !!m.isbn13 || (!!m.mpEditionId && m.mpEditionId !== 'none')).length,
       itemCount: releaseCache.items.length,
       generatedAt: releaseCache.generatedAt || null,
       ageDays,
@@ -1464,7 +1574,7 @@ function renderDashboard() {
         <div class="stat-big-card"><div class="stat-big-n">${totalVols}</div><div class="stat-big-l">Bände besessen</div></div>
         <div class="stat-big-card"><div class="stat-big-n">${readingSeries}</div><div class="stat-big-l">Aktiv lesend</div></div>
         <div class="stat-big-card"><div class="stat-big-n">${completedVols}</div><div class="stat-big-l">Bände abgeschlossen</div></div>
-        <div class="stat-big-card"><div class="stat-big-n">${buyCount}</div><div class="stat-big-l">Zu kaufen</div></div>
+        <div class="stat-big-card"><div class="stat-big-n">${buyCount}</div><div class="stat-big-l">${term('buy')}</div></div>
         <div class="stat-big-card"><div class="stat-big-n">${totalMissing}</div><div class="stat-big-l">Fehlende Bände</div></div>
         <div class="stat-big-card"><div class="stat-big-n">${completeSeries}</div><div class="stat-big-l">Vollständig gesammelt</div></div>
         <div class="stat-big-card"><div class="stat-big-n">${seriesWithMissing}</div><div class="stat-big-l">Serien mit fehlenden Bänden</div></div>
@@ -1482,7 +1592,7 @@ function renderDashboard() {
 
     ${(() => {
       // Phase 55 (2A): Datenqualitäts-Block — Serien ohne gültige Bandanzahl
-      const gaps = seriesWithoutValidTotal(db.m);
+      const gaps = seriesWithoutValidTotal(items);
       if (!gaps.length) return '';
       const droppedCount = gaps.filter(g => g.droppedFromBuy).length;
       const rows = gaps.map(g => {
@@ -1519,7 +1629,7 @@ function renderDashboard() {
       <h3>Bände nach Sammlungsstatus</h3>
       <div class="bar-chart">
         <div class="bar-row">
-          <div class="bar-label">Zu lesen</div>
+          <div class="bar-label">${escapeHtml(term('toRead'))}</div>
           <div class="bar-track"><div class="bar-fill" data-style-width="${Math.round(statusCounts.owned/statusMax*100)}%"></div></div>
           <div class="bar-val">${statusCounts.owned}</div>
         </div>
@@ -1624,7 +1734,7 @@ function renderDashboard() {
     </div>
 
     ${pubEntries.length ? `<div class="stats-section">
-      <h3>Verlage</h3>
+      <h3>${term('publishers')}</h3>
       <div class="bar-chart">
         ${pubEntries.map(([p,n])=>`<div class="bar-row">
           <div class="bar-label">${escapeHtml(p)}</div>
@@ -1691,7 +1801,7 @@ function renderCoverReadout(m) {
 
 function updateGenreFilter() {
   const wrap = document.getElementById('genre-filter-wrap');
-  const usedGenres = [...new Set(db.m.flatMap(m => m.genres||[]))].sort();
+  const usedGenres = [...new Set(mediaModeItems().flatMap(m => m.genres||[]))].sort();
   if (!usedGenres.length || ['buy','kalender','dashboard'].includes(tab)) {
     wrap.style.display = 'none'; return;
   }
@@ -1730,7 +1840,7 @@ function setPubFilter(val) {
 function updatePubFilter() {
   const sel = document.getElementById('pub-filter');
   const cur = sel.value;
-  const pubs = [...new Set(db.m.map(m => m.pub).filter(Boolean))].sort((a,b) => a.localeCompare(b,'de'));
+  const pubs = [...new Set(mediaModeItems().map(m => m.pub).filter(Boolean))].sort((a,b) => a.localeCompare(b,'de'));
   sel.innerHTML = '<option value="">Alle Verlage</option>' +
     pubs.map(p => `<option value="${escapeHtml(p)}"${p===cur?' selected':''}>${escapeHtml(p)}</option>`).join('');
 }
@@ -1762,9 +1872,19 @@ function shouldShowMediaFilter(list) {
 // sichtbaren Filter, der das erklärt). updateMediaFilter() selbst schreibt keinen
 // Zustand mehr, nur noch reines UI-Spiegeln (Sichtbarkeit/Wert des <select>).
 function reconcileMediaFilterState() {
-  if (filterMedia && !shouldShowMediaFilter(db.m)) {
-    // Letzte Nicht-Manga-Serie gelöscht (o.ä.): Filter zurücksetzen, sonst zeigt die
-    // Bibliothek eine leere Liste, ohne dass ein sichtbarer Filter das erklärt.
+  // Phase 74: Der Modus ist die primäre Achse; der Medienfilter ist nur noch ein
+  // Serie/Anime-Unterfilter INNERHALB des Serien-Modus.
+  if (appMode !== 'series') {
+    // Manga-Modus kennt nur einen Typ → der Unterfilter ist nie aktiv.
+    filterMedia = '';
+    return;
+  }
+  // Serien-Modus: Unterfilter nur behalten, wenn sein Wert zum aktiven Modus gehört
+  // UND die Modus-Teilmenge mehr als einen Typ enthält. Sonst zurücksetzen — sonst
+  // zeigt die Bibliothek eine leere Liste, ohne dass ein sichtbarer Filter das erklärt
+  // (Stale-Wert z.B. nach Moduswechsel oder Löschen der letzten Anime-Serie).
+  if (filterMedia
+      && (!MODE_MEDIA_TYPES.series.includes(filterMedia) || !shouldShowMediaFilter(mediaModeItems()))) {
     filterMedia = '';
   }
 }
@@ -1772,7 +1892,10 @@ function reconcileMediaFilterState() {
 function updateMediaFilter() {
   const sel = document.getElementById('media-filter');
   if (!sel) return;
-  if (!shouldShowMediaFilter(db.m)) {
+  // Phase 74: Referenzbasis ist die Modus-Teilmenge. Im Manga-Modus enthält sie nur
+  // einen Typ → shouldShowMediaFilter() false → Filter versteckt. Im Serien-Modus
+  // nur relevant, wenn Serien UND Anime vorhanden sind.
+  if (!shouldShowMediaFilter(mediaModeItems())) {
     sel.classList.add('hidden');
     return;
   }
@@ -2007,7 +2130,7 @@ function buildSeriesMd(m) {
 
   const bandLines = Object.entries(m.bands || {})
     .sort((a, b) => Number(a[0]) - Number(b[0]))
-    .map(([nr, st]) => `- [[${sanitizeFilename(m.title)} Band ${nr}]] — ${ST_LABEL[st] || st}`)
+    .map(([nr, st]) => `- [[${sanitizeFilename(m.title)} Band ${nr}]] — ${stLabel(st) || st}`)
     .join('\n');
 
   const lines = [
@@ -2062,7 +2185,7 @@ function buildVolumeMd(m, bandNr, bandStatus) {
     `# ${m.title} Band ${nr}`,
     '',
     `**Serie:** [[${sanitizeFilename(m.title)}]]`,
-    `**Status:** ${ST_LABEL[bandStatus] || bandStatus}`,
+    `**Status:** ${stLabel(bandStatus) || bandStatus}`,
   ].join('\n');
 }
 
@@ -2194,14 +2317,20 @@ function shareManga(id, e) {
 function render() {
   const today = new Date(); today.setHours(0,0,0,0);
 
+  // Phase 74 (E4): Modus-/Unterfilter-Zustand GANZ OBEN reconcilen — vor jeder
+  // Zählung/Filterkette, damit alle Pfade denselben konsistenten Zustand sehen.
+  reconcileMediaFilterState();
+  // E1: alle Anzeige-/Zählpfade rechnen über die Modus-Teilmenge, nicht über db.m.
+  const modeItems = mediaModeItems();
+
   // counts (derived from bands)
   const cnt = { reading:0, completed:0, owned:0, wishlist:0 };
-  db.m.forEach(m => { const st = mSeriesStatus(m); if (cnt[st] !== undefined) cnt[st]++; });
+  modeItems.forEach(m => { const st = mSeriesStatus(m); if (cnt[st] !== undefined) cnt[st]++; });
   const bandCnt = countBandStatuses();
   const buyItems = toBuyList();
-  const wishItems = db.m.filter(m => mSeriesStatus(m) === 'wishlist');
+  const wishItems = modeItems.filter(m => mSeriesStatus(m) === 'wishlist');
   // Kalender: alle Serien mit nextDate die noch kommen oder jetzt erschienen sind
-  const kalItems = db.m.filter(m => m.nextDate).sort((a,b) => new Date(a.nextDate)-new Date(b.nextDate));
+  const kalItems = modeItems.filter(m => m.nextDate).sort((a,b) => new Date(a.nextDate)-new Date(b.nextDate));
   document.getElementById('c-reading').textContent = bandCnt.reading;
   document.getElementById('c-completed').textContent = cnt.completed;
   document.getElementById('c-owned').textContent = bandCnt.owned;
@@ -2210,11 +2339,11 @@ function render() {
   document.getElementById('c-kalender').textContent = kalItems.length;
   // Sidebar-Navigation (Redesign): Gesamt-/Schnellzugriff-Zähler
   const _setText = (id, val) => { const e = document.getElementById(id); if (e) e.textContent = val; };
-  _setText('nav-c-library', db.m.length);
+  _setText('nav-c-library', modeItems.length);
   _setText('nav-c-reading', bandCnt.reading);
   _setText('nav-c-owned', bandCnt.owned);
   _setText('nav-c-wishlist', wishItems.length);
-  _setText('side-vol-total', `${db.m.reduce((s, m) => s + mOwned(m), 0)} Bände`);
+  _setText('side-vol-total', `${modeItems.reduce((s, m) => s + mOwned(m), 0)} ${term('volumeUnit')}`);
 
   // search hint
   const hint = document.getElementById('search-hint');
@@ -2225,6 +2354,8 @@ function render() {
   updateViewToggleVisibility();
   // Phase 60: Umschalter-Buttons mit dem effektiven viewMode synchronisieren.
   syncViewToggleButtons();
+  // Phase 74: Modus-Umschalter-Buttons spiegeln (aktiver Modus). Reiner UI-Spiegel.
+  updateModeSwitch();
 
   if (tab === 'dashboard') { renderDashboard(); return; }
 
@@ -2263,7 +2394,7 @@ function render() {
           ${coverEl(m,'mini',next)}
           <div class="kal-info">
             <div class="kal-title">${escapeHtml(m.title)}</div>
-            <div class="kal-sub">Band ${next} · ${escapeHtml(m.pub||'Unbekannt')}</div>
+            <div class="kal-sub">${term('bandWord')} ${next} · ${escapeHtml(m.pub||'Unbekannt')}</div>
           </div>
         </div>`;
       });
@@ -2292,11 +2423,11 @@ function render() {
     const upcoming = filtered.filter(m => m.nextDate && new Date(m.nextDate+'T00:00:00') > today);
     let html = '';
     if (avail.length) {
-      html += `<div class="section-head">🟢 Jetzt erhältlich – ${avail.length} Band${avail.length>1?'e':''}</div>`;
+      html += `<div class="section-head">🟢 Jetzt erhältlich – ${avail.length} ${term('bandWord')}${avail.length>1?term('bandSuffix'):''}</div>`;
       html += `<div class="buy-list">${avail.map(m=>buyCard(m,true)).join('')}</div>`;
     }
     if (upcoming.length) {
-      html += `<div class="section-head">📅 Vorgemerkt – ${upcoming.length} Band${upcoming.length>1?'e':''}</div>`;
+      html += `<div class="section-head">📅 Vorgemerkt – ${upcoming.length} ${term('bandWord')}${upcoming.length>1?term('bandSuffix'):''}</div>`;
       html += `<div class="buy-list">${upcoming.map(m=>buyCard(m,false)).join('')}</div>`;
     }
     el.innerHTML = html;
@@ -2320,9 +2451,14 @@ function render() {
 
 // ─── Tabs ─────────────────────────────────────────────────────────────────
 const LIBRARY_TABS = ['reading', 'completed', 'owned', 'wishlist', 'buy'];
+// Phase 74: owned/buy sind modusabhängig (Getter → term() zur Nutzungszeit,
+// nicht bei Objekterzeugung). Manga-Modus liefert wortgleich die alten Labels.
 const TAB_TITLES = {
-  reading: 'Lese ich', completed: 'Gelesen', owned: 'Zu lesen',
-  wishlist: 'Wunschliste', buy: 'Zu kaufen', kalender: 'Kalender', dashboard: 'Dashboard',
+  reading: 'Lese ich', completed: 'Gelesen',
+  get owned() { return term('toRead'); },
+  wishlist: 'Wunschliste',
+  get buy() { return term('buy'); },
+  kalender: 'Kalender', dashboard: 'Dashboard',
 };
 function setTab(t) {
   tab = t;
@@ -2798,7 +2934,7 @@ function markBought(id, e) {
   maybeRunLocalReleaseCoverageCheck(m);
   maybeSeedCatalogFromCollection(m);
   render();
-  toast(`✅ Band ${nextBand} von „${m.title}" zu „Zu lesen" hinzugefügt`);
+  toast(`✅ Band ${nextBand} von „${m.title}" zu „${stWord('owned')}" hinzugefügt`);
 }
 
 function setBandStatus(id, bandNr, status, e) {
@@ -2820,7 +2956,7 @@ function setBandStatus(id, bandNr, status, e) {
   persist();
   maybeSeedCatalogFromCollection(m);
   render();
-  toast(`✅ Band ${nr} von „${m.title}" ist jetzt „${ST_LABEL[status] || status}"`);
+  toast(`✅ Band ${nr} von „${m.title}" ist jetzt „${stLabel(status) || status}"`);
 }
 // ─── Toast ───────────────────────────────────────────────────────────────
 function toast(msg) {
@@ -5126,6 +5262,9 @@ function bindDelegatedEvents() {
       case 'set-tab':
         setTab(target.dataset.tab);
         break;
+      case 'set-mode':
+        setMode(target.dataset.mode);
+        break;
       case 'open-edit':
         openEdit(target.dataset.mangaId, event);
         break;
@@ -5178,6 +5317,14 @@ bindDelegatedEvents();
 // Phase 51 (Etappe 7): strict gate — without a session, do not render cached data.
 const _bootLocked = isLocked();
 if (_bootLocked) { db = { m: [] }; }
+// Phase 74: Anzeige-Modus VOR dem ersten render() aus localStorage lesen und gegen
+// die bekannten Modi validieren (Fallback 'manga'). Strikt vor render(), sonst
+// würde der erste Frame mit dem falschen Modus rechnen (Boot-Edge-Case der Spec).
+(function initAppMode() {
+  let stored = null;
+  try { stored = localStorage.getItem('mtMode'); } catch (_) {}
+  appMode = Object.prototype.hasOwnProperty.call(MODE_MEDIA_TYPES, stored) ? stored : 'manga';
+})();
 // Phase 60: Standard-viewMode für den Start-Tab anwenden (Boot ruft render() direkt,
 // nicht setTab) — der Start-Tab 'reading' startet damit in der Bändenansicht.
 applyDefaultViewMode();

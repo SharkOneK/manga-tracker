@@ -371,7 +371,30 @@ const SESSION_KEY = 'sb-sssxiqtnkctvyghyrqff-auth-token';
     });
 
     // ── Test 8: Medienfilter bei gemischten mediaTypes + Genre-Filter (echtes DOM) ─
-    await runTest('Medienfilter (echtes DOM): Sichtbarkeit, Filterung und Zusammenspiel mit Genre-Filter/Suche', async () => {
+    //
+    // TESTER-ANPASSUNG (Phase 74, E3-Vertragswechsel): #media-filter ist seit Phase 74
+    // kein modusunabhaengiger Filter mehr, sondern ein Serie/Anime-UNTERFILTER, der nur
+    // INNERHALB des Serien-Modus lebt (spec.md Phase 74, E3). Der urspruengliche Phase-72-
+    // Test pruefte "Filter sichtbar sobald db.m > 1 Medientyp enthaelt" direkt im
+    // (impliziten) Default-Zustand — das ist der jetzt bewusst geaenderte alte Vertrag.
+    // Angepasst, NICHT aufgeweicht:
+    //   1. NEUE Assertion (staerker als vorher): im Manga-Modus bleibt der Filter IMMER
+    //      versteckt, selbst wenn die volle Sammlung (db.m) 3 Medientypen enthaelt — das
+    //      ist die gewollte Modus-Trennung, keine Rueckkehr des alten Phase-72-Bugs.
+    //   2. Die eigentliche Sichtbarkeits-/Filter-Pruefung laeuft jetzt im Serien-Modus
+    //      (dort lebt der Unterfilter) — inhaltlich dieselbe Pruefung wie vorher, nur mit
+    //      korrekter Referenzbasis mediaModeItems() statt db.m.
+    //   3. Genre-Filter-Zusammenspiel: unveraendert erhalten.
+    //   4. Regressionsschutz F1 (stale Filter + Datenschwund darf Bibliothek nicht leer
+    //      zeigen) bleibt ERHALTEN, nur im Modus-Modell neu verankert: statt "auf Manga
+    //      filtern" wird jetzt "die letzte Nicht-Serie (Anime) innerhalb des aktiven
+    //      Serien-Modus loeschen" geprueft — das ist die modus-analoge Fortsetzung
+    //      desselben Sachverhalts (vorher: Typwechsel auf 1 Typ -> Filter-Reset noetig).
+    //   5. Nicht-Regression Manga (oberstes Kriterium laut Tester-Auftrag): am Ende wird
+    //      explizit verifiziert, dass die Manga-Sammlung durch alle Serien-Modus-
+    //      Manipulationen unangetastet bleibt (neu, staerker als vorher — der alte Test
+    //      pruefte das nur indirekt ueber die "manga"-Filteroption, die es nicht mehr gibt).
+    await runTest('Medienfilter (echtes DOM, Phase-74-Vertrag): Sichtbarkeit im Serien-Modus, Filterung, Zusammenspiel mit Genre-Filter, Manga-Nicht-Regression', async () => {
       const context = await browser.newContext({ acceptDownloads: true });
       const page = await context.newPage();
       page.on('dialog', (d) => d.accept());
@@ -410,37 +433,46 @@ const SESSION_KEY = 'sb-sssxiqtnkctvyghyrqff-auth-token';
       await page.click('#vbtn-series');
       await page.waitForTimeout(300);
 
-      // BEFUND (reproduzierbar, siehe .pipeline/test-results.md für Details):
-      // shouldShowMediaFilter(db.m) ist hier nachweislich true (gemischte Sammlung aus
-      // manga/series/anime), aber #media-filter bleibt trotzdem unsichtbar. Ursache:
-      // updateMediaFilter() setzt im sichtbaren Zweig `sel.style.display = ''` — ein LEERER
-      // Inline-Style-Wert entfernt lediglich einen vorherigen Override, er UEBERSCHREIBT NICHT
-      // die CSS-Klasse `hidden` (`.hidden { display: none; }`), die #media-filter in index.html
-      // fest zugewiesen ist. Da nichts die Klasse `hidden` je entfernt, bleibt das Element
-      // dauerhaft display:none — das Feature ist in der Praxis nie sichtbar/bedienbar.
-      // Gegenprobe (siehe test-results.md): sel.classList.remove('hidden') macht das Element
-      // sofort sichtbar (computed display wechselt von 'none' zu 'block'), was die Ursache
-      // eindeutig auf die fehlende Klassenentfernung zurückführt.
+      // (1) NEU: Default ist Manga-Modus. Obwohl db.m 3 Medientypen enthaelt, muss der
+      // Unterfilter versteckt bleiben — mediaModeItems() im Manga-Modus enthaelt nur den
+      // einen Typ "manga". Das ist die gewollte E3-Modus-Trennung.
+      const hiddenInMangaMode = await page.evaluate(() => {
+        const sel = document.getElementById('media-filter');
+        return !sel || window.getComputedStyle(sel).display === 'none';
+      });
+      if (!hiddenInMangaMode) throw new Error('Manga-Modus: #media-filter muss versteckt sein, auch wenn db.m mehrere Medientypen enthaelt (E3-Modus-Trennung Phase 74)');
+
+      // In den Serien-Modus wechseln — dort lebt der Unterfilter jetzt (spec.md Phase 74, E3).
+      await page.click('#mode-switch [data-mode="series"]');
+      await page.waitForTimeout(250);
+
+      // BEFUND-CHECK (Phase-72-Regressionsschutz, jetzt auf mediaModeItems() bezogen):
+      // shouldShowMediaFilter(mediaModeItems()) ist hier true (Serien-Modus-Teilmenge
+      // enthaelt series+anime). Wenn updateMediaFilter() weiterhin classList nutzt (Fix aus
+      // Phase 72 Fix-Durchlauf 2), muss das Element jetzt sichtbar sein. Waere hier
+      // computed=none, waere entweder der alte style.display-Bug zurueckgekehrt, oder die
+      // Modus-Referenzbasis wurde nicht korrekt auf mediaModeItems() umgestellt.
       const diag = await page.evaluate(() => {
         const sel = document.getElementById('media-filter');
         return {
-          shouldShow: shouldShowMediaFilter(db.m),
-          tab, viewMode,
-          rawStyleDisplay: sel.style.display,
+          shouldShow: shouldShowMediaFilter(mediaModeItems()),
+          tab, viewMode, appMode,
           className: sel.className,
           computed: window.getComputedStyle(sel).display,
         };
       });
       if (diag.computed === 'none') {
         throw new Error(
-          'BUG gefunden: #media-filter bleibt unsichtbar (computed display=none), obwohl shouldShowMediaFilter(db.m)=' +
-          diag.shouldShow + ' (Tab=' + diag.tab + ', viewMode=' + diag.viewMode + '). ' +
-          'updateMediaFilter() setzt sel.style.display=' + JSON.stringify(diag.rawStyleDisplay) +
-          ' — das entfernt NICHT die CSS-Klasse "' + diag.className + '" (.hidden { display:none } in src/styles.css), ' +
-          'die #media-filter in index.html hart zugewiesen ist. Der Medienfilter ist dadurch in der echten App ' +
-          'niemals sichtbar/bedienbar, unabhaengig davon wie viele Medientypen die Sammlung enthaelt.'
+          'BUG gefunden: #media-filter bleibt im Serien-Modus unsichtbar (computed display=none), obwohl ' +
+          'shouldShowMediaFilter(mediaModeItems())=' + diag.shouldShow + ' (Tab=' + diag.tab + ', viewMode=' + diag.viewMode +
+          ', appMode=' + diag.appMode + '). Verdacht: alter Phase-72-Bug (style.display statt classList) ' +
+          'zurueckgekehrt, oder Referenzbasis nicht auf mediaModeItems() umgestellt. className=' + diag.className
         );
       }
+
+      // Es gibt bewusst keine "manga"-Option mehr im Serien-Unterfilter (E3).
+      const hasMangaOption = await page.evaluate(() => !!document.querySelector('#media-filter option[value="manga"]'));
+      if (hasMangaOption) throw new Error('#media-filter darf im Serien-Modus keine "manga"-Option mehr haben (E3-Vertrag)');
 
       // Filter auf "series" setzen -> nur Zqx Serie Testserie sichtbar
       await page.selectOption('#media-filter', 'series');
@@ -460,21 +492,29 @@ const SESSION_KEY = 'sb-sssxiqtnkctvyghyrqff-auth-token';
 
       // Genre-Filter zuruecksetzen. Der Medienfilter bleibt bewusst AKTIV auf "series" —
       // genau das ist der von der Reviewer-Review (F1) verlangte Edge Case: "Filter aktiv,
-      // dann letzte Nicht-Manga-Serie geloescht" (spec.md:99). Ein vorzeitiger Reset des
-      // Medienfilters wuerde den zu pruefenden Zustand nie erreichen (das war der Fehler im
-      // vorherigen Testlauf, den der Reviewer bemaengelt hat).
+      // dann letzte Nicht-Serie-im-Modus geloescht" (spec.md:99, jetzt modus-analog). Ein
+      // vorzeitiger Reset des Medienfilters wuerde den zu pruefenden Zustand nie erreichen.
       const allGenreChip = page.locator('[data-action="set-genre-filter"][data-genre=""]');
       if (await allGenreChip.count()) {
         await allGenreChip.click();
         await page.waitForTimeout(150);
       }
 
-      // Jetzt: letzte Nicht-Manga-Serien (series+anime) "loeschen", WAEHREND der Medienfilter
-      // noch aktiv auf "series" steht -> rawItems wuerde mit dem alten Filterwert leer sein,
-      // wenn der Reset (reconcileMediaFilterState()) nicht VOR der Filterkette laeuft.
+      // Zurueck auf "series" filtern (Genre-Reset kann den Filterwert nicht beeinflussen,
+      // aber wir stellen sicher, dass er wirklich noch aktiv ist).
+      await page.selectOption('#media-filter', 'series');
+      await page.waitForTimeout(150);
+
+      // (4) Regressionsschutz F1, modus-analog: letzte Anime-Serie loeschen, WAEHREND der
+      // Medienfilter noch aktiv auf "series" steht UND der Serien-Modus aktiv bleibt.
+      // mediaModeItems() im Serien-Modus enthaelt danach nur noch "series" (1 Typ) ->
+      // shouldShowMediaFilter() wird false -> reconcileMediaFilterState() MUSS filterMedia
+      // zuruecksetzen, BEVOR die Filterkette in renderSeriesGrid() laeuft — sonst waere die
+      // Bibliothek leer, obwohl die Serie weiterhin existiert (der urspruengliche F1-Bug,
+      // nur jetzt am Modus statt am rohen db.m verankert).
       await page.evaluate(() => {
         const raw = JSON.parse(localStorage.getItem('mtDE'));
-        raw.m = raw.m.filter((m) => m.mediaType === 'manga');
+        raw.m = raw.m.filter((m) => m.mediaType !== 'anime');
         localStorage.setItem('mtDE', JSON.stringify(raw));
         // db im Speicher direkt nachziehen und rendern (kein Reload noetig, echte App-Funktionen nutzen)
         db.m = raw.m;
@@ -482,30 +522,39 @@ const SESSION_KEY = 'sb-sssxiqtnkctvyghyrqff-auth-token';
       });
       await page.waitForTimeout(200);
 
-      // (a) Die Bibliothek zeigt die verbliebene Manga-Serie -- NICHT leer, obwohl der
-      // (jetzt veraltete) Medienfilter "series" sonst rawItems auf 0 Eintraege reduzieren
-      // wuerde. Das ist die eigentliche Regression aus F1: ohne den vorgezogenen Reset
-      // waere hier der Empty-State-Pfad sichtbar, obwohl Mangas existieren.
+      // (a) Die Bibliothek zeigt die verbliebene Serie -- NICHT leer, obwohl der (jetzt
+      // veraltete) Medienfilter "series" sonst rawItems auf 0 Eintraege reduzieren wuerde,
+      // wenn kein Reset stattfaende.
       const gridAfterDelete = await page.evaluate(() => document.getElementById('content').textContent);
-      if (!/Zqx Manga Testserie/.test(gridAfterDelete)) {
+      if (!/Zqx Serie Testserie/.test(gridAfterDelete)) {
         throw new Error(
-          'Nach Loeschen der letzten Nicht-Manga-Serie bei noch aktivem Medienfilter "series" muss die ' +
-          'verbliebene Manga-Serie "Zqx Manga Testserie" im Grid sichtbar sein -- die Bibliothek darf NICHT ' +
-          'leer erscheinen, obwohl Mangas vorhanden sind (spec.md:99, F1 aus dem Review). Grid: ' +
+          'Nach Loeschen der letzten Anime-Serie bei noch aktivem Medienfilter "series" (Serien-Modus) muss die ' +
+          'verbliebene Serie "Zqx Serie Testserie" im Grid sichtbar sein -- die Bibliothek darf NICHT leer ' +
+          'erscheinen, obwohl die Serie vorhanden ist (spec.md:99, F1 aus dem Review, modus-analog). Grid: ' +
           gridAfterDelete.slice(0, 300)
         );
       }
 
       // (b) filterMedia wurde von der Produktivlogik selbst zurueckgesetzt (nicht vom Test).
       const filterMediaResetValue = await page.evaluate(() => typeof filterMedia !== 'undefined' ? filterMedia : 'UNDEFINED');
-      if (filterMediaResetValue !== '') throw new Error('filterMedia sollte nach Verschwinden des Filters zurueckgesetzt sein ("" ), war: ' + JSON.stringify(filterMediaResetValue));
+      if (filterMediaResetValue !== '') throw new Error('filterMedia sollte nach Verschwinden des zweiten Typs zurueckgesetzt sein ("" ), war: ' + JSON.stringify(filterMediaResetValue));
 
-      // (c) das Select ist unsichtbar (nur noch ein Medientyp vorhanden).
+      // (c) das Select ist unsichtbar (Serien-Modus-Teilmenge hat nur noch einen Medientyp).
       const mediaFilterHiddenAfterDelete = await page.evaluate(() => {
         const sel = document.getElementById('media-filter');
         return !sel || window.getComputedStyle(sel).display === 'none';
       });
-      if (!mediaFilterHiddenAfterDelete) throw new Error('Nach Loeschen der letzten Nicht-Manga-Serie muss der Medienfilter wieder unsichtbar sein');
+      if (!mediaFilterHiddenAfterDelete) throw new Error('Nach Loeschen der letzten Anime-Serie muss der Medienfilter wieder unsichtbar sein');
+
+      // (5) Nicht-Regression Manga (oberstes Kriterium): all die obigen Serien-Modus-
+      // Manipulationen (Filter, Genre, Loeschen) duerfen die Manga-Sammlung nicht beruehren.
+      // Zurueck in den Manga-Modus wechseln und pruefen, dass die Manga-Serie unveraendert da ist.
+      await page.click('#mode-switch [data-mode="manga"]');
+      await page.waitForTimeout(200);
+      const mangaGridUnchanged = await page.evaluate(() => document.getElementById('content').textContent);
+      if (!/Zqx Manga Testserie/.test(mangaGridUnchanged)) {
+        throw new Error('Nicht-Regression verletzt: Manga-Sammlung wurde durch Serien-Modus-Unterfilter-Manipulationen veraendert. Grid: ' + mangaGridUnchanged.slice(0, 300));
+      }
 
       await context.close();
     });

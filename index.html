@@ -39,10 +39,10 @@
     </button>
     <div class="nav-group-label">Schnellzugriff</div>
     <button class="nav-item" data-action="set-tab" data-tab="reading">
-      <span class="nav-ic">📖</span><span>Lese ich</span><span class="nav-count" id="nav-c-reading">0</span>
+      <span class="nav-ic">📖</span><span class="nav-lbl" data-status="reading">Lese ich</span><span class="nav-count" id="nav-c-reading">0</span>
     </button>
     <button class="nav-item" data-action="set-tab" data-tab="owned">
-      <span class="nav-ic">📚</span><span>Zu lesen</span><span class="nav-count" id="nav-c-owned">0</span>
+      <span class="nav-ic">📚</span><span class="nav-lbl" data-status="owned">Zu lesen</span><span class="nav-count" id="nav-c-owned">0</span>
     </button>
     <button class="nav-item" data-action="set-tab" data-tab="wishlist">
       <span class="nav-ic">💜</span><span>Wunschliste</span><span class="nav-count" id="nav-c-wishlist">0</span>
@@ -85,10 +85,19 @@
         <span>🔒 <strong>Anmeldung erforderlich</strong> — melde dich unten links an, um deine Sammlung zu sehen</span>
       </div>
 
+      <!-- Phase 74: Top-Level-Modus-Umschalter (primäre Achse). Bewusst als eigene
+           Leiste in .main-inner OBERHALB von #tabs — nicht innerhalb #tabs/#toolbar,
+           die in Dashboard/Kalender ausgeblendet werden. Der Umschalter bleibt in
+           allen Tabs sichtbar. CSP-konform per Event-Delegation (data-action). -->
+      <div class="tabs segmented mode-switch" id="mode-switch" role="tablist" aria-label="Anzeige-Modus">
+        <div class="tab" data-action="set-mode" data-mode="manga">📚 Manga</div>
+        <div class="tab" data-action="set-mode" data-mode="series">🎬 Serien &amp; Anime</div>
+      </div>
+
       <div class="tabs segmented" id="tabs">
-        <div class="tab active" data-tab="reading">📖 Lese ich <span class="badge" id="c-reading">0</span></div>
-        <div class="tab" data-tab="completed">✅ Gelesen <span class="badge" id="c-completed">0</span></div>
-        <div class="tab" data-tab="owned">📚 Zu lesen <span class="badge" id="c-owned">0</span></div>
+        <div class="tab active" data-tab="reading"><span class="tab-lbl" data-status="reading">📖 Lese ich</span> <span class="badge" id="c-reading">0</span></div>
+        <div class="tab" data-tab="completed"><span class="tab-lbl" data-status="completed">✅ Gelesen</span> <span class="badge" id="c-completed">0</span></div>
+        <div class="tab" data-tab="owned"><span class="tab-lbl" data-status="owned">📚 Zu lesen</span> <span class="badge" id="c-owned">0</span></div>
         <div class="tab" data-tab="wishlist">💜 Wunschliste <span class="badge" id="c-wishlist">0</span></div>
         <div class="tab" data-tab="buy">🛒 Zu kaufen <span class="badge" id="c-buy">0</span></div>
       </div>
@@ -98,10 +107,11 @@
         <select class="sort-select" id="pub-filter" title="Verlag filtern">
           <option value="">Alle Verlage</option>
         </select>
-        <!-- Phase 72: nur sichtbar, solange die Sammlung mehr als einen Medientyp enthält (updateMediaFilter()) -->
-        <select class="sort-select hidden" id="media-filter" title="Medientyp filtern">
-          <option value="">Alle Medientypen</option>
-          <option value="manga">Manga</option>
+        <!-- Phase 72/74: Serie/Anime-Unterfilter INNERHALB des Serien-Modus. Nur sichtbar,
+             wenn die Modus-Teilmenge mehr als einen Typ enthält (updateMediaFilter() über
+             mediaModeItems()). Im Manga-Modus immer versteckt — daher keine „Manga“-Option. -->
+        <select class="sort-select hidden" id="media-filter" title="Serie/Anime filtern">
+          <option value="">Alle</option>
           <option value="series">Serie</option>
           <option value="anime">Anime</option>
         </select>
