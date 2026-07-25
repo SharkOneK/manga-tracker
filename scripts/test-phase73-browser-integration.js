@@ -270,15 +270,41 @@ async function openSearchAndQuery(page, q) {
     });
 
     // ── Test 19: Medienfilter aus Phase 72 wird nach dem Import real sichtbar ─
-    await runTest('Nach dem Anime-Import ist der Medienfilter (Phase 72) sichtbar und filtert Anime korrekt', async () => {
+    //
+    // TESTER-ANPASSUNG (Phase 74, E3-Vertragswechsel): #media-filter ist seit Phase 74
+    // ein Serie/Anime-UNTERFILTER, der nur INNERHALB des Serien-Modus lebt (spec.md
+    // Phase 74, E3), statt modusunabhaengig auf dem vollen db.m zu pruefen. Angepasst,
+    // NICHT aufgeweicht:
+    //   1. Seed enthaelt jetzt zusaetzlich einen VORAB vorhandenen "series"-Eintrag,
+    //      weil AniList-Import in dieser Suite ausschliesslich mediaType "anime"
+    //      erzeugt — ohne einen zweiten Serien-Modus-Typ koennte die Sichtbarkeits-
+    //      pruefung (>1 Typ IN DER MODUS-TEILMENGE) nach dem Import gar nicht auftreten.
+    //   2. Kontrollzustand vorher: NICHT mehr "Manga-Modus vor Import" (der ist wegen der
+    //      Modus-Trennung IMMER versteckt, das waere keine echte Pruefung mehr), sondern
+    //      "Serien-Modus vor Import", wo die Teilmenge nur den vorab vorhandenen
+    //      "series"-Eintrag enthaelt (1 Typ) — das ist die modus-analoge Fortsetzung des
+    //      urspruenglichen Kontrollzustands.
+    //   3. Nach dem Import: Serien-Modus-Teilmenge enthaelt jetzt series+anime (2 Typen)
+    //      -> Filter muss sichtbar werden. Referenzbasis ist jetzt mediaModeItems() statt
+    //      db.m — inhaltlich dieselbe Pruefung, nur korrekt modus-scoped.
+    //   4. Filterung "anime" unveraendert. "manga" als Filterwert existiert im Serien-
+    //      Unterfilter nicht mehr (E3) — durch "series" ersetzt (das ist jetzt der
+    //      komplementaere Wert innerhalb des Serien-Modus).
+    //   5. Nicht-Regression Manga (oberstes Kriterium): am Ende wird explizit geprueft,
+    //      dass die Manga-Serie durch Import/Filter-Manipulationen im Serien-Modus
+    //      unangetastet bleibt (neu, staerker als vorher).
+    await runTest('Nach dem Anime-Import ist der Medienfilter (Phase 72) im Serien-Modus sichtbar und filtert Anime korrekt (Phase-74-Vertrag)', async () => {
       const context = await browser.newContext();
       const page = await context.newPage();
       page.on('dialog', (d) => d.accept());
 
-      // Reine Manga-Sammlung vorher → Medienfilter MUSS zunaechst unsichtbar sein.
+      // Manga-Eintrag + ein vorab vorhandener "series"-Eintrag (siehe Begruendung oben).
       await seedPage(page, {
         schemaVersion: 3,
-        m: [{ id: 'zq1', title: 'Zqx Manga Testserie', pub: 'Panini', mediaType: 'manga', genres: ['Action'], bands: { 1: 'owned' }, status: 'owned' }],
+        m: [
+          { id: 'zq1', title: 'Zqx Manga Testserie', pub: 'Panini', mediaType: 'manga', genres: ['Action'], bands: { 1: 'owned' }, status: 'owned' },
+          { id: 'zq2', title: 'Zqx Serie Vorab', pub: 'Netflix', mediaType: 'series', genres: ['Drama'], bands: { 1: 'owned' }, status: 'owned' },
+        ],
       });
       await routeAniList(page, async (route) => {
         await route.fulfill({ status: 200, contentType: 'application/json', body: anilistBody([media({ title: { english: 'Zqx Anime Import', romaji: null, native: null } })]) });
@@ -286,13 +312,18 @@ async function openSearchAndQuery(page, q) {
 
       await page.goto(base, { waitUntil: 'load' });
       await page.waitForTimeout(500);
+
+      // In den Serien-Modus wechseln — dort lebt der Unterfilter (spec.md Phase 74, E3).
+      await page.click('#mode-switch [data-mode="series"]');
+      await page.waitForTimeout(200);
       await page.click('.tab[data-tab="owned"]');
       await page.waitForTimeout(150);
       await page.click('#vbtn-series'); // Medienfilter haengt nur in der Serienansicht
       await page.waitForTimeout(250);
 
+      // Kontrollzustand: Serien-Modus-Teilmenge enthaelt vorher nur "series" (1 Typ) -> versteckt.
       const visibleBefore = await page.locator('#media-filter').isVisible();
-      if (visibleBefore) throw new Error('Kontrollzustand verletzt: Medienfilter darf vor dem Anime-Import (reine Manga-Sammlung) nicht sichtbar sein');
+      if (visibleBefore) throw new Error('Kontrollzustand verletzt: Medienfilter darf vor dem Anime-Import (Serien-Modus-Teilmenge nur "series") nicht sichtbar sein');
 
       await openSearchAndQuery(page, 'Zqx Anime Import');
       await page.waitForSelector('[data-action="anilist-import"]', { timeout: 5000 });
@@ -309,27 +340,40 @@ async function openSearchAndQuery(page, q) {
         const diag = await page.evaluate(() => {
           const sel = document.getElementById('media-filter');
           return {
-            shouldShow: shouldShowMediaFilter(db.m),
-            mediaTypes: Array.from(new Set(db.m.map((m) => m.mediaType || 'manga'))),
+            shouldShow: shouldShowMediaFilter(mediaModeItems()),
+            appMode,
+            mediaTypesInMode: Array.from(new Set(mediaModeItems().map((m) => m.mediaType || 'manga'))),
             className: sel && sel.className,
             computed: sel ? window.getComputedStyle(sel).display : 'MISSING',
           };
         });
-        throw new Error('Medienfilter ist nach dem Anime-Import unsichtbar, obwohl die Sammlung jetzt mehrere Medientypen enthaelt: ' + JSON.stringify(diag));
+        throw new Error('Medienfilter ist im Serien-Modus nach dem Anime-Import unsichtbar, obwohl die Modus-Teilmenge jetzt mehrere Medientypen enthaelt: ' + JSON.stringify(diag));
       }
+
+      // Es gibt bewusst keine "manga"-Option mehr im Serien-Unterfilter (E3).
+      const hasMangaOption = await page.evaluate(() => !!document.querySelector('#media-filter option[value="manga"]'));
+      if (hasMangaOption) throw new Error('#media-filter darf im Serien-Modus keine "manga"-Option mehr haben (E3-Vertrag)');
 
       // Und er filtert korrekt: "anime" → nur der importierte Eintrag
       await page.selectOption('#media-filter', 'anime');
       await page.waitForTimeout(300);
       const gridAnime = await page.evaluate(() => document.getElementById('content').textContent);
       if (!/Zqx Anime Import/.test(gridAnime)) throw new Error('Filter "anime" sollte den importierten Anime zeigen. Grid: ' + gridAnime.slice(0, 300));
-      if (/Zqx Manga Testserie/.test(gridAnime)) throw new Error('Filter "anime" darf die Manga-Serie nicht zeigen. Grid: ' + gridAnime.slice(0, 300));
+      if (/Zqx Serie Vorab/.test(gridAnime) || /Zqx Manga Testserie/.test(gridAnime)) throw new Error('Filter "anime" darf weder die Serie noch die Manga-Serie zeigen. Grid: ' + gridAnime.slice(0, 300));
 
-      await page.selectOption('#media-filter', 'manga');
+      // Komplementaerer Wert im Serien-Unterfilter ist jetzt "series" (nicht mehr "manga").
+      await page.selectOption('#media-filter', 'series');
       await page.waitForTimeout(300);
-      const gridManga = await page.evaluate(() => document.getElementById('content').textContent);
-      if (!/Zqx Manga Testserie/.test(gridManga)) throw new Error('Filter "manga" sollte die Manga-Serie zeigen. Grid: ' + gridManga.slice(0, 300));
-      if (/Zqx Anime Import/.test(gridManga)) throw new Error('Filter "manga" darf den Anime nicht zeigen. Grid: ' + gridManga.slice(0, 300));
+      const gridSeries = await page.evaluate(() => document.getElementById('content').textContent);
+      if (!/Zqx Serie Vorab/.test(gridSeries)) throw new Error('Filter "series" sollte die vorab vorhandene Serie zeigen. Grid: ' + gridSeries.slice(0, 300));
+      if (/Zqx Anime Import/.test(gridSeries)) throw new Error('Filter "series" darf den importierten Anime nicht zeigen. Grid: ' + gridSeries.slice(0, 300));
+
+      // Nicht-Regression Manga (oberstes Kriterium): zurueck in den Manga-Modus wechseln,
+      // die Manga-Serie muss durch Import/Filter-Manipulationen im Serien-Modus unangetastet sein.
+      await page.click('#mode-switch [data-mode="manga"]');
+      await page.waitForTimeout(200);
+      const mangaGrid = await page.evaluate(() => document.getElementById('content').textContent);
+      if (!/Zqx Manga Testserie/.test(mangaGrid)) throw new Error('Nicht-Regression verletzt: Manga-Sammlung wurde durch Serien-Modus-Import/-Filter veraendert. Grid: ' + mangaGrid.slice(0, 300));
 
       await context.close();
     });
