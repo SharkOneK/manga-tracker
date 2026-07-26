@@ -96,6 +96,13 @@ const FORBIDDEN_PATTERNS = [
     new RegExp('sb' + '_secret_'),
     'sb_secret_... — Supabase Secret Key darf nicht committed werden',
   ],
+  [
+    // TMDB v3 API-Key: 32 Hex-Zeichen, kontextgebunden an "api_key=" (geringe
+    // False-Positive-Rate). Ein v4-Read-Token ist ein JWT und wird bereits über
+    // das eyJhbG...-Muster oben erfasst.
+    new RegExp('api_key=' + '[0-9a-f]{32}'),
+    'api_key=<32-hex> — potentieller TMDB-API-Key darf nicht committed werden',
+  ],
 ];
 
 const SCAN_EXTS = new Set(['.js', '.html', '.json', '.yml', '.yaml', '.md', '.txt']);

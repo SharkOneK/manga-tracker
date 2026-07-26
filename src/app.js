@@ -808,6 +808,174 @@ function importAniListMedia(index) {
   toast(`✅ „${entry.title}" als Anime hinzugefügt`);
 }
 
+// ─── TMDB (Realserien-Import, Phase 75) ──────────────────────────────────
+// Anders als AniList spricht der Client NIE mit TMDB direkt (E2/E3, spec.md
+// Phase 75): das TMDB-Rohmapping (Episoden-/Staffel-Mathematik) läuft
+// server-seitig in scripts/tmdb-provider.js (GitHub Actions, Key als Secret).
+// Der Client liest hier ausschließlich den fertigen, sanitisierten Katalog
+// (data/tmdb-series-catalog.json, read-only) und filtert clientseitig — kein
+// eigenes fetchImpl, kein Netzzugriff, kein Busy-Zustand nötig.
+let _tmdbSearchQuery = '';
+
+// UI-Spiegelung (liest Zustand, schreibt keinen). Jedes Feld stammt aus einer
+// fremden Quelle (TMDB) → ausschließlich über escapeHtml() bzw. safeHttpsUrl()
+// in den DOM — network landet im pub-Feld der Sammlung und ist ab Phase 75
+// erstmals fremdkontrolliert (siehe Escaping-Sweep in der Spec).
+function renderTmdbResults() {
+  const el = document.getElementById('tmdb-results');
+  if (!el) return;
+  if (tmdbCatalogStatus !== 'loaded' || !tmdbCatalog || !Array.isArray(tmdbCatalog.items)) {
+    const msg = tmdbCatalogStatus === 'not-loaded' ? 'Katalog wird geladen…' : 'TMDB-Katalog ist aktuell nicht verfügbar.';
+    el.innerHTML = `<div class="release-preview-empty">${escapeHtml(msg)}</div>`;
+    return;
+  }
+  const q = _tmdbSearchQuery.trim().toLowerCase();
+  const matches = tmdbCatalog.items
+    .map(function(record, idx) { return { record, idx }; })
+    .filter(function(entry) { return !q || String(entry.record.title || '').toLowerCase().includes(q); });
+
+  if (!matches.length) {
+    el.innerHTML = `<div class="release-preview-empty">${escapeHtml('Keine Treffer im TMDB-Katalog.')}</div>`;
+    return;
+  }
+  const items = matches.map(function(entry) {
+    const record = entry.record;
+    const cover = safeHttpsUrl(record.cover);
+    const ONGOING_LABEL = { true: 'läuft', false: 'abgeschlossen' };
+    const meta = [
+      record.network ? String(record.network) : null,
+      record.total !== null && record.total !== undefined ? `${record.total} Episoden` : 'Episodenzahl unbekannt',
+      ONGOING_LABEL[record.ongoing] || null,
+    ].filter(Boolean).join(' · ');
+    const genresText = Array.isArray(record.genres) && record.genres.length ? record.genres.join(', ') : '';
+    return `<div class="release-match-item">
+      <div class="anilist-hit">
+        ${cover ? `<img class="anilist-hit-cover" src="${escapeHtml(cover)}" alt="" data-remove-on-error>` : ''}
+        <div class="anilist-hit-text">
+          <div class="release-match-title">${escapeHtml(record.title)}</div>
+          <div class="release-match-source">${escapeHtml(meta)}</div>
+          ${genresText ? `<div class="release-match-source">${escapeHtml(genresText)}</div>` : ''}
+          ${record.overview ? `<div class="release-preview-small">${escapeHtml(record.overview)}</div>` : ''}
+        </div>
+      </div>
+      <button type="button" class="add-btn" data-action="tmdb-import" data-tmdb-index="${escapeHtml(entry.idx)}">＋ Übernehmen</button>
+    </div>`;
+  }).join('<hr class="release-match-separator">');
+  el.innerHTML = items;
+}
+
+function filterTmdbResults(query) {
+  _tmdbSearchQuery = String(query || '');
+  renderTmdbResults();
+}
+
+function openTmdbSearch() {
+  if (!canEditLocal()) {
+    toast('🔒 Öffentliche Ansicht – Änderungen sind deaktiviert.');
+    return;
+  }
+  const ov = document.getElementById('tmdb-overlay');
+  if (!ov) return;
+  _tmdbSearchQuery = '';
+  const input = document.getElementById('tmdb-search-input');
+  if (input) input.value = '';
+  renderTmdbResults();
+  // Sichtbarkeit über die Klasse, nicht über style.display (Lehre aus Phase 72).
+  ov.classList.remove('hidden');
+  setTimeout(function() {
+    const i = document.getElementById('tmdb-search-input');
+    if (i) i.focus();
+  }, 50);
+}
+
+function closeTmdbSearch() {
+  const ov = document.getElementById('tmdb-overlay');
+  if (ov) ov.classList.add('hidden');
+}
+
+function overlayClickTmdb(e) {
+  if (e.target === document.getElementById('tmdb-overlay')) closeTmdbSearch();
+}
+
+function findTmdbDuplicate(tmdbId) {
+  if (!Number.isFinite(Number(tmdbId))) return null;
+  return db.m.find(function(m) {
+    return m && m.externalIds && Number(m.externalIds.tmdbId) === Number(tmdbId);
+  }) || null;
+}
+
+// Katalogrecord → Sammlungseintrag. Reine Allowlist, KEIN {...record}-Spread:
+// overview wird bewusst NICHT persistiert (nur im Browse-Overlay gezeigt).
+// opts: { id, now, wishlist }
+function tmdbRecordToEntry(record, opts) {
+  if (!record || typeof record !== 'object') return null;
+  const o = opts || {};
+  const title = typeof record.title === 'string' ? record.title.trim() : '';
+  if (!title) return null;
+  const tmdbId = Number(record.tmdbId);
+  const total = Number.isFinite(Number(record.total)) ? Number(record.total) : null;
+  const ongoing = (record.ongoing === 'true' || record.ongoing === 'false') ? record.ongoing : null;
+  const genres = Array.isArray(record.genres) ? record.genres.filter(function(g) { return typeof g === 'string'; }) : [];
+  const seasons = (record.seasons && typeof record.seasons === 'object' && !Array.isArray(record.seasons))
+    ? Object.assign({}, record.seasons) : {};
+
+  return {
+    id: o.id || null,
+    title,
+    pub: record.network || '',
+    mediaType: 'series',
+    bands: {},                     // Import legt keine Lesestatus an, der Nutzer markiert selbst
+    bandCovers: {},
+    owned: 0,
+    status: o.wishlist ? 'wishlist' : 'owned',
+    current: null,
+    total,
+    ongoing,
+    nextDate: null,
+    cover: safeHttpsUrl(record.cover),
+    notes: '',
+    genres,
+    startedAt: null,
+    finishedAt: null,
+    at: Number.isFinite(Number(o.now)) ? Number(o.now) : Date.now(),
+    seasons,
+    externalIds: { tmdbId: Number.isFinite(tmdbId) ? tmdbId : null },
+  };
+}
+
+// Übernahme: schreibt den Eintrag DIREKT in db.m (analog importAniListMedia,
+// NICHT über doSave() — dieselbe Begründung: resolveProtectedGenres()/
+// resolveProtectedCover() lesen nur aus `existing`, das ein neuer Eintrag nicht hat).
+function importTmdbSeries(index) {
+  if (!canEditLocal()) {
+    toast('🔒 Öffentliche Ansicht – Änderungen sind deaktiviert.');
+    return;
+  }
+  const i = Number(index);
+  const record = (tmdbCatalog && Array.isArray(tmdbCatalog.items) && Number.isInteger(i)) ? tmdbCatalog.items[i] : null;
+  if (!record) { toast('⚠️ Treffer nicht mehr verfügbar — bitte Katalog erneut öffnen'); return; }
+  const dupe = findTmdbDuplicate(record.tmdbId);
+  if (dupe) { toast(`⚠️ „${dupe.title}" ist bereits in der Sammlung`); return; }
+  const entry = tmdbRecordToEntry(record, {
+    id: uid(),
+    now: Date.now(),
+    wishlist: tab === 'wishlist',
+  });
+  if (!entry) { toast('⚠️ Treffer ohne verwertbaren Titel — nicht übernommen'); return; }
+  // Ähnliche Titel nur warnen, nicht blocken: Staffeln/Reboots heißen absichtlich ähnlich.
+  const dupes = findDuplicates(entry.title);
+  if (dupes.length > 0) {
+    const names = dupes.map(function(d) { return `„${d.title}"`; }).join('\n');
+    if (!confirm(`⚠️ Ähnlicher Eintrag vorhanden:\n${names}\n\nTrotzdem hinzufügen?`)) return;
+  }
+  db.m.push(entry);
+  persist();
+  closeTmdbSearch();
+  closeModal();
+  render();
+  toast(`✅ „${entry.title}" als Serie hinzugefügt`);
+}
+
 // ─── State ────────────────────────────────────────────────────────────────
 let tab = 'reading';
 let editId = null;
@@ -827,6 +995,8 @@ let releaseVolumeCounts = null;       // Phase 43: read-only public DE volume co
 let releaseVolumeCountsStatus = 'not-loaded';
 let seriesPublicationStatus = null;   // Phase 57: read-only DE publication status (laufend/abgeschlossen)
 let seriesPublicationStatusState = 'not-loaded';
+let tmdbCatalog = null;          // Phase 75: read-only data/tmdb-series-catalog.json (Realserien-Katalog)
+let tmdbCatalogStatus = 'not-loaded'; // 'not-loaded' | 'loaded' | 'missing' | 'invalid'
 let _currentReleaseMatches = [];        // Zwischenspeicher für aktuelle Vorschau (Phase 15c)
 // Phase 44a-followup: Dashboard-Buttons "Alle Release-Daten prüfen",
 // "Alle Serien-Status prüfen" und "Cache-Coverage prüfen" entfernt.
@@ -2599,6 +2769,9 @@ function openAdd() {
   if (_btnRcAdd) _btnRcAdd.style.display = 'none';
   // Phase 73: AniList-Einstieg nur im Hinzufügen-Kontext (legt einen NEUEN Eintrag an).
   document.getElementById('btn-anilist-search')?.classList.remove('hidden');
+  // Phase 75: TMDB-Einstieg nur im Hinzufügen-Kontext UND nur im Serien-Modus
+  // (Realserien sind mediaType 'series', der im Manga-Modus nicht wählbar ist).
+  document.getElementById('btn-tmdb-search')?.classList.toggle('hidden', appMode !== 'series');
   document.getElementById('overlay').style.display = 'flex';
   setTimeout(() => document.getElementById('f-title').focus(), 50);
 }
@@ -2632,6 +2805,8 @@ function openEdit(id, e) {
   if (_btnRcEdit) { _btnRcEdit.style.display = 'block'; updateReleaseCacheButton(); }
   // Phase 73: im Bearbeiten-Kontext kein AniList-Einstieg (er würde einen neuen Eintrag anlegen).
   document.getElementById('btn-anilist-search')?.classList.add('hidden');
+  // Phase 75: im Bearbeiten-Kontext ebenfalls kein TMDB-Einstieg (derselbe Grund).
+  document.getElementById('btn-tmdb-search')?.classList.add('hidden');
   document.getElementById('overlay').style.display = 'flex';
 }
 
@@ -4037,6 +4212,33 @@ async function loadSeriesPublicationStatus() {
   }
 }
 
+// Phase 75: read-only TMDB-Serienkatalog (data/tmdb-series-catalog.json).
+// Der Client spricht NIE mit TMDB selbst — nur mit dieser committeten,
+// server-seitig sanitisierten Datei (E2/E3, spec.md Phase 75).
+function validateTmdbCatalogClient(doc) {
+  return !!doc && doc.schemaVersion === 1 && Array.isArray(doc.items)
+    && doc.items.every(item => item && typeof item === 'object'
+      && Number.isInteger(item.tmdbId) && item.tmdbId >= 1
+      && typeof item.title === 'string' && item.title.trim()
+      && item.seasons && typeof item.seasons === 'object' && !Array.isArray(item.seasons));
+}
+
+async function loadTmdbCatalog() {
+  try {
+    const data = await loadJsonReadOnly('./data/tmdb-series-catalog.json');
+    if (!validateTmdbCatalogClient(data)) throw new Error('invalid schema');
+    tmdbCatalog = data;
+    tmdbCatalogStatus = 'loaded';
+    console.info(`[Phase 75] tmdb-series-catalog.json geladen: ${data.items.length} Serie(n), Stand: ${data.generatedAt || 'unbekannt'}`);
+  } catch (e) {
+    tmdbCatalog = null;
+    // "invalid schema" (unser eigener Wurf) und SyntaxError (kaputtes JSON) → 'invalid';
+    // alles andere (Datei/Netz nicht erreichbar, HTTP-Fehler) → 'missing'.
+    tmdbCatalogStatus = (e instanceof SyntaxError || (e && e.message === 'invalid schema')) ? 'invalid' : 'missing';
+    console.warn('[Phase 75] tmdb-series-catalog.json nicht als Read-only-Index ladbar:', e.message);
+  }
+}
+
 function findPublicationStatusForSeries(m) {
   if (!seriesPublicationStatus || !Array.isArray(seriesPublicationStatus.items)) return null;
   const normT = normalizeReleaseTitle(m.title);
@@ -5156,6 +5358,11 @@ function bindStaticEvents() {
   document.getElementById('anilist-search-input')?.addEventListener('keydown', function(event) {
     if (event.key === 'Enter') runAniListSearch();
   });
+  // Phase 75: TMDB-Katalog ist bereits geladen (kein Netzzugriff nötig) — Suche filtert live.
+  document.getElementById('tmdb-overlay')?.addEventListener('click', overlayClickTmdb);
+  document.getElementById('tmdb-search-input')?.addEventListener('input', function(event) {
+    filterTmdbResults(event.target.value);
+  });
   document.getElementById('account-overlay')?.addEventListener('click', overlayClickAccount);
   document.getElementById('import-file-input')?.addEventListener('change', function(event) {
     handleImportFile(event.target);
@@ -5234,6 +5441,15 @@ function bindDelegatedEvents() {
         break;
       case 'anilist-import':
         importAniListMedia(target.dataset.anilistIndex);
+        break;
+      case 'open-tmdb-search':
+        openTmdbSearch();
+        break;
+      case 'close-tmdb-search':
+        closeTmdbSearch();
+        break;
+      case 'tmdb-import':
+        importTmdbSeries(target.dataset.tmdbIndex);
         break;
       case 'apply-release-updates':
         applySelectedReleaseUpdates();
@@ -5340,6 +5556,7 @@ loadReleaseCache().catch(e => console.warn('[Phase 15] Unerwarteter Ladefehler:'
 loadReleaseCoverageKnownData().catch(e => console.warn('[Phase 34] Release-System-Index nicht vollständig ladbar:', e));
 loadReleaseVolumeCounts().catch(e => console.warn('[Phase 43] Release-Volume-Counts nicht ladbar:', e));
 loadSeriesPublicationStatus().catch(e => console.warn('[Phase 57] Series-Publication-Status nicht ladbar:', e));
+loadTmdbCatalog().catch(e => console.warn('[Phase 75] TMDB-Katalog nicht ladbar:', e));
 if (_viewColl) {
   // Öffentliche Ansicht: fremde Sammlung laden (immer read-only)
   loadViewCollection();

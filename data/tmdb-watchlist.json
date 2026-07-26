@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "items": [
+    {
+      "tmdbId": 1399,
+      "title": "Game of Thrones",
+      "enabled": true,
+      "notes": "Phase 75 — initiale Watchlist, unkritischer Testfall (abgeschlossen, stabile Metadaten)."
+    },
+    {
+      "tmdbId": 1396,
+      "title": "Breaking Bad",
+      "enabled": true,
+      "notes": "Phase 75 — initiale Watchlist, unkritischer Testfall (abgeschlossen, stabile Metadaten)."
+    },
+    {
+      "tmdbId": 60625,
+      "title": "Rick and Morty",
+      "enabled": true,
+      "notes": "Phase 75 — initiale Watchlist, laufende Serie (ongoing-Ableitung)."
+    },
+    {
+      "tmdbId": 4607,
+      "title": "Sherlock",
+      "enabled": false,
+      "notes": "Phase 75 — bewusst deaktiviert, um den enabled-Filter des Runners abzudecken."
+    }
+  ],
+  "generatedAt": "2026-07-25T17:32:55.000Z"
+}

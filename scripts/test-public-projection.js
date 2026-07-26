@@ -233,6 +233,44 @@ console.log('\nPhase 27b - Public Projection/RLS Tests\n');
     assert.strictEqual(Object.prototype.hasOwnProperty.call(projection.m[0], 'anilistAiring'), false);
   });
 
+  // Phase 75: TMDB-Serieneinträge tragen private Rohdaten (externalIds.tmdbId).
+  // Diese duerfen NICHT in der Projektion landen; das Key-Set bleibt exakt wie
+  // bei Manga/Anime (E4) — keine neuen Public-Projection-Felder.
+  await runTest('buildPublicCollectionData: Serie mit externalIds.tmdbId laesst externalIds draussen, Key-Set unveraendert (E4)', function() {
+    const buildPublicCollectionData = loadPublicProjectionHelpers();
+    const input = {
+      schemaVersion: 3,
+      m: [{
+        id: 'tv1',
+        title: 'Game of Thrones',
+        pub: 'HBO',
+        bands: {},
+        total: 73,
+        ongoing: 'false',
+        nextDate: null,
+        cover: 'https://image.tmdb.org/t/p/w500/x.jpg',
+        bandCovers: {},
+        genres: ['Drama', 'Fantasy'],
+        status: 'owned',
+        mediaType: 'series',
+        seasons: { 1: 1, 2: 1 },
+        externalIds: { tmdbId: 1399 },
+      }],
+    };
+
+    const projection = buildPublicCollectionData(input);
+    // Exakt dasselbe Key-Set wie fuer Manga/Anime — E4: keine neuen Felder in der Projektion.
+    assert.deepStrictEqual(Object.keys(projection.m[0]).sort(), [
+      'bandCovers', 'bands', 'cover', 'genres', 'id', 'mediaType', 'nextDate',
+      'ongoing', 'pub', 'seasons', 'status', 'title', 'total',
+    ].sort());
+    assert.strictEqual(Object.prototype.hasOwnProperty.call(projection.m[0], 'externalIds'), false);
+    assert.strictEqual(projection.m[0].mediaType, 'series');
+    assert.strictEqual(projection.m[0].pub, 'HBO');
+    assert.strictEqual(projection.m[0].total, 73);
+    assert.deepStrictEqual(projection.m[0].seasons, { 1: 1, 2: 1 });
+  });
+
   await runTest('buildPublicCollectionData: schemaVersion-Fallback ohne Input ist 3', function() {
     const buildPublicCollectionData = loadPublicProjectionHelpers();
     const input = { m: [{ id: 'm4', title: 'Ohne schemaVersion', bands: {} }] };

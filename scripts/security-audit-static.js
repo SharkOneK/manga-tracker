@@ -1114,6 +1114,58 @@ if (!appJs) {
   }
 }
 
+// ── Check 75a: Client bleibt TMDB-key-frei/direktabfragefrei (E2) ─────────
+if (!html) {
+  fail('Check 75a: index.html nicht gefunden (connect-src TMDB-Prüfung nicht möglich)');
+} else {
+  const connectSrcValue = getCspDirective('connect-src');
+  if (/themoviedb|tmdb|image\.tmdb\.org/i.test(connectSrcValue)) {
+    fail('Check 75a: connect-src enthält TMDB (themoviedb/tmdb/image.tmdb.org) — der Client darf TMDB nie direkt ansprechen (E2)');
+  } else {
+    pass('Check 75a: connect-src enthält kein TMDB — Client bleibt key-frei/direktabfragefrei');
+  }
+}
+
+// ── Check 75b: TMDB-Workflow/Katalog-Daten lecken keinen Key, minimale Trigger ──
+const tmdbCatalogJson = readFile('data/tmdb-series-catalog.json');
+const tmdbWatchlistJson = readFile('data/tmdb-watchlist.json');
+const tmdbWorkflowYml = readFile('.github/workflows/update-tmdb-catalog.yml');
+const API_KEY_LEAK_RE = /api_key\s*=\s*[^&"'\s]+/i;
+const BEARER_LEAK_RE = /Bearer\s+[A-Za-z0-9._-]{10,}/;
+
+[
+  { label: 'data/tmdb-series-catalog.json', content: tmdbCatalogJson },
+  { label: 'data/tmdb-watchlist.json', content: tmdbWatchlistJson },
+  { label: '.github/workflows/update-tmdb-catalog.yml', content: tmdbWorkflowYml },
+].forEach(function(f) {
+  if (!f.content) {
+    fail('Check 75b: ' + f.label + ' nicht gefunden');
+    return;
+  }
+  if (API_KEY_LEAK_RE.test(f.content) || BEARER_LEAK_RE.test(f.content)) {
+    fail('Check 75b: ' + f.label + ' enthält ein api_key=<wert>/Bearer-<token>-Muster — möglicher Key-Leak');
+  } else {
+    pass('Check 75b: ' + f.label + ' enthält kein api_key=<wert>/Bearer-<token>-Muster');
+  }
+});
+
+if (tmdbWorkflowYml) {
+  if (!tmdbWorkflowYml.includes('TMDB_API_KEY: ${{ secrets.TMDB_API_KEY }}')) {
+    fail('Check 75b: update-tmdb-catalog.yml referenziert TMDB_API_KEY nicht als ${{ secrets.TMDB_API_KEY }}');
+  } else if (/echo[^\n]*\$\{?TMDB_API_KEY\}?|cat[^\n]*\$\{?TMDB_API_KEY\}?/.test(tmdbWorkflowYml)) {
+    // Nur die tatsaechliche Variablenexpansion ($TMDB_API_KEY/${TMDB_API_KEY}) zaehlt
+    // als Leak-Risiko — der reine Bezeichner in einer Fehlermeldung (z. B. "requires
+    // the TMDB_API_KEY secret") ist kein Log-Leak und darf nicht faelschlich anschlagen.
+    fail('Check 75b: update-tmdb-catalog.yml gibt TMDB_API_KEY per echo/cat aus (Log-Leak-Risiko)');
+  } else if (!tmdbWorkflowYml.includes('workflow_dispatch')) {
+    fail('Check 75b: update-tmdb-catalog.yml enthält kein workflow_dispatch');
+  } else if (/^\s*push:/m.test(tmdbWorkflowYml)) {
+    fail('Check 75b: update-tmdb-catalog.yml hat einen push-Trigger — kein direkter Push auf main erlaubt');
+  } else {
+    pass('Check 75b: update-tmdb-catalog.yml referenziert den Key nur als Secret-Env, kein echo/cat, workflow_dispatch vorhanden, kein push-Trigger');
+  }
+}
+
 const passed = totalChecks - totalFailed - totalWarns;
 console.log('');
 if (totalWarns > 0) {
