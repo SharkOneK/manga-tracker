@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-27T07:59:32.585Z",
+  "generatedAt": "2026-07-28T07:09:01.111Z",
   "source": "run-release-volume-counts.js",
   "providerMode": "enabled",
   "policy": {
@@ -27,16 +27,25 @@
     "seriesInVolumeCounts": 48,
     "probeCandidates": 66,
     "checkedCandidates": 66,
-    "detectedChanges": 1,
-    "appliedHighConfidenceChanges": 1,
-    "blockedOrUnsafe": 87
+    "detectedChanges": 2,
+    "appliedHighConfidenceChanges": 2,
+    "blockedOrUnsafe": 86
   },
   "changes": [
     {
+      "seriesTitle": "Kagurabachi",
+      "publisher": "Carlsen Manga!",
+      "oldPublishedVolumesDE": 7,
+      "newPublishedVolumesDE": 8,
+      "source": "manga-passion",
+      "sourceUrl": "https://www.manga-passion.de/editions/5072",
+      "confidence": "high"
+    },
+    {
       "seriesTitle": "One Piece",
       "publisher": "Carlsen Manga!",
-      "oldPublishedVolumesDE": 50,
-      "newPublishedVolumesDE": 51,
+      "oldPublishedVolumesDE": 51,
+      "newPublishedVolumesDE": 52,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/87",
       "confidence": "high"
@@ -672,14 +681,6 @@
       "reasonCodes": [
         "missing-source-volume-number",
         "missing-release-date",
-        "not-yet-released"
-      ]
-    },
-    {
-      "seriesTitle": "Kagurabachi",
-      "publisher": "Carlsen Manga",
-      "volumeNumber": 8,
-      "reasonCodes": [
         "not-yet-released"
       ]
     },
@@ -1420,7 +1421,7 @@
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/5072",
       "confidence": "high",
-      "released": false,
+      "released": true,
       "reasonCodes": []
     },
     {
@@ -1518,7 +1519,7 @@
     {
       "seriesTitle": "One Piece",
       "publisher": "Carlsen Manga!",
-      "volumeNumber": 51,
+      "volumeNumber": 52,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/87",
       "confidence": "high",

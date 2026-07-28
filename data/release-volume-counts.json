@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-27T07:59:32.585Z",
+  "generatedAt": "2026-07-28T07:09:01.111Z",
   "items": [
     {
       "seriesTitle": "Adou",
@@ -193,12 +193,12 @@
     },
     {
       "seriesTitle": "Kagurabachi",
-      "publisher": "Carlsen Manga",
-      "publishedVolumesDE": 7,
-      "source": "carlsen-manga",
-      "sourceUrl": "https://www.carlsen.de",
+      "publisher": "Carlsen Manga!",
+      "publishedVolumesDE": 8,
+      "source": "manga-passion",
+      "sourceUrl": "https://www.manga-passion.de/editions/5072",
       "confidence": "high",
-      "checkedAt": "2026-05-16T12:00:00.000Z"
+      "checkedAt": "2026-07-28T07:09:01.111Z"
     },
     {
       "seriesTitle": "Kaiju No.8",
@@ -293,11 +293,11 @@
     {
       "seriesTitle": "One Piece",
       "publisher": "Carlsen Manga!",
-      "publishedVolumesDE": 51,
+      "publishedVolumesDE": 52,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/87",
       "confidence": "high",
-      "checkedAt": "2026-07-27T07:59:32.585Z"
+      "checkedAt": "2026-07-28T07:09:01.111Z"
     },
     {
       "seriesTitle": "Real Account",
