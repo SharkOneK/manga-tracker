@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-29T07:15:00.058Z",
+  "generatedAt": "2026-07-30T07:08:07.376Z",
   "source": "run-release-volume-counts.js",
   "providerMode": "enabled",
   "policy": {
@@ -35,8 +35,8 @@
     {
       "seriesTitle": "One Piece",
       "publisher": "Carlsen Manga!",
-      "oldPublishedVolumesDE": 52,
-      "newPublishedVolumesDE": 53,
+      "oldPublishedVolumesDE": 53,
+      "newPublishedVolumesDE": 54,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/87",
       "confidence": "high"
@@ -1518,7 +1518,7 @@
     {
       "seriesTitle": "One Piece",
       "publisher": "Carlsen Manga!",
-      "volumeNumber": 53,
+      "volumeNumber": 54,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/87",
       "confidence": "high",
