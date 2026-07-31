@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-30T07:08:07.376Z",
+  "generatedAt": "2026-07-31T07:20:42.598Z",
   "source": "run-release-volume-counts.js",
   "providerMode": "enabled",
   "policy": {
@@ -24,21 +24,30 @@
     ]
   },
   "summary": {
-    "seriesInVolumeCounts": 48,
-    "probeCandidates": 66,
-    "checkedCandidates": 66,
-    "detectedChanges": 1,
-    "appliedHighConfidenceChanges": 1,
-    "blockedOrUnsafe": 87
+    "seriesInVolumeCounts": 49,
+    "probeCandidates": 68,
+    "checkedCandidates": 68,
+    "detectedChanges": 2,
+    "appliedHighConfidenceChanges": 2,
+    "blockedOrUnsafe": 86
   },
   "changes": [
     {
       "seriesTitle": "One Piece",
       "publisher": "Carlsen Manga!",
-      "oldPublishedVolumesDE": 53,
-      "newPublishedVolumesDE": 54,
+      "oldPublishedVolumesDE": 54,
+      "newPublishedVolumesDE": 55,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/87",
+      "confidence": "high"
+    },
+    {
+      "seriesTitle": "Yandere Dark Elf",
+      "publisher": "MANGAMOON",
+      "oldPublishedVolumesDE": 3,
+      "newPublishedVolumesDE": 4,
+      "source": "manga-passion",
+      "sourceUrl": "https://www.manga-passion.de/editions/5408",
       "confidence": "high"
     }
   ],
@@ -103,25 +112,9 @@
       ]
     },
     {
-      "seriesTitle": "Gushing over Magical Girls",
-      "publisher": "MANGAMOON",
-      "volumeNumber": 4,
-      "reasonCodes": [
-        "not-yet-released-or-invalid-date"
-      ]
-    },
-    {
       "seriesTitle": "I Was Reincarnated as the 7th Prince So I Can Take My Time Perfecting My Magical Ability",
       "publisher": "Dokico",
       "volumeNumber": 1,
-      "reasonCodes": [
-        "not-yet-released-or-invalid-date"
-      ]
-    },
-    {
-      "seriesTitle": "Isekai Soapland",
-      "publisher": "MANGAMOON",
-      "volumeNumber": 2,
       "reasonCodes": [
         "not-yet-released-or-invalid-date"
       ]
@@ -240,11 +233,6 @@
       "publisher": "MangaMoon",
       "volumeNumber": 2,
       "reasonCodes": [
-        "source-url-not-specific",
-        "missing-source-edition-title",
-        "missing-source-publisher",
-        "missing-source-volume-number",
-        "missing-release-date",
         "not-yet-released"
       ]
     },
@@ -357,17 +345,35 @@
       ]
     },
     {
-      "seriesTitle": "Gushing over Magical Girls",
-      "publisher": "MangaMoon",
-      "volumeNumber": 4,
+      "seriesTitle": "Isekai Soapland",
+      "publisher": "MANGAMOON",
+      "volumeNumber": 3,
       "reasonCodes": [
+        "source-url-not-specific",
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date",
         "not-yet-released"
       ]
     },
     {
       "seriesTitle": "Isekai Soapland",
       "publisher": "MANGAMOON",
-      "volumeNumber": 3,
+      "volumeNumber": 4,
+      "reasonCodes": [
+        "source-url-not-specific",
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date",
+        "not-yet-released"
+      ]
+    },
+    {
+      "seriesTitle": "Isekai Soapland",
+      "publisher": "MANGAMOON",
+      "volumeNumber": 5,
       "reasonCodes": [
         "source-url-not-specific",
         "missing-source-edition-title",
@@ -666,6 +672,19 @@
       ]
     },
     {
+      "seriesTitle": "Gushing over Magical Girls",
+      "publisher": "MANGAMOON",
+      "volumeNumber": 5,
+      "reasonCodes": [
+        "source-url-not-specific",
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date",
+        "not-yet-released"
+      ]
+    },
+    {
       "seriesTitle": "Jujutsu Kaisen",
       "publisher": "KAZÉ Manga",
       "volumeNumber": 31,
@@ -822,14 +841,6 @@
       ]
     },
     {
-      "seriesTitle": "Yandere Dark Elf",
-      "publisher": "MANGAMOON",
-      "volumeNumber": 4,
-      "reasonCodes": [
-        "not-yet-released"
-      ]
-    },
-    {
       "seriesTitle": "My Tiny Senpai",
       "publisher": "Dokico",
       "volumeNumber": 3,
@@ -864,17 +875,11 @@
       "seriesTitle": "Meine Chefin kommt immer zuerst!!",
       "publisher": "MangaMoon",
       "volumeNumber": 2,
-      "source": "carlsen",
-      "sourceUrl": "https://www.carlsen.de",
-      "confidence": "low",
+      "source": "manga-passion",
+      "sourceUrl": "https://www.manga-passion.de/editions/6135",
+      "confidence": "high",
       "released": false,
-      "reasonCodes": [
-        "source-url-not-specific",
-        "missing-source-edition-title",
-        "missing-source-publisher",
-        "missing-source-volume-number",
-        "missing-release-date"
-      ]
+      "reasonCodes": []
     },
     {
       "seriesTitle": "Vagabond – Master Edition",
@@ -1011,19 +1016,41 @@
       "reasonCodes": []
     },
     {
-      "seriesTitle": "Gushing over Magical Girls",
-      "publisher": "MangaMoon",
-      "volumeNumber": 4,
-      "source": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/5407",
-      "confidence": "high",
+      "seriesTitle": "Isekai Soapland",
+      "publisher": "MANGAMOON",
+      "volumeNumber": 3,
+      "source": "carlsen",
+      "sourceUrl": "https://www.carlsen.de",
+      "confidence": "low",
       "released": false,
-      "reasonCodes": []
+      "reasonCodes": [
+        "source-url-not-specific",
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date"
+      ]
     },
     {
       "seriesTitle": "Isekai Soapland",
       "publisher": "MANGAMOON",
-      "volumeNumber": 3,
+      "volumeNumber": 4,
+      "source": "carlsen",
+      "sourceUrl": "https://www.carlsen.de",
+      "confidence": "low",
+      "released": false,
+      "reasonCodes": [
+        "source-url-not-specific",
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date"
+      ]
+    },
+    {
+      "seriesTitle": "Isekai Soapland",
+      "publisher": "MANGAMOON",
+      "volumeNumber": 5,
       "source": "carlsen",
       "sourceUrl": "https://www.carlsen.de",
       "confidence": "low",
@@ -1401,6 +1428,22 @@
       ]
     },
     {
+      "seriesTitle": "Gushing over Magical Girls",
+      "publisher": "MANGAMOON",
+      "volumeNumber": 5,
+      "source": "carlsen",
+      "sourceUrl": "https://www.carlsen.de",
+      "confidence": "low",
+      "released": false,
+      "reasonCodes": [
+        "source-url-not-specific",
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date"
+      ]
+    },
+    {
       "seriesTitle": "Jujutsu Kaisen",
       "publisher": "KAZÉ Manga",
       "volumeNumber": 31,
@@ -1518,7 +1561,7 @@
     {
       "seriesTitle": "One Piece",
       "publisher": "Carlsen Manga!",
-      "volumeNumber": 54,
+      "volumeNumber": 55,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/87",
       "confidence": "high",
@@ -1614,7 +1657,7 @@
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/5408",
       "confidence": "high",
-      "released": false,
+      "released": true,
       "reasonCodes": []
     },
     {
