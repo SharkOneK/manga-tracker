@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-30T07:08:07.376Z",
+  "generatedAt": "2026-07-31T07:20:42.598Z",
   "items": [
     {
       "seriesTitle": "Adou",
@@ -176,11 +176,20 @@
     {
       "seriesTitle": "Gushing over Magical Girls",
       "publisher": "MANGAMOON",
-      "publishedVolumesDE": 3,
+      "publishedVolumesDE": 4,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/5407",
       "confidence": "high",
-      "checkedAt": "2026-05-19T15:26:34.180Z"
+      "checkedAt": "2026-06-14T08:21:13.292Z"
+    },
+    {
+      "seriesTitle": "Isekai Soapland",
+      "publisher": "MANGAMOON",
+      "publishedVolumesDE": 2,
+      "source": "manga-passion",
+      "sourceUrl": "https://www.manga-passion.de",
+      "confidence": "high",
+      "checkedAt": "2026-05-17T10:56:39.041Z"
     },
     {
       "seriesTitle": "Jujutsu Kaisen",
@@ -293,11 +302,11 @@
     {
       "seriesTitle": "One Piece",
       "publisher": "Carlsen Manga!",
-      "publishedVolumesDE": 54,
+      "publishedVolumesDE": 55,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/87",
       "confidence": "high",
-      "checkedAt": "2026-07-30T07:08:07.376Z"
+      "checkedAt": "2026-07-31T07:20:42.598Z"
     },
     {
       "seriesTitle": "Real Account",
@@ -428,11 +437,11 @@
     {
       "seriesTitle": "Yandere Dark Elf",
       "publisher": "MANGAMOON",
-      "publishedVolumesDE": 3,
+      "publishedVolumesDE": 4,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/5408",
       "confidence": "high",
-      "checkedAt": "2026-05-19T15:26:34.180Z"
+      "checkedAt": "2026-07-31T07:20:42.598Z"
     }
   ]
 }
