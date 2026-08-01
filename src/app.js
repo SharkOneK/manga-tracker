@@ -1053,6 +1053,8 @@ function setMode(mode) {
   // Unterfilter-Zustand VOR dem Rendern konsistent ziehen (idempotent; render()
   // ruft reconcile ohnehin ganz oben nochmal auf).
   reconcileMediaFilterState();
+  // Phase 78: aktiven Buy-Tab beim Wechsel in den Serien-Modus umleiten (dort ausgeblendet).
+  if (appMode === 'series' && tab === 'buy') { setTab('reading'); return; }
   render();
 }
 
@@ -1072,6 +1074,10 @@ function updateModeSwitch() {
   document.querySelectorAll('.nav-lbl[data-status]').forEach(el => {
     el.textContent = stWord(el.dataset.status);
   });
+  // Phase 78: Buy-Tab existiert im Serien-Modus nicht — reiner UI-Spiegel (kein
+  // Zustandsschreiben), spiegelt bei jedem render() den aktuellen appMode.
+  const buyTab = document.querySelector('#tabs .tab[data-tab="buy"]');
+  if (buyTab) buyTab.classList.toggle('hidden', appMode === 'series');
 }
 
 function onSearch(val) {
@@ -1744,7 +1750,7 @@ function renderDashboard() {
         <div class="stat-big-card"><div class="stat-big-n">${totalVols}</div><div class="stat-big-l">Bände besessen</div></div>
         <div class="stat-big-card"><div class="stat-big-n">${readingSeries}</div><div class="stat-big-l">Aktiv lesend</div></div>
         <div class="stat-big-card"><div class="stat-big-n">${completedVols}</div><div class="stat-big-l">Bände abgeschlossen</div></div>
-        <div class="stat-big-card"><div class="stat-big-n">${buyCount}</div><div class="stat-big-l">${term('buy')}</div></div>
+        ${appMode === 'series' ? '' : `<div class="stat-big-card"><div class="stat-big-n">${buyCount}</div><div class="stat-big-l">${term('buy')}</div></div>`}
         <div class="stat-big-card"><div class="stat-big-n">${totalMissing}</div><div class="stat-big-l">Fehlende Bände</div></div>
         <div class="stat-big-card"><div class="stat-big-n">${completeSeries}</div><div class="stat-big-l">Vollständig gesammelt</div></div>
         <div class="stat-big-card"><div class="stat-big-n">${seriesWithMissing}</div><div class="stat-big-l">Serien mit fehlenden Bänden</div></div>
@@ -1821,7 +1827,7 @@ function renderDashboard() {
       </div>
     </div>
 
-    <div class="stats-section">
+    ${appMode === 'series' ? '' : `<div class="stats-section">
       <h3>Nächste Käufe &amp; Vormerkungen</h3>
       ${buyPreviewItems.length === 0
         ? `<p class="stats-empty-note">Aktuell keine offenen Käufe.</p>`
@@ -1861,7 +1867,7 @@ function renderDashboard() {
             html += `<button type="button" class="stats-buy-all-btn" data-action="set-tab" data-tab="buy">Alle Käufe anzeigen →</button>`;
             return html;
           })()}
-    </div>
+    </div>`}
 
     ${releaseStats ? `<div class="stats-section">
       <h3>Release-Cache</h3>
@@ -2621,16 +2627,15 @@ function render() {
 
 // ─── Tabs ─────────────────────────────────────────────────────────────────
 const LIBRARY_TABS = ['reading', 'completed', 'owned', 'wishlist', 'buy'];
-// Phase 74: owned/buy sind modusabhängig (Getter → term() zur Nutzungszeit,
-// nicht bei Objekterzeugung). Manga-Modus liefert wortgleich die alten Labels.
-const TAB_TITLES = {
-  reading: 'Lese ich', completed: 'Gelesen',
-  get owned() { return term('toRead'); },
-  wishlist: 'Wunschliste',
-  get buy() { return term('buy'); },
-  kalender: 'Kalender', dashboard: 'Dashboard',
-};
+// Phase 78: TAB_TITLES nur noch für Nicht-Library-Tabs (kalender/dashboard) —
+// die Library-Tabs (reading/completed/owned/wishlist/buy) lesen TAB_TITLES nie,
+// da für sie unten immer 'Bibliothek' gesetzt wird (verifiziert: einzige
+// Leseseite ist der `!inLibrary`-Zweig). owned/buy-Getter waren toter Code.
+const TAB_TITLES = { kalender: 'Kalender', dashboard: 'Dashboard' };
 function setTab(t) {
+  // Phase 78: Buy-Tab existiert im Serien-Modus nicht (Nutzer-Entscheidung) —
+  // jede Navigation dorthin (Dashboard-Button, Delegation, Restore) auf reading umleiten.
+  if (t === 'buy' && appMode === 'series') t = 'reading';
   tab = t;
   // Phase 60: Standard-viewMode für den neuen Tab anwenden (sofern nicht manuell gesetzt).
   applyDefaultViewMode();

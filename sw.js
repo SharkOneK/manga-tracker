@@ -12,7 +12,9 @@
 // Phase 75: Bump auf v5 — index.html/app.js ändern sich (TMDB-Overlay/-Button,
 // Katalog-Loader). Der Katalog selbst (data/tmdb-series-catalog.json) wird
 // weiterhin no-store geladen und ist NICHT Teil des Precache.
-const CACHE_VERSION = 'mt-pwa-v5';
+// Phase 78: Bump auf v6 — app.js ändert sich (Buy-Tab im Serien-Modus
+// ausgeblendet, Dashboard-Kaufvorschau modusabhängig); index.html unverändert.
+const CACHE_VERSION = 'mt-pwa-v6';
 
 // App-Shell: statische Dateien, die nach dem ersten Online-Besuch offline
 // verfügbar sein sollen. Relative Pfade (./…) damit GitHub-Pages-Sub-Pfad
