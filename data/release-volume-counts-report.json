@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-31T07:20:42.598Z",
+  "generatedAt": "2026-08-01T07:00:36.712Z",
   "source": "run-release-volume-counts.js",
   "providerMode": "enabled",
   "policy": {
@@ -27,27 +27,18 @@
     "seriesInVolumeCounts": 49,
     "probeCandidates": 68,
     "checkedCandidates": 68,
-    "detectedChanges": 2,
-    "appliedHighConfidenceChanges": 2,
-    "blockedOrUnsafe": 86
+    "detectedChanges": 1,
+    "appliedHighConfidenceChanges": 1,
+    "blockedOrUnsafe": 87
   },
   "changes": [
     {
       "seriesTitle": "One Piece",
       "publisher": "Carlsen Manga!",
-      "oldPublishedVolumesDE": 54,
-      "newPublishedVolumesDE": 55,
+      "oldPublishedVolumesDE": 55,
+      "newPublishedVolumesDE": 56,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/87",
-      "confidence": "high"
-    },
-    {
-      "seriesTitle": "Yandere Dark Elf",
-      "publisher": "MANGAMOON",
-      "oldPublishedVolumesDE": 3,
-      "newPublishedVolumesDE": 4,
-      "source": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/5408",
       "confidence": "high"
     }
   ],
@@ -841,6 +832,19 @@
       ]
     },
     {
+      "seriesTitle": "Yandere Dark Elf",
+      "publisher": "MANGAMOON",
+      "volumeNumber": 5,
+      "reasonCodes": [
+        "source-url-not-specific",
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date",
+        "not-yet-released"
+      ]
+    },
+    {
       "seriesTitle": "My Tiny Senpai",
       "publisher": "Dokico",
       "volumeNumber": 3,
@@ -1561,7 +1565,7 @@
     {
       "seriesTitle": "One Piece",
       "publisher": "Carlsen Manga!",
-      "volumeNumber": 55,
+      "volumeNumber": 56,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/87",
       "confidence": "high",
@@ -1653,12 +1657,18 @@
     {
       "seriesTitle": "Yandere Dark Elf",
       "publisher": "MANGAMOON",
-      "volumeNumber": 4,
-      "source": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/5408",
-      "confidence": "high",
-      "released": true,
-      "reasonCodes": []
+      "volumeNumber": 5,
+      "source": "carlsen",
+      "sourceUrl": "https://www.carlsen.de",
+      "confidence": "low",
+      "released": false,
+      "reasonCodes": [
+        "source-url-not-specific",
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date"
+      ]
     },
     {
       "seriesTitle": "My Tiny Senpai",
