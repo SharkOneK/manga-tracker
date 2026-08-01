@@ -1078,7 +1078,10 @@ if (!appJs) {
   // Genre-Verteilung). Deshalb ALLE Vorkommen pruefen, nicht nur das erste.
   const anchors = [
     { label: 'kal-title (Kalender-Tab)',            locate: /<div class="kal-title">([\s\S]{0,60}?)<\/div>/g,             expect: /escapeHtml\s*\(/ },
-    { label: 'kal-sub (Kalender-Tab, Verlag)',      locate: /<div class="kal-sub">([\s\S]{0,80}?)<\/div>/g,               expect: /escapeHtml\s*\(/ },
+    // Phase 76: die Sub-Zeile delegiert modusabhaengig an kalSubLine(m, next) —
+    // der Anker prueft hier nur die Delegation; das eigentliche Escaping wird
+    // separat unten fuer kalSubLine() selbst verankert (Fail-closed bei beiden).
+    { label: 'kal-sub (Kalender-Tab, Delegation an kalSubLine)', locate: /<div class="kal-sub">([\s\S]{0,80}?)<\/div>/g, expect: /kalSubLine\s*\(/ },
     { label: 'genre-filter-chip (Chip-Text)',       locate: /<span class="genre-filter-chip[\s\S]{0,160}?>([\s\S]{0,40}?)<\/span>/g, expect: /escapeHtml\s*\(/ },
     // Nur INTERPOLIERTE bar-labels (Verlage + Genre-Verteilung); die hartcodierten
     // Status-Labels ("Zu lesen" etc.) tragen kein ${…} und sind bewusst ausgenommen.
@@ -1107,6 +1110,19 @@ if (!appJs) {
       });
     });
   });
+  // Phase 76: kalSubLine(m, next) ist die tatsaechliche Senke hinter dem
+  // kal-sub-Delegations-Anker oben — beide Zweige (Manga-Verlag, Serien-Episode)
+  // muessen escapeHtml() verwenden. Fail-closed, falls die Funktion umgebaut wird.
+  const kalSubLineMatch = appJs.match(/function kalSubLine\(m, next\) \{([\s\S]*?)\n\}/);
+  if (!kalSubLineMatch) {
+    anchorProblems.push('kalSubLine(m, next): Funktion nicht mehr gefunden — Escaping der Kalender-Sub-Zeile nicht prüfbar. Check bewusst fail-closed, bitte Anker nachziehen.');
+  } else {
+    const body = kalSubLineMatch[1];
+    const escapeCalls = (body.match(/escapeHtml\s*\(/g) || []).length;
+    if (escapeCalls < 2) {
+      anchorProblems.push('kalSubLine(m, next): erwartet escapeHtml() in Manga- UND Serien-Zweig (mind. 2 Aufrufe), gefunden: ' + escapeCalls);
+    }
+  }
   if (anchorProblems.length) {
     fail('Check 73b: Escaping-Anker verletzt:\n  ' + anchorProblems.join('\n  '));
   } else {

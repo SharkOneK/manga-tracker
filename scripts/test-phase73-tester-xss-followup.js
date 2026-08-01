@@ -21,6 +21,14 @@
  * ergaenzt wurde lediglich je eine ZUSAETZLICHE Pruefung, dass der Titel/das
  * Genre weiterhin als sichtbarer TEXT ankommt — sonst wuerde auch ein "Fix",
  * der das Feld schlicht nicht mehr rendert, gruen laufen.
+ *
+ * STATUS (Phase 76, Robustheits-Fix): Finding 1 + 2 waren seit Phase 74
+ * (Modus-Trennung Manga/Serien, mediaModeItems()) erneut rot — NICHT weil
+ * das Escaping regressiert waere, sondern weil beide Senken jetzt modus-
+ * gefiltert rendern und der importierte `mediaType: anime`-Eintrag im
+ * Default-Modus "manga" gar nicht mehr auftaucht. Fix: vor der Assertion
+ * in den Serien-Modus wechseln ([data-action="set-mode"][data-mode="series"]).
+ * Die Escaping-Assertions selbst sind UNVERAENDERT.
  */
 
 const http = require('http');
@@ -118,8 +126,10 @@ async function openSearchAndQuery(page, q) {
             title: { english: evilTitle, romaji: null, native: null },
             episodes: 12, status: 'RELEASING', format: 'TV', seasonYear: 2026, season: 'SPRING',
             coverImage: { large: null }, genres: [],
-            // RELEASING + nextAiringEpisode → nextDate wird gesetzt → Eintrag landet im Kalender-Tab
-            nextAiringEpisode: { episode: 5, airingAt: Math.floor(Date.now() / 1000) + 86400 },
+            // RELEASING + nextAiringEpisode → nextDate wird gesetzt → Eintrag landet im Kalender-Tab.
+            // Deterministisch 7 Tage in die Zukunft (statt +86400), damit die lokale
+            // Datumsumrechnung nie an eine Tagesgrenze rutscht.
+            nextAiringEpisode: { episode: 5, airingAt: Math.floor(Date.now() / 1000) + 7 * 86400 },
             relations: { edges: [] },
           }]),
         });
@@ -135,6 +145,11 @@ async function openSearchAndQuery(page, q) {
       const nextDate = await page.evaluate(() => (db.m.find((m) => m.mediaType === 'anime') || {}).nextDate);
       if (!nextDate) throw new Error('Testvoraussetzung verletzt: importierter Eintrag hat kein nextDate, Kalender-Pfad nicht erreichbar');
 
+      // Phase 76: der Kalender rendert modusabhaengig (mediaModeItems()) — der
+      // importierte Anime-Eintrag taucht im Default-Modus "manga" nicht auf.
+      // In den Serien-Modus wechseln, um die Senke ueberhaupt zu erreichen.
+      await page.click('[data-action="set-mode"][data-mode="series"]');
+      await page.waitForTimeout(150);
       await page.click('[data-action="set-tab"][data-tab="kalender"]');
       await page.waitForTimeout(400);
 
@@ -194,6 +209,11 @@ async function openSearchAndQuery(page, q) {
       const entryGenres = await page.evaluate(() => (db.m.find((m) => m.mediaType === 'anime') || {}).genres);
       if (!entryGenres || !entryGenres.length) throw new Error('Testvoraussetzung verletzt: importierter Eintrag hat keine genres, Filter-Pfad nicht erreichbar');
 
+      // Phase 76: updateGenreFilter() rechnet ueber mediaModeItems() (modusgefiltert)
+      // — der importierte Anime-Eintrag ist im Default-Modus "manga" unsichtbar.
+      // Erst in den Serien-Modus wechseln, danach wie gehabt die Serienansicht oeffnen.
+      await page.click('[data-action="set-mode"][data-mode="series"]');
+      await page.waitForTimeout(150);
       // updateGenreFilter() wird nur in der Serienansicht (renderSeriesGrid) aufgerufen.
       await page.click('.tab[data-tab="owned"]');
       await page.waitForTimeout(150);
