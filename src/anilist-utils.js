@@ -142,6 +142,23 @@
     return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
   }
 
+  // Ganztages-Differenz zwischen lokaler Mitternacht(heute aus nowMs) und lokaler
+  // Mitternacht(nextDateIso). Rein und injizierbar (nowMs) — kein Date.now() intern,
+  // damit die Kalender-Logik deterministisch testbar bleibt. Negativ = Vergangenheit,
+  // 0 = heute, 1 = morgen. Ungültige/leere Eingabe → null.
+  function airingCountdownDays(nextDateIso, nowMs) {
+    if (typeof nextDateIso !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(nextDateIso)) return null;
+    const target = new Date(nextDateIso + 'T00:00:00');
+    if (Number.isNaN(target.getTime())) return null;
+    const nowNum = Number(nowMs);
+    const base = Number.isFinite(nowNum) ? new Date(nowNum) : new Date();
+    if (Number.isNaN(base.getTime())) return null;
+    const today = new Date(base.getFullYear(), base.getMonth(), base.getDate());
+    const targetMidnight = new Date(target.getFullYear(), target.getMonth(), target.getDate());
+    const msPerDay = 24 * 60 * 60 * 1000;
+    return Math.round((targetMidnight.getTime() - today.getTime()) / msPerDay);
+  }
+
   // Gesamt-Episoden: nur ganzzahlig ≥ 1 zählt, alles andere ist „unbekannt".
   function normalizeTotal(episodes) {
     const n = Number(episodes);
@@ -281,6 +298,7 @@
     pickBestCandidate,
     deriveSeasonOrdinal,
     airingDateToLocalIso,
+    airingCountdownDays,
     normalizeTotal,
     normalizeGenres,
     deriveRootId,
