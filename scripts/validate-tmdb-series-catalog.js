@@ -25,6 +25,7 @@ const ALLOWED_TOP_LEVEL_KEYS = new Set(['schemaVersion', 'generatedAt', 'source'
 // Exakte Allowlist aus spec.md Phase 75 — "nichts weiter".
 const ALLOWED_ITEM_KEYS = new Set([
   'tmdbId', 'title', 'network', 'total', 'seasonCount', 'ongoing', 'cover', 'genres', 'overview', 'seasons',
+  'streamingProviders',
 ]);
 // Verbotene Keys, egal wo im Dokument: API-Key-Leck oder private Sammlungsfelder.
 const FORBIDDEN_KEYS = new Set([
@@ -34,6 +35,8 @@ const FORBIDDEN_KEYS = new Set([
 ]);
 const ALLOWED_ONGOING = new Set(['true', 'false', null]);
 const MAX_GENRES = 12;
+// Spiegelt MAX_PROVIDERS aus scripts/tmdb-provider.js (Phase 77).
+const MAX_PROVIDERS = 20;
 
 function readJson(filePath) {
   if (!fs.existsSync(filePath)) throw new Error(`Datei nicht gefunden: ${filePath}`);
@@ -135,6 +138,15 @@ function validateTmdbSeriesCatalog(doc) {
     }
 
     if (typeof item.overview !== 'string') errors.push(`${where}.overview: muss ein String sein (ggf. leer)`);
+
+    if (!Array.isArray(item.streamingProviders)) {
+      errors.push(`${where}.streamingProviders: muss ein Array sein`);
+    } else {
+      if (item.streamingProviders.length > MAX_PROVIDERS) errors.push(`${where}.streamingProviders: mehr als ${MAX_PROVIDERS} Einträge`);
+      item.streamingProviders.forEach((p, pi) => {
+        if (typeof p !== 'string' || !p.trim()) errors.push(`${where}.streamingProviders[${pi}]: muss ein nicht-leerer String sein`);
+      });
+    }
 
     if (!item.seasons || typeof item.seasons !== 'object' || Array.isArray(item.seasons)) {
       errors.push(`${where}.seasons: muss ein Objekt sein`);

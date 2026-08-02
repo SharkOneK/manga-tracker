@@ -113,6 +113,7 @@ const SYNTAX_FILES = [
   'scripts/test-phase75-browser-integration.js',
   'scripts/test-phase78-browser-integration.js',
   'scripts/test-phase76-browser-integration.js',
+  'scripts/test-phase77-browser-integration.js',
   'sw.js',
   'src/sw-register.js',
 ];

@@ -24,6 +24,8 @@ const TMDB_IMG_BASE = 'https://image.tmdb.org/t/p/w500';
 
 // Obergrenzen gegen Datenmüll aus einer fremden Quelle (analog src/anilist-utils.js).
 const MAX_GENRES = 12;
+// DE-flatrate ist real ~≤10 Anbieter — Kappung gegen Datenmüll (Phase 77).
+const MAX_PROVIDERS = 20;
 // Dauerserien (Talkshows, Soaps) können > 2000 Episoden haben — eine so lange
 // Bandliste friert die Bandverwaltung ein. seasons wird deshalb hart gekappt,
 // total bleibt der volle (ungekappte) Summenwert (E1, spec.md Phase 75).
@@ -106,6 +108,24 @@ function normalizeGenres(genres) {
   return out;
 }
 
+// DE-Region, NUR flatrate (Abo) — bewusst NIE rent/buy gelesen (Nutzerwunsch
+// ist "wo kann ich es mit meinen Abos sehen", nicht Kauf-/Leihpreise, spec.md
+// Phase 77 Scope-Entscheidung 1). Reihenfolge = TMDB-Reihenfolge (deterministisch).
+function pickStreamingProviders(tmdb) {
+  const flatrate = tmdb && tmdb['watch/providers'] && tmdb['watch/providers'].results
+    && tmdb['watch/providers'].results.DE && tmdb['watch/providers'].results.DE.flatrate;
+  if (!Array.isArray(flatrate)) return [];
+  const out = [];
+  for (const p of flatrate) {
+    if (!p || typeof p.provider_name !== 'string') continue;
+    const v = p.provider_name.trim();
+    if (!v || out.includes(v)) continue;
+    out.push(v);
+    if (out.length >= MAX_PROVIDERS) break;
+  }
+  return out;
+}
+
 // Nur TMDB-eigene, relative poster_path-Werte werden zu einer https-Cover-URL
 // aufgelöst — kein absoluter Fremd-Link, kein http:/javascript:.
 function safeCoverUrl(posterPath) {
@@ -144,6 +164,7 @@ function mapSeriesToRecord(tmdb) {
     genres: normalizeGenres(genreNames),
     overview: typeof tmdb.overview === 'string' ? tmdb.overview.trim() : '',
     seasons,
+    streamingProviders: pickStreamingProviders(tmdb),
   };
 }
 
@@ -182,7 +203,8 @@ async function fetchSeries(id, opts) {
   if (typeof fetchImpl !== 'function') throw new Error('fetchSeries: fetchImpl (injizierbar) ist erforderlich');
 
   const url = `${TMDB_API_BASE}/tv/${encodeURIComponent(String(id))}`
-    + `?api_key=${encodeURIComponent(String(apiKey || ''))}&language=de-DE`;
+    + `?api_key=${encodeURIComponent(String(apiKey || ''))}&language=de-DE`
+    + `&append_to_response=${encodeURIComponent('watch/providers')}`;
 
   let res;
   try {
@@ -206,10 +228,12 @@ module.exports = {
   TMDB_IMG_BASE,
   MAX_GENRES,
   MAX_EPISODES,
+  MAX_PROVIDERS,
   ONGOING_BY_STATUS,
   computeSeasonsAndTotal,
   pickNetwork,
   normalizeGenres,
+  pickStreamingProviders,
   safeCoverUrl,
   mapSeriesToRecord,
   classifyError,

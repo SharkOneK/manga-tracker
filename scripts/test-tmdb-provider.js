@@ -1,13 +1,18 @@
 #!/usr/bin/env node
 // scripts/test-tmdb-provider.js — Phase 75: TMDB-Provider-Tests (offline)
 //
-// Testet ausschließlich scripts/tmdb-provider.js (Node, pure Funktionen + der
+// Testet primär scripts/tmdb-provider.js (Node, pure Funktionen + der
 // Fetch-Glue mit injiziertem fetchImpl). Es findet KEIN Netzzugriff statt —
-// CI darf niemals von TMDB abhängen.
+// CI darf niemals von TMDB abhängen. Seit Phase 77 zusätzlich ein kleiner
+// Abschnitt, der validateTmdbSeriesCatalog() direkt importiert, um die
+// streamingProviders-Feldvalidierung (positiv + negativ) gezielt zu prüfen —
+// die "Validate TMDB series catalog"-Step in run-all-checks.js deckt nur den
+// echten (validen) Katalog ab, keine Negativfälle.
 'use strict';
 
 const assert = require('assert');
 const TMDB = require('./tmdb-provider.js');
+const { validateTmdbSeriesCatalog } = require('./validate-tmdb-series-catalog.js');
 
 let _passed = 0;
 let _failed = 0;
@@ -191,7 +196,7 @@ function jsonResponse(status, body) {
   await runTest('mapSeriesToRecord: vollständige Fixture wird korrekt gemappt (exakte Allowlist-Keys)', function() {
     const record = TMDB.mapSeriesToRecord(fullTmdb());
     assert.deepStrictEqual(Object.keys(record).sort(), [
-      'cover', 'genres', 'network', 'ongoing', 'overview', 'seasonCount', 'seasons', 'title', 'total', 'tmdbId',
+      'cover', 'genres', 'network', 'ongoing', 'overview', 'seasonCount', 'seasons', 'streamingProviders', 'title', 'total', 'tmdbId',
     ].sort());
     assert.strictEqual(record.tmdbId, 1399);
     assert.strictEqual(record.title, 'Game of Thrones');
@@ -239,6 +244,129 @@ function jsonResponse(status, body) {
     assert.strictEqual(record.total, null);
     assert.deepStrictEqual(record.seasons, {});
     assert.strictEqual(record.seasonCount, 0);
+  });
+
+  // ─── 6b) pickStreamingProviders (Phase 77) ──────────────────────────────
+
+  function watchProviders(flatrate) {
+    return { results: { DE: { flatrate } } };
+  }
+
+  await runTest('pickStreamingProviders: DE-flatrate-Namen werden extrahiert und getrimmt', function() {
+    const tmdb = { 'watch/providers': watchProviders([
+      { provider_id: 8, provider_name: '  Netflix  ' },
+      { provider_id: 337, provider_name: 'Disney Plus' },
+    ]) };
+    assert.deepStrictEqual(TMDB.pickStreamingProviders(tmdb), ['Netflix', 'Disney Plus']);
+  });
+
+  await runTest('pickStreamingProviders: dedupliziert gleiche Anbieter (auch nach Trim)', function() {
+    const tmdb = { 'watch/providers': watchProviders([
+      { provider_name: 'Netflix' },
+      { provider_name: 'Netflix' },
+      { provider_name: '  Netflix  ' },
+      { provider_name: 'Crunchyroll' },
+    ]) };
+    assert.deepStrictEqual(TMDB.pickStreamingProviders(tmdb), ['Netflix', 'Crunchyroll']);
+  });
+
+  await runTest('pickStreamingProviders: Kappung bei MAX_PROVIDERS', function() {
+    const flatrate = Array.from({ length: 50 }, (_, i) => ({ provider_name: 'Provider' + i }));
+    const out = TMDB.pickStreamingProviders({ 'watch/providers': watchProviders(flatrate) });
+    assert.strictEqual(out.length, TMDB.MAX_PROVIDERS);
+    assert.deepStrictEqual(out, Array.from({ length: TMDB.MAX_PROVIDERS }, (_, i) => 'Provider' + i));
+  });
+
+  await runTest('pickStreamingProviders: fehlendes watch/providers (ganz) → []', function() {
+    assert.deepStrictEqual(TMDB.pickStreamingProviders({}), []);
+    assert.deepStrictEqual(TMDB.pickStreamingProviders({ 'watch/providers': undefined }), []);
+    assert.deepStrictEqual(TMDB.pickStreamingProviders(null), []);
+    assert.deepStrictEqual(TMDB.pickStreamingProviders(undefined), []);
+  });
+
+  await runTest('pickStreamingProviders: fehlendes results → []', function() {
+    assert.deepStrictEqual(TMDB.pickStreamingProviders({ 'watch/providers': {} }), []);
+    assert.deepStrictEqual(TMDB.pickStreamingProviders({ 'watch/providers': { results: undefined } }), []);
+  });
+
+  await runTest('pickStreamingProviders: fehlendes results.DE → []', function() {
+    assert.deepStrictEqual(TMDB.pickStreamingProviders({ 'watch/providers': { results: {} } }), []);
+    assert.deepStrictEqual(TMDB.pickStreamingProviders({ 'watch/providers': { results: { US: { flatrate: [{ provider_name: 'Hulu' }] } } } }), []);
+  });
+
+  await runTest('pickStreamingProviders: fehlendes DE.flatrate → []', function() {
+    assert.deepStrictEqual(TMDB.pickStreamingProviders({ 'watch/providers': { results: { DE: {} } } }), []);
+    assert.deepStrictEqual(TMDB.pickStreamingProviders({ 'watch/providers': { results: { DE: { flatrate: undefined } } } }), []);
+  });
+
+  await runTest('pickStreamingProviders: nur rent/buy vorhanden, kein flatrate → [] (nur flatrate wird gelesen)', function() {
+    const tmdb = {
+      'watch/providers': {
+        results: {
+          DE: {
+            rent: [{ provider_name: 'Apple TV' }],
+            buy: [{ provider_name: 'Google Play' }],
+          },
+        },
+      },
+    };
+    assert.deepStrictEqual(TMDB.pickStreamingProviders(tmdb), []);
+  });
+
+  await runTest('pickStreamingProviders: flatrate ist kein Array (Objekt/String/null) → []', function() {
+    [{ x: 1 }, 'Netflix', null, 42, true].forEach(function(v) {
+      assert.deepStrictEqual(
+        TMDB.pickStreamingProviders({ 'watch/providers': { results: { DE: { flatrate: v } } } }),
+        [], 'flatrate=' + JSON.stringify(v));
+    });
+  });
+
+  await runTest('pickStreamingProviders: provider_name fehlt/leer/nicht-String/nur Whitespace wird verworfen', function() {
+    const tmdb = { 'watch/providers': watchProviders([
+      { provider_name: 'Netflix' },
+      { provider_name: '' },
+      { provider_name: '   ' },
+      { provider_name: null },
+      { provider_name: undefined },
+      { provider_name: 42 },
+      { provider_id: 9 }, // provider_name fehlt komplett
+      null,
+      'kein-objekt',
+      { provider_name: 'Prime Video' },
+    ]) };
+    assert.deepStrictEqual(TMDB.pickStreamingProviders(tmdb), ['Netflix', 'Prime Video']);
+  });
+
+  await runTest('pickStreamingProviders: XSS-artiger provider_name wird unverändert als String durchgereicht (Escaping ist Renderer-Aufgabe)', function() {
+    const evil = '<img src=x onerror=alert(1)>';
+    const tmdb = { 'watch/providers': watchProviders([{ provider_name: evil }]) };
+    assert.deepStrictEqual(TMDB.pickStreamingProviders(tmdb), [evil]);
+  });
+
+  await runTest('mapSeriesToRecord: streamingProviders ist stets präsent, auch ohne Provider-Daten ([])', function() {
+    const record = TMDB.mapSeriesToRecord(fullTmdb());
+    assert.deepStrictEqual(record.streamingProviders, []);
+  });
+
+  await runTest('mapSeriesToRecord: streamingProviders end-to-end aus einer vollen watch/providers-Fixture gemappt', function() {
+    const tmdb = fullTmdb({ 'watch/providers': watchProviders([
+      { provider_id: 8, provider_name: 'Netflix' },
+      { provider_id: 1770, provider_name: 'Crunchyroll' },
+    ]) });
+    const record = TMDB.mapSeriesToRecord(tmdb);
+    assert.deepStrictEqual(record.streamingProviders, ['Netflix', 'Crunchyroll']);
+  });
+
+  await runTest('mapSeriesToRecord: logo_path/provider_id/Roh-watch-providers-Blob landen NICHT im Record', function() {
+    const tmdb = fullTmdb({ 'watch/providers': watchProviders([
+      { provider_id: 8, provider_name: 'Netflix', logo_path: '/geheim.jpg' },
+    ]) });
+    const record = TMDB.mapSeriesToRecord(tmdb);
+    assert.strictEqual(Object.prototype.hasOwnProperty.call(record, 'watch/providers'), false, 'Roh-Blob darf nicht im Record landen');
+    assert.strictEqual(Object.prototype.hasOwnProperty.call(record, 'logo_path'), false);
+    assert.strictEqual(Object.prototype.hasOwnProperty.call(record, 'provider_id'), false);
+    assert.strictEqual(JSON.stringify(record).includes('geheim.jpg'), false, 'logo_path darf nirgends im Record auftauchen');
+    assert.strictEqual(JSON.stringify(record).includes('provider_id'), false);
   });
 
   // ─── 7) classifyError ────────────────────────────────────────────────────
@@ -298,6 +426,27 @@ function jsonResponse(status, body) {
     assert.strictEqual(JSON.stringify(res).includes('deadbeef00000000000000000000000'), false, 'Key darf nie in der Rückgabe landen');
   });
 
+  await runTest('fetchSeries: URL enthält append_to_response=watch/providers, ohne api_key/language zu verlieren (Phase 77)', async function() {
+    let capturedUrl = null;
+    const fetchImpl = async (url) => { capturedUrl = url; return jsonResponse(200, fullTmdb()); };
+    await TMDB.fetchSeries(1399, { fetchImpl, apiKey: 'deadbeef00000000000000000000000' });
+    assert.ok(capturedUrl.includes('append_to_response=watch%2Fproviders'), 'URL muss append_to_response=watch%2Fproviders enthalten: ' + capturedUrl);
+    assert.strictEqual(decodeURIComponent(capturedUrl.split('append_to_response=')[1]), 'watch/providers');
+    assert.ok(capturedUrl.includes('api_key=deadbeef00000000000000000000000'), 'api_key darf durch die URL-Erweiterung nicht verloren gehen: ' + capturedUrl);
+    assert.ok(capturedUrl.includes('language=de-DE'), 'language=de-DE darf durch die URL-Erweiterung nicht verloren gehen: ' + capturedUrl);
+    assert.ok(capturedUrl.includes('/tv/1399'), 'Es bleibt EIN Request an /tv/{id}, kein zweiter Fetch: ' + capturedUrl);
+  });
+
+  await runTest('fetchSeries: Fixture mit DE-flatrate-Providern mappt end-to-end zu record.streamingProviders', async function() {
+    const tmdbWithProviders = fullTmdb({
+      'watch/providers': { results: { DE: { flatrate: [{ provider_name: 'Netflix' }, { provider_name: 'Amazon Prime Video' }] } } },
+    });
+    const fetchImpl = async () => jsonResponse(200, tmdbWithProviders);
+    const res = await TMDB.fetchSeries(1399, { fetchImpl, apiKey: 'x' });
+    assert.strictEqual(res.ok, true);
+    assert.deepStrictEqual(res.record.streamingProviders, ['Netflix', 'Amazon Prime Video']);
+  });
+
   await runTest('fetchSeries: HTTP 429 → { ok:false, reason:"rate-limited" }', async function() {
     const fetchImpl = async () => jsonResponse(429, {});
     const res = await TMDB.fetchSeries(1, { fetchImpl, apiKey: 'x' });
@@ -343,6 +492,90 @@ function jsonResponse(status, body) {
 
   await runTest('fetchSeries: ohne fetchImpl wirft sofort (Programmierfehler, kein stiller Live-Fallback)', async function() {
     await assert.rejects(() => TMDB.fetchSeries(1, { apiKey: 'x' }), /fetchImpl/);
+  });
+
+  // ─── 9) validate-tmdb-series-catalog.js — streamingProviders-Feldvalidierung (Phase 77) ──
+
+  function catalogDoc(items) {
+    return {
+      schemaVersion: 1,
+      generatedAt: '2026-01-01T00:00:00.000Z',
+      source: 'update-tmdb-catalog.js',
+      items,
+    };
+  }
+
+  function validItem(overrides) {
+    return Object.assign({
+      tmdbId: 1399,
+      title: 'Game of Thrones',
+      network: 'HBO',
+      total: 73,
+      seasonCount: 8,
+      ongoing: 'false',
+      cover: '',
+      genres: ['Drama'],
+      overview: '',
+      seasons: { 1: 1 },
+      streamingProviders: [],
+    }, overrides || {});
+  }
+
+  await runTest('validateTmdbSeriesCatalog: gültige streamingProviders (leer und mit Namen) werden akzeptiert', function() {
+    const okEmpty = validateTmdbSeriesCatalog(catalogDoc([validItem()]));
+    assert.strictEqual(okEmpty.ok, true, 'leeres streamingProviders sollte gültig sein: ' + JSON.stringify(okEmpty.errors));
+
+    const okFilled = validateTmdbSeriesCatalog(catalogDoc([validItem({ streamingProviders: ['Netflix', 'Crunchyroll'] })]));
+    assert.strictEqual(okFilled.ok, true, 'gefülltes streamingProviders sollte gültig sein: ' + JSON.stringify(okFilled.errors));
+  });
+
+  await runTest('validateTmdbSeriesCatalog: streamingProviders fehlt im Item → Fehler (Pflichtfeld, fail-closed)', function() {
+    const item = validItem();
+    delete item.streamingProviders;
+    const result = validateTmdbSeriesCatalog(catalogDoc([item]));
+    assert.strictEqual(result.ok, false);
+    assert.ok(result.errors.some(e => /streamingProviders/.test(e)), 'erwarte einen streamingProviders-Fehler: ' + JSON.stringify(result.errors));
+  });
+
+  await runTest('validateTmdbSeriesCatalog: streamingProviders falscher Typ (String/Objekt/null statt Array) → Fehler', function() {
+    ['Netflix', { 0: 'Netflix' }, null, 42].forEach(function(bad) {
+      const result = validateTmdbSeriesCatalog(catalogDoc([validItem({ streamingProviders: bad })]));
+      assert.strictEqual(result.ok, false, 'streamingProviders=' + JSON.stringify(bad) + ' sollte abgelehnt werden');
+      assert.ok(result.errors.some(e => /streamingProviders/.test(e)), 'streamingProviders=' + JSON.stringify(bad) + ': ' + JSON.stringify(result.errors));
+    });
+  });
+
+  await runTest('validateTmdbSeriesCatalog: streamingProviders-Element leerer/kein String → Fehler', function() {
+    const result = validateTmdbSeriesCatalog(catalogDoc([validItem({ streamingProviders: ['Netflix', '', 42, null] })]));
+    assert.strictEqual(result.ok, false);
+    assert.ok(result.errors.some(e => /streamingProviders\[1\]/.test(e)), JSON.stringify(result.errors));
+    assert.ok(result.errors.some(e => /streamingProviders\[2\]/.test(e)), JSON.stringify(result.errors));
+    assert.ok(result.errors.some(e => /streamingProviders\[3\]/.test(e)), JSON.stringify(result.errors));
+  });
+
+  await runTest('validateTmdbSeriesCatalog: streamingProviders mit mehr als MAX_PROVIDERS (20) Einträgen → Fehler', function() {
+    const many = Array.from({ length: 21 }, (_, i) => 'Provider' + i);
+    const result = validateTmdbSeriesCatalog(catalogDoc([validItem({ streamingProviders: many })]));
+    assert.strictEqual(result.ok, false);
+    assert.ok(result.errors.some(e => /streamingProviders/.test(e) && /20/.test(e)), JSON.stringify(result.errors));
+
+    const exactlyMax = Array.from({ length: 20 }, (_, i) => 'Provider' + i);
+    const okAtMax = validateTmdbSeriesCatalog(catalogDoc([validItem({ streamingProviders: exactlyMax })]));
+    assert.strictEqual(okAtMax.ok, true, 'genau 20 Einträge sollten noch gültig sein: ' + JSON.stringify(okAtMax.errors));
+  });
+
+  await runTest('validateTmdbSeriesCatalog: Fremdfeld (nicht allowlisteter Key) im Item → Fehler', function() {
+    const item = validItem({ logoPath: '/geheim.jpg' });
+    const result = validateTmdbSeriesCatalog(catalogDoc([item]));
+    assert.strictEqual(result.ok, false);
+    assert.ok(result.errors.some(e => /logoPath/.test(e) && /nicht allowlistet/.test(e)), JSON.stringify(result.errors));
+  });
+
+  await runTest('validateTmdbSeriesCatalog: verbotener Key api_key innerhalb eines streamingProviders-Elements wird strukturell erkannt', function() {
+    const item = validItem({ streamingProviders: [{ api_key: 'geheim' }] });
+    const result = validateTmdbSeriesCatalog(catalogDoc([item]));
+    assert.strictEqual(result.ok, false, 'sollte fehlschlagen (Element ist kein String UND api_key ist ein verbotener Key)');
+    assert.ok(result.errors.some(e => /api_key/.test(e) && /verbotener Key/.test(e)), JSON.stringify(result.errors));
   });
 
   // ─── Ergebnis ────────────────────────────────────────────────────────────
