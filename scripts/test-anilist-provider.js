@@ -360,6 +360,45 @@ runTest('Episoden-Obergrenze: episodes 9999 → seasons gekappt, total bleibt ko
   assert.ok(AniList.MAX_EPISODES <= 2000);
 });
 
+// ─── 12) airingCountdownDays (Phase 76) ────────────────────────────────────
+// Reine, injizierbare Funktion — nowMs fest, kein Date.now() intern.
+
+runTest('airingCountdownDays: heute → 0', function() {
+  // 2024-06-15 12:00 UTC lokal — nowMs beliebig, solange derselbe lokale Tag.
+  const now = new Date(2024, 5, 15, 12, 0, 0).getTime();
+  assert.strictEqual(AniList.airingCountdownDays('2024-06-15', now), 0);
+});
+
+runTest('airingCountdownDays: morgen → 1', function() {
+  const now = new Date(2024, 5, 15, 23, 59, 0).getTime();
+  assert.strictEqual(AniList.airingCountdownDays('2024-06-16', now), 1);
+});
+
+runTest('airingCountdownDays: gestern → -1', function() {
+  const now = new Date(2024, 5, 15, 0, 0, 0).getTime();
+  assert.strictEqual(AniList.airingCountdownDays('2024-06-14', now), -1);
+});
+
+runTest('airingCountdownDays: in 7 Tagen → 7', function() {
+  const now = new Date(2024, 5, 15, 8, 0, 0).getTime();
+  assert.strictEqual(AniList.airingCountdownDays('2024-06-22', now), 7);
+});
+
+runTest('airingCountdownDays: ungültig/leer/kein String → null', function() {
+  const now = Date.now();
+  [null, undefined, '', '2024-13-99', '15-06-2024', 20240615, {}, []].forEach(function(v) {
+    assert.strictEqual(AniList.airingCountdownDays(v, now), null, 'sollte null ergeben für: ' + JSON.stringify(v));
+  });
+});
+
+runTest('airingCountdownDays: Rechnung über lokale Mitternacht, kein Off-by-one an DST-nahen Tagen', function() {
+  // Uhrzeitanteil von nowMs darf das Ergebnis nicht verschieben — nur das Datum zählt.
+  const morning = new Date(2024, 2, 30, 0, 1, 0).getTime();
+  const evening = new Date(2024, 2, 30, 23, 58, 0).getTime();
+  assert.strictEqual(AniList.airingCountdownDays('2024-03-31', morning), 1);
+  assert.strictEqual(AniList.airingCountdownDays('2024-03-31', evening), 1);
+});
+
 // ─── Ergebnis ─────────────────────────────────────────────────────────────
 
 console.log('');

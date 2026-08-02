@@ -14,7 +14,9 @@
 // weiterhin no-store geladen und ist NICHT Teil des Precache.
 // Phase 78: Bump auf v6 — app.js ändert sich (Buy-Tab im Serien-Modus
 // ausgeblendet, Dashboard-Kaufvorschau modusabhängig); index.html unverändert.
-const CACHE_VERSION = 'mt-pwa-v6';
+// Phase 76: Bump auf v7 — app.js/anilist-utils.js ändern sich (Airing-
+// Kalender: Episode + Countdown im Serien-Modus); index.html unverändert.
+const CACHE_VERSION = 'mt-pwa-v7';
 
 // App-Shell: statische Dateien, die nach dem ersten Online-Besuch offline
 // verfügbar sein sollen. Relative Pfade (./…) damit GitHub-Pages-Sub-Pfad

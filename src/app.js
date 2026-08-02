@@ -2489,6 +2489,24 @@ function shareManga(id, e) {
   }
 }
 
+// Phase 76: Kalender-Sub-Zeile modusabhängig. Manga-Modus bleibt byte-identisch
+// (Nicht-Regressions-Anker). Serien-Modus zeigt die echte Airing-Episode +
+// Countdown statt der band-basierten Nummer. `next` ist die bereits berechnete
+// band-basierte Nummer (auch für den Cover-Fallback verwendet).
+function kalSubLine(m, next) {
+  if (appMode !== 'series') {
+    return `${term('bandWord')} ${next} · ${escapeHtml(m.pub||'Unbekannt')}`;
+  }
+  const airing = m.anilistAiring;
+  // airing.episode kann explizit null sein (Serie pausiert/beendet) — Number(null)
+  // ist 0 und damit faelschlich "finit", darum episode !== null zusaetzlich prüfen.
+  const episode = (airing && airing.episode !== null && Number.isFinite(Number(airing.episode))) ? airing.episode : next;
+  const days = AniListUtils.airingCountdownDays(m.nextDate, Date.now());
+  const countdownLabel = days === 0 ? 'heute' : days === 1 ? 'morgen' : (days !== null && days > 1) ? `in ${days} Tagen` : '';
+  const sub = `${term('bandWord')} ${escapeHtml(String(episode))}`;
+  return countdownLabel ? `${sub} · ${countdownLabel}` : sub;
+}
+
 // ─── Main Render ─────────────────────────────────────────────────────────
 function render() {
   const today = new Date(); today.setHours(0,0,0,0);
@@ -2570,7 +2588,7 @@ function render() {
           ${coverEl(m,'mini',next)}
           <div class="kal-info">
             <div class="kal-title">${escapeHtml(m.title)}</div>
-            <div class="kal-sub">${term('bandWord')} ${next} · ${escapeHtml(m.pub||'Unbekannt')}</div>
+            <div class="kal-sub">${kalSubLine(m, next)}</div>
           </div>
         </div>`;
       });
