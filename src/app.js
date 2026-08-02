@@ -848,6 +848,8 @@ function renderTmdbResults() {
       ONGOING_LABEL[record.ongoing] || null,
     ].filter(Boolean).join(' · ');
     const genresText = Array.isArray(record.genres) && record.genres.length ? record.genres.join(', ') : '';
+    const streamingText = Array.isArray(record.streamingProviders) && record.streamingProviders.length
+      ? 'Streaming: ' + record.streamingProviders.join(', ') : '';
     return `<div class="release-match-item">
       <div class="anilist-hit">
         ${cover ? `<img class="anilist-hit-cover" src="${escapeHtml(cover)}" alt="" data-remove-on-error>` : ''}
@@ -855,6 +857,7 @@ function renderTmdbResults() {
           <div class="release-match-title">${escapeHtml(record.title)}</div>
           <div class="release-match-source">${escapeHtml(meta)}</div>
           ${genresText ? `<div class="release-match-source">${escapeHtml(genresText)}</div>` : ''}
+          ${streamingText ? `<div class="release-match-source">${escapeHtml(streamingText)}</div>` : ''}
           ${record.overview ? `<div class="release-preview-small">${escapeHtml(record.overview)}</div>` : ''}
         </div>
       </div>
