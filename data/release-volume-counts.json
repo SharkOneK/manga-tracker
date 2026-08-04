@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-03T07:54:49.909Z",
+  "generatedAt": "2026-08-04T07:08:15.161Z",
   "items": [
     {
       "seriesTitle": "Adou",
@@ -77,11 +77,11 @@
     {
       "seriesTitle": "Chainsaw Man",
       "publisher": "Egmont Manga",
-      "publishedVolumesDE": 21,
+      "publishedVolumesDE": 22,
       "source": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/269",
+      "sourceUrl": "https://www.manga-passion.de",
       "confidence": "high",
-      "checkedAt": "2026-05-19T15:26:34.180Z"
+      "checkedAt": "2026-05-17T10:56:39.041Z"
     },
     {
       "seriesTitle": "Colorless",
@@ -230,11 +230,11 @@
     {
       "seriesTitle": "Lili-Men",
       "publisher": "Egmont Manga",
-      "publishedVolumesDE": 8,
+      "publishedVolumesDE": 9,
       "source": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/5077",
       "confidence": "high",
-      "checkedAt": "2026-05-17T10:56:39.041Z"
+      "checkedAt": "2026-08-04T07:08:15.161Z"
     },
     {
       "seriesTitle": "Maria's Judgement",
@@ -266,11 +266,11 @@
     {
       "seriesTitle": "Mirai Nikki – New Edition",
       "publisher": "Egmont Manga",
-      "publishedVolumesDE": 4,
+      "publishedVolumesDE": 5,
       "source": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de",
+      "sourceUrl": "https://www.manga-passion.de/editions/5504",
       "confidence": "high",
-      "checkedAt": "2026-05-17T10:56:39.041Z"
+      "checkedAt": "2026-05-19T15:26:34.180Z"
     },
     {
       "seriesTitle": "Mujina into the Deep",
@@ -302,11 +302,11 @@
     {
       "seriesTitle": "One Piece",
       "publisher": "Carlsen Manga!",
-      "publishedVolumesDE": 58,
+      "publishedVolumesDE": 59,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/87",
       "confidence": "high",
-      "checkedAt": "2026-08-03T07:54:49.909Z"
+      "checkedAt": "2026-08-04T07:08:15.161Z"
     },
     {
       "seriesTitle": "Real Account",
@@ -401,7 +401,7 @@
     {
       "seriesTitle": "Vagabond – Master Edition",
       "publisher": "Egmont Manga",
-      "publishedVolumesDE": 11,
+      "publishedVolumesDE": 12,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/4636",
       "confidence": "high",
@@ -419,7 +419,7 @@
     {
       "seriesTitle": "Witch and Hound",
       "publisher": "Egmont Manga",
-      "publishedVolumesDE": 3,
+      "publishedVolumesDE": 4,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/5483",
       "confidence": "high",
