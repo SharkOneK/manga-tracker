@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-03T07:54:49.909Z",
+  "generatedAt": "2026-08-04T07:08:15.161Z",
   "source": "run-release-volume-counts.js",
   "providerMode": "enabled",
   "policy": {
@@ -25,18 +25,27 @@
   },
   "summary": {
     "seriesInVolumeCounts": 49,
-    "probeCandidates": 68,
-    "checkedCandidates": 68,
-    "detectedChanges": 1,
-    "appliedHighConfidenceChanges": 1,
-    "blockedOrUnsafe": 87
+    "probeCandidates": 66,
+    "checkedCandidates": 66,
+    "detectedChanges": 2,
+    "appliedHighConfidenceChanges": 2,
+    "blockedOrUnsafe": 80
   },
   "changes": [
     {
+      "seriesTitle": "Lili-Men",
+      "publisher": "Egmont Manga",
+      "oldPublishedVolumesDE": 8,
+      "newPublishedVolumesDE": 9,
+      "source": "manga-passion",
+      "sourceUrl": "https://www.manga-passion.de/editions/5077",
+      "confidence": "high"
+    },
+    {
       "seriesTitle": "One Piece",
       "publisher": "Carlsen Manga!",
-      "oldPublishedVolumesDE": 57,
-      "newPublishedVolumesDE": 58,
+      "oldPublishedVolumesDE": 58,
+      "newPublishedVolumesDE": 59,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/87",
       "confidence": "high"
@@ -79,14 +88,6 @@
     {
       "seriesTitle": "Chainsaw Man",
       "publisher": "Egmont Manga",
-      "volumeNumber": 22,
-      "reasonCodes": [
-        "not-yet-released-or-invalid-date"
-      ]
-    },
-    {
-      "seriesTitle": "Chainsaw Man",
-      "publisher": "Egmont Manga",
       "volumeNumber": 23,
       "reasonCodes": [
         "not-yet-released-or-invalid-date"
@@ -106,14 +107,6 @@
       "seriesTitle": "I Was Reincarnated as the 7th Prince So I Can Take My Time Perfecting My Magical Ability",
       "publisher": "Dokico",
       "volumeNumber": 1,
-      "reasonCodes": [
-        "not-yet-released-or-invalid-date"
-      ]
-    },
-    {
-      "seriesTitle": "Mirai Nikki – New Edition",
-      "publisher": "Egmont Manga",
-      "volumeNumber": 5,
       "reasonCodes": [
         "not-yet-released-or-invalid-date"
       ]
@@ -161,14 +154,6 @@
     {
       "seriesTitle": "Vagabond – Master Edition",
       "publisher": "Egmont Manga",
-      "volumeNumber": 12,
-      "reasonCodes": [
-        "not-yet-released-or-invalid-date"
-      ]
-    },
-    {
-      "seriesTitle": "Vagabond – Master Edition",
-      "publisher": "Egmont Manga",
       "volumeNumber": 13,
       "reasonCodes": [
         "not-yet-released-or-invalid-date"
@@ -186,14 +171,6 @@
       "seriesTitle": "Vagabond – Master Edition",
       "publisher": "Egmont Manga",
       "volumeNumber": 15,
-      "reasonCodes": [
-        "not-yet-released-or-invalid-date"
-      ]
-    },
-    {
-      "seriesTitle": "Witch and Hound",
-      "publisher": "Egmont Manga",
-      "volumeNumber": 4,
       "reasonCodes": [
         "not-yet-released-or-invalid-date"
       ]
@@ -230,14 +207,6 @@
     {
       "seriesTitle": "Vagabond – Master Edition",
       "publisher": "Egmont Manga",
-      "volumeNumber": 12,
-      "reasonCodes": [
-        "not-yet-released"
-      ]
-    },
-    {
-      "seriesTitle": "Vagabond – Master Edition",
-      "publisher": "Egmont Manga",
       "volumeNumber": 13,
       "reasonCodes": [
         "not-yet-released"
@@ -247,6 +216,14 @@
       "seriesTitle": "Vagabond – Master Edition",
       "publisher": "Egmont Manga",
       "volumeNumber": 14,
+      "reasonCodes": [
+        "not-yet-released"
+      ]
+    },
+    {
+      "seriesTitle": "Vagabond – Master Edition",
+      "publisher": "Egmont Manga",
+      "volumeNumber": 15,
       "reasonCodes": [
         "not-yet-released"
       ]
@@ -377,14 +354,6 @@
     {
       "seriesTitle": "Mirai Nikki – New Edition",
       "publisher": "Egmont Manga",
-      "volumeNumber": 5,
-      "reasonCodes": [
-        "not-yet-released"
-      ]
-    },
-    {
-      "seriesTitle": "Mirai Nikki – New Edition",
-      "publisher": "Egmont Manga",
       "volumeNumber": 6,
       "reasonCodes": [
         "not-yet-released"
@@ -413,14 +382,6 @@
       "reasonCodes": [
         "missing-source-volume-number",
         "missing-release-date",
-        "not-yet-released"
-      ]
-    },
-    {
-      "seriesTitle": "Witch and Hound",
-      "publisher": "Egmont Manga",
-      "volumeNumber": 4,
-      "reasonCodes": [
         "not-yet-released"
       ]
     },
@@ -511,6 +472,9 @@
       "publisher": "altraverse",
       "volumeNumber": 17,
       "reasonCodes": [
+        "source-url-not-specific",
+        "missing-source-edition-title",
+        "missing-source-publisher",
         "missing-source-volume-number",
         "missing-release-date",
         "not-yet-released"
@@ -549,14 +513,6 @@
       "reasonCodes": [
         "missing-source-volume-number",
         "missing-release-date",
-        "not-yet-released"
-      ]
-    },
-    {
-      "seriesTitle": "Chainsaw Man",
-      "publisher": "Egmont Manga",
-      "volumeNumber": 22,
-      "reasonCodes": [
         "not-yet-released"
       ]
     },
@@ -712,14 +668,6 @@
       ]
     },
     {
-      "seriesTitle": "Lili-Men",
-      "publisher": "Egmont Manga",
-      "volumeNumber": 9,
-      "reasonCodes": [
-        "not-yet-released"
-      ]
-    },
-    {
       "seriesTitle": "Maria's Judgement",
       "publisher": "Egmont Manga",
       "volumeNumber": 7,
@@ -832,6 +780,16 @@
       ]
     },
     {
+      "seriesTitle": "Witch and Hound",
+      "publisher": "Egmont Manga",
+      "volumeNumber": 5,
+      "reasonCodes": [
+        "missing-source-volume-number",
+        "missing-release-date",
+        "not-yet-released"
+      ]
+    },
+    {
       "seriesTitle": "Yandere Dark Elf",
       "publisher": "MANGAMOON",
       "volumeNumber": 5,
@@ -888,16 +846,6 @@
     {
       "seriesTitle": "Vagabond – Master Edition",
       "publisher": "Egmont Manga",
-      "volumeNumber": 12,
-      "source": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/4636",
-      "confidence": "high",
-      "released": false,
-      "reasonCodes": []
-    },
-    {
-      "seriesTitle": "Vagabond – Master Edition",
-      "publisher": "Egmont Manga",
       "volumeNumber": 13,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/4636",
@@ -909,6 +857,16 @@
       "seriesTitle": "Vagabond – Master Edition",
       "publisher": "Egmont Manga",
       "volumeNumber": 14,
+      "source": "manga-passion",
+      "sourceUrl": "https://www.manga-passion.de/editions/4636",
+      "confidence": "high",
+      "released": false,
+      "reasonCodes": []
+    },
+    {
+      "seriesTitle": "Vagabond – Master Edition",
+      "publisher": "Egmont Manga",
+      "volumeNumber": 15,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/4636",
       "confidence": "high",
@@ -1070,16 +1028,6 @@
     {
       "seriesTitle": "Mirai Nikki – New Edition",
       "publisher": "Egmont Manga",
-      "volumeNumber": 5,
-      "source": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/5504",
-      "confidence": "high",
-      "released": false,
-      "reasonCodes": []
-    },
-    {
-      "seriesTitle": "Mirai Nikki – New Edition",
-      "publisher": "Egmont Manga",
       "volumeNumber": 6,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/5504",
@@ -1119,16 +1067,6 @@
         "missing-source-volume-number",
         "missing-release-date"
       ]
-    },
-    {
-      "seriesTitle": "Witch and Hound",
-      "publisher": "Egmont Manga",
-      "volumeNumber": 4,
-      "source": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/5483",
-      "confidence": "high",
-      "released": false,
-      "reasonCodes": []
     },
     {
       "seriesTitle": "Yakuza Reincarnation",
@@ -1236,11 +1174,14 @@
       "seriesTitle": "Arifureta – Der Kampf zurück in meine Welt",
       "publisher": "altraverse",
       "volumeNumber": 17,
-      "source": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/302",
+      "source": "carlsen",
+      "sourceUrl": "https://www.carlsen.de",
       "confidence": "low",
       "released": false,
       "reasonCodes": [
+        "source-url-not-specific",
+        "missing-source-edition-title",
+        "missing-source-publisher",
         "missing-source-volume-number",
         "missing-release-date"
       ]
@@ -1290,16 +1231,6 @@
         "missing-source-volume-number",
         "missing-release-date"
       ]
-    },
-    {
-      "seriesTitle": "Chainsaw Man",
-      "publisher": "Egmont Manga",
-      "volumeNumber": 22,
-      "source": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/269",
-      "confidence": "high",
-      "released": false,
-      "reasonCodes": []
     },
     {
       "seriesTitle": "Colorless",
@@ -1500,7 +1431,7 @@
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/5077",
       "confidence": "high",
-      "released": false,
+      "released": true,
       "reasonCodes": []
     },
     {
@@ -1565,7 +1496,7 @@
     {
       "seriesTitle": "One Piece",
       "publisher": "Carlsen Manga!",
-      "volumeNumber": 58,
+      "volumeNumber": 59,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/87",
       "confidence": "high",
@@ -1653,6 +1584,19 @@
       "confidence": "high",
       "released": false,
       "reasonCodes": []
+    },
+    {
+      "seriesTitle": "Witch and Hound",
+      "publisher": "Egmont Manga",
+      "volumeNumber": 5,
+      "source": "manga-passion",
+      "sourceUrl": "https://www.manga-passion.de/editions/5483",
+      "confidence": "low",
+      "released": false,
+      "reasonCodes": [
+        "missing-source-volume-number",
+        "missing-release-date"
+      ]
     },
     {
       "seriesTitle": "Yandere Dark Elf",
