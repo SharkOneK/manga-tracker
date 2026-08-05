@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-04T07:08:15.161Z",
+  "generatedAt": "2026-08-05T07:09:47.167Z",
   "source": "run-release-volume-counts.js",
   "providerMode": "enabled",
   "policy": {
@@ -27,25 +27,16 @@
     "seriesInVolumeCounts": 49,
     "probeCandidates": 66,
     "checkedCandidates": 66,
-    "detectedChanges": 2,
-    "appliedHighConfidenceChanges": 2,
-    "blockedOrUnsafe": 80
+    "detectedChanges": 1,
+    "appliedHighConfidenceChanges": 1,
+    "blockedOrUnsafe": 81
   },
   "changes": [
     {
-      "seriesTitle": "Lili-Men",
-      "publisher": "Egmont Manga",
-      "oldPublishedVolumesDE": 8,
-      "newPublishedVolumesDE": 9,
-      "source": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/5077",
-      "confidence": "high"
-    },
-    {
       "seriesTitle": "One Piece",
       "publisher": "Carlsen Manga!",
-      "oldPublishedVolumesDE": 58,
-      "newPublishedVolumesDE": 59,
+      "oldPublishedVolumesDE": 59,
+      "newPublishedVolumesDE": 60,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/87",
       "confidence": "high"
@@ -663,6 +654,14 @@
       "seriesTitle": "Kijin Gentosho: Dämonenjäger",
       "publisher": "Panini Manga",
       "volumeNumber": 9,
+      "reasonCodes": [
+        "not-yet-released"
+      ]
+    },
+    {
+      "seriesTitle": "Lili-Men",
+      "publisher": "Egmont Manga",
+      "volumeNumber": 10,
       "reasonCodes": [
         "not-yet-released"
       ]
@@ -1427,11 +1426,11 @@
     {
       "seriesTitle": "Lili-Men",
       "publisher": "Egmont Manga",
-      "volumeNumber": 9,
+      "volumeNumber": 10,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/5077",
       "confidence": "high",
-      "released": true,
+      "released": false,
       "reasonCodes": []
     },
     {
@@ -1496,7 +1495,7 @@
     {
       "seriesTitle": "One Piece",
       "publisher": "Carlsen Manga!",
-      "volumeNumber": 59,
+      "volumeNumber": 60,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/87",
       "confidence": "high",
