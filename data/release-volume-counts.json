@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-06T07:11:59.951Z",
+  "generatedAt": "2026-08-07T05:55:12.839Z",
   "items": [
     {
       "seriesTitle": "Adou",
@@ -302,11 +302,11 @@
     {
       "seriesTitle": "One Piece",
       "publisher": "Carlsen Manga!",
-      "publishedVolumesDE": 61,
+      "publishedVolumesDE": 62,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/87",
       "confidence": "high",
-      "checkedAt": "2026-08-06T07:11:59.951Z"
+      "checkedAt": "2026-08-07T05:55:12.839Z"
     },
     {
       "seriesTitle": "Real Account",
@@ -374,11 +374,11 @@
     {
       "seriesTitle": "Tokyo Ghoul GIGANTIK",
       "publisher": "KAZÉ Manga",
-      "publishedVolumesDE": 6,
+      "publishedVolumesDE": 7,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/4962",
       "confidence": "high",
-      "checkedAt": "2026-06-05T08:29:40.803Z"
+      "checkedAt": "2026-08-07T05:55:12.839Z"
     },
     {
       "seriesTitle": "Tokyo Ghoul:re",

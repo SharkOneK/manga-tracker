@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-06T07:11:59.951Z",
+  "generatedAt": "2026-08-07T05:55:12.839Z",
   "source": "run-release-volume-counts.js",
   "providerMode": "enabled",
   "policy": {
@@ -27,18 +27,27 @@
     "seriesInVolumeCounts": 49,
     "probeCandidates": 66,
     "checkedCandidates": 66,
-    "detectedChanges": 1,
-    "appliedHighConfidenceChanges": 1,
-    "blockedOrUnsafe": 81
+    "detectedChanges": 2,
+    "appliedHighConfidenceChanges": 2,
+    "blockedOrUnsafe": 80
   },
   "changes": [
     {
       "seriesTitle": "One Piece",
       "publisher": "Carlsen Manga!",
-      "oldPublishedVolumesDE": 60,
-      "newPublishedVolumesDE": 61,
+      "oldPublishedVolumesDE": 61,
+      "newPublishedVolumesDE": 62,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/87",
+      "confidence": "high"
+    },
+    {
+      "seriesTitle": "Tokyo Ghoul GIGANTIK",
+      "publisher": "KAZÉ Manga",
+      "oldPublishedVolumesDE": 6,
+      "newPublishedVolumesDE": 7,
+      "source": "manga-passion",
+      "sourceUrl": "https://www.manga-passion.de/editions/4962",
       "confidence": "high"
     }
   ],
@@ -749,14 +758,6 @@
       "reasonCodes": [
         "missing-source-volume-number",
         "missing-release-date",
-        "not-yet-released"
-      ]
-    },
-    {
-      "seriesTitle": "Tokyo Ghoul GIGANTIK",
-      "publisher": "KAZÉ Manga",
-      "volumeNumber": 7,
-      "reasonCodes": [
         "not-yet-released"
       ]
     },
@@ -1495,7 +1496,7 @@
     {
       "seriesTitle": "One Piece",
       "publisher": "Carlsen Manga!",
-      "volumeNumber": 61,
+      "volumeNumber": 62,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/87",
       "confidence": "high",
@@ -1558,7 +1559,7 @@
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/4962",
       "confidence": "high",
-      "released": false,
+      "released": true,
       "reasonCodes": []
     },
     {
