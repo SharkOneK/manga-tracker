@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-09T05:28:17.016Z",
+  "generatedAt": "2026-08-10T05:52:37.235Z",
   "items": [
     {
       "seriesTitle": "Adou",
@@ -257,11 +257,11 @@
     {
       "seriesTitle": "Meine Wiedergeburt als Schleim in einer anderen Welt",
       "publisher": "altraverse",
-      "publishedVolumesDE": 29,
+      "publishedVolumesDE": 30,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/249",
       "confidence": "high",
-      "checkedAt": "2026-07-04T07:20:35.278Z"
+      "checkedAt": "2026-08-10T05:52:37.235Z"
     },
     {
       "seriesTitle": "Mirai Nikki – New Edition",
@@ -302,11 +302,11 @@
     {
       "seriesTitle": "One Piece",
       "publisher": "Carlsen Manga!",
-      "publishedVolumesDE": 64,
+      "publishedVolumesDE": 65,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/87",
       "confidence": "high",
-      "checkedAt": "2026-08-09T05:28:17.016Z"
+      "checkedAt": "2026-08-10T05:52:37.235Z"
     },
     {
       "seriesTitle": "Real Account",
