@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-09T05:28:17.016Z",
+  "generatedAt": "2026-08-10T05:52:37.235Z",
   "source": "run-release-volume-counts.js",
   "providerMode": "enabled",
   "policy": {
@@ -27,16 +27,25 @@
     "seriesInVolumeCounts": 49,
     "probeCandidates": 66,
     "checkedCandidates": 66,
-    "detectedChanges": 1,
-    "appliedHighConfidenceChanges": 1,
-    "blockedOrUnsafe": 81
+    "detectedChanges": 2,
+    "appliedHighConfidenceChanges": 2,
+    "blockedOrUnsafe": 80
   },
   "changes": [
     {
+      "seriesTitle": "Meine Wiedergeburt als Schleim in einer anderen Welt",
+      "publisher": "altraverse",
+      "oldPublishedVolumesDE": 29,
+      "newPublishedVolumesDE": 30,
+      "source": "manga-passion",
+      "sourceUrl": "https://www.manga-passion.de/editions/249",
+      "confidence": "high"
+    },
+    {
       "seriesTitle": "One Piece",
       "publisher": "Carlsen Manga!",
-      "oldPublishedVolumesDE": 63,
-      "newPublishedVolumesDE": 64,
+      "oldPublishedVolumesDE": 64,
+      "newPublishedVolumesDE": 65,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/87",
       "confidence": "high"
@@ -681,14 +690,6 @@
       "reasonCodes": [
         "missing-source-volume-number",
         "missing-release-date",
-        "not-yet-released"
-      ]
-    },
-    {
-      "seriesTitle": "Meine Wiedergeburt als Schleim in einer anderen Welt",
-      "publisher": "altraverse",
-      "volumeNumber": 30,
-      "reasonCodes": [
         "not-yet-released"
       ]
     },
@@ -1465,7 +1466,7 @@
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/249",
       "confidence": "high",
-      "released": false,
+      "released": true,
       "reasonCodes": []
     },
     {
@@ -1497,7 +1498,7 @@
     {
       "seriesTitle": "One Piece",
       "publisher": "Carlsen Manga!",
-      "volumeNumber": 64,
+      "volumeNumber": 65,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/87",
       "confidence": "high",
