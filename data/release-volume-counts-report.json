@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-10T05:52:37.235Z",
+  "generatedAt": "2026-08-11T05:33:36.831Z",
   "source": "run-release-volume-counts.js",
   "providerMode": "enabled",
   "policy": {
@@ -27,25 +27,16 @@
     "seriesInVolumeCounts": 49,
     "probeCandidates": 66,
     "checkedCandidates": 66,
-    "detectedChanges": 2,
-    "appliedHighConfidenceChanges": 2,
-    "blockedOrUnsafe": 80
+    "detectedChanges": 1,
+    "appliedHighConfidenceChanges": 1,
+    "blockedOrUnsafe": 81
   },
   "changes": [
     {
-      "seriesTitle": "Meine Wiedergeburt als Schleim in einer anderen Welt",
-      "publisher": "altraverse",
-      "oldPublishedVolumesDE": 29,
-      "newPublishedVolumesDE": 30,
-      "source": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/249",
-      "confidence": "high"
-    },
-    {
       "seriesTitle": "One Piece",
       "publisher": "Carlsen Manga!",
-      "oldPublishedVolumesDE": 64,
-      "newPublishedVolumesDE": 65,
+      "oldPublishedVolumesDE": 65,
+      "newPublishedVolumesDE": 66,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/87",
       "confidence": "high"
@@ -690,6 +681,14 @@
       "reasonCodes": [
         "missing-source-volume-number",
         "missing-release-date",
+        "not-yet-released"
+      ]
+    },
+    {
+      "seriesTitle": "Meine Wiedergeburt als Schleim in einer anderen Welt",
+      "publisher": "altraverse",
+      "volumeNumber": 31,
+      "reasonCodes": [
         "not-yet-released"
       ]
     },
@@ -1462,11 +1461,11 @@
     {
       "seriesTitle": "Meine Wiedergeburt als Schleim in einer anderen Welt",
       "publisher": "altraverse",
-      "volumeNumber": 30,
+      "volumeNumber": 31,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/249",
       "confidence": "high",
-      "released": true,
+      "released": false,
       "reasonCodes": []
     },
     {
@@ -1498,7 +1497,7 @@
     {
       "seriesTitle": "One Piece",
       "publisher": "Carlsen Manga!",
-      "volumeNumber": 65,
+      "volumeNumber": 66,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/87",
       "confidence": "high",
