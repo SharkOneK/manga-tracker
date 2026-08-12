@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-11T05:33:36.831Z",
+  "generatedAt": "2026-08-12T05:52:16.437Z",
   "items": [
     {
       "seriesTitle": "Adou",
@@ -302,11 +302,11 @@
     {
       "seriesTitle": "One Piece",
       "publisher": "Carlsen Manga!",
-      "publishedVolumesDE": 66,
+      "publishedVolumesDE": 67,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/87",
       "confidence": "high",
-      "checkedAt": "2026-08-11T05:33:36.831Z"
+      "checkedAt": "2026-08-12T05:52:16.437Z"
     },
     {
       "seriesTitle": "Real Account",
@@ -428,7 +428,7 @@
     {
       "seriesTitle": "Yakuza Reincarnation",
       "publisher": "Manga Cult",
-      "publishedVolumesDE": 15,
+      "publishedVolumesDE": 16,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/1945",
       "confidence": "high",

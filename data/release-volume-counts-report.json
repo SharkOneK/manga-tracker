@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-11T05:33:36.831Z",
+  "generatedAt": "2026-08-12T05:52:16.437Z",
   "source": "run-release-volume-counts.js",
   "providerMode": "enabled",
   "policy": {
@@ -29,14 +29,14 @@
     "checkedCandidates": 66,
     "detectedChanges": 1,
     "appliedHighConfidenceChanges": 1,
-    "blockedOrUnsafe": 81
+    "blockedOrUnsafe": 80
   },
   "changes": [
     {
       "seriesTitle": "One Piece",
       "publisher": "Carlsen Manga!",
-      "oldPublishedVolumesDE": 65,
-      "newPublishedVolumesDE": 66,
+      "oldPublishedVolumesDE": 66,
+      "newPublishedVolumesDE": 67,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/87",
       "confidence": "high"
@@ -162,14 +162,6 @@
       "seriesTitle": "Vagabond – Master Edition",
       "publisher": "Egmont Manga",
       "volumeNumber": 15,
-      "reasonCodes": [
-        "not-yet-released-or-invalid-date"
-      ]
-    },
-    {
-      "seriesTitle": "Yakuza Reincarnation",
-      "publisher": "Manga Cult",
-      "volumeNumber": 16,
       "reasonCodes": [
         "not-yet-released-or-invalid-date"
       ]
@@ -373,14 +365,6 @@
       "reasonCodes": [
         "missing-source-volume-number",
         "missing-release-date",
-        "not-yet-released"
-      ]
-    },
-    {
-      "seriesTitle": "Yakuza Reincarnation",
-      "publisher": "Manga Cult",
-      "volumeNumber": 16,
-      "reasonCodes": [
         "not-yet-released"
       ]
     },
@@ -791,6 +775,14 @@
       ]
     },
     {
+      "seriesTitle": "Yakuza Reincarnation",
+      "publisher": "Manga Cult",
+      "volumeNumber": 17,
+      "reasonCodes": [
+        "not-yet-released"
+      ]
+    },
+    {
       "seriesTitle": "Yandere Dark Elf",
       "publisher": "MANGAMOON",
       "volumeNumber": 5,
@@ -1068,16 +1060,6 @@
         "missing-source-volume-number",
         "missing-release-date"
       ]
-    },
-    {
-      "seriesTitle": "Yakuza Reincarnation",
-      "publisher": "Manga Cult",
-      "volumeNumber": 16,
-      "source": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/1945",
-      "confidence": "high",
-      "released": false,
-      "reasonCodes": []
     },
     {
       "seriesTitle": "I Was Reincarnated as the 7th Prince So I Can Take My Time Perfecting My Magical Ability",
@@ -1497,7 +1479,7 @@
     {
       "seriesTitle": "One Piece",
       "publisher": "Carlsen Manga!",
-      "volumeNumber": 66,
+      "volumeNumber": 67,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/87",
       "confidence": "high",
@@ -1601,6 +1583,16 @@
         "missing-source-volume-number",
         "missing-release-date"
       ]
+    },
+    {
+      "seriesTitle": "Yakuza Reincarnation",
+      "publisher": "Manga Cult",
+      "volumeNumber": 17,
+      "source": "manga-passion",
+      "sourceUrl": "https://www.manga-passion.de/editions/1945",
+      "confidence": "high",
+      "released": false,
+      "reasonCodes": []
     },
     {
       "seriesTitle": "Yandere Dark Elf",
