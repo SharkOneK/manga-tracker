@@ -39,6 +39,7 @@ const watchlistFile = path.join(dataDir, 'release-watchlist.json');
 const queueFile = path.join(dataDir, 'release-source-review-queue.json');
 const reportFile = path.join(dataDir, 'release-cache-pipeline-report.json');
 const isbnLookupCacheFile = path.join(dataDir, 'isbn-lookup-cache.json');
+const volumeCountsFile = path.join(dataDir, 'release-volume-counts.json');
 
 const ISO_RE = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/;
 const PRIORITY_ORDER = new Map([
@@ -301,8 +302,44 @@ function loadReviewQueueCandidates(queueDoc) {
     }));
 }
 
+// Neue additive Kandidaten-Quelle (Volume-Counts-Bruecke): die bereits
+// veroeffentlichte Bandzahl aus data/release-volume-counts.json
+// (publishedVolumesDE) fuellt Luecken im oeffentlichen Cache, ohne
+// evaluateReleaseCandidate anzufassen. Bewusst KEIN Look-ahead auf +1 — der
+// Kandidat ist genau der bereits erschienene Hoechstband und bleibt damit
+// konsistenz-sicher gegenueber release-volume-counts.json. Kein
+// releaseDate/sourceName wird gesetzt, damit hasCandidateSourceData false
+// bleibt und der Live-Provider-Check regulaer laeuft. Rein und
+// best-effort-robust: fehlende/kaputte Eingabe liefert einfach [].
+function loadVolumeCountsCandidates(countsDoc) {
+  const items = Array.isArray(countsDoc && countsDoc.items) ? countsDoc.items : [];
+  const candidates = [];
+  for (const item of items) {
+    if (!item || typeof item !== 'object') continue;
+    const seriesTitle = typeof item.seriesTitle === 'string' ? item.seriesTitle.trim() : '';
+    const publisher = typeof item.publisher === 'string' ? item.publisher.trim() : '';
+    if (!seriesTitle || !publisher) continue;
+    const volumeNumber = Number(item.publishedVolumesDE);
+    if (!Number.isInteger(volumeNumber) || volumeNumber < 1) continue;
+    candidates.push({
+      origin: 'volume-counts',
+      seriesTitle,
+      publisher,
+      volumeNumber,
+      sourceUrl: null,
+      notes: `Aus release-volume-counts.json abgeleitet (publishedVolumesDE ${volumeNumber}).`,
+      priority: 'mittel',
+    });
+  }
+  return candidates.sort((a, b) =>
+    normalizeTitle(a.seriesTitle).localeCompare(normalizeTitle(b.seriesTitle), 'de') ||
+    normalizePublisher(a.publisher).localeCompare(normalizePublisher(b.publisher), 'de') ||
+    a.volumeNumber - b.volumeNumber
+  );
+}
+
 function dedupeCandidates(candidates, aliasMap) {
-  const priority = new Map([['review-queue', 0], ['watchlist', 1], ['cache-backfill', 2], ['app-seed', 3]]);
+  const priority = new Map([['review-queue', 0], ['watchlist', 1], ['cache-backfill', 2], ['app-seed', 3], ['volume-counts', 4]]);
   const byKey = new Map();
   for (const candidate of candidates) {
     if (!candidate.seriesTitle || !candidate.publisher || !Number.isInteger(candidate.volumeNumber)) continue;
@@ -469,6 +506,14 @@ async function main() {
   const aliasMap = buildPublisherAliasMap(sources);
   // Backlog 3.x: high-confidence ISBN-13 aus dem Lookup-Cache (best effort).
   const highIsbnByKey = loadHighIsbnMap(isbnLookupCacheFile, aliasMap);
+  // Volume-Counts-Bruecke: best effort, fehlende/kaputte Datei darf die
+  // Pipeline nicht crashen (analog loadHighIsbnMap).
+  let volumeCounts = null;
+  try {
+    volumeCounts = readJson(volumeCountsFile);
+  } catch (_) {
+    volumeCounts = null;
+  }
   const policy = {
     minDelayMs: Number(process.env.RELEASE_PIPELINE_MIN_DELAY_MS || (sources.requestPolicy && sources.requestPolicy.minDelayMs) || 1200),
     timeoutMs: Number(process.env.RELEASE_PIPELINE_TIMEOUT_MS || (sources.requestPolicy && sources.requestPolicy.timeoutMs) || 12000),
@@ -500,6 +545,7 @@ async function main() {
     ...flattenWatchlist(watchlist),
     ...loadLegacyMpBackfillCandidates(cacheItems),
     ...loadAppSeedCandidates(),
+    ...loadVolumeCountsCandidates(volumeCounts),
   ], aliasMap);
 
   const skippedAlreadyCached = [];
@@ -635,6 +681,7 @@ async function main() {
       watchlistCandidates: flattenWatchlist(watchlist).length,
       reviewQueueCandidates: loadReviewQueueCandidates(existingQueue).length,
       appSeedCandidates: loadAppSeedCandidates().length,
+      volumeCountsCandidates: loadVolumeCountsCandidates(volumeCounts).length,
     },
     policy: {
       maxItemsPerSource: policy.maxItemsPerSource,
@@ -681,6 +728,8 @@ if (require.main === module) {
 }
 
 module.exports = {
+  dedupeCandidates,
   isLegacyMpBackfillTarget,
   loadLegacyMpBackfillCandidates,
+  loadVolumeCountsCandidates,
 };
