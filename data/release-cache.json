@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-06-14T08:21:13.292Z",
+  "generatedAt": "2026-08-16T15:26:16.100Z",
   "source": "run-release-cache-pipeline.js",
-  "itemCount": 197,
+  "itemCount": 222,
   "items": [
     {
       "seriesTitle": "Adou",
@@ -157,6 +157,23 @@
       "checkedAt": "2026-05-31T11:11:21.455Z"
     },
     {
+      "seriesTitle": "Arifureta – Der Kampf zurück in meine Welt",
+      "normalizedSeriesTitle": "arifureta der kampf zuruck in meine welt",
+      "publisher": "altraverse",
+      "normalizedPublisher": "altraverse",
+      "volumeNumber": 16,
+      "releaseDate": "2026-05-18",
+      "isbn13": null,
+      "coverUrl": "https://media.manga-passion.de/volume/cover/2026/0509/1338/9cc484ee61fa1e734ca2ad86d751329a.jpg",
+      "sourceUrl": "https://www.manga-passion.de/editions/302",
+      "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
+      "evidence": "Manga Passion Edition, Verlag und Bandnummer wurden gegen die Bandliste abgeglichen.",
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 302, Band 16). Ursprung: volume-counts.",
+      "checkedAt": "2026-08-16T15:26:16.100Z"
+    },
+    {
       "seriesTitle": "Arifureta: Der Kampf zurück in meine Welt – Zero",
       "normalizedSeriesTitle": "arifureta der kampf zuruck in meine welt zero",
       "publisher": "altraverse",
@@ -174,17 +191,36 @@
     {
       "seriesTitle": "Arifureta: Der Kampf zurück in meine Welt – Zero",
       "normalizedSeriesTitle": "arifureta der kampf zuruck in meine welt zero",
-      "publisher": "Altraverse",
+      "publisher": "altraverse",
       "normalizedPublisher": "altraverse",
       "volumeNumber": 3,
-      "releaseDate": "2026-06-01",
+      "releaseDate": "2026-06-15",
       "isbn13": null,
-      "coverUrl": null,
-      "sourceUrl": null,
-      "sourceName": "app-seed",
-      "confidence": "medium",
-      "notes": "Aus src/app.js Seed \"arifureta\" übernommen; nicht extern bestätigt.",
-      "checkedAt": "2026-05-17T10:56:39.041Z"
+      "coverUrl": "https://media.manga-passion.de/volume/cover/2026/0523/1025/841d9fc667e82f8d991196b6254e2962.jpg",
+      "sourceUrl": "https://www.manga-passion.de/editions/5807",
+      "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
+      "evidence": "Manga Passion Edition, Verlag und Bandnummer wurden gegen die Bandliste abgeglichen.",
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 5807, Band 3). Ursprung: volume-counts.",
+      "checkedAt": "2026-08-16T15:26:16.100Z"
+    },
+    {
+      "seriesTitle": "Arifureta: Der Kampf zurück in meine Welt – Zero",
+      "normalizedSeriesTitle": "arifureta der kampf zuruck in meine welt zero",
+      "publisher": "altraverse",
+      "normalizedPublisher": "altraverse",
+      "volumeNumber": 4,
+      "releaseDate": "2026-09-14",
+      "isbn13": null,
+      "coverUrl": "https://media.manga-passion.de/volume/cover/2025/1021/1137/4e9f8863d0cd331be060219553617949.jpg",
+      "sourceUrl": "https://www.manga-passion.de/editions/5807",
+      "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
+      "evidence": "Manga Passion Edition, Verlag und Bandnummer wurden gegen die Bandliste abgeglichen.",
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 5807, Band 4). Ursprung: watchlist.",
+      "checkedAt": "2026-08-16T15:26:16.100Z"
     },
     {
       "seriesTitle": "August 9th, I will be eaten by you",
@@ -298,6 +334,23 @@
       "confidence": "high",
       "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 5858, Band 1). Ursprung: watchlist.",
       "checkedAt": "2026-05-26T14:17:36.296Z"
+    },
+    {
+      "seriesTitle": "Bitte zieh dich an, Takamine!",
+      "normalizedSeriesTitle": "bitte zieh dich an takamine",
+      "publisher": "Egmont Manga",
+      "normalizedPublisher": "egmont manga",
+      "volumeNumber": 2,
+      "releaseDate": "2026-07-07",
+      "isbn13": null,
+      "coverUrl": "https://media.manga-passion.de/volume/cover/2026/0625/1620/8ecac9f844d63fcd241f567e40b0f85c.jpg",
+      "sourceUrl": "https://www.manga-passion.de/editions/5858",
+      "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
+      "evidence": "Manga Passion Edition, Verlag und Bandnummer wurden gegen die Bandliste abgeglichen.",
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 5858, Band 2). Ursprung: volume-counts.",
+      "checkedAt": "2026-08-16T15:26:16.100Z"
     },
     {
       "seriesTitle": "Blood Blade",
@@ -619,6 +672,23 @@
       "checkedAt": "2026-06-05T08:16:18.014Z"
     },
     {
+      "seriesTitle": "DARLING in the FRANXX",
+      "normalizedSeriesTitle": "darling in the franxx",
+      "publisher": "Manga Cult",
+      "normalizedPublisher": "manga cult",
+      "volumeNumber": 8,
+      "releaseDate": "2026-06-11",
+      "isbn13": null,
+      "coverUrl": "https://media.manga-passion.de/volume/cover/2026/0113/0016/61eacec4eb25043a9c195626a325a755.jpg",
+      "sourceUrl": "https://www.manga-passion.de/editions/2936",
+      "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
+      "evidence": "Manga Passion Edition, Verlag und Bandnummer wurden gegen die Bandliste abgeglichen.",
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 2936, Band 8). Ursprung: volume-counts.",
+      "checkedAt": "2026-08-16T15:26:16.100Z"
+    },
+    {
       "seriesTitle": "Demon King of God Killing",
       "normalizedSeriesTitle": "demon king of god killing",
       "publisher": "Egmont Manga",
@@ -649,6 +719,23 @@
       "confidence": "high",
       "notes": "Hotfix: per Manga-Passion-API bestätigt (Edition 509, Band 2). Ursprung: watchlist.",
       "checkedAt": "2026-05-24T06:25:50.318Z"
+    },
+    {
+      "seriesTitle": "Demon Slave",
+      "normalizedSeriesTitle": "demon slave",
+      "publisher": "KAZÉ Manga",
+      "normalizedPublisher": "crunchyroll manga",
+      "volumeNumber": 19,
+      "releaseDate": "2026-06-05",
+      "isbn13": null,
+      "coverUrl": "https://media.manga-passion.de/volume/cover/2026/0514/1251/bda00c391a4c8053ebd3057516848c33.jpg",
+      "sourceUrl": "https://www.manga-passion.de/editions/509",
+      "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
+      "evidence": "Manga Passion Edition, Verlag und Bandnummer wurden gegen die Bandliste abgeglichen.",
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 509, Band 19). Ursprung: volume-counts.",
+      "checkedAt": "2026-08-16T15:26:16.100Z"
     },
     {
       "seriesTitle": "Die letzte Elfe",
@@ -1514,6 +1601,23 @@
       "checkedAt": "2026-05-31T11:11:21.455Z"
     },
     {
+      "seriesTitle": "Frieren – Nach dem Ende der Reise",
+      "normalizedSeriesTitle": "frieren nach dem ende der reise",
+      "publisher": "altraverse",
+      "normalizedPublisher": "altraverse",
+      "volumeNumber": 15,
+      "releaseDate": "2026-05-18",
+      "isbn13": null,
+      "coverUrl": "https://media.manga-passion.de/volume/cover/2026/0511/0406/2bd4e6b5c1560083f2d2d94a2496967e.jpg",
+      "sourceUrl": "https://www.manga-passion.de/editions/1697",
+      "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
+      "evidence": "Manga Passion Edition, Verlag und Bandnummer wurden gegen die Bandliste abgeglichen.",
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 1697, Band 15). Ursprung: volume-counts.",
+      "checkedAt": "2026-08-16T15:26:16.100Z"
+    },
+    {
       "seriesTitle": "From the Red Fog",
       "normalizedSeriesTitle": "from the red fog",
       "publisher": "Manga Cult",
@@ -1621,6 +1725,23 @@
       "confidence": "high",
       "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 6021, Band 1). Ursprung: watchlist.",
       "checkedAt": "2026-05-26T14:17:36.296Z"
+    },
+    {
+      "seriesTitle": "I Was Reincarnated as the 7th Prince So I Can Take My Time Perfecting My Magical Ability",
+      "normalizedSeriesTitle": "i was reincarnated as the 7th prince so i can take my time perfecting my magical ability",
+      "publisher": "Dokico",
+      "normalizedPublisher": "dokico",
+      "volumeNumber": 2,
+      "releaseDate": "2026-10-31",
+      "isbn13": null,
+      "coverUrl": "https://media.manga-passion.de/volume/cover/2026/0227/1321/f6c6bdd23ad18be7e0b980f6b1dc0720.jpg",
+      "sourceUrl": "https://www.manga-passion.de/editions/6021",
+      "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
+      "evidence": "Manga Passion Edition, Verlag und Bandnummer wurden gegen die Bandliste abgeglichen.",
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 6021, Band 2). Ursprung: watchlist.",
+      "checkedAt": "2026-08-16T15:26:16.100Z"
     },
     {
       "seriesTitle": "Isekai Soapland",
@@ -2073,6 +2194,23 @@
       "checkedAt": "2026-05-16T12:00:00.000Z"
     },
     {
+      "seriesTitle": "Kagurabachi",
+      "normalizedSeriesTitle": "kagurabachi",
+      "publisher": "Carlsen Manga!",
+      "normalizedPublisher": "carlsen manga",
+      "volumeNumber": 8,
+      "releaseDate": "2026-07-28",
+      "isbn13": null,
+      "coverUrl": "https://media.manga-passion.de/volume/cover/2026/0528/1915/72f82038a1ea0b13a6df74b5f8b6cfbc.jpg",
+      "sourceUrl": "https://www.manga-passion.de/editions/5072",
+      "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
+      "evidence": "Manga Passion Edition, Verlag und Bandnummer wurden gegen die Bandliste abgeglichen.",
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 5072, Band 8). Ursprung: volume-counts.",
+      "checkedAt": "2026-08-16T15:26:16.100Z"
+    },
+    {
       "seriesTitle": "Kaiju No.8",
       "normalizedSeriesTitle": "kaiju no 8",
       "publisher": "KAZÉ Manga",
@@ -2240,6 +2378,23 @@
       "checkedAt": "2026-05-17T10:56:39.041Z"
     },
     {
+      "seriesTitle": "Lili-Men",
+      "normalizedSeriesTitle": "lili men",
+      "publisher": "Egmont Manga",
+      "normalizedPublisher": "egmont manga",
+      "volumeNumber": 9,
+      "releaseDate": "2026-08-04",
+      "isbn13": null,
+      "coverUrl": "https://media.manga-passion.de/volume/cover/2026/0803/1802/bb2f17bfdeec21e8f1f5e6e27f5d785c.jpg",
+      "sourceUrl": "https://www.manga-passion.de/editions/5077",
+      "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
+      "evidence": "Manga Passion Edition, Verlag und Bandnummer wurden gegen die Bandliste abgeglichen.",
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 5077, Band 9). Ursprung: volume-counts.",
+      "checkedAt": "2026-08-16T15:26:16.100Z"
+    },
+    {
       "seriesTitle": "Maria's Judgement",
       "normalizedSeriesTitle": "maria s judgement",
       "publisher": "Egmont Manga",
@@ -2272,6 +2427,40 @@
       "checkedAt": "2026-05-26T14:17:36.296Z"
     },
     {
+      "seriesTitle": "Mein Wunsch, von einer Oberschülerin getötet zu werden",
+      "normalizedSeriesTitle": "mein wunsch von einer oberschulerin getotet zu werden",
+      "publisher": "Yomeru",
+      "normalizedPublisher": "yomeru",
+      "volumeNumber": 2,
+      "releaseDate": "2025-09-29",
+      "isbn13": null,
+      "coverUrl": "https://media.manga-passion.de/volume/cover/2025/0818/1049/10a9814a60059c62ea5c249ba187e615.jpg",
+      "sourceUrl": "https://www.manga-passion.de/editions/4972",
+      "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
+      "evidence": "Manga Passion Edition, Verlag und Bandnummer wurden gegen die Bandliste abgeglichen.",
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 4972, Band 2). Ursprung: volume-counts.",
+      "checkedAt": "2026-08-16T15:26:16.100Z"
+    },
+    {
+      "seriesTitle": "Meine Chefin kommt immer zuerst!!",
+      "normalizedSeriesTitle": "meine chefin kommt immer zuerst",
+      "publisher": "MANGAMOON",
+      "normalizedPublisher": "mangamoon",
+      "volumeNumber": 2,
+      "releaseDate": "2026-08-31",
+      "isbn13": null,
+      "coverUrl": "https://media.manga-passion.de/volume/cover/2026/0730/1025/d178bf2458e1bec01c81af1fc119c038.png",
+      "sourceUrl": "https://www.manga-passion.de/editions/6135",
+      "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
+      "evidence": "Manga Passion Edition, Verlag und Bandnummer wurden gegen die Bandliste abgeglichen.",
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 6135, Band 2). Ursprung: watchlist.",
+      "checkedAt": "2026-08-16T15:26:16.100Z"
+    },
+    {
       "seriesTitle": "Meine Wiedergeburt als Schleim in einer anderen Welt",
       "normalizedSeriesTitle": "meine wiedergeburt als schleim in einer anderen welt",
       "publisher": "altraverse",
@@ -2287,6 +2476,23 @@
       "confidence": "high",
       "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 249, Band 1). Ursprung: watchlist.",
       "checkedAt": "2026-06-05T08:16:18.014Z"
+    },
+    {
+      "seriesTitle": "Meine Wiedergeburt als Schleim in einer anderen Welt",
+      "normalizedSeriesTitle": "meine wiedergeburt als schleim in einer anderen welt",
+      "publisher": "altraverse",
+      "normalizedPublisher": "altraverse",
+      "volumeNumber": 30,
+      "releaseDate": "2026-08-10",
+      "isbn13": null,
+      "coverUrl": "https://media.manga-passion.de/volume/cover/2026/0710/1935/15c52bc3cd4510d56663aace9314de84.jpg",
+      "sourceUrl": "https://www.manga-passion.de/editions/249",
+      "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
+      "evidence": "Manga Passion Edition, Verlag und Bandnummer wurden gegen die Bandliste abgeglichen.",
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 249, Band 30). Ursprung: volume-counts.",
+      "checkedAt": "2026-08-16T15:26:16.100Z"
     },
     {
       "seriesTitle": "Mirai Nikki – New Edition",
@@ -2383,6 +2589,40 @@
       "checkedAt": "2026-06-05T08:16:18.014Z"
     },
     {
+      "seriesTitle": "Mushoku Tensei – In dieser Welt mach ich alles anders",
+      "normalizedSeriesTitle": "mushoku tensei in dieser welt mach ich alles anders",
+      "publisher": "Panini Manga",
+      "normalizedPublisher": "panini manga",
+      "volumeNumber": 22,
+      "releaseDate": "2026-02-17",
+      "isbn13": null,
+      "coverUrl": "https://media.manga-passion.de/volume/cover/2026/0225/1616/088c33bb1e6321999a376c00b9c17aec.jpg",
+      "sourceUrl": "https://www.manga-passion.de/editions/1314",
+      "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
+      "evidence": "Manga Passion Edition, Verlag und Bandnummer wurden gegen die Bandliste abgeglichen.",
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 1314, Band 22). Ursprung: volume-counts.",
+      "checkedAt": "2026-08-16T15:26:16.100Z"
+    },
+    {
+      "seriesTitle": "My Tiny Senpai",
+      "normalizedSeriesTitle": "my tiny senpai",
+      "publisher": "Dokico",
+      "normalizedPublisher": "dokico",
+      "volumeNumber": 2,
+      "releaseDate": "2026-05-19",
+      "isbn13": null,
+      "coverUrl": "https://media.manga-passion.de/volume/cover/2025/0621/1000/d7eb45b63f21dd03f986876e6bbaa8d9.jpg",
+      "sourceUrl": "https://www.manga-passion.de/editions/3116",
+      "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
+      "evidence": "Manga Passion Edition, Verlag und Bandnummer wurden gegen die Bandliste abgeglichen.",
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 3116, Band 2). Ursprung: watchlist.",
+      "checkedAt": "2026-08-16T15:26:16.100Z"
+    },
+    {
       "seriesTitle": "Neck mich nicht, Nagatoro-san",
       "normalizedSeriesTitle": "neck mich nicht nagatoro san",
       "publisher": "dani books",
@@ -2415,6 +2655,23 @@
       "checkedAt": "2026-06-05T08:16:18.014Z"
     },
     {
+      "seriesTitle": "One Piece",
+      "normalizedSeriesTitle": "one piece",
+      "publisher": "Carlsen Manga!",
+      "normalizedPublisher": "carlsen manga",
+      "volumeNumber": 71,
+      "releaseDate": "2014-07-29",
+      "isbn13": null,
+      "coverUrl": "https://media.manga-passion.de/volume/cover/2021/0928/0808/014485f68bcd80e113.jpeg",
+      "sourceUrl": "https://www.manga-passion.de/editions/87",
+      "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
+      "evidence": "Manga Passion Edition, Verlag und Bandnummer wurden gegen die Bandliste abgeglichen.",
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 87, Band 71). Ursprung: volume-counts.",
+      "checkedAt": "2026-08-16T15:26:16.100Z"
+    },
+    {
       "seriesTitle": "Real Account",
       "normalizedSeriesTitle": "real account",
       "publisher": "TOKYOPOP",
@@ -2428,6 +2685,23 @@
       "confidence": "high",
       "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 819, Band 6). Ursprung: watchlist.",
       "checkedAt": "2026-05-19T15:26:34.180Z"
+    },
+    {
+      "seriesTitle": "Real Account",
+      "normalizedSeriesTitle": "real account",
+      "publisher": "TOKYOPOP",
+      "normalizedPublisher": "tokyopop",
+      "volumeNumber": 14,
+      "releaseDate": "2024-08-14",
+      "isbn13": null,
+      "coverUrl": "https://media.manga-passion.de/volume/cover/2024/0719/2223/8ddb736122c8d2af821b24b02aee82c8.jpg",
+      "sourceUrl": "https://www.manga-passion.de/editions/819",
+      "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
+      "evidence": "Manga Passion Edition, Verlag und Bandnummer wurden gegen die Bandliste abgeglichen.",
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 819, Band 14). Ursprung: volume-counts.",
+      "checkedAt": "2026-08-16T15:26:16.100Z"
     },
     {
       "seriesTitle": "Reincarnated as a Sword: Another Wish",
@@ -2490,6 +2764,23 @@
       "confidence": "high",
       "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 6125, Band 1). Ursprung: watchlist.",
       "checkedAt": "2026-06-14T08:21:13.292Z"
+    },
+    {
+      "seriesTitle": "Solo Leveling: Ragnarok",
+      "normalizedSeriesTitle": "solo leveling ragnarok",
+      "publisher": "altraverse",
+      "normalizedPublisher": "altraverse",
+      "volumeNumber": 2,
+      "releaseDate": "2026-10-12",
+      "isbn13": null,
+      "coverUrl": "https://media.manga-passion.de/volume/cover/2026/0409/1013/e98cd0acfcb564963f6db5200276288a.jpg",
+      "sourceUrl": "https://www.manga-passion.de/editions/6125",
+      "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
+      "evidence": "Manga Passion Edition, Verlag und Bandnummer wurden gegen die Bandliste abgeglichen.",
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 6125, Band 2). Ursprung: watchlist.",
+      "checkedAt": "2026-08-16T15:26:16.100Z"
     },
     {
       "seriesTitle": "Spy x Family",
@@ -2711,6 +3002,23 @@
       "checkedAt": "2026-05-19T15:26:34.180Z"
     },
     {
+      "seriesTitle": "The Eminence in Shadow",
+      "normalizedSeriesTitle": "the eminence in shadow",
+      "publisher": "TOKYOPOP",
+      "normalizedPublisher": "tokyopop",
+      "volumeNumber": 10,
+      "releaseDate": "2026-09-09",
+      "isbn13": null,
+      "coverUrl": "https://media.manga-passion.de/volume/cover/2023/0806/1322/7f1ec8240b022171ed670937320b3e73.jpg",
+      "sourceUrl": "https://www.manga-passion.de/editions/2790",
+      "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
+      "evidence": "Manga Passion Edition, Verlag und Bandnummer wurden gegen die Bandliste abgeglichen.",
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 2790, Band 10). Ursprung: watchlist.",
+      "checkedAt": "2026-08-16T15:26:16.100Z"
+    },
+    {
       "seriesTitle": "The Rising of the Shield Hero",
       "normalizedSeriesTitle": "the rising of the shield hero",
       "publisher": "TOKYOPOP",
@@ -2728,6 +3036,40 @@
       "checkedAt": "2026-05-31T11:11:21.455Z"
     },
     {
+      "seriesTitle": "The Rising of the Shield Hero",
+      "normalizedSeriesTitle": "the rising of the shield hero",
+      "publisher": "TOKYOPOP",
+      "normalizedPublisher": "tokyopop",
+      "volumeNumber": 27,
+      "releaseDate": "2026-07-08",
+      "isbn13": null,
+      "coverUrl": "https://media.manga-passion.de/volume/cover/2026/0625/1809/b92295c020c1679b7de08ecfa512800a.jpg",
+      "sourceUrl": "https://www.manga-passion.de/editions/210",
+      "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
+      "evidence": "Manga Passion Edition, Verlag und Bandnummer wurden gegen die Bandliste abgeglichen.",
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 210, Band 27). Ursprung: volume-counts.",
+      "checkedAt": "2026-08-16T15:26:16.100Z"
+    },
+    {
+      "seriesTitle": "This Year’s Hot Ace-chan",
+      "normalizedSeriesTitle": "this year s hot ace chan",
+      "publisher": "Dokico",
+      "normalizedPublisher": "dokico",
+      "volumeNumber": 2,
+      "releaseDate": "2026-10-31",
+      "isbn13": null,
+      "coverUrl": "https://media.manga-passion.de/volume/cover/2026/0227/1232/13a56e85408ffc736699b50abc3e191f.jpg",
+      "sourceUrl": "https://www.manga-passion.de/editions/5677",
+      "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
+      "evidence": "Manga Passion Edition, Verlag und Bandnummer wurden gegen die Bandliste abgeglichen.",
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 5677, Band 2). Ursprung: watchlist.",
+      "checkedAt": "2026-08-16T15:26:16.100Z"
+    },
+    {
       "seriesTitle": "Tokyo Ghoul",
       "normalizedSeriesTitle": "tokyo ghoul",
       "publisher": "KAZÉ Manga",
@@ -2743,6 +3085,23 @@
       "confidence": "high",
       "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 951, Band 1). Ursprung: watchlist.",
       "checkedAt": "2026-06-05T08:16:18.014Z"
+    },
+    {
+      "seriesTitle": "Tokyo Ghoul",
+      "normalizedSeriesTitle": "tokyo ghoul",
+      "publisher": "KAZÉ Manga",
+      "normalizedPublisher": "crunchyroll manga",
+      "volumeNumber": 14,
+      "releaseDate": "2016-07-07",
+      "isbn13": null,
+      "coverUrl": "https://media.manga-passion.de/volume/cover/2021/1106/1058/062986010ac5c9989e.jpg",
+      "sourceUrl": "https://www.manga-passion.de/editions/951",
+      "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
+      "evidence": "Manga Passion Edition, Verlag und Bandnummer wurden gegen die Bandliste abgeglichen.",
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 951, Band 14). Ursprung: volume-counts.",
+      "checkedAt": "2026-08-16T15:26:16.100Z"
     },
     {
       "seriesTitle": "Tokyo Ghoul GIGANTIK",
@@ -2779,6 +3138,23 @@
       "checkedAt": "2026-06-14T08:21:13.292Z"
     },
     {
+      "seriesTitle": "Tokyo Ghoul GIGANTIK",
+      "normalizedSeriesTitle": "tokyo ghoul gigantik",
+      "publisher": "KAZÉ Manga",
+      "normalizedPublisher": "crunchyroll manga",
+      "volumeNumber": 7,
+      "releaseDate": "2026-08-07",
+      "isbn13": null,
+      "coverUrl": "https://media.manga-passion.de/volume/cover/2026/0627/1637/4b243c230eba8da84fa3037e68fe3d9f.jpg",
+      "sourceUrl": "https://www.manga-passion.de/editions/4962",
+      "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
+      "evidence": "Manga Passion Edition, Verlag und Bandnummer wurden gegen die Bandliste abgeglichen.",
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 4962, Band 7). Ursprung: volume-counts.",
+      "checkedAt": "2026-08-16T15:26:16.100Z"
+    },
+    {
       "seriesTitle": "Tokyo Ghoul:re",
       "normalizedSeriesTitle": "tokyo ghoul re",
       "publisher": "KAZÉ Manga",
@@ -2794,6 +3170,23 @@
       "confidence": "high",
       "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 952, Band 1). Ursprung: watchlist.",
       "checkedAt": "2026-06-05T08:16:18.014Z"
+    },
+    {
+      "seriesTitle": "Tokyo Ghoul:re",
+      "normalizedSeriesTitle": "tokyo ghoul re",
+      "publisher": "KAZÉ Manga",
+      "normalizedPublisher": "crunchyroll manga",
+      "volumeNumber": 16,
+      "releaseDate": "2019-03-07",
+      "isbn13": null,
+      "coverUrl": "https://media.manga-passion.de/volume/cover/2021/0423/0315/063156010b1e9390ef.jpg",
+      "sourceUrl": "https://www.manga-passion.de/editions/952",
+      "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
+      "evidence": "Manga Passion Edition, Verlag und Bandnummer wurden gegen die Bandliste abgeglichen.",
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 952, Band 16). Ursprung: volume-counts.",
+      "checkedAt": "2026-08-16T15:26:16.100Z"
     },
     {
       "seriesTitle": "Tokyo Ghoul:re GIGANTIK",
@@ -3061,6 +3454,23 @@
       "checkedAt": "2026-06-05T08:16:18.014Z"
     },
     {
+      "seriesTitle": "Vinland Saga",
+      "normalizedSeriesTitle": "vinland saga",
+      "publisher": "Carlsen Manga!",
+      "normalizedPublisher": "carlsen manga",
+      "volumeNumber": 28,
+      "releaseDate": "2025-04-30",
+      "isbn13": null,
+      "coverUrl": "https://media.manga-passion.de/volume/cover/2025/0319/1650/04dd76f05657a2d2484e4a46509e0533.jpg",
+      "sourceUrl": "https://www.manga-passion.de/editions/223",
+      "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
+      "evidence": "Manga Passion Edition, Verlag und Bandnummer wurden gegen die Bandliste abgeglichen.",
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 223, Band 28). Ursprung: volume-counts.",
+      "checkedAt": "2026-08-16T15:26:16.100Z"
+    },
+    {
       "seriesTitle": "Witch and Hound",
       "normalizedSeriesTitle": "witch and hound",
       "publisher": "Egmont Manga",
@@ -3134,6 +3544,23 @@
       "confidence": "high",
       "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 5408, Band 3). Ursprung: watchlist.",
       "checkedAt": "2026-05-19T15:26:34.180Z"
+    },
+    {
+      "seriesTitle": "Yandere Dark Elf",
+      "normalizedSeriesTitle": "yandere dark elf",
+      "publisher": "MANGAMOON",
+      "normalizedPublisher": "mangamoon",
+      "volumeNumber": 4,
+      "releaseDate": "2026-07-31",
+      "isbn13": null,
+      "coverUrl": "https://media.manga-passion.de/volume/cover/2026/0610/1939/0f5fbbbdd38538fe5fcc3bbb5d73060b.webp",
+      "sourceUrl": "https://www.manga-passion.de/editions/5408",
+      "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
+      "evidence": "Manga Passion Edition, Verlag und Bandnummer wurden gegen die Bandliste abgeglichen.",
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 5408, Band 4). Ursprung: volume-counts.",
+      "checkedAt": "2026-08-16T15:26:16.100Z"
     }
   ]
 }
