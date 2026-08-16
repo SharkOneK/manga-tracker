@@ -4,11 +4,11 @@
   "generatedFrom": "docs/release-cache-source-gap-analysis.md",
   "reviewPolicy": "docs/release-cache-manual-source-review.md",
   "summary": {
-    "knownSourceGaps": 34,
-    "totalGaps": 97,
+    "knownSourceGaps": 27,
+    "totalGaps": 90,
     "safeToPatch": 62,
-    "pendingManualReview": 35,
-    "autoReviewed": 26,
+    "pendingManualReview": 28,
+    "autoReviewed": 24,
     "patched": 62
   },
   "sortOrder": "priority(sehr hoch, hoch, mittel, niedrig), seriesTitle, publisher, volumeNumber",
@@ -400,47 +400,6 @@
         }
       ],
       "sourceAnalysisEvidence": "Manga-Passion-Edition 4636 fuehrt Band 13-19 nur mit Platzhalterdatum 2999-12-31; Band 8-12 sind bereits bestaetigt.",
-      "safeToPatch": false,
-      "reviewStatus": "auto-low-confidence",
-      "sourceUrl": "https://www.carlsen.de",
-      "releaseDate": null,
-      "checkedAt": "2026-05-29T14:22:14.386Z",
-      "evidence": "Automatische Quellenprüfung: publisher-not-supported. Confidence: low. Gruende: source-url-not-specific, missing-source-edition-title, missing-source-publisher, missing-source-volume-number, missing-release-date.",
-      "notes": "Automatisch geprüft; nicht sicher genug für den öffentlichen Cache.",
-      "sourceConfidence": "low",
-      "sourceName": "Carlsen Manga",
-      "sourceEditionId": null,
-      "sourceEditionTitle": null,
-      "sourcePublisher": null,
-      "sourceVolumeNumber": null,
-      "sourceResult": "publisher-not-supported",
-      "confidenceReasons": [
-        "source-url-not-specific",
-        "missing-source-edition-title",
-        "missing-source-publisher",
-        "missing-source-volume-number",
-        "missing-release-date"
-      ],
-      "providerId": "carlsen"
-    },
-    {
-      "queueKey": "Arifureta: Der Kampf zurück in meine Welt – Zero|Altraverse|4",
-      "seriesTitle": "Arifureta: Der Kampf zurück in meine Welt – Zero",
-      "publisher": "Altraverse",
-      "volumeNumber": 4,
-      "classification": "source-data-gap",
-      "suspectedCause": "not-yet-released",
-      "priority": "hoch",
-      "recommendedFix": "manual-source-review",
-      "manualSourceReviewNeeded": true,
-      "checkedSources": [
-        {
-          "name": "Manga Passion API",
-          "url": "https://www.manga-passion.de",
-          "result": "Edition 5807 vorhanden; Band 4-8 ohne valides Release-Datum."
-        }
-      ],
-      "sourceAnalysisEvidence": "Manga-Passion-Edition 5807 fuehrt die Zielbaende nur mit Platzhalterdatum 2999-12-31; vorhandener App-Seed fuer Band 3 ist nicht extern bestaetigt.",
       "safeToPatch": false,
       "reviewStatus": "auto-low-confidence",
       "sourceUrl": "https://www.carlsen.de",
@@ -896,21 +855,24 @@
       "reviewStatus": "needs-source",
       "sourceUrl": "https://altraverse.de/manga/adou/",
       "releaseDate": null,
-      "checkedAt": "2026-05-20T00:00:00.000Z",
+      "checkedAt": "2026-08-16T15:26:16.100Z",
       "evidence": "Offizielle Altraverse-Reihenseite wurde geprueft; Band 12 ist dort nicht als Produkt mit Datum belegt.",
       "notes": "Phase 33: Offizielle Altraverse-Reihenseite zeigt aktuell nur Band 1-11; kein belastbarer Band-12-Eintrag mit Release-Datum gefunden. Nicht patchen.",
       "sourceConfidence": "low",
-      "sourceName": "Manga Passion",
-      "sourceEditionId": 518,
-      "sourceEditionTitle": "Adou",
-      "sourcePublisher": "altraverse",
+      "sourceName": "Carlsen Manga",
+      "sourceEditionId": null,
+      "sourceEditionTitle": null,
+      "sourcePublisher": null,
       "sourceVolumeNumber": null,
-      "sourceResult": "volume-not-found",
+      "sourceResult": "publisher-not-supported",
       "confidenceReasons": [
+        "source-url-not-specific",
+        "missing-source-edition-title",
+        "missing-source-publisher",
         "missing-source-volume-number",
         "missing-release-date"
       ],
-      "providerId": "manga-passion"
+      "providerId": "carlsen"
     },
     {
       "queueKey": "Death Note - Diamond Edition|Tokyopop|1",
@@ -935,6 +897,47 @@
       "sourceUrl": "https://www.carlsen.de",
       "releaseDate": null,
       "checkedAt": "2026-06-05T08:16:18.014Z",
+      "evidence": "Automatische Quellenprüfung: publisher-not-supported. Confidence: low. Gruende: source-url-not-specific, missing-source-edition-title, missing-source-publisher, missing-source-volume-number, missing-release-date.",
+      "notes": "Automatisch geprüft; nicht sicher genug für den öffentlichen Cache.",
+      "sourceConfidence": "low",
+      "sourceName": "Carlsen Manga",
+      "providerId": "carlsen",
+      "sourceEditionId": null,
+      "sourceEditionTitle": null,
+      "sourcePublisher": null,
+      "sourceVolumeNumber": null,
+      "sourceResult": "publisher-not-supported",
+      "confidenceReasons": [
+        "source-url-not-specific",
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date"
+      ]
+    },
+    {
+      "queueKey": "Eguchi-san’s Pure-hearted Succubus|Dokico|2",
+      "seriesTitle": "Eguchi-san’s Pure-hearted Succubus",
+      "publisher": "Dokico",
+      "volumeNumber": 2,
+      "classification": "source-data-gap",
+      "suspectedCause": "manual-source-required",
+      "priority": "mittel",
+      "recommendedFix": "manual-source-review",
+      "manualSourceReviewNeeded": true,
+      "checkedSources": [
+        {
+          "name": "Release-Intake-Staging / Release-Cache-Audit",
+          "url": "data/release-watchlist.json",
+          "result": "Nach Release-Intake in der Watchlist vorhanden; kein passender Eintrag in data/release-cache.json."
+        }
+      ],
+      "sourceAnalysisEvidence": "Der Band wurde per Release-Intake in die Watchlist uebernommen. Der Release-Cache enthaelt noch kein belegtes Datum; kein Cache-Patch ohne verifizierte Quelle.",
+      "safeToPatch": false,
+      "reviewStatus": "auto-low-confidence",
+      "sourceUrl": "https://www.carlsen.de",
+      "releaseDate": null,
+      "checkedAt": "2026-08-16T15:26:16.100Z",
       "evidence": "Automatische Quellenprüfung: publisher-not-supported. Confidence: low. Gruende: source-url-not-specific, missing-source-edition-title, missing-source-publisher, missing-source-volume-number, missing-release-date.",
       "notes": "Automatisch geprüft; nicht sicher genug für den öffentlichen Cache.",
       "sourceConfidence": "low",
@@ -2375,47 +2378,6 @@
       "providerId": "manga-passion"
     },
     {
-      "queueKey": "Meine Chefin kommt immer zuerst!!|MangaMoon|2",
-      "seriesTitle": "Meine Chefin kommt immer zuerst!!",
-      "publisher": "MangaMoon",
-      "volumeNumber": 2,
-      "classification": "source-data-gap",
-      "suspectedCause": "not-yet-released",
-      "priority": "mittel",
-      "recommendedFix": "manual-source-review",
-      "manualSourceReviewNeeded": true,
-      "checkedSources": [
-        {
-          "name": "Manga Passion API",
-          "url": "https://www.manga-passion.de",
-          "result": "Edition 6135 vorhanden; Band 2 ohne valides Release-Datum."
-        }
-      ],
-      "sourceAnalysisEvidence": "Manga-Passion-Edition 6135 fuehrt Band 2 nur mit Platzhalterdatum 2999-12-31; Schreibweise MangaMoon/MANGAMOON sollte konsolidiert bleiben.",
-      "safeToPatch": false,
-      "reviewStatus": "deferred",
-      "sourceUrl": "https://www.manga-passion.de/articles/tags/321/mangamoon",
-      "releaseDate": null,
-      "checkedAt": "2026-05-29T14:22:14.386Z",
-      "evidence": "Phase-33-Pruefung: HTTPS-Quellen stuetzen MangaMoon und Auftakt, aber Band 2 ist nicht mit validem Release-Datum belegt.",
-      "notes": "Phase 33: Oeffentliche Quellen nennen den Deutschland-Start/Limitierte Ausgabe zum Auftakt, aber kein belastbares Release-Datum fuer Band 2. Nicht patchen.",
-      "sourceConfidence": "low",
-      "sourceName": "Carlsen Manga",
-      "sourceEditionId": null,
-      "sourceEditionTitle": null,
-      "sourcePublisher": null,
-      "sourceVolumeNumber": null,
-      "sourceResult": "publisher-not-supported",
-      "confidenceReasons": [
-        "source-url-not-specific",
-        "missing-source-edition-title",
-        "missing-source-publisher",
-        "missing-source-volume-number",
-        "missing-release-date"
-      ],
-      "providerId": "carlsen"
-    },
-    {
       "queueKey": "Neck mich nicht, Nagatoro-san|dani books|6",
       "seriesTitle": "Neck mich nicht, Nagatoro-san",
       "publisher": "dani books",
@@ -2479,47 +2441,6 @@
       "sourceUrl": "https://www.carlsen.de",
       "releaseDate": null,
       "checkedAt": "2026-05-29T14:22:14.386Z",
-      "evidence": "Automatische Quellenprüfung: publisher-not-supported. Confidence: low. Gruende: source-url-not-specific, missing-source-edition-title, missing-source-publisher, missing-source-volume-number, missing-release-date.",
-      "notes": "Automatisch geprüft; nicht sicher genug für den öffentlichen Cache.",
-      "sourceConfidence": "low",
-      "sourceName": "Carlsen Manga",
-      "providerId": "carlsen",
-      "sourceEditionId": null,
-      "sourceEditionTitle": null,
-      "sourcePublisher": null,
-      "sourceVolumeNumber": null,
-      "sourceResult": "publisher-not-supported",
-      "confidenceReasons": [
-        "source-url-not-specific",
-        "missing-source-edition-title",
-        "missing-source-publisher",
-        "missing-source-volume-number",
-        "missing-release-date"
-      ]
-    },
-    {
-      "queueKey": "Solo Leveling: Ragnarok|Altraverse|2",
-      "seriesTitle": "Solo Leveling: Ragnarok",
-      "publisher": "Altraverse",
-      "volumeNumber": 2,
-      "classification": "source-data-gap",
-      "suspectedCause": "manual-source-required",
-      "priority": "mittel",
-      "recommendedFix": "manual-source-review",
-      "manualSourceReviewNeeded": true,
-      "checkedSources": [
-        {
-          "name": "Release-Intake-Staging / Release-Cache-Audit",
-          "url": "data/release-watchlist.json",
-          "result": "Nach Release-Intake in der Watchlist vorhanden; kein passender Eintrag in data/release-cache.json."
-        }
-      ],
-      "sourceAnalysisEvidence": "Der Band wurde per Release-Intake in die Watchlist uebernommen. Der Release-Cache enthaelt noch kein belegtes Datum; kein Cache-Patch ohne verifizierte Quelle.",
-      "safeToPatch": false,
-      "reviewStatus": "auto-low-confidence",
-      "sourceUrl": "https://www.carlsen.de",
-      "releaseDate": null,
-      "checkedAt": "2026-06-14T08:21:13.292Z",
       "evidence": "Automatische Quellenprüfung: publisher-not-supported. Confidence: low. Gruende: source-url-not-specific, missing-source-edition-title, missing-source-publisher, missing-source-volume-number, missing-release-date.",
       "notes": "Automatisch geprüft; nicht sicher genug für den öffentlichen Cache.",
       "sourceConfidence": "low",
@@ -2887,47 +2808,6 @@
       "providerId": "manga-passion"
     },
     {
-      "queueKey": "The Eminence in Shadow|Tokyopop|10",
-      "seriesTitle": "The Eminence in Shadow",
-      "publisher": "Tokyopop",
-      "volumeNumber": 10,
-      "classification": "source-data-gap",
-      "suspectedCause": "manual-source-required",
-      "priority": "mittel",
-      "recommendedFix": "manual-source-review",
-      "manualSourceReviewNeeded": true,
-      "checkedSources": [
-        {
-          "name": "Release-Intake-Staging / Release-Cache-Audit",
-          "url": "data/release-watchlist.json",
-          "result": "Nach Release-Intake in der Watchlist vorhanden; kein passender Eintrag in data/release-cache.json."
-        }
-      ],
-      "sourceAnalysisEvidence": "Der Band wurde per Release-Intake in die Watchlist uebernommen. Der Release-Cache enthaelt noch kein belegtes Datum; kein Cache-Patch ohne verifizierte Quelle.",
-      "safeToPatch": false,
-      "reviewStatus": "auto-low-confidence",
-      "sourceUrl": "https://www.carlsen.de",
-      "releaseDate": null,
-      "checkedAt": "2026-06-14T08:21:13.292Z",
-      "evidence": "Automatische Quellenprüfung: publisher-not-supported. Confidence: low. Gruende: source-url-not-specific, missing-source-edition-title, missing-source-publisher, missing-source-volume-number, missing-release-date.",
-      "notes": "Automatisch geprüft; nicht sicher genug für den öffentlichen Cache.",
-      "sourceConfidence": "low",
-      "sourceName": "Carlsen Manga",
-      "providerId": "carlsen",
-      "sourceEditionId": null,
-      "sourceEditionTitle": null,
-      "sourcePublisher": null,
-      "sourceVolumeNumber": null,
-      "sourceResult": "publisher-not-supported",
-      "confidenceReasons": [
-        "source-url-not-specific",
-        "missing-source-edition-title",
-        "missing-source-publisher",
-        "missing-source-volume-number",
-        "missing-release-date"
-      ]
-    },
-    {
       "queueKey": "Tokyo Revengers – Doppelband-Edition|Carlsen Manga|16",
       "seriesTitle": "Tokyo Revengers – Doppelband-Edition",
       "publisher": "Carlsen Manga",
@@ -3069,110 +2949,6 @@
         "missing-release-date"
       ],
       "providerId": "carlsen"
-    },
-    {
-      "queueKey": "This Year’s Hot Ace-chan|Dokico|2",
-      "seriesTitle": "This Year’s Hot Ace-chan",
-      "publisher": "Dokico",
-      "volumeNumber": 2,
-      "classification": "source-data-gap",
-      "suspectedCause": "manual-source-required",
-      "priority": "mittel",
-      "recommendedFix": "manual-source-review",
-      "manualSourceReviewNeeded": true,
-      "checkedSources": [
-        {
-          "name": "Release-Intake-Staging / Release-Cache-Audit",
-          "url": "data/release-watchlist.json",
-          "result": "Nach Release-Intake in der Watchlist vorhanden; kein passender Eintrag in data/release-cache.json."
-        }
-      ],
-      "sourceAnalysisEvidence": "Der Band wurde per Release-Intake in die Watchlist uebernommen. Der Release-Cache enthaelt noch kein belegtes Datum; kein Cache-Patch ohne verifizierte Quelle.",
-      "safeToPatch": false,
-      "reviewStatus": "pending",
-      "sourceUrl": "",
-      "releaseDate": null,
-      "checkedAt": null,
-      "evidence": "",
-      "notes": "Automatisch aus aktueller Source-Gap-Analyse ergänzt; manuelle Quellenprüfung erforderlich."
-    },
-    {
-      "queueKey": "My Tiny Senpai|Dokico|2",
-      "seriesTitle": "My Tiny Senpai",
-      "publisher": "Dokico",
-      "volumeNumber": 2,
-      "classification": "source-data-gap",
-      "suspectedCause": "manual-source-required",
-      "priority": "mittel",
-      "recommendedFix": "manual-source-review",
-      "manualSourceReviewNeeded": true,
-      "checkedSources": [
-        {
-          "name": "Release-Intake-Staging / Release-Cache-Audit",
-          "url": "data/release-watchlist.json",
-          "result": "Nach Release-Intake in der Watchlist vorhanden; kein passender Eintrag in data/release-cache.json."
-        }
-      ],
-      "sourceAnalysisEvidence": "Der Band wurde per Release-Intake in die Watchlist uebernommen. Der Release-Cache enthaelt noch kein belegtes Datum; kein Cache-Patch ohne verifizierte Quelle.",
-      "safeToPatch": false,
-      "reviewStatus": "pending",
-      "sourceUrl": "",
-      "releaseDate": null,
-      "checkedAt": null,
-      "evidence": "",
-      "notes": "Automatisch aus aktueller Source-Gap-Analyse ergänzt; manuelle Quellenprüfung erforderlich."
-    },
-    {
-      "queueKey": "Eguchi-san’s Pure-hearted Succubus|Dokico|2",
-      "seriesTitle": "Eguchi-san’s Pure-hearted Succubus",
-      "publisher": "Dokico",
-      "volumeNumber": 2,
-      "classification": "source-data-gap",
-      "suspectedCause": "manual-source-required",
-      "priority": "mittel",
-      "recommendedFix": "manual-source-review",
-      "manualSourceReviewNeeded": true,
-      "checkedSources": [
-        {
-          "name": "Release-Intake-Staging / Release-Cache-Audit",
-          "url": "data/release-watchlist.json",
-          "result": "Nach Release-Intake in der Watchlist vorhanden; kein passender Eintrag in data/release-cache.json."
-        }
-      ],
-      "sourceAnalysisEvidence": "Der Band wurde per Release-Intake in die Watchlist uebernommen. Der Release-Cache enthaelt noch kein belegtes Datum; kein Cache-Patch ohne verifizierte Quelle.",
-      "safeToPatch": false,
-      "reviewStatus": "pending",
-      "sourceUrl": "",
-      "releaseDate": null,
-      "checkedAt": null,
-      "evidence": "",
-      "notes": "Automatisch aus aktueller Source-Gap-Analyse ergänzt; manuelle Quellenprüfung erforderlich."
-    },
-    {
-      "queueKey": "I Was Reincarnated as the 7th Prince So I Can Take My Time Perfecting My Magical Ability|Dokico|2",
-      "seriesTitle": "I Was Reincarnated as the 7th Prince So I Can Take My Time Perfecting My Magical Ability",
-      "publisher": "Dokico",
-      "volumeNumber": 2,
-      "classification": "source-data-gap",
-      "suspectedCause": "manual-source-required",
-      "priority": "mittel",
-      "recommendedFix": "manual-source-review",
-      "manualSourceReviewNeeded": true,
-      "checkedSources": [
-        {
-          "name": "Release-Intake-Staging / Release-Cache-Audit",
-          "url": "data/release-watchlist.json",
-          "result": "Nach Release-Intake in der Watchlist vorhanden; kein passender Eintrag in data/release-cache.json."
-        }
-      ],
-      "sourceAnalysisEvidence": "Der Band wurde per Release-Intake in die Watchlist uebernommen. Der Release-Cache enthaelt noch kein belegtes Datum; kein Cache-Patch ohne verifizierte Quelle.",
-      "safeToPatch": false,
-      "reviewStatus": "pending",
-      "sourceUrl": "",
-      "releaseDate": null,
-      "checkedAt": null,
-      "evidence": "",
-      "notes": "Automatisch aus aktueller Source-Gap-Analyse ergänzt; manuelle Quellenprüfung erforderlich."
     }
   ]
 }

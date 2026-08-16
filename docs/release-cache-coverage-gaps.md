@@ -8,15 +8,15 @@ Stand: automatisch synchronisiert aus aktuellem Audit gegen `data/release-watchl
 |---|---:|
 | Aktivierte Watchlist-Eintraege | 58 |
 | Expandierte Watchlist-Bandkandidaten | 212 |
-| Release-Cache-Eintraege | 197 |
-| Gefundene Cache-Eintraege | 178 |
-| Verbleibende Luecken | 34 |
-| Betroffene Serien | 16 |
-| Betroffene Verlage | 9 |
+| Release-Cache-Eintraege | 222 |
+| Gefundene Cache-Eintraege | 185 |
+| Verbleibende Luecken | 27 |
+| Betroffene Serien | 10 |
+| Betroffene Verlage | 8 |
 
 ## Klassifikation
 
-Alle 34 verbleibenden Luecken sind als `source-data-gap` klassifiziert.
+Alle 27 verbleibenden Luecken sind als `source-data-gap` klassifiziert.
 
 Bedeutung: Der Watchlist-Band wurde nach dem Cache-Update weiterhin nicht in `data/release-cache.json` gefunden. Diese Faelle sind Quellen-/Datenqualitaetsfaelle und duerfen nicht durch Fake-Daten geschlossen werden.
 
@@ -27,35 +27,28 @@ Empfohlener Umgang: manuell in verlaesslicher Quelle pruefen, erst danach echte 
 | Serie | Verlag | Fehlende Baende | Anzahl | Klassifikation |
 |---|---|---:|---:|---|
 | Vermeil in Gold | MANGAMOON | 2 | 1 | source-data-gap |
-| Meine Chefin kommt immer zuerst!! | MangaMoon | 2 | 1 | source-data-gap |
 | Vagabond – Master Edition | Egmont Manga | 16-19 | 4 | source-data-gap |
 | Adou | Altraverse | 12 | 1 | source-data-gap |
-| Arifureta: Der Kampf zurück in meine Welt – Zero | Altraverse | 4-8 | 5 | source-data-gap |
+| Arifureta: Der Kampf zurück in meine Welt – Zero | Altraverse | 5-8 | 4 | source-data-gap |
 | Berserk Master Edition | Panini Manga | 9-14 | 6 | source-data-gap |
 | Isekai Soapland | MANGAMOON | 3-8 | 6 | source-data-gap |
 | Neck mich nicht, Nagatoro-san | dani books | 6-7 | 2 | source-data-gap |
 | Tokyo Revengers – Doppelband-Edition | Carlsen Manga | 16 | 1 | source-data-gap |
 | Death Note - Diamond Edition | Tokyopop | 1 | 1 | source-data-gap |
-| The Eminence in Shadow | Tokyopop | 10 | 1 | source-data-gap |
-| Solo Leveling: Ragnarok | Altraverse | 2 | 1 | source-data-gap |
-| This Year’s Hot Ace-chan | Dokico | 2 | 1 | source-data-gap |
-| My Tiny Senpai | Dokico | 2 | 1 | source-data-gap |
 | Eguchi-san’s Pure-hearted Succubus | Dokico | 2 | 1 | source-data-gap |
-| I Was Reincarnated as the 7th Prince So I Can Take My Time Perfecting My Magical Ability | Dokico | 2 | 1 | source-data-gap |
 
 ## Luecken nach Verlag
 
 | Verlag | Luecken | Serien |
 |---|---:|---:|
-| Altraverse | 7 | 3 |
 | MANGAMOON | 7 | 2 |
 | Panini Manga | 6 | 1 |
-| Dokico | 4 | 4 |
+| Altraverse | 5 | 2 |
 | Egmont Manga | 4 | 1 |
 | dani books | 2 | 1 |
-| Tokyopop | 2 | 2 |
 | Carlsen Manga | 1 | 1 |
-| MangaMoon | 1 | 1 |
+| Dokico | 1 | 1 |
+| Tokyopop | 1 | 1 |
 
 ## Maschinenlesbarer Audit
 
@@ -97,7 +90,7 @@ Der normale Workflow scheitert weiterhin nicht an bekannten `source-data-gap`-Lu
 
 ## Phase 23a: Ursachenanalyse
 
-Die 34 `source-data-gap`-Einzelluecken sind in `docs/release-cache-source-gap-analysis.md` strukturiert analysiert.
+Die 27 `source-data-gap`-Einzelluecken sind in `docs/release-cache-source-gap-analysis.md` strukturiert analysiert.
 
 Die Analyse dokumentiert pro Gap:
 
