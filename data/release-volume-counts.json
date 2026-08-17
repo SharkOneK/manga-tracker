@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-16T15:35:09.999Z",
+  "generatedAt": "2026-08-17T05:05:38.032Z",
   "items": [
     {
       "seriesTitle": "Adou",
@@ -302,11 +302,11 @@
     {
       "seriesTitle": "One Piece",
       "publisher": "Carlsen Manga!",
-      "publishedVolumesDE": 71,
+      "publishedVolumesDE": 72,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/87",
       "confidence": "high",
-      "checkedAt": "2026-08-16T15:26:16.100Z"
+      "checkedAt": "2026-08-17T05:05:38.032Z"
     },
     {
       "seriesTitle": "Real Account",
