@@ -163,6 +163,10 @@ async function loadFromCloud() {
       // Ladepfad auf SCHEMA_VERSION anheben, sonst liefert buildPublicCollectionData()
       // schemaVersion:2, obwohl mediaType/seasons bereits enthalten sind.
       db.schemaVersion = SCHEMA_VERSION;
+      // Phase 80: falls die Volume-Counts bereits geladen sind, greift die Brücke direkt
+      // auf den frisch geladenen Cloud-Stand (sonst zieht Hook 1 in loadReleaseVolumeCounts()
+      // später nach, sobald die Counts-Datei geladen ist).
+      reconcileReleaseVolumeTotals();
       const after = JSON.stringify(db);
       if (before !== after) {
         saveLoc();
@@ -1560,6 +1564,9 @@ async function loadViewCollection() {
         setIfEmpty(m, 'total', s.total);
         setIfEmpty(m, 'ongoing', s.ongoing);
       });
+      // Phase 80: Brücke wirkt in der öffentlichen Ansicht nur in-memory (canEditLocal()
+      // ist hier stets false → reconcileReleaseVolumeTotals() persistiert nichts).
+      reconcileReleaseVolumeTotals();
       render();
     }
   } catch { toast('⚠️ Sammlung konnte nicht geladen werden'); }
@@ -4193,6 +4200,9 @@ async function loadReleaseVolumeCounts() {
     releaseVolumeCounts = data;
     releaseVolumeCountsStatus = 'loaded';
     console.info(`[Phase 43] release-volume-counts.json geladen: ${data.items.length} Serie(n), Stand: ${data.generatedAt || 'unbekannt'}`);
+    // Phase 80: deckt den Normalfall ab — Counts laden async nach Boot/Cloud-Load,
+    // die Brücke muss also hier (statt nur im Cloud-Hook) greifen.
+    reconcileReleaseVolumeTotals();
   } catch (e) {
     releaseVolumeCounts = null;
     releaseVolumeCountsStatus = 'missing';
@@ -4346,6 +4356,47 @@ async function loadReleaseCoverageKnownData() {
   }
   reconcileLocalReleaseCoveragePending();
   if (tab === 'dashboard') renderDashboard();
+}
+
+// Phase 80: reine Brücken-Entscheidung — liefert die neue m.total-Zahl, wenn
+// die (bereits als high-confidence validierte) Volume-Count-Zahl höher ist als
+// der aktuelle Stand, sonst null (keine Änderung). Senkt niemals, fasst m.bands
+// nie an; count kann fehlen (kein/mehrdeutiger Match) → dann ebenfalls null.
+// Bewusst außerhalb des Phase-43-Privacy-Gate-Blocks platziert (siehe Test
+// scripts/test-public-private-diff.js, Z. 84-89: der Block zwischen
+// loadReleaseVolumeCounts und loadReleaseCoverageKnownData muss read-only sein,
+// darf also kein persist()/pushCloud()/localStorage.setItem enthalten).
+function bridgedTotalForCount(m, count) {
+  if (!count) return null;
+  const published = Number(count.publishedVolumesDE);
+  if (!Number.isInteger(published) || published <= 0) return null;
+  const cur = Number(m.total);
+  if (cur > 0 && published <= cur) return null; // nie senken, auch nicht bei Gleichstand
+  return published;
+}
+
+// Phase 80: Mutations-Treiber — spiegelt publishedVolumesDE für jede eindeutig
+// gematchte Serie konservativ nach oben in m.total, damit toBuyList() neu
+// erschienene Bände automatisch erfasst. Persistiert nur bei canEditLocal()
+// (öffentliche Ansicht bleibt read-only, wirkt nur in-memory). Reentrant:
+// ein zweiter Lauf ändert nichts mehr, sobald total == published.
+function reconcileReleaseVolumeTotals() {
+  if (!releaseVolumeCounts || !Array.isArray(releaseVolumeCounts.items)) return false;
+  if (!db || !Array.isArray(db.m)) return false;
+  let changed = false;
+  db.m.forEach(m => {
+    const count = findReleaseVolumeCountForSeries(m);
+    const bridged = bridgedTotalForCount(m, count);
+    if (bridged !== null) {
+      m.total = bridged;
+      changed = true;
+    }
+  });
+  if (changed) {
+    if (canEditLocal()) persist(); // saveLoc() + ggf. Cloud-Sync; öffentliche Ansicht bleibt in-memory
+    render();
+  }
+  return changed;
 }
 
 // Findet passende Cache-Einträge für einen Manga aus der Sammlung
