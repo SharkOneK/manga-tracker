@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-16T15:26:16.100Z",
+  "generatedAt": "2026-08-21T16:50:11.340Z",
   "source": "run-release-cache-pipeline.js",
-  "itemCount": 222,
+  "itemCount": 223,
   "items": [
     {
       "seriesTitle": "Adou",
@@ -2670,6 +2670,23 @@
       "confidence": "high",
       "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 87, Band 71). Ursprung: volume-counts.",
       "checkedAt": "2026-08-16T15:26:16.100Z"
+    },
+    {
+      "seriesTitle": "One Piece",
+      "normalizedSeriesTitle": "one piece",
+      "publisher": "Carlsen Manga!",
+      "normalizedPublisher": "carlsen manga",
+      "volumeNumber": 76,
+      "releaseDate": "2015-10-28",
+      "isbn13": null,
+      "coverUrl": "https://media.manga-passion.de/volume/cover/2021/0305/1414/014545f68f12d48e90.jpeg",
+      "sourceUrl": "https://www.manga-passion.de/editions/87",
+      "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
+      "evidence": "Manga Passion Edition, Verlag und Bandnummer wurden gegen die Bandliste abgeglichen.",
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 87, Band 76). Ursprung: volume-counts.",
+      "checkedAt": "2026-08-21T16:50:11.340Z"
     },
     {
       "seriesTitle": "Real Account",
