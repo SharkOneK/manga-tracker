@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-17T04:56:41.817Z",
+  "generatedAt": "2026-08-21T16:50:11.340Z",
   "source": "run-release-cache-pipeline.js",
   "inputs": {
     "cacheItems": 222,
@@ -46,19 +46,32 @@
   },
   "summary": {
     "candidatesDiscovered": 242,
-    "candidatesChecked": 28,
-    "skippedAlreadyCached": 214,
+    "candidatesChecked": 29,
+    "skippedAlreadyCached": 213,
     "skippedDueToLimit": 0,
-    "highConfidence": 0,
+    "highConfidence": 1,
     "mediumConfidence": 0,
     "lowConfidence": 28,
     "blocked": 0,
-    "cachePatches": 0,
+    "cachePatches": 1,
     "reviewQueueWrites": 28,
     "invalidExistingCache": 0
   },
   "autoMergeEligible": false,
-  "cachePatches": [],
+  "cachePatches": [
+    {
+      "action": "add",
+      "key": "one piece|carlsen manga|76",
+      "seriesTitle": "One Piece",
+      "publisher": "Carlsen Manga!",
+      "volumeNumber": 76,
+      "releaseDate": "2015-10-28",
+      "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
+      "sourceUrl": "https://www.manga-passion.de/editions/87",
+      "confidence": "high"
+    }
+  ],
   "reviewQueueWrites": [
     {
       "key": "berserk master edition|panini manga|9",
@@ -854,7 +867,6 @@
     "mein wunsch von einer oberschulerin getotet zu werden|yomeru|2",
     "meine wiedergeburt als schleim in einer anderen welt|altraverse|30",
     "mushoku tensei in dieser welt mach ich alles anders|panini manga|22",
-    "one piece|carlsen manga|71",
     "real account|tokyopop|14",
     "the rising of the shield hero|tokyopop|27",
     "tokyo ghoul|crunchyroll manga|14",

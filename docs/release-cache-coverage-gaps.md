@@ -8,7 +8,7 @@ Stand: automatisch synchronisiert aus aktuellem Audit gegen `data/release-watchl
 |---|---:|
 | Aktivierte Watchlist-Eintraege | 58 |
 | Expandierte Watchlist-Bandkandidaten | 212 |
-| Release-Cache-Eintraege | 222 |
+| Release-Cache-Eintraege | 223 |
 | Gefundene Cache-Eintraege | 185 |
 | Verbleibende Luecken | 27 |
 | Betroffene Serien | 10 |
