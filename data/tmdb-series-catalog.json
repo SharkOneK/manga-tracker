@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-29T17:05:13.505Z",
+  "generatedAt": "2026-08-21T04:57:03.170Z",
   "source": "update-tmdb-catalog.js",
   "items": [
     {
@@ -80,7 +80,10 @@
         "61": 5,
         "62": 5
       },
-      "streamingProviders": []
+      "streamingProviders": [
+        "Netflix",
+        "Netflix Standard with Ads"
+      ]
     },
     {
       "tmdbId": 1399,
@@ -171,7 +174,10 @@
         "72": 8,
         "73": 8
       },
-      "streamingProviders": []
+      "streamingProviders": [
+        "HBO Max",
+        "HBO Max Amazon Channel"
+      ]
     },
     {
       "tmdbId": 60625,
@@ -281,7 +287,12 @@
         "90": 9,
         "91": 9
       },
-      "streamingProviders": []
+      "streamingProviders": [
+        "Netflix",
+        "Netflix Standard with Ads",
+        "HBO Max",
+        "HBO Max Amazon Channel"
+      ]
     }
   ]
 }
