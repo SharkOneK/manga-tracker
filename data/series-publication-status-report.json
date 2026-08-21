@@ -1,24 +1,52 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-06-17T09:20:44.465Z",
+  "generatedAt": "2026-08-21T05:07:49.670Z",
   "source": "run-series-publication-status.js",
   "networkMode": "enabled",
   "summary": {
-    "seriesWithStatus": 44,
+    "seriesWithStatus": 46,
     "ongoing": 33,
-    "finished": 11,
-    "checkedEditions": 41,
-    "appliedChanges": 2,
+    "finished": 13,
+    "checkedEditions": 43,
+    "appliedChanges": 6,
     "overridesApplied": 1,
-    "blockedOrUnmapped": 5
+    "blockedOrUnmapped": 6
   },
   "changes": [
+    {
+      "seriesTitle": "Kagurabachi",
+      "publisher": "Carlsen Manga!",
+      "oldOngoing": null,
+      "newOngoing": "true",
+      "editionId": 5072
+    },
+    {
+      "seriesTitle": "My Tiny Senpai",
+      "publisher": "Dokico",
+      "oldOngoing": null,
+      "newOngoing": "true",
+      "editionId": 3116
+    },
     {
       "seriesTitle": "Real Account",
       "publisher": "TOKYOPOP",
       "oldOngoing": "false",
       "newOngoing": "true",
       "editionId": 819
+    },
+    {
+      "seriesTitle": "Tokyo Ghoul GIGANTIK",
+      "publisher": "KAZÉ Manga",
+      "oldOngoing": "true",
+      "newOngoing": "false",
+      "editionId": 4962
+    },
+    {
+      "seriesTitle": "Witch and Hound",
+      "publisher": "Egmont Manga",
+      "oldOngoing": "true",
+      "newOngoing": "false",
+      "editionId": 5483
     },
     {
       "seriesTitle": "Real Account",
@@ -45,6 +73,20 @@
       ]
     },
     {
+      "seriesTitle": "Blood Blade",
+      "publisher": "Hayabusa",
+      "reasonCodes": [
+        "no-manga-passion-edition"
+      ]
+    },
+    {
+      "seriesTitle": "Chainsaw Man",
+      "publisher": "Egmont Manga",
+      "reasonCodes": [
+        "no-manga-passion-edition"
+      ]
+    },
+    {
       "seriesTitle": "Colorless",
       "publisher": "Manga Cult",
       "reasonCodes": [
@@ -52,22 +94,15 @@
       ]
     },
     {
-      "seriesTitle": "Kagurabachi",
-      "publisher": "Carlsen Manga",
+      "seriesTitle": "Dandadan",
+      "publisher": "KAZÉ Manga",
       "reasonCodes": [
         "no-manga-passion-edition"
       ]
     },
     {
-      "seriesTitle": "Lili-Men",
-      "publisher": "Egmont Manga",
-      "reasonCodes": [
-        "no-manga-passion-edition"
-      ]
-    },
-    {
-      "seriesTitle": "Mirai Nikki – New Edition",
-      "publisher": "Egmont Manga",
+      "seriesTitle": "Isekai Soapland",
+      "publisher": "MANGAMOON",
       "reasonCodes": [
         "no-manga-passion-edition"
       ]
@@ -105,22 +140,10 @@
       "sourceStatus": 1
     },
     {
-      "seriesTitle": "Blood Blade",
-      "publisher": "Hayabusa",
-      "editionId": 5098,
-      "sourceStatus": 1
-    },
-    {
       "seriesTitle": "Brynhildr in the Darkness",
       "publisher": "TOKYOPOP",
       "editionId": 3260,
       "sourceStatus": 2
-    },
-    {
-      "seriesTitle": "Chainsaw Man",
-      "publisher": "Egmont Manga",
-      "editionId": 269,
-      "sourceStatus": 1
     },
     {
       "seriesTitle": "Dai Dark",
@@ -183,6 +206,12 @@
       "sourceStatus": 2
     },
     {
+      "seriesTitle": "Kagurabachi",
+      "publisher": "Carlsen Manga!",
+      "editionId": 5072,
+      "sourceStatus": 1
+    },
+    {
       "seriesTitle": "Kaiju No.8",
       "publisher": "KAZÉ Manga",
       "editionId": 1966,
@@ -192,6 +221,12 @@
       "seriesTitle": "Kijin Gentosho: Dämonenjäger",
       "publisher": "Panini Manga",
       "editionId": 2088,
+      "sourceStatus": 1
+    },
+    {
+      "seriesTitle": "Lili-Men",
+      "publisher": "Egmont Manga",
+      "editionId": 5077,
       "sourceStatus": 1
     },
     {
@@ -213,6 +248,12 @@
       "sourceStatus": 1
     },
     {
+      "seriesTitle": "Mirai Nikki – New Edition",
+      "publisher": "Egmont Manga",
+      "editionId": 5504,
+      "sourceStatus": 1
+    },
+    {
       "seriesTitle": "Mujina into the Deep",
       "publisher": "TOKYOPOP",
       "editionId": 5184,
@@ -222,6 +263,12 @@
       "seriesTitle": "Mushoku Tensei – In dieser Welt mach ich alles anders",
       "publisher": "Panini Manga",
       "editionId": 1314,
+      "sourceStatus": 1
+    },
+    {
+      "seriesTitle": "My Tiny Senpai",
+      "publisher": "Dokico",
+      "editionId": 3116,
       "sourceStatus": 1
     },
     {
@@ -276,7 +323,7 @@
       "seriesTitle": "Tokyo Ghoul GIGANTIK",
       "publisher": "KAZÉ Manga",
       "editionId": 4962,
-      "sourceStatus": 1
+      "sourceStatus": 2
     },
     {
       "seriesTitle": "Tokyo Ghoul:re",
@@ -306,7 +353,7 @@
       "seriesTitle": "Witch and Hound",
       "publisher": "Egmont Manga",
       "editionId": 5483,
-      "sourceStatus": 1
+      "sourceStatus": 2
     },
     {
       "seriesTitle": "Yakuza Reincarnation",
