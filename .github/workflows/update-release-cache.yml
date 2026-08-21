@@ -290,7 +290,7 @@ jobs:
       - name: Send status mail
         if: always() && steps.mail_config.outputs.enabled == 'true'
         continue-on-error: true
-        uses: dawidd6/action-send-mail@v17
+        uses: dawidd6/action-send-mail@v18
         with:
           server_address: ${{ secrets.MAIL_HOST }}
           server_port: ${{ vars.MAIL_PORT }}
