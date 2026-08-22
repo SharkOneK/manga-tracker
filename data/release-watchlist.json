@@ -678,7 +678,15 @@
       "sourceUrl": null,
       "notes": "Aus Release-Intake-Staging übernommen.",
       "enabled": true
+    },
+    {
+      "seriesTitle": "Kagurabachi",
+      "publisher": "Carlsen Manga",
+      "volumeNumber": 9,
+      "sourceUrl": null,
+      "notes": "Aus Release-Intake-Staging übernommen.",
+      "enabled": true
     }
   ],
-  "generatedAt": "2026-07-20T06:54:55.565Z"
+  "generatedAt": "2026-08-22T04:40:10.902Z"
 }
