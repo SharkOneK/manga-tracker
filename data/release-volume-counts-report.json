@@ -1,23 +1,47 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-21T16:55:16.697Z",
+  "generatedAt": "2026-08-22T04:57:52.678Z",
   "source": "run-release-volume-counts.js",
-  "providerMode": "from-cache-only",
+  "providerMode": "enabled",
   "policy": {
     "maxItemsPerSource": 200,
     "minDelayMs": 1200,
     "timeoutMs": 12000,
-    "activeProviderIds": []
+    "activeProviderIds": [
+      "manga-passion",
+      "carlsen",
+      "altraverse",
+      "egmont",
+      "panini",
+      "tokyopop",
+      "manga-cult",
+      "mangamoon",
+      "dani-books",
+      "dokico",
+      "hayabusa",
+      "yomeru",
+      "crunchyroll-manga"
+    ]
   },
   "summary": {
     "seriesInVolumeCounts": 49,
-    "probeCandidates": 0,
-    "checkedCandidates": 0,
-    "detectedChanges": 0,
-    "appliedHighConfidenceChanges": 0,
-    "blockedOrUnsafe": 20
+    "probeCandidates": 66,
+    "checkedCandidates": 66,
+    "detectedChanges": 1,
+    "appliedHighConfidenceChanges": 1,
+    "blockedOrUnsafe": 85
   },
-  "changes": [],
+  "changes": [
+    {
+      "seriesTitle": "One Piece",
+      "publisher": "Carlsen Manga!",
+      "oldPublishedVolumesDE": 76,
+      "newPublishedVolumesDE": 77,
+      "source": "manga-passion",
+      "sourceUrl": "https://www.manga-passion.de/editions/87",
+      "confidence": "high"
+    }
+  ],
   "blockedCandidates": [
     {
       "seriesTitle": "Arifureta: Der Kampf zurück in meine Welt – Zero",
@@ -180,9 +204,1468 @@
       "reasonCodes": [
         "not-yet-released-or-invalid-date"
       ]
+    },
+    {
+      "seriesTitle": "Vermeil in Gold",
+      "publisher": "MANGAMOON",
+      "volumeNumber": 2,
+      "reasonCodes": [
+        "source-url-not-specific",
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date",
+        "not-yet-released"
+      ]
+    },
+    {
+      "seriesTitle": "Meine Chefin kommt immer zuerst!!",
+      "publisher": "MangaMoon",
+      "volumeNumber": 2,
+      "reasonCodes": [
+        "not-yet-released"
+      ]
+    },
+    {
+      "seriesTitle": "Vagabond – Master Edition",
+      "publisher": "Egmont Manga",
+      "volumeNumber": 13,
+      "reasonCodes": [
+        "not-yet-released"
+      ]
+    },
+    {
+      "seriesTitle": "Vagabond – Master Edition",
+      "publisher": "Egmont Manga",
+      "volumeNumber": 14,
+      "reasonCodes": [
+        "not-yet-released"
+      ]
+    },
+    {
+      "seriesTitle": "Vagabond – Master Edition",
+      "publisher": "Egmont Manga",
+      "volumeNumber": 15,
+      "reasonCodes": [
+        "not-yet-released"
+      ]
+    },
+    {
+      "seriesTitle": "Adou",
+      "publisher": "Altraverse",
+      "volumeNumber": 12,
+      "reasonCodes": [
+        "source-url-not-specific",
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date",
+        "not-yet-released"
+      ]
+    },
+    {
+      "seriesTitle": "Arifureta: Der Kampf zurück in meine Welt – Zero",
+      "publisher": "Altraverse",
+      "volumeNumber": 4,
+      "reasonCodes": [
+        "not-yet-released"
+      ]
+    },
+    {
+      "seriesTitle": "Arifureta: Der Kampf zurück in meine Welt – Zero",
+      "publisher": "Altraverse",
+      "volumeNumber": 5,
+      "reasonCodes": [
+        "source-url-not-specific",
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date",
+        "not-yet-released"
+      ]
+    },
+    {
+      "seriesTitle": "Arifureta: Der Kampf zurück in meine Welt – Zero",
+      "publisher": "Altraverse",
+      "volumeNumber": 6,
+      "reasonCodes": [
+        "source-url-not-specific",
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date",
+        "not-yet-released"
+      ]
+    },
+    {
+      "seriesTitle": "Berserk Master Edition",
+      "publisher": "Panini Manga",
+      "volumeNumber": 7,
+      "reasonCodes": [
+        "not-yet-released"
+      ]
+    },
+    {
+      "seriesTitle": "Berserk Master Edition",
+      "publisher": "Panini Manga",
+      "volumeNumber": 8,
+      "reasonCodes": [
+        "not-yet-released"
+      ]
+    },
+    {
+      "seriesTitle": "Berserk Master Edition",
+      "publisher": "Panini Manga",
+      "volumeNumber": 9,
+      "reasonCodes": [
+        "source-url-not-specific",
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date",
+        "not-yet-released"
+      ]
+    },
+    {
+      "seriesTitle": "Chainsaw Man",
+      "publisher": "Egmont Manga",
+      "volumeNumber": 23,
+      "reasonCodes": [
+        "not-yet-released"
+      ]
+    },
+    {
+      "seriesTitle": "Isekai Soapland",
+      "publisher": "MANGAMOON",
+      "volumeNumber": 3,
+      "reasonCodes": [
+        "source-url-not-specific",
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date",
+        "not-yet-released"
+      ]
+    },
+    {
+      "seriesTitle": "Isekai Soapland",
+      "publisher": "MANGAMOON",
+      "volumeNumber": 4,
+      "reasonCodes": [
+        "source-url-not-specific",
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date",
+        "not-yet-released"
+      ]
+    },
+    {
+      "seriesTitle": "Isekai Soapland",
+      "publisher": "MANGAMOON",
+      "volumeNumber": 5,
+      "reasonCodes": [
+        "source-url-not-specific",
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date",
+        "not-yet-released"
+      ]
+    },
+    {
+      "seriesTitle": "Mirai Nikki – New Edition",
+      "publisher": "Egmont Manga",
+      "volumeNumber": 6,
+      "reasonCodes": [
+        "not-yet-released"
+      ]
+    },
+    {
+      "seriesTitle": "Reincarnated as a Sword: Another Wish",
+      "publisher": "Dokico",
+      "volumeNumber": 3,
+      "reasonCodes": [
+        "not-yet-released"
+      ]
+    },
+    {
+      "seriesTitle": "Reincarnated as a Sword: Another Wish",
+      "publisher": "Dokico",
+      "volumeNumber": 4,
+      "reasonCodes": [
+        "not-yet-released"
+      ]
+    },
+    {
+      "seriesTitle": "Tokyo Revengers – Doppelband-Edition",
+      "publisher": "Carlsen Manga",
+      "volumeNumber": 16,
+      "reasonCodes": [
+        "missing-source-volume-number",
+        "missing-release-date",
+        "not-yet-released"
+      ]
+    },
+    {
+      "seriesTitle": "I Was Reincarnated as the 7th Prince So I Can Take My Time Perfecting My Magical Ability",
+      "publisher": "Dokico",
+      "volumeNumber": 1,
+      "reasonCodes": [
+        "not-yet-released"
+      ]
+    },
+    {
+      "seriesTitle": "Tokyo Ghoul:re GIGANTIK",
+      "publisher": "Crunchyroll Manga",
+      "volumeNumber": 1,
+      "reasonCodes": [
+        "not-yet-released"
+      ]
+    },
+    {
+      "seriesTitle": "Death Note - Diamond Edition",
+      "publisher": "Tokyopop",
+      "volumeNumber": 1,
+      "reasonCodes": [
+        "source-url-not-specific",
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date",
+        "not-yet-released"
+      ]
+    },
+    {
+      "seriesTitle": "The Eminence in Shadow",
+      "publisher": "Tokyopop",
+      "volumeNumber": 10,
+      "reasonCodes": [
+        "not-yet-released"
+      ]
+    },
+    {
+      "seriesTitle": "Solo Leveling: Ragnarok",
+      "publisher": "Altraverse",
+      "volumeNumber": 2,
+      "reasonCodes": [
+        "not-yet-released"
+      ]
+    },
+    {
+      "seriesTitle": "This Year’s Hot Ace-chan",
+      "publisher": "Dokico",
+      "volumeNumber": 2,
+      "reasonCodes": [
+        "not-yet-released"
+      ]
+    },
+    {
+      "seriesTitle": "Eguchi-san’s Pure-hearted Succubus",
+      "publisher": "Dokico",
+      "volumeNumber": 2,
+      "reasonCodes": [
+        "source-url-not-specific",
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date",
+        "not-yet-released"
+      ]
+    },
+    {
+      "seriesTitle": "I Was Reincarnated as the 7th Prince So I Can Take My Time Perfecting My Magical Ability",
+      "publisher": "Dokico",
+      "volumeNumber": 2,
+      "reasonCodes": [
+        "not-yet-released"
+      ]
+    },
+    {
+      "seriesTitle": "Kagurabachi",
+      "publisher": "Carlsen Manga",
+      "volumeNumber": 9,
+      "reasonCodes": [
+        "not-yet-released"
+      ]
+    },
+    {
+      "seriesTitle": "Arifureta – Der Kampf zurück in meine Welt",
+      "publisher": "altraverse",
+      "volumeNumber": 17,
+      "reasonCodes": [
+        "source-url-not-specific",
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date",
+        "not-yet-released"
+      ]
+    },
+    {
+      "seriesTitle": "August 9th, I will be eaten by you",
+      "publisher": "Hayabusa",
+      "volumeNumber": 6,
+      "reasonCodes": [
+        "not-yet-released"
+      ]
+    },
+    {
+      "seriesTitle": "Bitte zieh dich an, Takamine!",
+      "publisher": "Egmont Manga",
+      "volumeNumber": 3,
+      "reasonCodes": [
+        "not-yet-released"
+      ]
+    },
+    {
+      "seriesTitle": "Blood Blade",
+      "publisher": "Hayabusa",
+      "volumeNumber": 6,
+      "reasonCodes": [
+        "missing-source-volume-number",
+        "missing-release-date",
+        "not-yet-released"
+      ]
+    },
+    {
+      "seriesTitle": "Brynhildr in the Darkness",
+      "publisher": "TOKYOPOP",
+      "volumeNumber": 19,
+      "reasonCodes": [
+        "missing-source-volume-number",
+        "missing-release-date",
+        "not-yet-released"
+      ]
+    },
+    {
+      "seriesTitle": "Colorless",
+      "publisher": "Manga Cult",
+      "volumeNumber": 8,
+      "reasonCodes": [
+        "missing-source-volume-number",
+        "missing-release-date",
+        "not-yet-released"
+      ]
+    },
+    {
+      "seriesTitle": "Dai Dark",
+      "publisher": "Manga Cult",
+      "volumeNumber": 10,
+      "reasonCodes": [
+        "missing-source-volume-number",
+        "missing-release-date",
+        "not-yet-released"
+      ]
+    },
+    {
+      "seriesTitle": "Dandadan",
+      "publisher": "KAZÉ Manga",
+      "volumeNumber": 22,
+      "reasonCodes": [
+        "not-yet-released"
+      ]
+    },
+    {
+      "seriesTitle": "DARLING in the FRANXX",
+      "publisher": "Manga Cult",
+      "volumeNumber": 9,
+      "reasonCodes": [
+        "missing-source-volume-number",
+        "missing-release-date",
+        "not-yet-released"
+      ]
+    },
+    {
+      "seriesTitle": "Demon King of God Killing",
+      "publisher": "Egmont Manga",
+      "volumeNumber": 5,
+      "reasonCodes": [
+        "source-url-not-specific",
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date",
+        "not-yet-released"
+      ]
+    },
+    {
+      "seriesTitle": "Demon Slave",
+      "publisher": "KAZÉ Manga",
+      "volumeNumber": 20,
+      "reasonCodes": [
+        "not-yet-released"
+      ]
+    },
+    {
+      "seriesTitle": "Die letzte Elfe",
+      "publisher": "Yomeru",
+      "volumeNumber": 3,
+      "reasonCodes": [
+        "source-url-not-specific",
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date",
+        "not-yet-released"
+      ]
+    },
+    {
+      "seriesTitle": "Fairy Tail",
+      "publisher": "Carlsen Manga!",
+      "volumeNumber": 64,
+      "reasonCodes": [
+        "missing-source-volume-number",
+        "missing-release-date",
+        "not-yet-released"
+      ]
+    },
+    {
+      "seriesTitle": "Frieren – Nach dem Ende der Reise",
+      "publisher": "altraverse",
+      "volumeNumber": 16,
+      "reasonCodes": [
+        "missing-source-volume-number",
+        "missing-release-date",
+        "not-yet-released"
+      ]
+    },
+    {
+      "seriesTitle": "From the Red Fog",
+      "publisher": "Manga Cult",
+      "volumeNumber": 6,
+      "reasonCodes": [
+        "missing-source-volume-number",
+        "missing-release-date",
+        "not-yet-released"
+      ]
+    },
+    {
+      "seriesTitle": "Gushing over Magical Girls",
+      "publisher": "MANGAMOON",
+      "volumeNumber": 5,
+      "reasonCodes": [
+        "source-url-not-specific",
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date",
+        "not-yet-released"
+      ]
+    },
+    {
+      "seriesTitle": "Jujutsu Kaisen",
+      "publisher": "KAZÉ Manga",
+      "volumeNumber": 31,
+      "reasonCodes": [
+        "missing-source-volume-number",
+        "missing-release-date",
+        "not-yet-released"
+      ]
+    },
+    {
+      "seriesTitle": "Kaiju No.8",
+      "publisher": "KAZÉ Manga",
+      "volumeNumber": 17,
+      "reasonCodes": [
+        "missing-source-volume-number",
+        "missing-release-date",
+        "not-yet-released"
+      ]
+    },
+    {
+      "seriesTitle": "Kijin Gentosho: Dämonenjäger",
+      "publisher": "Panini Manga",
+      "volumeNumber": 9,
+      "reasonCodes": [
+        "not-yet-released"
+      ]
+    },
+    {
+      "seriesTitle": "Lili-Men",
+      "publisher": "Egmont Manga",
+      "volumeNumber": 10,
+      "reasonCodes": [
+        "not-yet-released"
+      ]
+    },
+    {
+      "seriesTitle": "Maria's Judgement",
+      "publisher": "Egmont Manga",
+      "volumeNumber": 7,
+      "reasonCodes": [
+        "not-yet-released"
+      ]
+    },
+    {
+      "seriesTitle": "Mein Wunsch, von einer Oberschülerin getötet zu werden",
+      "publisher": "Yomeru",
+      "volumeNumber": 3,
+      "reasonCodes": [
+        "missing-source-volume-number",
+        "missing-release-date",
+        "not-yet-released"
+      ]
+    },
+    {
+      "seriesTitle": "Meine Wiedergeburt als Schleim in einer anderen Welt",
+      "publisher": "altraverse",
+      "volumeNumber": 31,
+      "reasonCodes": [
+        "not-yet-released"
+      ]
+    },
+    {
+      "seriesTitle": "Mujina into the Deep",
+      "publisher": "TOKYOPOP",
+      "volumeNumber": 5,
+      "reasonCodes": [
+        "not-yet-released"
+      ]
+    },
+    {
+      "seriesTitle": "Mushoku Tensei – In dieser Welt mach ich alles anders",
+      "publisher": "Panini Manga",
+      "volumeNumber": 23,
+      "reasonCodes": [
+        "source-url-not-specific",
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date",
+        "not-yet-released"
+      ]
+    },
+    {
+      "seriesTitle": "My Tiny Senpai",
+      "publisher": "Dokico",
+      "volumeNumber": 3,
+      "reasonCodes": [
+        "source-url-not-specific",
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date",
+        "not-yet-released"
+      ]
+    },
+    {
+      "seriesTitle": "Real Account",
+      "publisher": "TOKYOPOP",
+      "volumeNumber": 15,
+      "reasonCodes": [
+        "source-url-not-specific",
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date",
+        "not-yet-released"
+      ]
+    },
+    {
+      "seriesTitle": "Spy x Family",
+      "publisher": "KAZÉ Manga",
+      "volumeNumber": 16,
+      "reasonCodes": [
+        "not-yet-released"
+      ]
+    },
+    {
+      "seriesTitle": "The Rising of the Shield Hero",
+      "publisher": "TOKYOPOP",
+      "volumeNumber": 28,
+      "reasonCodes": [
+        "not-yet-released"
+      ]
+    },
+    {
+      "seriesTitle": "Tokyo Ghoul",
+      "publisher": "KAZÉ Manga",
+      "volumeNumber": 15,
+      "reasonCodes": [
+        "missing-source-volume-number",
+        "missing-release-date",
+        "not-yet-released"
+      ]
+    },
+    {
+      "seriesTitle": "Tokyo Ghoul GIGANTIK",
+      "publisher": "KAZÉ Manga",
+      "volumeNumber": 8,
+      "reasonCodes": [
+        "missing-source-volume-number",
+        "missing-release-date",
+        "not-yet-released"
+      ]
+    },
+    {
+      "seriesTitle": "Tokyo Ghoul:re",
+      "publisher": "KAZÉ Manga",
+      "volumeNumber": 17,
+      "reasonCodes": [
+        "missing-source-volume-number",
+        "missing-release-date",
+        "not-yet-released"
+      ]
+    },
+    {
+      "seriesTitle": "Vinland Saga",
+      "publisher": "Carlsen Manga!",
+      "volumeNumber": 29,
+      "reasonCodes": [
+        "not-yet-released"
+      ]
+    },
+    {
+      "seriesTitle": "Witch and Hound",
+      "publisher": "Egmont Manga",
+      "volumeNumber": 5,
+      "reasonCodes": [
+        "missing-source-volume-number",
+        "missing-release-date",
+        "not-yet-released"
+      ]
+    },
+    {
+      "seriesTitle": "Yakuza Reincarnation",
+      "publisher": "Manga Cult",
+      "volumeNumber": 17,
+      "reasonCodes": [
+        "not-yet-released"
+      ]
+    },
+    {
+      "seriesTitle": "Yandere Dark Elf",
+      "publisher": "MANGAMOON",
+      "volumeNumber": 5,
+      "reasonCodes": [
+        "source-url-not-specific",
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date",
+        "not-yet-released"
+      ]
     }
   ],
-  "checkedCandidates": [],
+  "checkedCandidates": [
+    {
+      "seriesTitle": "Vermeil in Gold",
+      "publisher": "MANGAMOON",
+      "volumeNumber": 2,
+      "source": "carlsen",
+      "sourceUrl": "https://www.carlsen.de",
+      "confidence": "low",
+      "released": false,
+      "reasonCodes": [
+        "source-url-not-specific",
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date"
+      ]
+    },
+    {
+      "seriesTitle": "Meine Chefin kommt immer zuerst!!",
+      "publisher": "MangaMoon",
+      "volumeNumber": 2,
+      "source": "manga-passion",
+      "sourceUrl": "https://www.manga-passion.de/editions/6135",
+      "confidence": "high",
+      "released": false,
+      "reasonCodes": []
+    },
+    {
+      "seriesTitle": "Vagabond – Master Edition",
+      "publisher": "Egmont Manga",
+      "volumeNumber": 13,
+      "source": "manga-passion",
+      "sourceUrl": "https://www.manga-passion.de/editions/4636",
+      "confidence": "high",
+      "released": false,
+      "reasonCodes": []
+    },
+    {
+      "seriesTitle": "Vagabond – Master Edition",
+      "publisher": "Egmont Manga",
+      "volumeNumber": 14,
+      "source": "manga-passion",
+      "sourceUrl": "https://www.manga-passion.de/editions/4636",
+      "confidence": "high",
+      "released": false,
+      "reasonCodes": []
+    },
+    {
+      "seriesTitle": "Vagabond – Master Edition",
+      "publisher": "Egmont Manga",
+      "volumeNumber": 15,
+      "source": "manga-passion",
+      "sourceUrl": "https://www.manga-passion.de/editions/4636",
+      "confidence": "high",
+      "released": false,
+      "reasonCodes": []
+    },
+    {
+      "seriesTitle": "Adou",
+      "publisher": "Altraverse",
+      "volumeNumber": 12,
+      "source": "carlsen",
+      "sourceUrl": "https://www.carlsen.de",
+      "confidence": "low",
+      "released": false,
+      "reasonCodes": [
+        "source-url-not-specific",
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date"
+      ]
+    },
+    {
+      "seriesTitle": "Arifureta: Der Kampf zurück in meine Welt – Zero",
+      "publisher": "Altraverse",
+      "volumeNumber": 4,
+      "source": "manga-passion",
+      "sourceUrl": "https://www.manga-passion.de/editions/5807",
+      "confidence": "high",
+      "released": false,
+      "reasonCodes": []
+    },
+    {
+      "seriesTitle": "Arifureta: Der Kampf zurück in meine Welt – Zero",
+      "publisher": "Altraverse",
+      "volumeNumber": 5,
+      "source": "carlsen",
+      "sourceUrl": "https://www.carlsen.de",
+      "confidence": "low",
+      "released": false,
+      "reasonCodes": [
+        "source-url-not-specific",
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date"
+      ]
+    },
+    {
+      "seriesTitle": "Arifureta: Der Kampf zurück in meine Welt – Zero",
+      "publisher": "Altraverse",
+      "volumeNumber": 6,
+      "source": "carlsen",
+      "sourceUrl": "https://www.carlsen.de",
+      "confidence": "low",
+      "released": false,
+      "reasonCodes": [
+        "source-url-not-specific",
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date"
+      ]
+    },
+    {
+      "seriesTitle": "Berserk Master Edition",
+      "publisher": "Panini Manga",
+      "volumeNumber": 7,
+      "source": "manga-passion",
+      "sourceUrl": "https://www.manga-passion.de/editions/5211",
+      "confidence": "high",
+      "released": false,
+      "reasonCodes": []
+    },
+    {
+      "seriesTitle": "Berserk Master Edition",
+      "publisher": "Panini Manga",
+      "volumeNumber": 8,
+      "source": "manga-passion",
+      "sourceUrl": "https://www.manga-passion.de/editions/5211",
+      "confidence": "high",
+      "released": false,
+      "reasonCodes": []
+    },
+    {
+      "seriesTitle": "Berserk Master Edition",
+      "publisher": "Panini Manga",
+      "volumeNumber": 9,
+      "source": "carlsen",
+      "sourceUrl": "https://www.carlsen.de",
+      "confidence": "low",
+      "released": false,
+      "reasonCodes": [
+        "source-url-not-specific",
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date"
+      ]
+    },
+    {
+      "seriesTitle": "Chainsaw Man",
+      "publisher": "Egmont Manga",
+      "volumeNumber": 23,
+      "source": "manga-passion",
+      "sourceUrl": "https://www.manga-passion.de/editions/269",
+      "confidence": "high",
+      "released": false,
+      "reasonCodes": []
+    },
+    {
+      "seriesTitle": "Isekai Soapland",
+      "publisher": "MANGAMOON",
+      "volumeNumber": 3,
+      "source": "carlsen",
+      "sourceUrl": "https://www.carlsen.de",
+      "confidence": "low",
+      "released": false,
+      "reasonCodes": [
+        "source-url-not-specific",
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date"
+      ]
+    },
+    {
+      "seriesTitle": "Isekai Soapland",
+      "publisher": "MANGAMOON",
+      "volumeNumber": 4,
+      "source": "carlsen",
+      "sourceUrl": "https://www.carlsen.de",
+      "confidence": "low",
+      "released": false,
+      "reasonCodes": [
+        "source-url-not-specific",
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date"
+      ]
+    },
+    {
+      "seriesTitle": "Isekai Soapland",
+      "publisher": "MANGAMOON",
+      "volumeNumber": 5,
+      "source": "carlsen",
+      "sourceUrl": "https://www.carlsen.de",
+      "confidence": "low",
+      "released": false,
+      "reasonCodes": [
+        "source-url-not-specific",
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date"
+      ]
+    },
+    {
+      "seriesTitle": "Mirai Nikki – New Edition",
+      "publisher": "Egmont Manga",
+      "volumeNumber": 6,
+      "source": "manga-passion",
+      "sourceUrl": "https://www.manga-passion.de/editions/5504",
+      "confidence": "high",
+      "released": false,
+      "reasonCodes": []
+    },
+    {
+      "seriesTitle": "Reincarnated as a Sword: Another Wish",
+      "publisher": "Dokico",
+      "volumeNumber": 3,
+      "source": "manga-passion",
+      "sourceUrl": "https://www.manga-passion.de/editions/5351",
+      "confidence": "high",
+      "released": false,
+      "reasonCodes": []
+    },
+    {
+      "seriesTitle": "Reincarnated as a Sword: Another Wish",
+      "publisher": "Dokico",
+      "volumeNumber": 4,
+      "source": "manga-passion",
+      "sourceUrl": "https://www.manga-passion.de/editions/5351",
+      "confidence": "high",
+      "released": false,
+      "reasonCodes": []
+    },
+    {
+      "seriesTitle": "Tokyo Revengers – Doppelband-Edition",
+      "publisher": "Carlsen Manga",
+      "volumeNumber": 16,
+      "source": "manga-passion",
+      "sourceUrl": "https://www.manga-passion.de/editions/1599",
+      "confidence": "low",
+      "released": false,
+      "reasonCodes": [
+        "missing-source-volume-number",
+        "missing-release-date"
+      ]
+    },
+    {
+      "seriesTitle": "I Was Reincarnated as the 7th Prince So I Can Take My Time Perfecting My Magical Ability",
+      "publisher": "Dokico",
+      "volumeNumber": 1,
+      "source": "manga-passion",
+      "sourceUrl": "https://www.manga-passion.de/editions/6021",
+      "confidence": "high",
+      "released": false,
+      "reasonCodes": []
+    },
+    {
+      "seriesTitle": "Tokyo Ghoul:re GIGANTIK",
+      "publisher": "Crunchyroll Manga",
+      "volumeNumber": 1,
+      "source": "manga-passion",
+      "sourceUrl": "https://www.manga-passion.de/editions/6200",
+      "confidence": "high",
+      "released": false,
+      "reasonCodes": []
+    },
+    {
+      "seriesTitle": "Death Note - Diamond Edition",
+      "publisher": "Tokyopop",
+      "volumeNumber": 1,
+      "source": "carlsen",
+      "sourceUrl": "https://www.carlsen.de",
+      "confidence": "low",
+      "released": false,
+      "reasonCodes": [
+        "source-url-not-specific",
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date"
+      ]
+    },
+    {
+      "seriesTitle": "The Eminence in Shadow",
+      "publisher": "Tokyopop",
+      "volumeNumber": 10,
+      "source": "manga-passion",
+      "sourceUrl": "https://www.manga-passion.de/editions/2790",
+      "confidence": "high",
+      "released": false,
+      "reasonCodes": []
+    },
+    {
+      "seriesTitle": "Solo Leveling: Ragnarok",
+      "publisher": "Altraverse",
+      "volumeNumber": 2,
+      "source": "manga-passion",
+      "sourceUrl": "https://www.manga-passion.de/editions/6125",
+      "confidence": "high",
+      "released": false,
+      "reasonCodes": []
+    },
+    {
+      "seriesTitle": "This Year’s Hot Ace-chan",
+      "publisher": "Dokico",
+      "volumeNumber": 2,
+      "source": "manga-passion",
+      "sourceUrl": "https://www.manga-passion.de/editions/5677",
+      "confidence": "high",
+      "released": false,
+      "reasonCodes": []
+    },
+    {
+      "seriesTitle": "Eguchi-san’s Pure-hearted Succubus",
+      "publisher": "Dokico",
+      "volumeNumber": 2,
+      "source": "carlsen",
+      "sourceUrl": "https://www.carlsen.de",
+      "confidence": "low",
+      "released": false,
+      "reasonCodes": [
+        "source-url-not-specific",
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date"
+      ]
+    },
+    {
+      "seriesTitle": "I Was Reincarnated as the 7th Prince So I Can Take My Time Perfecting My Magical Ability",
+      "publisher": "Dokico",
+      "volumeNumber": 2,
+      "source": "manga-passion",
+      "sourceUrl": "https://www.manga-passion.de/editions/6021",
+      "confidence": "high",
+      "released": false,
+      "reasonCodes": []
+    },
+    {
+      "seriesTitle": "Kagurabachi",
+      "publisher": "Carlsen Manga",
+      "volumeNumber": 9,
+      "source": "manga-passion",
+      "sourceUrl": "https://www.manga-passion.de/editions/5072",
+      "confidence": "high",
+      "released": false,
+      "reasonCodes": []
+    },
+    {
+      "seriesTitle": "Arifureta – Der Kampf zurück in meine Welt",
+      "publisher": "altraverse",
+      "volumeNumber": 17,
+      "source": "carlsen",
+      "sourceUrl": "https://www.carlsen.de",
+      "confidence": "low",
+      "released": false,
+      "reasonCodes": [
+        "source-url-not-specific",
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date"
+      ]
+    },
+    {
+      "seriesTitle": "August 9th, I will be eaten by you",
+      "publisher": "Hayabusa",
+      "volumeNumber": 6,
+      "source": "manga-passion",
+      "sourceUrl": "https://www.manga-passion.de/editions/2015",
+      "confidence": "high",
+      "released": false,
+      "reasonCodes": []
+    },
+    {
+      "seriesTitle": "Bitte zieh dich an, Takamine!",
+      "publisher": "Egmont Manga",
+      "volumeNumber": 3,
+      "source": "manga-passion",
+      "sourceUrl": "https://www.manga-passion.de/editions/5858",
+      "confidence": "high",
+      "released": false,
+      "reasonCodes": []
+    },
+    {
+      "seriesTitle": "Blood Blade",
+      "publisher": "Hayabusa",
+      "volumeNumber": 6,
+      "source": "manga-passion",
+      "sourceUrl": "https://www.manga-passion.de/editions/5098",
+      "confidence": "low",
+      "released": false,
+      "reasonCodes": [
+        "missing-source-volume-number",
+        "missing-release-date"
+      ]
+    },
+    {
+      "seriesTitle": "Brynhildr in the Darkness",
+      "publisher": "TOKYOPOP",
+      "volumeNumber": 19,
+      "source": "manga-passion",
+      "sourceUrl": "https://www.manga-passion.de/editions/3260",
+      "confidence": "low",
+      "released": false,
+      "reasonCodes": [
+        "missing-source-volume-number",
+        "missing-release-date"
+      ]
+    },
+    {
+      "seriesTitle": "Colorless",
+      "publisher": "Manga Cult",
+      "volumeNumber": 8,
+      "source": "manga-passion",
+      "sourceUrl": "https://www.manga-passion.de/editions/2193",
+      "confidence": "low",
+      "released": false,
+      "reasonCodes": [
+        "missing-source-volume-number",
+        "missing-release-date"
+      ]
+    },
+    {
+      "seriesTitle": "Dai Dark",
+      "publisher": "Manga Cult",
+      "volumeNumber": 10,
+      "source": "manga-passion",
+      "sourceUrl": "https://www.manga-passion.de/editions/2177",
+      "confidence": "low",
+      "released": false,
+      "reasonCodes": [
+        "missing-source-volume-number",
+        "missing-release-date"
+      ]
+    },
+    {
+      "seriesTitle": "Dandadan",
+      "publisher": "KAZÉ Manga",
+      "volumeNumber": 22,
+      "source": "manga-passion",
+      "sourceUrl": "https://www.manga-passion.de/editions/2027",
+      "confidence": "high",
+      "released": false,
+      "reasonCodes": []
+    },
+    {
+      "seriesTitle": "DARLING in the FRANXX",
+      "publisher": "Manga Cult",
+      "volumeNumber": 9,
+      "source": "manga-passion",
+      "sourceUrl": "https://www.manga-passion.de/editions/2936",
+      "confidence": "low",
+      "released": false,
+      "reasonCodes": [
+        "missing-source-volume-number",
+        "missing-release-date"
+      ]
+    },
+    {
+      "seriesTitle": "Demon King of God Killing",
+      "publisher": "Egmont Manga",
+      "volumeNumber": 5,
+      "source": "carlsen",
+      "sourceUrl": "https://www.carlsen.de",
+      "confidence": "low",
+      "released": false,
+      "reasonCodes": [
+        "source-url-not-specific",
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date"
+      ]
+    },
+    {
+      "seriesTitle": "Demon Slave",
+      "publisher": "KAZÉ Manga",
+      "volumeNumber": 20,
+      "source": "manga-passion",
+      "sourceUrl": "https://www.manga-passion.de/editions/509",
+      "confidence": "high",
+      "released": false,
+      "reasonCodes": []
+    },
+    {
+      "seriesTitle": "Die letzte Elfe",
+      "publisher": "Yomeru",
+      "volumeNumber": 3,
+      "source": "carlsen",
+      "sourceUrl": "https://www.carlsen.de",
+      "confidence": "low",
+      "released": false,
+      "reasonCodes": [
+        "source-url-not-specific",
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date"
+      ]
+    },
+    {
+      "seriesTitle": "Fairy Tail",
+      "publisher": "Carlsen Manga!",
+      "volumeNumber": 64,
+      "source": "manga-passion",
+      "sourceUrl": "https://www.manga-passion.de/editions/960",
+      "confidence": "low",
+      "released": false,
+      "reasonCodes": [
+        "missing-source-volume-number",
+        "missing-release-date"
+      ]
+    },
+    {
+      "seriesTitle": "Frieren – Nach dem Ende der Reise",
+      "publisher": "altraverse",
+      "volumeNumber": 16,
+      "source": "manga-passion",
+      "sourceUrl": "https://www.manga-passion.de/editions/1697",
+      "confidence": "low",
+      "released": false,
+      "reasonCodes": [
+        "missing-source-volume-number",
+        "missing-release-date"
+      ]
+    },
+    {
+      "seriesTitle": "From the Red Fog",
+      "publisher": "Manga Cult",
+      "volumeNumber": 6,
+      "source": "manga-passion",
+      "sourceUrl": "https://www.manga-passion.de/editions/2391",
+      "confidence": "low",
+      "released": false,
+      "reasonCodes": [
+        "missing-source-volume-number",
+        "missing-release-date"
+      ]
+    },
+    {
+      "seriesTitle": "Gushing over Magical Girls",
+      "publisher": "MANGAMOON",
+      "volumeNumber": 5,
+      "source": "carlsen",
+      "sourceUrl": "https://www.carlsen.de",
+      "confidence": "low",
+      "released": false,
+      "reasonCodes": [
+        "source-url-not-specific",
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date"
+      ]
+    },
+    {
+      "seriesTitle": "Jujutsu Kaisen",
+      "publisher": "KAZÉ Manga",
+      "volumeNumber": 31,
+      "source": "manga-passion",
+      "sourceUrl": "https://www.manga-passion.de/editions/47",
+      "confidence": "low",
+      "released": false,
+      "reasonCodes": [
+        "missing-source-volume-number",
+        "missing-release-date"
+      ]
+    },
+    {
+      "seriesTitle": "Kaiju No.8",
+      "publisher": "KAZÉ Manga",
+      "volumeNumber": 17,
+      "source": "manga-passion",
+      "sourceUrl": "https://www.manga-passion.de/editions/1966",
+      "confidence": "low",
+      "released": false,
+      "reasonCodes": [
+        "missing-source-volume-number",
+        "missing-release-date"
+      ]
+    },
+    {
+      "seriesTitle": "Kijin Gentosho: Dämonenjäger",
+      "publisher": "Panini Manga",
+      "volumeNumber": 9,
+      "source": "manga-passion",
+      "sourceUrl": "https://www.manga-passion.de/editions/2088",
+      "confidence": "high",
+      "released": false,
+      "reasonCodes": []
+    },
+    {
+      "seriesTitle": "Lili-Men",
+      "publisher": "Egmont Manga",
+      "volumeNumber": 10,
+      "source": "manga-passion",
+      "sourceUrl": "https://www.manga-passion.de/editions/5077",
+      "confidence": "high",
+      "released": false,
+      "reasonCodes": []
+    },
+    {
+      "seriesTitle": "Maria's Judgement",
+      "publisher": "Egmont Manga",
+      "volumeNumber": 7,
+      "source": "manga-passion",
+      "sourceUrl": "https://www.manga-passion.de/editions/4618",
+      "confidence": "high",
+      "released": false,
+      "reasonCodes": []
+    },
+    {
+      "seriesTitle": "Mein Wunsch, von einer Oberschülerin getötet zu werden",
+      "publisher": "Yomeru",
+      "volumeNumber": 3,
+      "source": "manga-passion",
+      "sourceUrl": "https://www.manga-passion.de/editions/4972",
+      "confidence": "low",
+      "released": false,
+      "reasonCodes": [
+        "missing-source-volume-number",
+        "missing-release-date"
+      ]
+    },
+    {
+      "seriesTitle": "Meine Wiedergeburt als Schleim in einer anderen Welt",
+      "publisher": "altraverse",
+      "volumeNumber": 31,
+      "source": "manga-passion",
+      "sourceUrl": "https://www.manga-passion.de/editions/249",
+      "confidence": "high",
+      "released": false,
+      "reasonCodes": []
+    },
+    {
+      "seriesTitle": "Mujina into the Deep",
+      "publisher": "TOKYOPOP",
+      "volumeNumber": 5,
+      "source": "manga-passion",
+      "sourceUrl": "https://www.manga-passion.de/editions/5184",
+      "confidence": "high",
+      "released": false,
+      "reasonCodes": []
+    },
+    {
+      "seriesTitle": "Mushoku Tensei – In dieser Welt mach ich alles anders",
+      "publisher": "Panini Manga",
+      "volumeNumber": 23,
+      "source": "carlsen",
+      "sourceUrl": "https://www.carlsen.de",
+      "confidence": "low",
+      "released": false,
+      "reasonCodes": [
+        "source-url-not-specific",
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date"
+      ]
+    },
+    {
+      "seriesTitle": "My Tiny Senpai",
+      "publisher": "Dokico",
+      "volumeNumber": 3,
+      "source": "carlsen",
+      "sourceUrl": "https://www.carlsen.de",
+      "confidence": "low",
+      "released": false,
+      "reasonCodes": [
+        "source-url-not-specific",
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date"
+      ]
+    },
+    {
+      "seriesTitle": "One Piece",
+      "publisher": "Carlsen Manga!",
+      "volumeNumber": 77,
+      "source": "manga-passion",
+      "sourceUrl": "https://www.manga-passion.de/editions/87",
+      "confidence": "high",
+      "released": true,
+      "reasonCodes": []
+    },
+    {
+      "seriesTitle": "Real Account",
+      "publisher": "TOKYOPOP",
+      "volumeNumber": 15,
+      "source": "carlsen",
+      "sourceUrl": "https://www.carlsen.de",
+      "confidence": "low",
+      "released": false,
+      "reasonCodes": [
+        "source-url-not-specific",
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date"
+      ]
+    },
+    {
+      "seriesTitle": "Spy x Family",
+      "publisher": "KAZÉ Manga",
+      "volumeNumber": 16,
+      "source": "manga-passion",
+      "sourceUrl": "https://www.manga-passion.de/editions/364",
+      "confidence": "high",
+      "released": false,
+      "reasonCodes": []
+    },
+    {
+      "seriesTitle": "The Rising of the Shield Hero",
+      "publisher": "TOKYOPOP",
+      "volumeNumber": 28,
+      "source": "manga-passion",
+      "sourceUrl": "https://www.manga-passion.de/editions/210",
+      "confidence": "high",
+      "released": false,
+      "reasonCodes": []
+    },
+    {
+      "seriesTitle": "Tokyo Ghoul",
+      "publisher": "KAZÉ Manga",
+      "volumeNumber": 15,
+      "source": "manga-passion",
+      "sourceUrl": "https://www.manga-passion.de/editions/951",
+      "confidence": "low",
+      "released": false,
+      "reasonCodes": [
+        "missing-source-volume-number",
+        "missing-release-date"
+      ]
+    },
+    {
+      "seriesTitle": "Tokyo Ghoul GIGANTIK",
+      "publisher": "KAZÉ Manga",
+      "volumeNumber": 8,
+      "source": "manga-passion",
+      "sourceUrl": "https://www.manga-passion.de/editions/4962",
+      "confidence": "low",
+      "released": false,
+      "reasonCodes": [
+        "missing-source-volume-number",
+        "missing-release-date"
+      ]
+    },
+    {
+      "seriesTitle": "Tokyo Ghoul:re",
+      "publisher": "KAZÉ Manga",
+      "volumeNumber": 17,
+      "source": "manga-passion",
+      "sourceUrl": "https://www.manga-passion.de/editions/952",
+      "confidence": "low",
+      "released": false,
+      "reasonCodes": [
+        "missing-source-volume-number",
+        "missing-release-date"
+      ]
+    },
+    {
+      "seriesTitle": "Vinland Saga",
+      "publisher": "Carlsen Manga!",
+      "volumeNumber": 29,
+      "source": "manga-passion",
+      "sourceUrl": "https://www.manga-passion.de/editions/223",
+      "confidence": "high",
+      "released": false,
+      "reasonCodes": []
+    },
+    {
+      "seriesTitle": "Witch and Hound",
+      "publisher": "Egmont Manga",
+      "volumeNumber": 5,
+      "source": "manga-passion",
+      "sourceUrl": "https://www.manga-passion.de/editions/5483",
+      "confidence": "low",
+      "released": false,
+      "reasonCodes": [
+        "missing-source-volume-number",
+        "missing-release-date"
+      ]
+    },
+    {
+      "seriesTitle": "Yakuza Reincarnation",
+      "publisher": "Manga Cult",
+      "volumeNumber": 17,
+      "source": "manga-passion",
+      "sourceUrl": "https://www.manga-passion.de/editions/1945",
+      "confidence": "high",
+      "released": false,
+      "reasonCodes": []
+    },
+    {
+      "seriesTitle": "Yandere Dark Elf",
+      "publisher": "MANGAMOON",
+      "volumeNumber": 5,
+      "source": "carlsen",
+      "sourceUrl": "https://www.carlsen.de",
+      "confidence": "low",
+      "released": false,
+      "reasonCodes": [
+        "source-url-not-specific",
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date"
+      ]
+    }
+  ],
   "changedFilesAllowlist": [
     "data/release-volume-counts.json",
     "data/release-volume-counts-report.json"
