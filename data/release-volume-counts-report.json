@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-30T10:01:30.594Z",
+  "generatedAt": "2026-08-31T11:00:44.958Z",
   "source": "run-release-volume-counts.js",
   "providerMode": "enabled",
   "policy": {
@@ -24,19 +24,19 @@
     ]
   },
   "summary": {
-    "seriesInVolumeCounts": 49,
-    "probeCandidates": 66,
-    "checkedCandidates": 66,
+    "seriesInVolumeCounts": 51,
+    "probeCandidates": 64,
+    "checkedCandidates": 64,
     "detectedChanges": 1,
     "appliedHighConfidenceChanges": 1,
-    "blockedOrUnsafe": 85
+    "blockedOrUnsafe": 80
   },
   "changes": [
     {
       "seriesTitle": "One Piece",
       "publisher": "Carlsen Manga!",
-      "oldPublishedVolumesDE": 84,
-      "newPublishedVolumesDE": 85,
+      "oldPublishedVolumesDE": 85,
+      "newPublishedVolumesDE": 86,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/87",
       "confidence": "high"
@@ -96,22 +96,6 @@
     {
       "seriesTitle": "I Was Reincarnated as the 7th Prince So I Can Take My Time Perfecting My Magical Ability",
       "publisher": "Dokico",
-      "volumeNumber": 1,
-      "reasonCodes": [
-        "not-yet-released-or-invalid-date"
-      ]
-    },
-    {
-      "seriesTitle": "I Was Reincarnated as the 7th Prince So I Can Take My Time Perfecting My Magical Ability",
-      "publisher": "Dokico",
-      "volumeNumber": 2,
-      "reasonCodes": [
-        "not-yet-released-or-invalid-date"
-      ]
-    },
-    {
-      "seriesTitle": "Meine Chefin kommt immer zuerst!!",
-      "publisher": "MANGAMOON",
       "volumeNumber": 2,
       "reasonCodes": [
         "not-yet-released-or-invalid-date"
@@ -129,14 +113,6 @@
       "seriesTitle": "Neck mich nicht, Nagatoro-san",
       "publisher": "dani books",
       "volumeNumber": 5,
-      "reasonCodes": [
-        "not-yet-released-or-invalid-date"
-      ]
-    },
-    {
-      "seriesTitle": "Reincarnated as a Sword: Another Wish",
-      "publisher": "Dokico",
-      "volumeNumber": 3,
       "reasonCodes": [
         "not-yet-released-or-invalid-date"
       ]
@@ -215,14 +191,6 @@
         "missing-source-publisher",
         "missing-source-volume-number",
         "missing-release-date",
-        "not-yet-released"
-      ]
-    },
-    {
-      "seriesTitle": "Meine Chefin kommt immer zuerst!!",
-      "publisher": "MangaMoon",
-      "volumeNumber": 2,
-      "reasonCodes": [
         "not-yet-released"
       ]
     },
@@ -384,14 +352,6 @@
     {
       "seriesTitle": "Reincarnated as a Sword: Another Wish",
       "publisher": "Dokico",
-      "volumeNumber": 3,
-      "reasonCodes": [
-        "not-yet-released"
-      ]
-    },
-    {
-      "seriesTitle": "Reincarnated as a Sword: Another Wish",
-      "publisher": "Dokico",
       "volumeNumber": 4,
       "reasonCodes": [
         "not-yet-released"
@@ -404,14 +364,6 @@
       "reasonCodes": [
         "missing-source-volume-number",
         "missing-release-date",
-        "not-yet-released"
-      ]
-    },
-    {
-      "seriesTitle": "I Was Reincarnated as the 7th Prince So I Can Take My Time Perfecting My Magical Ability",
-      "publisher": "Dokico",
-      "volumeNumber": 1,
-      "reasonCodes": [
         "not-yet-released"
       ]
     },
@@ -708,6 +660,19 @@
       ]
     },
     {
+      "seriesTitle": "Meine Chefin kommt immer zuerst!!",
+      "publisher": "MANGAMOON",
+      "volumeNumber": 3,
+      "reasonCodes": [
+        "source-url-not-specific",
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date",
+        "not-yet-released"
+      ]
+    },
+    {
       "seriesTitle": "Meine Wiedergeburt als Schleim in einer anderen Welt",
       "publisher": "altraverse",
       "volumeNumber": 31,
@@ -864,16 +829,6 @@
         "missing-source-volume-number",
         "missing-release-date"
       ]
-    },
-    {
-      "seriesTitle": "Meine Chefin kommt immer zuerst!!",
-      "publisher": "MangaMoon",
-      "volumeNumber": 2,
-      "source": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/6135",
-      "confidence": "high",
-      "released": false,
-      "reasonCodes": []
     },
     {
       "seriesTitle": "Vagabond – Master Edition",
@@ -1070,16 +1025,6 @@
     {
       "seriesTitle": "Reincarnated as a Sword: Another Wish",
       "publisher": "Dokico",
-      "volumeNumber": 3,
-      "source": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/5351",
-      "confidence": "high",
-      "released": false,
-      "reasonCodes": []
-    },
-    {
-      "seriesTitle": "Reincarnated as a Sword: Another Wish",
-      "publisher": "Dokico",
       "volumeNumber": 4,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/5351",
@@ -1099,16 +1044,6 @@
         "missing-source-volume-number",
         "missing-release-date"
       ]
-    },
-    {
-      "seriesTitle": "I Was Reincarnated as the 7th Prince So I Can Take My Time Perfecting My Magical Ability",
-      "publisher": "Dokico",
-      "volumeNumber": 1,
-      "source": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/6021",
-      "confidence": "high",
-      "released": false,
-      "reasonCodes": []
     },
     {
       "seriesTitle": "Tokyo Ghoul:re GIGANTIK",
@@ -1480,6 +1415,22 @@
       ]
     },
     {
+      "seriesTitle": "Meine Chefin kommt immer zuerst!!",
+      "publisher": "MANGAMOON",
+      "volumeNumber": 3,
+      "source": "carlsen",
+      "sourceUrl": "https://www.carlsen.de",
+      "confidence": "low",
+      "released": false,
+      "reasonCodes": [
+        "source-url-not-specific",
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date"
+      ]
+    },
+    {
       "seriesTitle": "Meine Wiedergeburt als Schleim in einer anderen Welt",
       "publisher": "altraverse",
       "volumeNumber": 31,
@@ -1534,7 +1485,7 @@
     {
       "seriesTitle": "One Piece",
       "publisher": "Carlsen Manga!",
-      "volumeNumber": 85,
+      "volumeNumber": 86,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/87",
       "confidence": "high",

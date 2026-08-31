@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-30T10:01:30.594Z",
+  "generatedAt": "2026-08-31T11:00:44.958Z",
   "items": [
     {
       "seriesTitle": "Adou",
@@ -183,6 +183,15 @@
       "checkedAt": "2026-06-14T08:21:13.292Z"
     },
     {
+      "seriesTitle": "I Was Reincarnated as the 7th Prince So I Can Take My Time Perfecting My Magical Ability",
+      "publisher": "Dokico",
+      "publishedVolumesDE": 1,
+      "source": "manga-passion",
+      "sourceUrl": "https://www.manga-passion.de/editions/6021",
+      "confidence": "high",
+      "checkedAt": "2026-05-26T14:17:36.296Z"
+    },
+    {
       "seriesTitle": "Isekai Soapland",
       "publisher": "MANGAMOON",
       "publishedVolumesDE": 2,
@@ -255,6 +264,15 @@
       "checkedAt": "2026-08-16T15:26:16.100Z"
     },
     {
+      "seriesTitle": "Meine Chefin kommt immer zuerst!!",
+      "publisher": "MANGAMOON",
+      "publishedVolumesDE": 2,
+      "source": "manga-passion",
+      "sourceUrl": "https://www.manga-passion.de/editions/6135",
+      "confidence": "high",
+      "checkedAt": "2026-08-16T15:26:16.100Z"
+    },
+    {
       "seriesTitle": "Meine Wiedergeburt als Schleim in einer anderen Welt",
       "publisher": "altraverse",
       "publishedVolumesDE": 30,
@@ -302,11 +320,11 @@
     {
       "seriesTitle": "One Piece",
       "publisher": "Carlsen Manga!",
-      "publishedVolumesDE": 85,
+      "publishedVolumesDE": 86,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/87",
       "confidence": "high",
-      "checkedAt": "2026-08-30T10:01:30.594Z"
+      "checkedAt": "2026-08-31T11:00:44.958Z"
     },
     {
       "seriesTitle": "Real Account",
@@ -320,7 +338,7 @@
     {
       "seriesTitle": "Reincarnated as a Sword: Another Wish",
       "publisher": "Dokico",
-      "publishedVolumesDE": 2,
+      "publishedVolumesDE": 3,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/5351",
       "confidence": "high",
