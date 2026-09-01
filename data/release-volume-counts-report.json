@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-31T11:00:44.958Z",
+  "generatedAt": "2026-09-01T09:31:07.246Z",
   "source": "run-release-volume-counts.js",
   "providerMode": "enabled",
   "policy": {
@@ -27,18 +27,27 @@
     "seriesInVolumeCounts": 51,
     "probeCandidates": 64,
     "checkedCandidates": 64,
-    "detectedChanges": 1,
-    "appliedHighConfidenceChanges": 1,
-    "blockedOrUnsafe": 80
+    "detectedChanges": 2,
+    "appliedHighConfidenceChanges": 2,
+    "blockedOrUnsafe": 79
   },
   "changes": [
     {
       "seriesTitle": "One Piece",
       "publisher": "Carlsen Manga!",
-      "oldPublishedVolumesDE": 85,
-      "newPublishedVolumesDE": 86,
+      "oldPublishedVolumesDE": 86,
+      "newPublishedVolumesDE": 87,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/87",
+      "confidence": "high"
+    },
+    {
+      "seriesTitle": "Vinland Saga",
+      "publisher": "Carlsen Manga!",
+      "oldPublishedVolumesDE": 28,
+      "newPublishedVolumesDE": 29,
+      "source": "manga-passion",
+      "sourceUrl": "https://www.manga-passion.de/editions/223",
       "confidence": "high"
     }
   ],
@@ -774,14 +783,6 @@
       ]
     },
     {
-      "seriesTitle": "Vinland Saga",
-      "publisher": "Carlsen Manga!",
-      "volumeNumber": 29,
-      "reasonCodes": [
-        "not-yet-released"
-      ]
-    },
-    {
       "seriesTitle": "Witch and Hound",
       "publisher": "Egmont Manga",
       "volumeNumber": 5,
@@ -1485,7 +1486,7 @@
     {
       "seriesTitle": "One Piece",
       "publisher": "Carlsen Manga!",
-      "volumeNumber": 86,
+      "volumeNumber": 87,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/87",
       "confidence": "high",
@@ -1574,7 +1575,7 @@
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/223",
       "confidence": "high",
-      "released": false,
+      "released": true,
       "reasonCodes": []
     },
     {
