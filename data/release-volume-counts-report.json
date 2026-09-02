@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-01T09:31:07.246Z",
+  "generatedAt": "2026-09-02T08:54:18.631Z",
   "source": "run-release-volume-counts.js",
   "providerMode": "enabled",
   "policy": {
@@ -27,27 +27,18 @@
     "seriesInVolumeCounts": 51,
     "probeCandidates": 64,
     "checkedCandidates": 64,
-    "detectedChanges": 2,
-    "appliedHighConfidenceChanges": 2,
-    "blockedOrUnsafe": 79
+    "detectedChanges": 1,
+    "appliedHighConfidenceChanges": 1,
+    "blockedOrUnsafe": 80
   },
   "changes": [
     {
       "seriesTitle": "One Piece",
       "publisher": "Carlsen Manga!",
-      "oldPublishedVolumesDE": 86,
-      "newPublishedVolumesDE": 87,
+      "oldPublishedVolumesDE": 87,
+      "newPublishedVolumesDE": 88,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/87",
-      "confidence": "high"
-    },
-    {
-      "seriesTitle": "Vinland Saga",
-      "publisher": "Carlsen Manga!",
-      "oldPublishedVolumesDE": 28,
-      "newPublishedVolumesDE": 29,
-      "source": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/223",
       "confidence": "high"
     }
   ],
@@ -783,6 +774,16 @@
       ]
     },
     {
+      "seriesTitle": "Vinland Saga",
+      "publisher": "Carlsen Manga!",
+      "volumeNumber": 30,
+      "reasonCodes": [
+        "missing-source-volume-number",
+        "missing-release-date",
+        "not-yet-released"
+      ]
+    },
+    {
       "seriesTitle": "Witch and Hound",
       "publisher": "Egmont Manga",
       "volumeNumber": 5,
@@ -1486,7 +1487,7 @@
     {
       "seriesTitle": "One Piece",
       "publisher": "Carlsen Manga!",
-      "volumeNumber": 87,
+      "volumeNumber": 88,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/87",
       "confidence": "high",
@@ -1571,12 +1572,15 @@
     {
       "seriesTitle": "Vinland Saga",
       "publisher": "Carlsen Manga!",
-      "volumeNumber": 29,
+      "volumeNumber": 30,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/223",
-      "confidence": "high",
-      "released": true,
-      "reasonCodes": []
+      "confidence": "low",
+      "released": false,
+      "reasonCodes": [
+        "missing-source-volume-number",
+        "missing-release-date"
+      ]
     },
     {
       "seriesTitle": "Witch and Hound",
