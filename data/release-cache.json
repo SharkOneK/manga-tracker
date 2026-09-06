@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-21T16:50:11.340Z",
+  "generatedAt": "2026-09-06T08:03:29.901Z",
   "source": "run-release-cache-pipeline.js",
-  "itemCount": 223,
+  "itemCount": 226,
   "items": [
     {
       "seriesTitle": "Adou",
@@ -2211,6 +2211,23 @@
       "checkedAt": "2026-08-16T15:26:16.100Z"
     },
     {
+      "seriesTitle": "Kagurabachi",
+      "normalizedSeriesTitle": "kagurabachi",
+      "publisher": "Carlsen Manga!",
+      "normalizedPublisher": "carlsen manga",
+      "volumeNumber": 9,
+      "releaseDate": "2026-09-29",
+      "isbn13": null,
+      "coverUrl": "https://media.manga-passion.de/volume/cover/2026/0815/1302/843b7dece0fc72b2dd8ebeacdd86904b.jpg",
+      "sourceUrl": "https://www.manga-passion.de/editions/5072",
+      "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
+      "evidence": "Manga Passion Edition, Verlag und Bandnummer wurden gegen die Bandliste abgeglichen.",
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 5072, Band 9). Ursprung: watchlist.",
+      "checkedAt": "2026-09-06T08:03:29.901Z"
+    },
+    {
       "seriesTitle": "Kaiju No.8",
       "normalizedSeriesTitle": "kaiju no 8",
       "publisher": "KAZÉ Manga",
@@ -2687,6 +2704,23 @@
       "confidence": "high",
       "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 87, Band 76). Ursprung: volume-counts.",
       "checkedAt": "2026-08-21T16:50:11.340Z"
+    },
+    {
+      "seriesTitle": "One Piece",
+      "normalizedSeriesTitle": "one piece",
+      "publisher": "Carlsen Manga!",
+      "normalizedPublisher": "carlsen manga",
+      "volumeNumber": 91,
+      "releaseDate": "2019-09-27",
+      "isbn13": null,
+      "coverUrl": "https://media.manga-passion.de/volume/cover/2021/0822/0731/014715f68f5755592d.jpeg",
+      "sourceUrl": "https://www.manga-passion.de/editions/87",
+      "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
+      "evidence": "Manga Passion Edition, Verlag und Bandnummer wurden gegen die Bandliste abgeglichen.",
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 87, Band 91). Ursprung: volume-counts.",
+      "checkedAt": "2026-09-06T08:03:29.901Z"
     },
     {
       "seriesTitle": "Real Account",
@@ -3486,6 +3520,23 @@
       "confidence": "high",
       "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 223, Band 28). Ursprung: volume-counts.",
       "checkedAt": "2026-08-16T15:26:16.100Z"
+    },
+    {
+      "seriesTitle": "Vinland Saga",
+      "normalizedSeriesTitle": "vinland saga",
+      "publisher": "Carlsen Manga!",
+      "normalizedPublisher": "carlsen manga",
+      "volumeNumber": 29,
+      "releaseDate": "2026-09-01",
+      "isbn13": null,
+      "coverUrl": "https://media.manga-passion.de/volume/cover/2026/0531/0808/cfdc798135f7f544c1169c28911416e5.jpg",
+      "sourceUrl": "https://www.manga-passion.de/editions/223",
+      "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
+      "evidence": "Manga Passion Edition, Verlag und Bandnummer wurden gegen die Bandliste abgeglichen.",
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 223, Band 29). Ursprung: volume-counts.",
+      "checkedAt": "2026-09-06T08:03:29.901Z"
     },
     {
       "seriesTitle": "Witch and Hound",

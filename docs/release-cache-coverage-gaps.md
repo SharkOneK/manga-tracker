@@ -8,15 +8,15 @@ Stand: automatisch synchronisiert aus aktuellem Audit gegen `data/release-watchl
 |---|---:|
 | Aktivierte Watchlist-Eintraege | 59 |
 | Expandierte Watchlist-Bandkandidaten | 213 |
-| Release-Cache-Eintraege | 223 |
-| Gefundene Cache-Eintraege | 185 |
-| Verbleibende Luecken | 28 |
-| Betroffene Serien | 11 |
+| Release-Cache-Eintraege | 226 |
+| Gefundene Cache-Eintraege | 186 |
+| Verbleibende Luecken | 27 |
+| Betroffene Serien | 10 |
 | Betroffene Verlage | 8 |
 
 ## Klassifikation
 
-Alle 28 verbleibenden Luecken sind als `source-data-gap` klassifiziert.
+Alle 27 verbleibenden Luecken sind als `source-data-gap` klassifiziert.
 
 Bedeutung: Der Watchlist-Band wurde nach dem Cache-Update weiterhin nicht in `data/release-cache.json` gefunden. Diese Faelle sind Quellen-/Datenqualitaetsfaelle und duerfen nicht durch Fake-Daten geschlossen werden.
 
@@ -36,7 +36,6 @@ Empfohlener Umgang: manuell in verlaesslicher Quelle pruefen, erst danach echte 
 | Tokyo Revengers – Doppelband-Edition | Carlsen Manga | 16 | 1 | source-data-gap |
 | Death Note - Diamond Edition | Tokyopop | 1 | 1 | source-data-gap |
 | Eguchi-san’s Pure-hearted Succubus | Dokico | 2 | 1 | source-data-gap |
-| Kagurabachi | Carlsen Manga | 9 | 1 | source-data-gap |
 
 ## Luecken nach Verlag
 
@@ -46,8 +45,8 @@ Empfohlener Umgang: manuell in verlaesslicher Quelle pruefen, erst danach echte 
 | Panini Manga | 6 | 1 |
 | Altraverse | 5 | 2 |
 | Egmont Manga | 4 | 1 |
-| Carlsen Manga | 2 | 2 |
 | dani books | 2 | 1 |
+| Carlsen Manga | 1 | 1 |
 | Dokico | 1 | 1 |
 | Tokyopop | 1 | 1 |
 
@@ -91,7 +90,7 @@ Der normale Workflow scheitert weiterhin nicht an bekannten `source-data-gap`-Lu
 
 ## Phase 23a: Ursachenanalyse
 
-Die 28 `source-data-gap`-Einzelluecken sind in `docs/release-cache-source-gap-analysis.md` strukturiert analysiert.
+Die 27 `source-data-gap`-Einzelluecken sind in `docs/release-cache-source-gap-analysis.md` strukturiert analysiert.
 
 Die Analyse dokumentiert pro Gap:
 
