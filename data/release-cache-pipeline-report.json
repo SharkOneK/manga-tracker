@@ -1,11 +1,11 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-06T08:03:29.901Z",
+  "generatedAt": "2026-09-06T08:39:12.298Z",
   "source": "run-release-cache-pipeline.js",
   "inputs": {
-    "cacheItems": 223,
+    "cacheItems": 226,
     "watchlistCandidates": 213,
-    "reviewQueueCandidates": 91,
+    "reviewQueueCandidates": 90,
     "appSeedCandidates": 5,
     "volumeCountsCandidates": 51
   },
@@ -46,56 +46,19 @@
   },
   "summary": {
     "candidatesDiscovered": 243,
-    "candidatesChecked": 31,
-    "skippedAlreadyCached": 212,
+    "candidatesChecked": 28,
+    "skippedAlreadyCached": 215,
     "skippedDueToLimit": 0,
-    "highConfidence": 3,
+    "highConfidence": 0,
     "mediumConfidence": 0,
     "lowConfidence": 28,
     "blocked": 0,
-    "cachePatches": 3,
+    "cachePatches": 0,
     "reviewQueueWrites": 28,
     "invalidExistingCache": 0
   },
   "autoMergeEligible": false,
-  "cachePatches": [
-    {
-      "action": "add",
-      "key": "kagurabachi|carlsen manga|9",
-      "seriesTitle": "Kagurabachi",
-      "publisher": "Carlsen Manga!",
-      "volumeNumber": 9,
-      "releaseDate": "2026-09-29",
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/5072",
-      "confidence": "high"
-    },
-    {
-      "action": "add",
-      "key": "one piece|carlsen manga|91",
-      "seriesTitle": "One Piece",
-      "publisher": "Carlsen Manga!",
-      "volumeNumber": 91,
-      "releaseDate": "2019-09-27",
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/87",
-      "confidence": "high"
-    },
-    {
-      "action": "add",
-      "key": "vinland saga|carlsen manga|29",
-      "seriesTitle": "Vinland Saga",
-      "publisher": "Carlsen Manga!",
-      "volumeNumber": 29,
-      "releaseDate": "2026-09-01",
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/223",
-      "confidence": "high"
-    }
-  ],
+  "cachePatches": [],
   "reviewQueueWrites": [
     {
       "key": "berserk master edition|panini manga|9",
@@ -871,6 +834,7 @@
     "this year s hot ace chan|dokico|2",
     "my tiny senpai|dokico|2",
     "i was reincarnated as the 7th prince so i can take my time perfecting my magical ability|dokico|2",
+    "kagurabachi|carlsen manga|9",
     "the eminence in shadow|tokyopop|9",
     "dai dark|manga cult|9",
     "arifureta der kampf zuruck in meine welt zero|altraverse|1",
@@ -891,11 +855,13 @@
     "mein wunsch von einer oberschulerin getotet zu werden|yomeru|2",
     "meine wiedergeburt als schleim in einer anderen welt|altraverse|30",
     "mushoku tensei in dieser welt mach ich alles anders|panini manga|22",
+    "one piece|carlsen manga|91",
     "real account|tokyopop|14",
     "the rising of the shield hero|tokyopop|27",
     "tokyo ghoul|crunchyroll manga|14",
     "tokyo ghoul gigantik|crunchyroll manga|7",
     "tokyo ghoul re|crunchyroll manga|16",
+    "vinland saga|carlsen manga|29",
     "yandere dark elf|mangamoon|4"
   ],
   "invalidExistingCache": []
