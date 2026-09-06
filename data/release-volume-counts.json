@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-05T08:27:15.600Z",
+  "generatedAt": "2026-09-06T08:09:13.213Z",
   "items": [
     {
       "seriesTitle": "Adou",
@@ -324,7 +324,7 @@
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/87",
       "confidence": "high",
-      "checkedAt": "2026-09-05T08:27:15.600Z"
+      "checkedAt": "2026-09-06T08:03:29.901Z"
     },
     {
       "seriesTitle": "Real Account",
@@ -432,7 +432,7 @@
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/223",
       "confidence": "high",
-      "checkedAt": "2026-09-01T09:31:07.246Z"
+      "checkedAt": "2026-09-06T08:03:29.901Z"
     },
     {
       "seriesTitle": "Witch and Hound",
