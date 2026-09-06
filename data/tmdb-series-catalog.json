@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-28T16:42:15.678Z",
+  "generatedAt": "2026-09-06T08:42:46.905Z",
   "source": "update-tmdb-catalog.js",
   "items": [
     {
@@ -92,7 +92,7 @@
       "total": 73,
       "seasonCount": 8,
       "ongoing": "false",
-      "cover": "https://image.tmdb.org/t/p/w500/37sTgAG9QardbdzCq51FoUw1Ijb.jpg",
+      "cover": "https://image.tmdb.org/t/p/w500/1XS1oqL89opfnbLl8WnZY1O1uJx.jpg",
       "genres": [
         "Sci-Fi & Fantasy",
         "Drama",
