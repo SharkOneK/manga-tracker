@@ -1,31 +1,24 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-21T05:07:49.670Z",
+  "generatedAt": "2026-09-05T08:33:01.180Z",
   "source": "run-series-publication-status.js",
   "networkMode": "enabled",
   "summary": {
-    "seriesWithStatus": 46,
+    "seriesWithStatus": 47,
     "ongoing": 33,
-    "finished": 13,
-    "checkedEditions": 43,
-    "appliedChanges": 6,
+    "finished": 14,
+    "checkedEditions": 45,
+    "appliedChanges": 4,
     "overridesApplied": 1,
-    "blockedOrUnmapped": 6
+    "blockedOrUnmapped": 7
   },
   "changes": [
     {
-      "seriesTitle": "Kagurabachi",
-      "publisher": "Carlsen Manga!",
+      "seriesTitle": "Meine Chefin kommt immer zuerst!!",
+      "publisher": "MANGAMOON",
       "oldOngoing": null,
       "newOngoing": "true",
-      "editionId": 5072
-    },
-    {
-      "seriesTitle": "My Tiny Senpai",
-      "publisher": "Dokico",
-      "oldOngoing": null,
-      "newOngoing": "true",
-      "editionId": 3116
+      "editionId": 6135
     },
     {
       "seriesTitle": "Real Account",
@@ -35,18 +28,11 @@
       "editionId": 819
     },
     {
-      "seriesTitle": "Tokyo Ghoul GIGANTIK",
-      "publisher": "KAZÉ Manga",
+      "seriesTitle": "Vinland Saga",
+      "publisher": "Carlsen Manga!",
       "oldOngoing": "true",
       "newOngoing": "false",
-      "editionId": 4962
-    },
-    {
-      "seriesTitle": "Witch and Hound",
-      "publisher": "Egmont Manga",
-      "oldOngoing": "true",
-      "newOngoing": "false",
-      "editionId": 5483
+      "editionId": 223
     },
     {
       "seriesTitle": "Real Account",
@@ -98,6 +84,14 @@
       "publisher": "KAZÉ Manga",
       "reasonCodes": [
         "no-manga-passion-edition"
+      ]
+    },
+    {
+      "seriesTitle": "I Was Reincarnated as the 7th Prince So I Can Take My Time Perfecting My Magical Ability",
+      "publisher": "Dokico",
+      "editionId": 6021,
+      "reasonCodes": [
+        "unmapped-status:0"
       ]
     },
     {
@@ -200,6 +194,12 @@
       "sourceStatus": 1
     },
     {
+      "seriesTitle": "I Was Reincarnated as the 7th Prince So I Can Take My Time Perfecting My Magical Ability",
+      "publisher": "Dokico",
+      "editionId": 6021,
+      "sourceStatus": 0
+    },
+    {
       "seriesTitle": "Jujutsu Kaisen",
       "publisher": "KAZÉ Manga",
       "editionId": 47,
@@ -240,6 +240,12 @@
       "publisher": "Yomeru",
       "editionId": 4972,
       "sourceStatus": 2
+    },
+    {
+      "seriesTitle": "Meine Chefin kommt immer zuerst!!",
+      "publisher": "MANGAMOON",
+      "editionId": 6135,
+      "sourceStatus": 1
     },
     {
       "seriesTitle": "Meine Wiedergeburt als Schleim in einer anderen Welt",
@@ -347,7 +353,7 @@
       "seriesTitle": "Vinland Saga",
       "publisher": "Carlsen Manga!",
       "editionId": 223,
-      "sourceStatus": 1
+      "sourceStatus": 2
     },
     {
       "seriesTitle": "Witch and Hound",
