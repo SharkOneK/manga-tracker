@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-08T08:57:26.678Z",
+  "generatedAt": "2026-09-09T09:03:39.504Z",
   "source": "run-release-volume-counts.js",
   "providerMode": "enabled",
   "policy": {
@@ -27,25 +27,16 @@
     "seriesInVolumeCounts": 51,
     "probeCandidates": 64,
     "checkedCandidates": 64,
-    "detectedChanges": 2,
-    "appliedHighConfidenceChanges": 2,
+    "detectedChanges": 1,
+    "appliedHighConfidenceChanges": 1,
     "blockedOrUnsafe": 80
   },
   "changes": [
     {
-      "seriesTitle": "Bitte zieh dich an, Takamine!",
-      "publisher": "Egmont Manga",
-      "oldPublishedVolumesDE": 2,
-      "newPublishedVolumesDE": 3,
-      "source": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/5858",
-      "confidence": "high"
-    },
-    {
       "seriesTitle": "One Piece",
       "publisher": "Carlsen Manga!",
-      "oldPublishedVolumesDE": 93,
-      "newPublishedVolumesDE": 94,
+      "oldPublishedVolumesDE": 94,
+      "newPublishedVolumesDE": 95,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/87",
       "confidence": "high"
@@ -146,14 +137,6 @@
       "seriesTitle": "Solo Leveling: Ragnarok",
       "publisher": "altraverse",
       "volumeNumber": 2,
-      "reasonCodes": [
-        "not-yet-released-or-invalid-date"
-      ]
-    },
-    {
-      "seriesTitle": "The Eminence in Shadow",
-      "publisher": "TOKYOPOP",
-      "volumeNumber": 10,
       "reasonCodes": [
         "not-yet-released-or-invalid-date"
       ]
@@ -406,14 +389,6 @@
       ]
     },
     {
-      "seriesTitle": "The Eminence in Shadow",
-      "publisher": "Tokyopop",
-      "volumeNumber": 10,
-      "reasonCodes": [
-        "not-yet-released"
-      ]
-    },
-    {
       "seriesTitle": "Solo Leveling: Ragnarok",
       "publisher": "Altraverse",
       "volumeNumber": 2,
@@ -475,6 +450,14 @@
       "seriesTitle": "August 9th, I will be eaten by you",
       "publisher": "Hayabusa",
       "volumeNumber": 6,
+      "reasonCodes": [
+        "not-yet-released"
+      ]
+    },
+    {
+      "seriesTitle": "Bitte zieh dich an, Takamine!",
+      "publisher": "Egmont Manga",
+      "volumeNumber": 4,
       "reasonCodes": [
         "not-yet-released"
       ]
@@ -740,6 +723,14 @@
       "seriesTitle": "Spy x Family",
       "publisher": "KAZÉ Manga",
       "volumeNumber": 16,
+      "reasonCodes": [
+        "not-yet-released"
+      ]
+    },
+    {
+      "seriesTitle": "The Eminence in Shadow",
+      "publisher": "TOKYOPOP",
+      "volumeNumber": 11,
       "reasonCodes": [
         "not-yet-released"
       ]
@@ -1083,16 +1074,6 @@
       ]
     },
     {
-      "seriesTitle": "The Eminence in Shadow",
-      "publisher": "Tokyopop",
-      "volumeNumber": 10,
-      "source": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/2790",
-      "confidence": "high",
-      "released": false,
-      "reasonCodes": []
-    },
-    {
       "seriesTitle": "Solo Leveling: Ragnarok",
       "publisher": "Altraverse",
       "volumeNumber": 2,
@@ -1177,11 +1158,11 @@
     {
       "seriesTitle": "Bitte zieh dich an, Takamine!",
       "publisher": "Egmont Manga",
-      "volumeNumber": 3,
+      "volumeNumber": 4,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/5858",
       "confidence": "high",
-      "released": true,
+      "released": false,
       "reasonCodes": []
     },
     {
@@ -1496,7 +1477,7 @@
     {
       "seriesTitle": "One Piece",
       "publisher": "Carlsen Manga!",
-      "volumeNumber": 94,
+      "volumeNumber": 95,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/87",
       "confidence": "high",
@@ -1525,6 +1506,16 @@
       "volumeNumber": 16,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/364",
+      "confidence": "high",
+      "released": false,
+      "reasonCodes": []
+    },
+    {
+      "seriesTitle": "The Eminence in Shadow",
+      "publisher": "TOKYOPOP",
+      "volumeNumber": 11,
+      "source": "manga-passion",
+      "sourceUrl": "https://www.manga-passion.de/editions/2790",
       "confidence": "high",
       "released": false,
       "reasonCodes": []
