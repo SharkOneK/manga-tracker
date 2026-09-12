@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-11T09:00:16.107Z",
+  "generatedAt": "2026-09-12T08:43:10.708Z",
   "items": [
     {
       "seriesTitle": "Adou",
@@ -54,7 +54,7 @@
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/5858",
       "confidence": "high",
-      "checkedAt": "2026-09-08T08:57:26.678Z"
+      "checkedAt": "2026-09-12T08:37:47.561Z"
     },
     {
       "seriesTitle": "Blood Blade",
@@ -324,7 +324,7 @@
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/87",
       "confidence": "high",
-      "checkedAt": "2026-09-11T09:00:16.107Z"
+      "checkedAt": "2026-09-12T08:37:47.561Z"
     },
     {
       "seriesTitle": "Real Account",
