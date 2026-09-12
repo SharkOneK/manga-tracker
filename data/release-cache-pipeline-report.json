@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-06T08:39:12.298Z",
+  "generatedAt": "2026-09-12T10:09:28.258Z",
   "source": "run-release-cache-pipeline.js",
   "inputs": {
     "cacheItems": 226,
@@ -46,19 +46,44 @@
   },
   "summary": {
     "candidatesDiscovered": 243,
-    "candidatesChecked": 28,
-    "skippedAlreadyCached": 215,
+    "candidatesChecked": 30,
+    "skippedAlreadyCached": 213,
     "skippedDueToLimit": 0,
-    "highConfidence": 0,
+    "highConfidence": 2,
     "mediumConfidence": 0,
     "lowConfidence": 28,
     "blocked": 0,
-    "cachePatches": 0,
+    "cachePatches": 2,
     "reviewQueueWrites": 28,
     "invalidExistingCache": 0
   },
   "autoMergeEligible": false,
-  "cachePatches": [],
+  "cachePatches": [
+    {
+      "action": "add",
+      "key": "bitte zieh dich an takamine|egmont manga|3",
+      "seriesTitle": "Bitte zieh dich an, Takamine!",
+      "publisher": "Egmont Manga",
+      "volumeNumber": 3,
+      "releaseDate": "2026-09-08",
+      "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
+      "sourceUrl": "https://www.manga-passion.de/editions/5858",
+      "confidence": "high"
+    },
+    {
+      "action": "add",
+      "key": "one piece|carlsen manga|98",
+      "seriesTitle": "One Piece",
+      "publisher": "Carlsen Manga!",
+      "volumeNumber": 98,
+      "releaseDate": "2021-08-31",
+      "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
+      "sourceUrl": "https://www.manga-passion.de/editions/87",
+      "confidence": "high"
+    }
+  ],
   "reviewQueueWrites": [
     {
       "key": "berserk master edition|panini manga|9",
@@ -841,7 +866,6 @@
     "arifureta der kampf zuruck in meine welt|altraverse|16",
     "arifureta der kampf zuruck in meine welt zero|altraverse|3",
     "berserk master edition|panini manga|6",
-    "bitte zieh dich an takamine|egmont manga|2",
     "blood blade|hayabusa|5",
     "chainsaw man|egmont manga|22",
     "colorless|manga cult|7",
@@ -855,7 +879,6 @@
     "mein wunsch von einer oberschulerin getotet zu werden|yomeru|2",
     "meine wiedergeburt als schleim in einer anderen welt|altraverse|30",
     "mushoku tensei in dieser welt mach ich alles anders|panini manga|22",
-    "one piece|carlsen manga|91",
     "real account|tokyopop|14",
     "the rising of the shield hero|tokyopop|27",
     "tokyo ghoul|crunchyroll manga|14",

@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-06T08:03:29.901Z",
+  "generatedAt": "2026-09-12T10:09:28.258Z",
   "source": "run-release-cache-pipeline.js",
-  "itemCount": 226,
+  "itemCount": 228,
   "items": [
     {
       "seriesTitle": "Adou",
@@ -351,6 +351,23 @@
       "confidence": "high",
       "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 5858, Band 2). Ursprung: volume-counts.",
       "checkedAt": "2026-08-16T15:26:16.100Z"
+    },
+    {
+      "seriesTitle": "Bitte zieh dich an, Takamine!",
+      "normalizedSeriesTitle": "bitte zieh dich an takamine",
+      "publisher": "Egmont Manga",
+      "normalizedPublisher": "egmont manga",
+      "volumeNumber": 3,
+      "releaseDate": "2026-09-08",
+      "isbn13": null,
+      "coverUrl": "https://media.manga-passion.de/volume/cover/2026/0815/1205/bc09eacf2cddd4de56782825bda001b4.jpg",
+      "sourceUrl": "https://www.manga-passion.de/editions/5858",
+      "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
+      "evidence": "Manga Passion Edition, Verlag und Bandnummer wurden gegen die Bandliste abgeglichen.",
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 5858, Band 3). Ursprung: volume-counts.",
+      "checkedAt": "2026-09-12T10:09:28.258Z"
     },
     {
       "seriesTitle": "Blood Blade",
@@ -2721,6 +2738,23 @@
       "confidence": "high",
       "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 87, Band 91). Ursprung: volume-counts.",
       "checkedAt": "2026-09-06T08:03:29.901Z"
+    },
+    {
+      "seriesTitle": "One Piece",
+      "normalizedSeriesTitle": "one piece",
+      "publisher": "Carlsen Manga!",
+      "normalizedPublisher": "carlsen manga",
+      "volumeNumber": 98,
+      "releaseDate": "2021-08-31",
+      "isbn13": null,
+      "coverUrl": "https://media.manga-passion.de/volume/cover/2021/0110/1236/0531660ece12ea0d2f.jpg",
+      "sourceUrl": "https://www.manga-passion.de/editions/87",
+      "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
+      "evidence": "Manga Passion Edition, Verlag und Bandnummer wurden gegen die Bandliste abgeglichen.",
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 87, Band 98). Ursprung: volume-counts.",
+      "checkedAt": "2026-09-12T10:09:28.258Z"
     },
     {
       "seriesTitle": "Real Account",
