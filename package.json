@@ -28,6 +28,6 @@
   "devDependencies": {
     "c8": "11.0.0",
     "jszip": "3.10.2",
-    "playwright": "^1.62.1"
+    "playwright": "^1.63.0"
   }
 }
