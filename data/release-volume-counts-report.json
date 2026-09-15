@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-14T10:01:28.146Z",
+  "generatedAt": "2026-09-15T09:31:07.705Z",
   "source": "run-release-volume-counts.js",
   "providerMode": "enabled",
   "policy": {
@@ -27,21 +27,11 @@
     "seriesInVolumeCounts": 51,
     "probeCandidates": 64,
     "checkedCandidates": 64,
-    "detectedChanges": 1,
-    "appliedHighConfidenceChanges": 1,
-    "blockedOrUnsafe": 79
+    "detectedChanges": 0,
+    "appliedHighConfidenceChanges": 0,
+    "blockedOrUnsafe": 80
   },
-  "changes": [
-    {
-      "seriesTitle": "One Piece",
-      "publisher": "Carlsen Manga!",
-      "oldPublishedVolumesDE": 99,
-      "newPublishedVolumesDE": 100,
-      "source": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/87",
-      "confidence": "high"
-    }
-  ],
+  "changes": [],
   "blockedCandidates": [
     {
       "seriesTitle": "August 9th, I will be eaten by you",
@@ -698,6 +688,16 @@
         "source-url-not-specific",
         "missing-source-edition-title",
         "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date",
+        "not-yet-released"
+      ]
+    },
+    {
+      "seriesTitle": "One Piece",
+      "publisher": "Carlsen Manga!",
+      "volumeNumber": 101,
+      "reasonCodes": [
         "missing-source-volume-number",
         "missing-release-date",
         "not-yet-released"
@@ -1480,12 +1480,15 @@
     {
       "seriesTitle": "One Piece",
       "publisher": "Carlsen Manga!",
-      "volumeNumber": 100,
+      "volumeNumber": 101,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/87",
-      "confidence": "high",
-      "released": true,
-      "reasonCodes": []
+      "confidence": "low",
+      "released": false,
+      "reasonCodes": [
+        "missing-source-volume-number",
+        "missing-release-date"
+      ]
     },
     {
       "seriesTitle": "Real Account",
