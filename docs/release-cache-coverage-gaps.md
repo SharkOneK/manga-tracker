@@ -8,15 +8,15 @@ Stand: automatisch synchronisiert aus aktuellem Audit gegen `data/release-watchl
 |---|---:|
 | Aktivierte Watchlist-Eintraege | 62 |
 | Expandierte Watchlist-Bandkandidaten | 216 |
-| Release-Cache-Eintraege | 228 |
-| Gefundene Cache-Eintraege | 186 |
-| Verbleibende Luecken | 30 |
-| Betroffene Serien | 13 |
-| Betroffene Verlage | 10 |
+| Release-Cache-Eintraege | 231 |
+| Gefundene Cache-Eintraege | 188 |
+| Verbleibende Luecken | 28 |
+| Betroffene Serien | 11 |
+| Betroffene Verlage | 9 |
 
 ## Klassifikation
 
-Alle 30 verbleibenden Luecken sind als `source-data-gap` klassifiziert.
+Alle 28 verbleibenden Luecken sind als `source-data-gap` klassifiziert.
 
 Bedeutung: Der Watchlist-Band wurde nach dem Cache-Update weiterhin nicht in `data/release-cache.json` gefunden. Diese Faelle sind Quellen-/Datenqualitaetsfaelle und duerfen nicht durch Fake-Daten geschlossen werden.
 
@@ -36,9 +36,7 @@ Empfohlener Umgang: manuell in verlaesslicher Quelle pruefen, erst danach echte 
 | Tokyo Revengers – Doppelband-Edition | Carlsen Manga | 16 | 1 | source-data-gap |
 | Death Note - Diamond Edition | Tokyopop | 1 | 1 | source-data-gap |
 | Eguchi-san’s Pure-hearted Succubus | Dokico | 2 | 1 | source-data-gap |
-| The Eminence in Shadow | Tokyopop | 11 | 1 | source-data-gap |
 | Blood Blade | Hayabusa | 6 | 1 | source-data-gap |
-| Yakuza Reincarnation | Manga Cult | 17 | 1 | source-data-gap |
 
 ## Luecken nach Verlag
 
@@ -49,11 +47,10 @@ Empfohlener Umgang: manuell in verlaesslicher Quelle pruefen, erst danach echte 
 | Altraverse | 5 | 2 |
 | Egmont Manga | 4 | 1 |
 | dani books | 2 | 1 |
-| Tokyopop | 2 | 2 |
 | Carlsen Manga | 1 | 1 |
 | Dokico | 1 | 1 |
 | Hayabusa | 1 | 1 |
-| Manga Cult | 1 | 1 |
+| Tokyopop | 1 | 1 |
 
 ## Maschinenlesbarer Audit
 
@@ -95,7 +92,7 @@ Der normale Workflow scheitert weiterhin nicht an bekannten `source-data-gap`-Lu
 
 ## Phase 23a: Ursachenanalyse
 
-Die 30 `source-data-gap`-Einzelluecken sind in `docs/release-cache-source-gap-analysis.md` strukturiert analysiert.
+Die 28 `source-data-gap`-Einzelluecken sind in `docs/release-cache-source-gap-analysis.md` strukturiert analysiert.
 
 Die Analyse dokumentiert pro Gap:
 
