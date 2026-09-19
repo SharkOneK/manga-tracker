@@ -4,11 +4,11 @@
   "generatedFrom": "docs/release-cache-source-gap-analysis.md",
   "reviewPolicy": "docs/release-cache-manual-source-review.md",
   "summary": {
-    "knownSourceGaps": 30,
-    "totalGaps": 93,
+    "knownSourceGaps": 28,
+    "totalGaps": 91,
     "safeToPatch": 62,
-    "pendingManualReview": 31,
-    "autoReviewed": 24,
+    "pendingManualReview": 29,
+    "autoReviewed": 25,
     "patched": 62
   },
   "sortOrder": "priority(sehr hoch, hoch, mittel, niedrig), seriesTitle, publisher, volumeNumber",
@@ -873,6 +873,44 @@
         "missing-release-date"
       ],
       "providerId": "carlsen"
+    },
+    {
+      "queueKey": "Blood Blade|Hayabusa|6",
+      "seriesTitle": "Blood Blade",
+      "publisher": "Hayabusa",
+      "volumeNumber": 6,
+      "classification": "source-data-gap",
+      "suspectedCause": "manual-source-required",
+      "priority": "mittel",
+      "recommendedFix": "manual-source-review",
+      "manualSourceReviewNeeded": true,
+      "checkedSources": [
+        {
+          "name": "Release-Intake-Staging / Release-Cache-Audit",
+          "url": "data/release-watchlist.json",
+          "result": "Nach Release-Intake in der Watchlist vorhanden; kein passender Eintrag in data/release-cache.json."
+        }
+      ],
+      "sourceAnalysisEvidence": "Der Band wurde per Release-Intake in die Watchlist uebernommen. Der Release-Cache enthaelt noch kein belegtes Datum; kein Cache-Patch ohne verifizierte Quelle.",
+      "safeToPatch": false,
+      "reviewStatus": "auto-low-confidence",
+      "sourceUrl": "https://www.manga-passion.de/editions/5098",
+      "releaseDate": null,
+      "checkedAt": "2026-09-19T08:47:29.119Z",
+      "evidence": "Automatische Quellenprüfung: volume-not-found. Confidence: low. Gruende: missing-source-volume-number, missing-release-date. Edition: 5098.",
+      "notes": "Automatisch geprüft; nicht sicher genug für den öffentlichen Cache.",
+      "sourceConfidence": "low",
+      "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
+      "sourceEditionId": 5098,
+      "sourceEditionTitle": "Blood Blade",
+      "sourcePublisher": "Hayabusa",
+      "sourceVolumeNumber": null,
+      "sourceResult": "volume-not-found",
+      "confidenceReasons": [
+        "missing-source-volume-number",
+        "missing-release-date"
+      ]
     },
     {
       "queueKey": "Death Note - Diamond Edition|Tokyopop|1",
@@ -2949,84 +2987,6 @@
         "missing-release-date"
       ],
       "providerId": "carlsen"
-    },
-    {
-      "queueKey": "The Eminence in Shadow|Tokyopop|11",
-      "seriesTitle": "The Eminence in Shadow",
-      "publisher": "Tokyopop",
-      "volumeNumber": 11,
-      "classification": "source-data-gap",
-      "suspectedCause": "manual-source-required",
-      "priority": "mittel",
-      "recommendedFix": "manual-source-review",
-      "manualSourceReviewNeeded": true,
-      "checkedSources": [
-        {
-          "name": "Release-Intake-Staging / Release-Cache-Audit",
-          "url": "data/release-watchlist.json",
-          "result": "Nach Release-Intake in der Watchlist vorhanden; kein passender Eintrag in data/release-cache.json."
-        }
-      ],
-      "sourceAnalysisEvidence": "Der Band wurde per Release-Intake in die Watchlist uebernommen. Der Release-Cache enthaelt noch kein belegtes Datum; kein Cache-Patch ohne verifizierte Quelle.",
-      "safeToPatch": false,
-      "reviewStatus": "pending",
-      "sourceUrl": "",
-      "releaseDate": null,
-      "checkedAt": null,
-      "evidence": "",
-      "notes": "Automatisch aus aktueller Source-Gap-Analyse ergänzt; manuelle Quellenprüfung erforderlich."
-    },
-    {
-      "queueKey": "Blood Blade|Hayabusa|6",
-      "seriesTitle": "Blood Blade",
-      "publisher": "Hayabusa",
-      "volumeNumber": 6,
-      "classification": "source-data-gap",
-      "suspectedCause": "manual-source-required",
-      "priority": "mittel",
-      "recommendedFix": "manual-source-review",
-      "manualSourceReviewNeeded": true,
-      "checkedSources": [
-        {
-          "name": "Release-Intake-Staging / Release-Cache-Audit",
-          "url": "data/release-watchlist.json",
-          "result": "Nach Release-Intake in der Watchlist vorhanden; kein passender Eintrag in data/release-cache.json."
-        }
-      ],
-      "sourceAnalysisEvidence": "Der Band wurde per Release-Intake in die Watchlist uebernommen. Der Release-Cache enthaelt noch kein belegtes Datum; kein Cache-Patch ohne verifizierte Quelle.",
-      "safeToPatch": false,
-      "reviewStatus": "pending",
-      "sourceUrl": "",
-      "releaseDate": null,
-      "checkedAt": null,
-      "evidence": "",
-      "notes": "Automatisch aus aktueller Source-Gap-Analyse ergänzt; manuelle Quellenprüfung erforderlich."
-    },
-    {
-      "queueKey": "Yakuza Reincarnation|Manga Cult|17",
-      "seriesTitle": "Yakuza Reincarnation",
-      "publisher": "Manga Cult",
-      "volumeNumber": 17,
-      "classification": "source-data-gap",
-      "suspectedCause": "manual-source-required",
-      "priority": "mittel",
-      "recommendedFix": "manual-source-review",
-      "manualSourceReviewNeeded": true,
-      "checkedSources": [
-        {
-          "name": "Release-Intake-Staging / Release-Cache-Audit",
-          "url": "data/release-watchlist.json",
-          "result": "Nach Release-Intake in der Watchlist vorhanden; kein passender Eintrag in data/release-cache.json."
-        }
-      ],
-      "sourceAnalysisEvidence": "Der Band wurde per Release-Intake in die Watchlist uebernommen. Der Release-Cache enthaelt noch kein belegtes Datum; kein Cache-Patch ohne verifizierte Quelle.",
-      "safeToPatch": false,
-      "reviewStatus": "pending",
-      "sourceUrl": "",
-      "releaseDate": null,
-      "checkedAt": null,
-      "evidence": "",
-      "notes": "Automatisch aus aktueller Source-Gap-Analyse ergänzt; manuelle Quellenprüfung erforderlich."
     }
   ]
 }
