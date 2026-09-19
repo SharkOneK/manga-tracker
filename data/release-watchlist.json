@@ -686,7 +686,31 @@
       "sourceUrl": null,
       "notes": "Aus Release-Intake-Staging übernommen.",
       "enabled": true
+    },
+    {
+      "seriesTitle": "The Eminence in Shadow",
+      "publisher": "Tokyopop",
+      "volumeNumber": 11,
+      "sourceUrl": null,
+      "notes": "Aus Release-Intake-Staging übernommen.",
+      "enabled": true
+    },
+    {
+      "seriesTitle": "Blood Blade",
+      "publisher": "Hayabusa",
+      "volumeNumber": 6,
+      "sourceUrl": null,
+      "notes": "Aus Release-Intake-Staging übernommen.",
+      "enabled": true
+    },
+    {
+      "seriesTitle": "Yakuza Reincarnation",
+      "publisher": "Manga Cult",
+      "volumeNumber": 17,
+      "sourceUrl": null,
+      "notes": "Aus Release-Intake-Staging übernommen.",
+      "enabled": true
     }
   ],
-  "generatedAt": "2026-08-22T04:40:10.902Z"
+  "generatedAt": "2026-09-19T08:43:15.889Z"
 }
