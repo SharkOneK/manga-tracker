@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-19T08:53:11.680Z",
+  "generatedAt": "2026-09-22T09:23:57.612Z",
   "source": "run-release-volume-counts.js",
   "providerMode": "enabled",
   "policy": {
@@ -27,24 +27,26 @@
     "seriesInVolumeCounts": 51,
     "probeCandidates": 64,
     "checkedCandidates": 64,
-    "detectedChanges": 0,
-    "appliedHighConfidenceChanges": 0,
-    "blockedOrUnsafe": 80
+    "detectedChanges": 1,
+    "appliedHighConfidenceChanges": 1,
+    "blockedOrUnsafe": 79
   },
-  "changes": [],
+  "changes": [
+    {
+      "seriesTitle": "Berserk Master Edition",
+      "publisher": "Panini Manga",
+      "oldPublishedVolumesDE": 6,
+      "newPublishedVolumesDE": 7,
+      "source": "manga-passion",
+      "sourceUrl": "https://www.manga-passion.de/editions/5211",
+      "confidence": "high"
+    }
+  ],
   "blockedCandidates": [
     {
       "seriesTitle": "August 9th, I will be eaten by you",
       "publisher": "Hayabusa",
       "volumeNumber": 6,
-      "reasonCodes": [
-        "not-yet-released-or-invalid-date"
-      ]
-    },
-    {
-      "seriesTitle": "Berserk Master Edition",
-      "publisher": "Panini Manga",
-      "volumeNumber": 7,
       "reasonCodes": [
         "not-yet-released-or-invalid-date"
       ]
@@ -255,14 +257,6 @@
     {
       "seriesTitle": "Berserk Master Edition",
       "publisher": "Panini Manga",
-      "volumeNumber": 7,
-      "reasonCodes": [
-        "not-yet-released"
-      ]
-    },
-    {
-      "seriesTitle": "Berserk Master Edition",
-      "publisher": "Panini Manga",
       "volumeNumber": 8,
       "reasonCodes": [
         "not-yet-released"
@@ -272,6 +266,19 @@
       "seriesTitle": "Berserk Master Edition",
       "publisher": "Panini Manga",
       "volumeNumber": 9,
+      "reasonCodes": [
+        "source-url-not-specific",
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date",
+        "not-yet-released"
+      ]
+    },
+    {
+      "seriesTitle": "Berserk Master Edition",
+      "publisher": "Panini Manga",
+      "volumeNumber": 10,
       "reasonCodes": [
         "source-url-not-specific",
         "missing-source-edition-title",
@@ -926,16 +933,6 @@
     {
       "seriesTitle": "Berserk Master Edition",
       "publisher": "Panini Manga",
-      "volumeNumber": 7,
-      "source": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/5211",
-      "confidence": "high",
-      "released": false,
-      "reasonCodes": []
-    },
-    {
-      "seriesTitle": "Berserk Master Edition",
-      "publisher": "Panini Manga",
       "volumeNumber": 8,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/5211",
@@ -947,6 +944,22 @@
       "seriesTitle": "Berserk Master Edition",
       "publisher": "Panini Manga",
       "volumeNumber": 9,
+      "source": "carlsen",
+      "sourceUrl": "https://www.carlsen.de",
+      "confidence": "low",
+      "released": false,
+      "reasonCodes": [
+        "source-url-not-specific",
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date"
+      ]
+    },
+    {
+      "seriesTitle": "Berserk Master Edition",
+      "publisher": "Panini Manga",
+      "volumeNumber": 10,
       "source": "carlsen",
       "sourceUrl": "https://www.carlsen.de",
       "confidence": "low",
