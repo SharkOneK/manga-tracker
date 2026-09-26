@@ -1,16 +1,16 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-12T08:48:00.716Z",
+  "generatedAt": "2026-09-26T09:30:12.987Z",
   "source": "run-series-publication-status.js",
   "networkMode": "enabled",
   "summary": {
     "seriesWithStatus": 47,
     "ongoing": 33,
     "finished": 14,
-    "checkedEditions": 45,
+    "checkedEditions": 46,
     "appliedChanges": 2,
     "overridesApplied": 1,
-    "blockedOrUnmapped": 7
+    "blockedOrUnmapped": 6
   },
   "changes": [
     {
@@ -37,13 +37,6 @@
     }
   ],
   "blocked": [
-    {
-      "seriesTitle": "Berserk Master Edition",
-      "publisher": "Panini Manga",
-      "reasonCodes": [
-        "no-manga-passion-edition"
-      ]
-    },
     {
       "seriesTitle": "Blood Blade",
       "publisher": "Hayabusa",
@@ -111,6 +104,12 @@
       "seriesTitle": "August 9th, I will be eaten by you",
       "publisher": "Hayabusa",
       "editionId": 2015,
+      "sourceStatus": 1
+    },
+    {
+      "seriesTitle": "Berserk Master Edition",
+      "publisher": "Panini Manga",
+      "editionId": 5211,
       "sourceStatus": 1
     },
     {
