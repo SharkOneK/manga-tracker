@@ -1,11 +1,11 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-13T09:33:35.568Z",
+  "generatedAt": "2026-09-26T09:20:21.727Z",
   "source": "run-release-cache-pipeline.js",
   "inputs": {
     "cacheItems": 228,
-    "watchlistCandidates": 213,
-    "reviewQueueCandidates": 90,
+    "watchlistCandidates": 216,
+    "reviewQueueCandidates": 93,
     "appSeedCandidates": 5,
     "volumeCountsCandidates": 51
   },
@@ -45,20 +45,57 @@
     ]
   },
   "summary": {
-    "candidatesDiscovered": 243,
-    "candidatesChecked": 28,
-    "skippedAlreadyCached": 215,
+    "candidatesDiscovered": 244,
+    "candidatesChecked": 32,
+    "skippedAlreadyCached": 212,
     "skippedDueToLimit": 0,
-    "highConfidence": 0,
+    "highConfidence": 3,
     "mediumConfidence": 0,
-    "lowConfidence": 28,
+    "lowConfidence": 29,
     "blocked": 0,
-    "cachePatches": 0,
-    "reviewQueueWrites": 28,
+    "cachePatches": 3,
+    "reviewQueueWrites": 29,
     "invalidExistingCache": 0
   },
   "autoMergeEligible": false,
-  "cachePatches": [],
+  "cachePatches": [
+    {
+      "action": "add",
+      "key": "the eminence in shadow|tokyopop|11",
+      "seriesTitle": "The Eminence in Shadow",
+      "publisher": "TOKYOPOP",
+      "volumeNumber": 11,
+      "releaseDate": "2026-12-09",
+      "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
+      "sourceUrl": "https://www.manga-passion.de/editions/2790",
+      "confidence": "high"
+    },
+    {
+      "action": "add",
+      "key": "yakuza reincarnation|manga cult|17",
+      "seriesTitle": "Yakuza Reincarnation",
+      "publisher": "Manga Cult",
+      "volumeNumber": 17,
+      "releaseDate": "2027-01-13",
+      "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
+      "sourceUrl": "https://www.manga-passion.de/editions/1945",
+      "confidence": "high"
+    },
+    {
+      "action": "add",
+      "key": "one piece|carlsen manga|100",
+      "seriesTitle": "One Piece",
+      "publisher": "Carlsen Manga!",
+      "volumeNumber": 100,
+      "releaseDate": "2022-03-22",
+      "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
+      "sourceUrl": "https://www.manga-passion.de/editions/87",
+      "confidence": "high"
+    }
+  ],
   "reviewQueueWrites": [
     {
       "key": "berserk master edition|panini manga|9",
@@ -644,6 +681,24 @@
       "sourceUrl": "https://www.carlsen.de",
       "releaseDate": null,
       "sourceResult": "publisher-not-supported"
+    },
+    {
+      "key": "blood blade|hayabusa|6",
+      "queueKey": "Blood Blade|Hayabusa|6",
+      "seriesTitle": "Blood Blade",
+      "publisher": "Hayabusa",
+      "volumeNumber": 6,
+      "confidence": "low",
+      "reviewStatus": "auto-low-confidence",
+      "reasonCodes": [
+        "missing-source-volume-number",
+        "missing-release-date"
+      ],
+      "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
+      "sourceUrl": "https://www.manga-passion.de/editions/5098",
+      "releaseDate": null,
+      "sourceResult": "volume-not-found"
     }
   ],
   "blockedCandidates": [],
@@ -839,8 +894,6 @@
     "dai dark|manga cult|9",
     "arifureta der kampf zuruck in meine welt zero|altraverse|1",
     "arifureta der kampf zuruck in meine welt|altraverse|16",
-    "arifureta der kampf zuruck in meine welt zero|altraverse|3",
-    "berserk master edition|panini manga|6",
     "bitte zieh dich an takamine|egmont manga|3",
     "blood blade|hayabusa|5",
     "chainsaw man|egmont manga|22",
@@ -855,7 +908,6 @@
     "mein wunsch von einer oberschulerin getotet zu werden|yomeru|2",
     "meine wiedergeburt als schleim in einer anderen welt|altraverse|30",
     "mushoku tensei in dieser welt mach ich alles anders|panini manga|22",
-    "one piece|carlsen manga|98",
     "real account|tokyopop|14",
     "the rising of the shield hero|tokyopop|27",
     "tokyo ghoul|crunchyroll manga|14",

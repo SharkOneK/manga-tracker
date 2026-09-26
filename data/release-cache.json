@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-12T10:09:28.258Z",
+  "generatedAt": "2026-09-26T09:20:21.727Z",
   "source": "run-release-cache-pipeline.js",
-  "itemCount": 228,
+  "itemCount": 231,
   "items": [
     {
       "seriesTitle": "Adou",
@@ -2757,6 +2757,23 @@
       "checkedAt": "2026-09-12T10:09:28.258Z"
     },
     {
+      "seriesTitle": "One Piece",
+      "normalizedSeriesTitle": "one piece",
+      "publisher": "Carlsen Manga!",
+      "normalizedPublisher": "carlsen manga",
+      "volumeNumber": 100,
+      "releaseDate": "2022-03-22",
+      "isbn13": null,
+      "coverUrl": "https://media.manga-passion.de/volume/cover/2022/0302/2211/12a9012cbdc695d77dd72ed645018074.jpg",
+      "sourceUrl": "https://www.manga-passion.de/editions/87",
+      "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
+      "evidence": "Manga Passion Edition, Verlag und Bandnummer wurden gegen die Bandliste abgeglichen.",
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 87, Band 100). Ursprung: volume-counts.",
+      "checkedAt": "2026-09-26T09:20:21.727Z"
+    },
+    {
       "seriesTitle": "Real Account",
       "normalizedSeriesTitle": "real account",
       "publisher": "TOKYOPOP",
@@ -3102,6 +3119,23 @@
       "confidence": "high",
       "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 2790, Band 10). Ursprung: watchlist.",
       "checkedAt": "2026-08-16T15:26:16.100Z"
+    },
+    {
+      "seriesTitle": "The Eminence in Shadow",
+      "normalizedSeriesTitle": "the eminence in shadow",
+      "publisher": "TOKYOPOP",
+      "normalizedPublisher": "tokyopop",
+      "volumeNumber": 11,
+      "releaseDate": "2026-12-09",
+      "isbn13": null,
+      "coverUrl": "https://media.manga-passion.de/volume/cover/2023/0806/1323/581f65327c44af821670bb424bacee88.jpg",
+      "sourceUrl": "https://www.manga-passion.de/editions/2790",
+      "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
+      "evidence": "Manga Passion Edition, Verlag und Bandnummer wurden gegen die Bandliste abgeglichen.",
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 2790, Band 11). Ursprung: watchlist.",
+      "checkedAt": "2026-09-26T09:20:21.727Z"
     },
     {
       "seriesTitle": "The Rising of the Shield Hero",
@@ -3631,6 +3665,23 @@
       "confidence": "high",
       "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 1945, Band 16). Ursprung: watchlist.",
       "checkedAt": "2026-05-19T15:26:34.180Z"
+    },
+    {
+      "seriesTitle": "Yakuza Reincarnation",
+      "normalizedSeriesTitle": "yakuza reincarnation",
+      "publisher": "Manga Cult",
+      "normalizedPublisher": "manga cult",
+      "volumeNumber": 17,
+      "releaseDate": "2027-01-13",
+      "isbn13": null,
+      "coverUrl": "https://media.manga-passion.de/volume/cover/2025/0415/1021/8effb963f27fbde5c025b158d324128c.jpg",
+      "sourceUrl": "https://www.manga-passion.de/editions/1945",
+      "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
+      "evidence": "Manga Passion Edition, Verlag und Bandnummer wurden gegen die Bandliste abgeglichen.",
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 1945, Band 17). Ursprung: watchlist.",
+      "checkedAt": "2026-09-26T09:20:21.727Z"
     },
     {
       "seriesTitle": "Yandere Dark Elf",
