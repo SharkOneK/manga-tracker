@@ -9,21 +9,34 @@
  * Test-/Validator-Script in CI oder lokal vergessen wird.
  *
  * Verhalten:
- *  - Fail-fast: Der erste rote Check bricht den Lauf mit dessen Exit-Code ab.
+ *  - Default: Fail-fast. Der erste rote Check bricht den Lauf mit dessen
+ *    Exit-Code ab (unverändert gegenüber vor Phase 82 — CI verlässt sich
+ *    darauf).
+ *  - Optional (`--no-fail-fast`): Sammelmodus. Alle Steps laufen durch, am
+ *    Ende steht ein Sammel-Report aller roten Steps; Exit-Code ist ungleich 0,
+ *    sobald mindestens ein Step rot war (auch wenn der letzte Step grün war).
  *  - Vollständig offline: kein Netzwerk, kein Supabase, keine Secrets nötig.
  *  - Idempotent: schreibt höchstens nach artifacts/ (gitignored) und – falls
  *    GITHUB_STEP_SUMMARY gesetzt ist – in die GitHub-Actions-Summary.
  *
  * Bewusst NICHT ausgeführt (nur Syntax-geprüft), weil sie Argumente, Netzwerk
  * oder Secrets benötigen: die Auto-Merge-Gates, die Pipeline-/Intake-/Snapshot-
- * Runner, der Live-Smoke und die Status-Mail-Writer.
+ * Runner, der Live-Smoke, die Status-Mail-Writer und die Playwright-Browser-
+ * Suiten (kein Browser in CI installiert).
  *
  * Nutzung (kanonisch, funktioniert auf Windows, macOS, Linux/CI):
- *   node scripts/run-all-checks.js        # alles
+ *   node scripts/run-all-checks.js                  # alles, fail-fast (Default)
+ *   node scripts/run-all-checks.js --no-fail-fast    # alles, Sammelmodus
  *   node scripts/run-all-checks.js --syntax-only
  *   node scripts/run-all-checks.js --run-only
  *
+ *   --no-fail-fast ist mit --syntax-only und --run-only kombinierbar und wirkt
+ *   dann nur auf die jeweils gewählte Phase. --syntax-only und --run-only sind
+ *   NICHT gleichzeitig erlaubt (das liefe sonst still mit 0 Steps durch).
+ *   Unbekannte Flags brechen den Lauf mit Exit ≠ 0 ab.
+ *
  *   npm run validate / npm test           # bequemer Alias
+ *   npm run coverage                      # c8 + --no-fail-fast (siehe package.json)
  *
  * Windows-Hinweis: Einige Checks (Coverage-Report, Coverage-Gap-Validator,
  * Auto-Merge-Gate-Test) starten intern eigene Node-Unterprozesse. Über den
@@ -39,8 +52,23 @@ const path = require('path');
 
 const repoRoot = path.resolve(__dirname, '..');
 const args = process.argv.slice(2);
+
+const KNOWN_FLAGS = ['--syntax-only', '--run-only', '--no-fail-fast'];
+const unknownFlags = args.filter(a => !KNOWN_FLAGS.includes(a));
+if (unknownFlags.length) {
+  console.error('✖ Unbekannte(s) Flag(s): ' + unknownFlags.join(', '));
+  console.error('  Bekannte Flags: ' + KNOWN_FLAGS.join(', '));
+  process.exit(1);
+}
+
 const syntaxOnly = args.includes('--syntax-only');
 const runOnly = args.includes('--run-only');
+const failFast = !args.includes('--no-fail-fast');
+
+if (syntaxOnly && runOnly) {
+  console.error("✖ --syntax-only und --run-only sind nicht gleichzeitig erlaubt (laeuft sonst still mit 0 Steps durch).");
+  process.exit(1);
+}
 
 // ── Phase 1: Syntax-Checks (node --check) ────────────────────────────────────
 // Superset der heutigen CI-Syntax-Checks plus alle Lauf-/Gate-Scripts.
@@ -106,9 +134,16 @@ const SYNTAX_FILES = [
   'scripts/validate-tmdb-watchlist.js',
   'scripts/validate-tmdb-series-catalog.js',
   'scripts/test-tmdb-provider.js',
+  'scripts/test-publisher-providers.js',
+  'scripts/validate-supabase-catalog-snapshot.js',
   // Playwright-Suiten laufen mangels Browser nicht in RUN_CHECKS. Sie werden hier
   // aber syntax-geprueft — sonst rottet genau der Code still vor sich hin, den in
-  // CI nie etwas ausfuehrt.
+  // CI nie etwas ausfuehrt. Alle nutzen echtes Playwright-Chromium
+  // (require('playwright'), chromium.launch()) statt eines DOM-Stubs; in CI ist
+  // kein Browser installiert (playwright steht nur als devDependency, kein
+  // Workflow ruft `playwright install`), dort wuerde chromium.launch() hart
+  // scheitern. Phase 72 gehoert aus demselben Grund in denselben Block.
+  'scripts/test-phase72-browser-integration.js',
   'scripts/test-phase73-browser-integration.js',
   'scripts/test-phase73-tester-xss-followup.js',
   'scripts/test-phase74-browser-integration.js',
@@ -124,6 +159,7 @@ const SYNTAX_FILES = [
 // { label, cmd, cmdArgs }
 const RUN_CHECKS = [
   { label: 'Validate release cache',                cmd: 'node', cmdArgs: ['scripts/validate-release-cache.js'] },
+  { label: 'Validate Supabase catalog snapshot (Phase 39d)', cmd: 'node', cmdArgs: ['scripts/validate-supabase-catalog-snapshot.js'] },
   { label: 'Write release-cache coverage report',   cmd: 'node', cmdArgs: ['scripts/write-release-cache-coverage-report.js'] },
   { label: 'Write release-cache coverage summary',  cmd: 'node', cmdArgs: ['scripts/write-release-cache-coverage-summary.js'] },
   { label: 'Validate release-cache coverage gaps',  cmd: 'node', cmdArgs: ['scripts/validate-release-cache-coverage-gaps.js'] },
@@ -154,6 +190,7 @@ const RUN_CHECKS = [
   { label: 'CI-Race volume-count fix tests (Phase 70)', cmd: 'node', cmdArgs: ['scripts/test-ci-race-volume-count-fix.js'] },
   { label: 'Consistency grace-window tests (Phase 71)', cmd: 'node', cmdArgs: ['scripts/test-consistency-grace-window.js'] },
   { label: 'AniList provider tests (Phase 73)',     cmd: 'node', cmdArgs: ['scripts/test-anilist-provider.js'] },
+  { label: 'Publisher-Provider tests (Fixtures)',   cmd: 'node', cmdArgs: ['scripts/test-publisher-providers.js'] },
   { label: 'Validate TMDB watchlist',               cmd: 'node', cmdArgs: ['scripts/validate-tmdb-watchlist.js'] },
   { label: 'Validate TMDB series catalog',          cmd: 'node', cmdArgs: ['scripts/validate-tmdb-series-catalog.js'] },
   { label: 'TMDB provider tests (Phase 75)',        cmd: 'node', cmdArgs: ['scripts/test-tmdb-provider.js'] },
@@ -163,11 +200,17 @@ const RUN_CHECKS = [
   { label: 'git diff --check (whitespace/conflict)',cmd: 'git',  cmdArgs: ['diff', '--check'] },
 ];
 
+// Reporting eines roten Steps. Im Default (fail-fast) beendet der Prozess hier
+// sofort mit dem Exit-Code des Steps — unverändertes Verhalten. Im Sammelmodus
+// (--no-fail-fast) wird nur gemeldet; step() gibt den Status zurück, die
+// Aufrufer sammeln ihn in `failures` fürs Ende.
 function fail(label, cmd, cmdArgs, status) {
   console.error('');
   console.error(`✖ FAILED: ${label}`);
   console.error(`  command: ${cmd} ${cmdArgs.join(' ')}`);
-  process.exit(typeof status === 'number' && status ? status : 1);
+  if (failFast) {
+    process.exit(typeof status === 'number' && status ? status : 1);
+  }
 }
 
 // Kind-Ausgabe wird über echte Datei-Deskriptoren geleitet (nicht über Pipes
@@ -195,17 +238,25 @@ function step(label, cmd, cmdArgs) {
   try { fs.unlinkSync(logPath); } catch (_) { /* ignore */ }
   if (out && out.trim()) process.stdout.write(out.endsWith('\n') ? out : out + '\n');
   if (status) fail(label, cmd, cmdArgs, status);
+  return status;
 }
 
 const startedAt = Date.now();
 let stepCount = 0;
+// Sammelt rote Steps im Sammelmodus (--no-fail-fast). Im Default (fail-fast)
+// bleibt das Array leer, weil fail() den Prozess beim ersten roten Step schon
+// beendet hat.
+const failures = [];
 
 if (!runOnly) {
   console.log('────────────────────────────────────────────────────────');
   console.log(' Phase 1 — Syntax checks (node --check)');
   console.log('────────────────────────────────────────────────────────');
   for (const file of SYNTAX_FILES) {
-    step(`syntax: ${file}`, 'node', ['--check', file]);
+    const label = `syntax: ${file}`;
+    const cmdArgs = ['--check', file];
+    const status = step(label, 'node', cmdArgs);
+    if (status) failures.push({ label, cmd: 'node', cmdArgs, status });
     stepCount += 1;
   }
 }
@@ -215,12 +266,29 @@ if (!syntaxOnly) {
   console.log(' Phase 2 — Validators & tests');
   console.log('────────────────────────────────────────────────────────');
   for (const check of RUN_CHECKS) {
-    step(check.label, check.cmd, check.cmdArgs);
+    const status = step(check.label, check.cmd, check.cmdArgs);
+    if (status) failures.push({ label: check.label, cmd: check.cmd, cmdArgs: check.cmdArgs, status });
     stepCount += 1;
   }
 }
 
 const seconds = ((Date.now() - startedAt) / 1000).toFixed(1);
+
+// Sammel-Report: nur erreichbar im Sammelmodus, da fail-fast oben schon
+// beendet hätte. Exit-Code: der des ersten roten Steps, sonst 1.
+if (failures.length) {
+  console.error('\n────────────────────────────────────────────────────────');
+  console.error(`✖ SAMMEL-REPORT — ${failures.length} von ${stepCount} Steps rot`);
+  console.error('────────────────────────────────────────────────────────');
+  for (const f of failures) {
+    console.error(`  ✖ ${f.label}`);
+    console.error(`    command: ${f.cmd} ${f.cmdArgs.join(' ')}`);
+    console.error(`    exit code: ${f.status}`);
+  }
+  console.error('────────────────────────────────────────────────────────');
+  process.exit((failures[0] && failures[0].status) || 1);
+}
+
 console.log('\n────────────────────────────────────────────────────────');
 console.log(`✓ ALL CHECKS PASSED — ${stepCount} steps in ${seconds}s`);
 console.log('────────────────────────────────────────────────────────');
