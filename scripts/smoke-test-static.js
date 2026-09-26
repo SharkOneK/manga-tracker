@@ -24,6 +24,32 @@ let   totalErrors = 0;
 function pass(msg) { console.log('  ✓ ' + msg); }
 function fail(msg) { console.error('  ✗ ' + msg); totalErrors++; }
 
+// Phase 82: Inhaltsprüfung statt bloßer Existenzprüfung für docs/-Dateien.
+// Prüft Existenz, Mindestlänge und das Vorkommen jedes Pflichtabschnitts als
+// Substring. Jede verletzte Bedingung erzeugt eine eigene, sprechende
+// fail()-Meldung; bei vollständigem Erfolg genau ein pass().
+function checkDocFile(rel, minBytes, requiredSections) {
+  const target = path.join(repoRoot, rel);
+  if (!fs.existsSync(target)) {
+    fail(rel + ' nicht gefunden');
+    return;
+  }
+  const content = fs.readFileSync(target, 'utf-8');
+  const trimmedLength = content.trim().length;
+  let ok = true;
+  if (trimmedLength < minBytes) {
+    fail(rel + ' ist zu kurz (' + trimmedLength + ' Zeichen, erwartet mindestens ' + minBytes + ')');
+    ok = false;
+  }
+  for (const section of requiredSections) {
+    if (!content.includes(section)) {
+      fail(rel + ' enthält Pflichtabschnitt nicht: ' + section);
+      ok = false;
+    }
+  }
+  if (ok) pass(rel + ' vorhanden, ausreichend lang und enthält alle Pflichtabschnitte');
+}
+
 function hasInlineHandler(content, handlerName) {
   const re = new RegExp('<[^>]*\\s' + handlerName + '\\s*=', 'i');
   return re.test(content);
@@ -392,13 +418,17 @@ if (!fs.existsSync(jszipPath)) {
   pass('vendor/jszip.min.js vorhanden');
 }
 
-// docs/security.md existiert
-const securityMdPath = path.join(repoRoot, 'docs', 'security.md');
-if (!fs.existsSync(securityMdPath)) {
-  fail('docs/security.md nicht gefunden');
-} else {
-  pass('docs/security.md vorhanden');
-}
+// docs/security.md: Inhaltsprüfung statt bloßer Existenz (Phase 82, Audit-Befund 1)
+checkDocFile('docs/security.md', 3000, [
+  '## Auth-Modell',
+  '## Datenmodell und RLS',
+  '## Public Projection',
+  '## RPC-Rechte',
+  '## Client-Härtung',
+  '## PWA und Service Worker',
+  '## Secrets',
+  '## Automatische Guards',
+]);
 
 // index.html enthält Content-Security-Policy
 if (!html.includes('Content-Security-Policy')) {
@@ -570,26 +600,12 @@ if (!fs.existsSync(gapsValidatorPath)) {
   }
 }
 
-// docs/release-cache.md existiert
-const releaseCacheMdPath = path.join(repoRoot, 'docs', 'release-cache.md');
-if (!fs.existsSync(releaseCacheMdPath)) {
-  fail('docs/release-cache.md nicht gefunden');
-} else {
-  pass('docs/release-cache.md vorhanden');
-}
+// docs/release-cache.md: Inhaltsprüfung statt bloßer Existenz (Phase 82)
+checkDocFile('docs/release-cache.md', 1000, ['## Überblick', '## Watchlist-Schema']);
 
-// docs/release-cache-coverage-gaps.md existiert und dokumentiert source-data-gap
-const coverageGapsMdPath = path.join(repoRoot, 'docs', 'release-cache-coverage-gaps.md');
-if (!fs.existsSync(coverageGapsMdPath)) {
-  fail('docs/release-cache-coverage-gaps.md nicht gefunden');
-} else {
-  const coverageGapsMd = fs.readFileSync(coverageGapsMdPath, 'utf-8');
-  if (!coverageGapsMd.includes('source-data-gap') || !coverageGapsMd.includes('Verbleibende Luecken')) {
-    fail('docs/release-cache-coverage-gaps.md dokumentiert Phase-22d-Gaps nicht ausreichend');
-  } else {
-    pass('docs/release-cache-coverage-gaps.md vorhanden');
-  }
-}
+// docs/release-cache-coverage-gaps.md: auf den Helper umgestellt (Phase 82), die
+// bisherigen Pflicht-Tokens (source-data-gap, Verbleibende Luecken) bleiben erhalten.
+checkDocFile('docs/release-cache-coverage-gaps.md', 1000, ['source-data-gap', 'Verbleibende Luecken']);
 
 // ── Phase 69: PWA / Service Worker ─────────────────────────────────────────
 console.log('\nPrüfe: Phase 69 — PWA-Dateien (sw.js, manifest.json, sw-register.js)\n');
@@ -680,11 +696,14 @@ if (!html.includes('id="anilist-overlay"') || !html.includes('data-action="open-
 // ── Phase 26: Release-Provider und Dashboard-Aktionszentrale ───────────────
 console.log('\nPruefe: Phase 26 - Release-Provider und Dashboard-Aktionszentrale\n');
 
+// docs/release-provider-system.md: Inhaltsprüfung statt bloßer Existenz (Phase 82) —
+// aus der Existenzliste unten herausgezogen, die übrigen drei Einträge bleiben Existenz.
+checkDocFile('docs/release-provider-system.md', 1000, ['## Einstiegspunkte']);
+
 [
   'scripts/release-providers/index.js',
   'scripts/release-providers/provider-utils.js',
   'scripts/release-providers/manga-passion-provider.js',
-  'docs/release-provider-system.md',
 ].forEach(rel => {
   const target = path.join(repoRoot, rel);
   if (!fs.existsSync(target)) fail(rel + ' nicht gefunden');
@@ -975,6 +994,44 @@ if (!html.includes('id="mode-switch"')
   fail('index.html: Modus-Umschalter (#mode-switch mit data-action="set-mode" für manga/series) fehlt');
 } else {
   pass('index.html: Modus-Umschalter (#mode-switch) vorhanden und CSP-konform verdrahtet');
+}
+
+// ── Phase 82 — Guardrails ───────────────────────────────────────────────────
+// Orphan-Guard: jedes scripts/test-*.js und scripts/validate-*.js muss im
+// Quelltext von scripts/run-all-checks.js referenziert sein (SYNTAX_FILES oder
+// RUN_CHECKS), sonst rottet es unbemerkt vor sich hin (Audit-Befund 9).
+// Geltungsbereich bewusst eng: nur die Praefixe "test-"/"validate-" mit
+// Endung .js. Skripte mit anderem Namensschema (z. B. smoke-browser-phase36a.js)
+// fallen NICHT unter diesen Guard — das ist bewusst so und keine vollstaendige
+// Absicherung gegen jede Form von Verwaisung.
+console.log('\nPruefe: Phase 82 - Guardrails (verwaiste test-/validate-Skripte)\n');
+
+// Bekannte, begruendete Ausnahmen vom Orphan-Guard. Nach Phase 82 leer — alle
+// scripts/test-*.js und scripts/validate-*.js sind referenziert. Kuenftige
+// Eintraege brauchen eine Begruendung als Kommentar.
+const RUNNER_ORPHAN_ALLOWLIST = [];
+
+const runAllChecksPath = path.join(repoRoot, 'scripts', 'run-all-checks.js');
+if (!fs.existsSync(runAllChecksPath)) {
+  fail('scripts/run-all-checks.js nicht gefunden (Orphan-Guard nicht pruefbar)');
+} else {
+  const runAllChecksSrc = fs.readFileSync(runAllChecksPath, 'utf-8');
+  const scriptsDir = path.join(repoRoot, 'scripts');
+  const orphanCandidates = fs.readdirSync(scriptsDir)
+    .filter(name => /^(test-|validate-).+\.js$/.test(name));
+
+  let orphanErrors = 0;
+  orphanCandidates.forEach(name => {
+    const rel = 'scripts/' + name;
+    if (RUNNER_ORPHAN_ALLOWLIST.includes(rel)) return;
+    if (!runAllChecksSrc.includes(rel)) {
+      fail(rel + ' ist in scripts/run-all-checks.js nicht referenziert (gehoert in SYNTAX_FILES oder RUN_CHECKS)');
+      orphanErrors++;
+    }
+  });
+  if (orphanErrors === 0) {
+    pass(orphanCandidates.length + ' scripts/test-*.js und scripts/validate-*.js sind alle in run-all-checks.js referenziert');
+  }
 }
 
 console.log('');

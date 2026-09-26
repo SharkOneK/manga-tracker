@@ -11,7 +11,7 @@
     "validate:syntax": "node scripts/run-all-checks.js --syntax-only",
     "validate:run": "node scripts/run-all-checks.js --run-only",
     "test": "node scripts/run-all-checks.js",
-    "coverage": "c8 node scripts/run-all-checks.js"
+    "coverage": "c8 node scripts/run-all-checks.js --no-fail-fast"
   },
   "repository": {
     "type": "git",
