@@ -703,7 +703,13 @@ async function main() {
       reviewQueueWrites: reviewQueueWrites.length,
       invalidExistingCache: invalidExistingCache.length,
     },
-    autoMergeEligible: cachePatches.length > 0 && reviewQueueWrites.length === 0 && blockedCandidates.length === 0 && cachePatches.every(patch => patch.confidence === 'high'),
+    // Phase 83: `reviewQueueWrites.length === 0` ist hier bewusst nicht mehr Teil
+    // der Bedingung. Der Report kennt die Basis nicht; "keine neuen Queue-Keys" ist
+    // eine Eigenschaft des Diffs und wird ausschliesslich im Gate geprueft
+    // (scripts/validate-release-cache-automerge-gate.js). autoMergeEligible bedeutet
+    // ab jetzt "die Pipeline selbst hat nichts Unsicheres in den Cache geschrieben",
+    // nicht "dieser PR ist mergefaehig" — Autoritaet darueber ist das Gate.
+    autoMergeEligible: cachePatches.length > 0 && blockedCandidates.length === 0 && cachePatches.every(patch => patch.confidence === 'high'),
     cachePatches,
     reviewQueueWrites,
     blockedCandidates,

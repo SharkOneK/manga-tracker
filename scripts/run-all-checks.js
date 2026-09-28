@@ -109,6 +109,13 @@ const SYNTAX_FILES = [
   'scripts/run-release-volume-counts.js',
   'scripts/validate-release-volume-counts.js',
   'scripts/validate-release-volume-counts-automerge-gate.js',
+  'scripts/validate-bot-data-automerge-gate.js',
+  'scripts/test-bot-data-automerge-gate.js',
+  // sync-vendor-jszip.js schreibt Dateien (vendor/, index.html) und laeuft
+  // deshalb bewusst NICHT in RUN_CHECKS — nur Syntax-geprueft. Der Drift-Check
+  // dazu ist scripts/validate-vendor-jszip.js (read-only).
+  'scripts/sync-vendor-jszip.js',
+  'scripts/validate-vendor-jszip.js',
   'scripts/validate-release-cache-volume-counts-consistency.js',
   'scripts/run-series-publication-status.js',
   'scripts/validate-series-publication-status.js',
@@ -196,6 +203,8 @@ const RUN_CHECKS = [
   { label: 'TMDB provider tests (Phase 75)',        cmd: 'node', cmdArgs: ['scripts/test-tmdb-provider.js'] },
   { label: 'Auto-merge gate tests',                 cmd: 'node', cmdArgs: ['scripts/test-automerge-gate.js'] },
   { label: 'Intake auto-merge gate tests',          cmd: 'node', cmdArgs: ['scripts/test-intake-automerge-gate.js'] },
+  { label: 'Bot-Data auto-merge gate tests (Phase 83)', cmd: 'node', cmdArgs: ['scripts/test-bot-data-automerge-gate.js'] },
+  { label: 'Validate vendor jszip (Phase 83)',      cmd: 'node', cmdArgs: ['scripts/validate-vendor-jszip.js'] },
   { label: 'Security audit (static)',               cmd: 'node', cmdArgs: ['scripts/security-audit-static.js'] },
   { label: 'git diff --check (whitespace/conflict)',cmd: 'git',  cmdArgs: ['diff', '--check'] },
 ];

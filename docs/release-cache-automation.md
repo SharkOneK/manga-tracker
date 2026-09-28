@@ -89,16 +89,31 @@ Der PR-Body enthält eine Zusammenfassung aus `data/release-cache-pipeline-repor
 
 ## Auto-Merge
 
-Auto-Merge ist standardmäßig deaktiviert und wird nur versucht, wenn die Repository-Variable `ENABLE_RELEASE_CACHE_AUTOMERGE` auf `true` gesetzt ist.
+Es gibt keinen zusätzlichen Feature-Schalter: Auto-Merge wird versucht, sobald das Gate (`steps.automerge_gate.outputs.allowed == 'true'`) den PR freigibt. Schlägt `gh pr merge --auto` fehl (`allow_auto_merge` ist im Repo deaktiviert, siehe unten), fällt der Step auf einen direkten Squash-Merge zurück — Autorität über den Merge bleibt in jedem Fall das Gate, nicht `--auto`.
 
-Zusätzlich muss der Report `autoMergeEligible: true` enthalten. Das ist nur der Fall, wenn:
+Zusätzlich muss der Report `autoMergeEligible: true` enthalten. Das ist seit Phase 83 nur der Fall, wenn:
 
 - es mindestens einen Cache-Patch gibt,
 - jeder Cache-Patch `confidence: "high"` hat,
-- keine Review-Queue-Writes im selben Lauf entstanden sind,
 - keine blockierten Kandidaten im Lauf enthalten sind.
 
-Damit werden PRs mit unsicheren oder gemischten Änderungen nicht automatisch gemerged.
+`autoMergeEligible` bedeutet damit ausdrücklich „die Pipeline selbst hat nichts Unsicheres in den öffentlichen Cache geschrieben" — **nicht** „dieser PR ist mergefähig". Der Report kennt die Basis des PRs nicht und kann diese Frage gar nicht beantworten.
+
+**Autorität über den Merge ist das Gate** `scripts/validate-release-cache-automerge-gate.js`. Es prüft zusätzlich den Diff gegen die Basis und erlaubt einen Cache-Patch-PR nur, wenn:
+
+- die Review-Queue **keine neuen Keys gegenüber der Basis** enthält (stabiler Key: `queueKey`, sonst `seriesTitle|publisher|volumeNumber`). Entfernte Keys und Änderungen an bekannten Keys sind erlaubt, eine reine Umsortierung der Queue ist kein neuer Key,
+- jeder Eintrag der Queue eine stabile Identität hat (sonst fail-closed),
+- jeder **neu** auf `safeToPatch: true` gesetzte Queue-Eintrag einen passenden Eintrag in `report.cachePatches` hat,
+- neue `releaseDate`-Werte in der Queue `sourceUrl`, `checkedAt` und `evidence` mitbringen,
+- keine blockierten Kandidaten, keine Cache-Löschungen und keine Dateien außerhalb der Allowlist im PR sind.
+
+Vor Phase 83 blockte jeder Review-Queue-Write den Merge. Weil die Pipeline in praktisch jedem Lauf in die Queue schreibt, war das ein Deadlock: die Bot-PRs blieben dauerhaft offen (Audit-Befund 2). Die Schutzwirkung liegt jetzt beim Diff-Vergleich statt bei der Report-Zahl.
+
+Damit werden PRs mit unsicheren oder gemischten Änderungen weiterhin nicht automatisch gemerged.
+
+Die Gate-Metriken (`cachePatches`, `changedCacheItems`, `deletedCacheItems`, `reviewQueueWrites`, `newQueueKeys`, `removedQueueKeys`) landen in der Step-Summary des Workflows.
+
+Die Auto-Merge-Gates der übrigen Bot-Workflows sind in [`docs/bot-pr-automerge.md`](bot-pr-automerge.md) beschrieben.
 
 ## Warum unsichere Fälle nicht in den Cache gelangen
 

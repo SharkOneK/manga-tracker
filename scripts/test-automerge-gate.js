@@ -509,7 +509,9 @@ const tests = [
     },
   ],
   [
-    'release-cache report with reviewQueueWrites blocks',
+    // Phase 83: frueher 'release-cache report with reviewQueueWrites blocks'. Der Fall
+    // blockt fachlich ueber autoMergeEligible, nicht mehr ueber die Queue-Writes.
+    'release-cache report with autoMergeEligible=false blocks',
     () => {
       const item = cacheItem();
       const result = evaluate({
@@ -524,8 +526,190 @@ const tests = [
         beforeCache: cacheDoc([]),
         afterCache: cacheDoc([item]),
       });
-      assertBlocked('reviewQueueWrites', result, /data gate failed/);
-      assert.ok(result.errors.some(error => /reviewQueueWrites|autoMergeEligible/.test(error)));
+      assertBlocked('autoMergeEligible=false', result, /data gate failed/);
+      assert.ok(result.errors.some(error => /autoMergeEligible/.test(error)));
+    },
+  ],
+  [
+    'release-cache report with blockedCandidates blocks',
+    () => {
+      const item = cacheItem();
+      const result = evaluate({
+        changedFiles: ['data/release-cache.json', 'data/release-cache-pipeline-report.json'],
+        pipelineReport: releaseCacheReportFor(item, {
+          report: {
+            summary: { cachePatches: 1, reviewQueueWrites: 0, invalidExistingCache: 0, blocked: 1 },
+            blockedCandidates: [{ key: 'other', confidence: 'blocked' }],
+          },
+        }),
+        beforeCache: cacheDoc([]),
+        afterCache: cacheDoc([item]),
+      });
+      assertBlocked('blockedCandidates', result, /data gate failed/);
+      assert.ok(result.errors.some(error => /blockedCandidates/.test(error)));
+    },
+  ],
+  [
+    // Phase 83: der reale Deadlock-Fall — die Pipeline schreibt in die Queue, aber
+    // ausschliesslich in bereits bekannte Keys.
+    'release-cache patch with only known queue keys is allowed',
+    () => {
+      const item = cacheItem();
+      const result = evaluate({
+        changedFiles: ['data/release-cache.json', 'data/release-cache-pipeline-report.json'],
+        pipelineReport: releaseCacheReportFor(item, {
+          report: {
+            summary: { cachePatches: 1, reviewQueueWrites: 1, invalidExistingCache: 0 },
+            reviewQueueWrites: [{ key: 'Example|Publisher|1', confidence: 'low' }],
+          },
+        }),
+        beforeQueue: [queueEntry()],
+        afterQueue: [queueEntry({ reviewStatus: 'auto-medium-confidence' })],
+        beforeCache: cacheDoc([]),
+        afterCache: cacheDoc([item]),
+      });
+      assertAllowed('known queue keys with cache patch', result);
+      assert.strictEqual(result.class, 'release-cache-high-confidence-only');
+      assert.strictEqual(result.reviewQueueWrites, 1);
+      assert.strictEqual(result.newQueueKeys, 0);
+      assert.strictEqual(result.removedQueueKeys, 0);
+    },
+  ],
+  [
+    'a new review-queue key blocks the release-cache patch',
+    () => {
+      const item = cacheItem();
+      const result = evaluate({
+        changedFiles: ['data/release-cache.json', 'data/release-cache-pipeline-report.json'],
+        pipelineReport: releaseCacheReportFor(item),
+        beforeQueue: [queueEntry()],
+        afterQueue: [
+          queueEntry(),
+          queueEntry({ queueKey: 'Another Series|Publisher|2', seriesTitle: 'Another Series', volumeNumber: 2 }),
+        ],
+        beforeCache: cacheDoc([]),
+        afterCache: cacheDoc([item]),
+      });
+      assertBlocked('new queue key', result, /data gate failed/);
+      assert.ok(result.errors.some(error => /New review-queue key/.test(error)));
+      assert.strictEqual(result.newQueueKeys, 1);
+    },
+  ],
+  [
+    // Nachbau des realen PR #305: der Lauf entfernt zwei Queue-Eintraege.
+    'a removed review-queue key stays allowed',
+    () => {
+      const item = cacheItem();
+      const result = evaluate({
+        changedFiles: ['data/release-cache.json', 'data/release-cache-pipeline-report.json'],
+        pipelineReport: releaseCacheReportFor(item),
+        beforeQueue: [
+          queueEntry(),
+          queueEntry({ queueKey: 'Gone Series|Publisher|3', seriesTitle: 'Gone Series', volumeNumber: 3 }),
+        ],
+        afterQueue: [queueEntry()],
+        beforeCache: cacheDoc([]),
+        afterCache: cacheDoc([item]),
+      });
+      assertAllowed('removed queue key', result);
+      assert.strictEqual(result.removedQueueKeys, 1);
+      assert.strictEqual(result.newQueueKeys, 0);
+    },
+  ],
+  [
+    // Regressionsschutz gegen den Index-Trap in entryKey(): updateReviewQueue()
+    // sortiert die Queue bei jedem Lauf neu.
+    'reordered review queue is not treated as new keys',
+    () => {
+      const item = cacheItem();
+      const queue = [
+        queueEntry(),
+        queueEntry({ queueKey: 'Second Series|Publisher|2', seriesTitle: 'Second Series', volumeNumber: 2 }),
+        queueEntry({ queueKey: 'Third Series|Publisher|3', seriesTitle: 'Third Series', volumeNumber: 3 }),
+      ];
+      const result = evaluate({
+        changedFiles: ['data/release-cache.json', 'data/release-cache-pipeline-report.json'],
+        pipelineReport: releaseCacheReportFor(item),
+        beforeQueue: queue,
+        afterQueue: [...queue].reverse(),
+        beforeCache: cacheDoc([]),
+        afterCache: cacheDoc([item]),
+      });
+      assertAllowed('reordered queue', result);
+      assert.strictEqual(result.newQueueKeys, 0);
+      assert.strictEqual(result.removedQueueKeys, 0);
+    },
+  ],
+  [
+    'new safeToPatch entry without a matching cache patch blocks',
+    () => {
+      const item = cacheItem();
+      const orphanSafeEntry = {
+        queueKey: 'Unpatched Series|Egmont Manga|4',
+        seriesTitle: 'Unpatched Series',
+        publisher: 'Egmont Manga',
+        volumeNumber: 4,
+        reviewStatus: 'patched',
+        releaseDate: null,
+        sourceUrl: '',
+        checkedAt: '2026-05-20T00:00:00.000Z',
+        evidence: '',
+      };
+      const result = evaluate({
+        changedFiles: ['data/release-cache.json', 'data/release-cache-pipeline-report.json'],
+        pipelineReport: releaseCacheReportFor(item),
+        beforeQueue: [queueEntry(orphanSafeEntry)],
+        afterQueue: [queueEntry({ ...orphanSafeEntry, safeToPatch: true })],
+        beforeCache: cacheDoc([]),
+        afterCache: cacheDoc([item]),
+      });
+      assertBlocked('safeToPatch without cache patch', result, /data gate failed/);
+      assert.ok(result.errors.some(error => /no matching cache patch/.test(error)));
+    },
+  ],
+  [
+    'new safeToPatch entry that matches the cache patch is allowed',
+    () => {
+      const item = cacheItem();
+      const patchedEntry = {
+        queueKey: 'Example Series|Egmont Manga|1',
+        seriesTitle: item.seriesTitle,
+        publisher: item.publisher,
+        volumeNumber: item.volumeNumber,
+        reviewStatus: 'patched',
+        releaseDate: null,
+        sourceUrl: '',
+        checkedAt: '2026-05-20T00:00:00.000Z',
+        evidence: '',
+      };
+      const result = evaluate({
+        changedFiles: ['data/release-cache.json', 'data/release-cache-pipeline-report.json'],
+        pipelineReport: releaseCacheReportFor(item),
+        beforeQueue: [queueEntry(patchedEntry)],
+        afterQueue: [queueEntry({ ...patchedEntry, safeToPatch: true })],
+        beforeCache: cacheDoc([]),
+        afterCache: cacheDoc([item]),
+      });
+      assertAllowed('safeToPatch with matching cache patch', result);
+    },
+  ],
+  [
+    'queue entry without stable identity blocks',
+    () => {
+      const item = cacheItem();
+      const result = evaluate({
+        changedFiles: ['data/release-cache.json', 'data/release-cache-pipeline-report.json'],
+        pipelineReport: releaseCacheReportFor(item),
+        beforeQueue: [queueEntry()],
+        afterQueue: [
+          queueEntry(),
+          queueEntry({ queueKey: '', seriesTitle: '', publisher: '', volumeNumber: '' }),
+        ],
+        beforeCache: cacheDoc([]),
+        afterCache: cacheDoc([item]),
+      });
+      assertBlocked('queue entry without identity', result, /data gate failed/);
+      assert.ok(result.errors.some(error => /stable identity/.test(error)));
     },
   ],
   [

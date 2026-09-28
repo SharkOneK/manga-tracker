@@ -144,15 +144,31 @@ style-src 'self'; upgrade-insecure-requests;
 - JSZip wird lokal aus `vendor/jszip.min.js` geladen (nicht von einem CDN) und trägt ein
   `integrity="sha384-…"`-Attribut plus `crossorigin="anonymous"` (Phase 64,
   `scripts/security-audit-static.js` Check 40).
+- **npm-gestützter Vendor-Sync (Phase 83).** `vendor/jszip.min.js` wird nicht mehr manuell
+  gepflegt, sondern mit `node scripts/sync-vendor-jszip.js` byteweise aus dem gepinnten
+  npm-Paket (`node_modules/jszip/dist/jszip.min.js`) erzeugt. Das Skript schreibt
+  `vendor/jszip.sri.json` (Paket, Version, Quelldatei, `sha384`-Hash, `syncedAt`) und zieht das
+  `integrity`-Attribut in `index.html` nach. Ändern sich dabei die Bytes der Vendor-Datei, ist
+  ein `CACHE_VERSION`-Bump in `sw.js` Pflicht.
+- **Drift-Checks.** `scripts/validate-vendor-jszip.js` (in `run-all-checks`, offline) prüft:
+  Datei vorhanden und plausibel, Hash === `integrity` in `index.html`, `vendor/jszip.sri.json`
+  passt zu Hash **und** zur in `package.json` gepinnten Version, und — falls `node_modules`
+  installiert ist — Byte-Gleichheit mit dem npm-Paket. Genau dieser Check wird rot, wenn
+  Dependabot die Version anhebt, ohne dass neu vendort wird (Audit-Befund 12).
+  Ergänzend prüft `scripts/security-audit-static.js` Check **40b** den Hash der ausgelieferten
+  Datei gegen das `integrity`-Attribut. Aufgabenteilung: Check 40/40b = „ausgelieferte Datei
+  passt zum SRI"; `validate-vendor-jszip.js` = „ausgelieferte Datei passt zum npm-Paket und zur
+  gepinnten Version". Der JSZip-Banner ist dabei **nie** die Versionsquelle (er ist innerhalb
+  der 3.10.x-Reihe nicht zuverlässig), es zählen ausschließlich Inhalts-Hashes.
 
 ## PWA und Service Worker
 
 Seit Phase 69 liefert `sw.js` einen Service Worker aus, Phase 73 hat ihn an die erweiterte
-CSP angepasst. Aktuell: `CACHE_VERSION = 'mt-pwa-v7'` (`sw.js:19`).
+CSP angepasst. Aktuell: `CACHE_VERSION = 'mt-pwa-v8'` (Phase 83: neu erzeugte `vendor/jszip.min.js` samt neuem SRI-Hash).
 
-- Non-GET-Requests werden nie abgefangen (`sw.js:71`, `request.method !== 'GET'` →
+- Non-GET-Requests werden nie abgefangen (`sw.js:75`, `request.method !== 'GET'` →
   `return`) — Supabase-Writes und RPC-POSTs laufen am Service Worker vorbei.
-- Cross-Origin-Requests werden durchgelassen (`sw.js:85`,
+- Cross-Origin-Requests werden durchgelassen (`sw.js:89`,
   `url.origin !== self.location.origin` → `return`): Supabase-Antworten und Auth-Token
   werden dadurch **niemals** gecacht.
 - `data/*.json` läuft Network-First mit Cache-Fallback, die App-Shell (`index.html` und

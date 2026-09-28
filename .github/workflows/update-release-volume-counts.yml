@@ -138,8 +138,19 @@ jobs:
         id: auto_merge
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR: ${{ steps.cpr.outputs.pull-request-number }}
+        # Das Repo hat allow_auto_merge=false (gemessen 2026-09-26). `--auto` kann daher
+        # keinen Auto-Merge aktivieren; gh merged bei bereits mergefaehigen Bot-PRs sofort
+        # durch — darauf beruht, dass dieser Step bisher funktioniert hat (PR #314).
+        # Schlaegt das fehl, wird bewusst direkt gemerged — das Gate hat zu diesem
+        # Zeitpunkt bereits entschieden. Wird allow_auto_merge spaeter aktiviert, greift
+        # automatisch wieder der echte Auto-Merge-Pfad. Kein continue-on-error: schlaegt
+        # auch der Direkt-Merge fehl, soll der Job rot werden statt still zu haengen.
         run: |
-          gh pr merge ${{ steps.cpr.outputs.pull-request-number }} --squash --auto
+          if ! gh pr merge "$PR" --squash --auto; then
+            echo "::warning::--auto unavailable (allow_auto_merge=false?); falling back to a direct squash merge"
+            gh pr merge "$PR" --squash
+          fi
           echo "triggered=true" >> "$GITHUB_OUTPUT"
 
       - name: Upload Phase 43 report artifact

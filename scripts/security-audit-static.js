@@ -11,6 +11,7 @@
  * Exit 1 = mindestens ein Check fehlgeschlagen
  */
 
+const crypto = require('crypto');
 const fs   = require('fs');
 const path = require('path');
 
@@ -811,6 +812,27 @@ if (!html) {
       fail('Check 40: vendor/jszip.min.js Script-Tag enthält kein crossorigin="anonymous" Attribut');
     } else {
       pass('Check 40: vendor/jszip.min.js Script-Tag enthält SRI-Hash (sha384) und crossorigin');
+    }
+
+    // ── Check 40b: Phase 83 — der SRI-Hash passt zur ausgelieferten Datei ─────
+    // Aufgabenteilung: dieser Check prüft "ausgelieferte Datei passt zum SRI";
+    // scripts/validate-vendor-jszip.js prüft zusätzlich "ausgelieferte Datei passt
+    // zum npm-Paket und zur gepinnten Version". Bewusst Hash-Vergleich statt
+    // Banner-/Regex-Versionscheck: der JSZip-Banner ist keine verlässliche
+    // Versionsquelle (3.10.x liefert Builds mit abweichendem Banner aus).
+    const integrityAttr = (tag.match(/integrity=["']sha384-([A-Za-z0-9+/]+=*)["']/) || [])[1];
+    const jszipPath = path.join(repoRoot, 'vendor', 'jszip.min.js');
+    if (!integrityAttr) {
+      fail('Check 40b: integrity-Attribut konnte nicht gelesen werden');
+    } else if (!fs.existsSync(jszipPath)) {
+      fail('Check 40b: vendor/jszip.min.js nicht gefunden (Hash-Abgleich nicht möglich)');
+    } else {
+      const actualHash = crypto.createHash('sha384').update(fs.readFileSync(jszipPath)).digest('base64');
+      if (actualHash !== integrityAttr) {
+        fail(`Check 40b: integrity-Hash in index.html (sha384-${integrityAttr.slice(0, 12)}…) passt nicht zu vendor/jszip.min.js (sha384-${actualHash.slice(0, 12)}…)`);
+      } else {
+        pass(`Check 40b: integrity-Hash passt zur ausgelieferten vendor/jszip.min.js (sha384-${actualHash.slice(0, 12)}…)`);
+      }
     }
   }
 }

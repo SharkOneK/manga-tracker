@@ -16,7 +16,11 @@
 // ausgeblendet, Dashboard-Kaufvorschau modusabhängig); index.html unverändert.
 // Phase 76: Bump auf v7 — app.js/anilist-utils.js ändern sich (Airing-
 // Kalender: Episode + Countdown im Serien-Modus); index.html unverändert.
-const CACHE_VERSION = 'mt-pwa-v7';
+// Phase 83: Bump auf v8 — vendor/jszip.min.js wurde aus dem gepinnten npm-Paket
+// (jszip 3.10.2) neu erzeugt und index.html trägt einen neuen SRI-Hash. Ohne Bump
+// liefern Bestandsgeräte die alte Vendor-Datei cache-first zum neuen integrity-
+// Attribut aus — der Import/Export-Dialog würde dort hart scheitern.
+const CACHE_VERSION = 'mt-pwa-v8';
 
 // App-Shell: statische Dateien, die nach dem ersten Online-Besuch offline
 // verfügbar sein sollen. Relative Pfade (./…) damit GitHub-Pages-Sub-Pfad

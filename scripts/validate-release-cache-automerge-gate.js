@@ -198,6 +198,62 @@ function entryKey(entry, index) {
     .join('|');
 }
 
+// ── Phase 83: stabile Queue-Identitaet ──────────────────────────────────────
+// Bewusst NICHT entryKey(): dessen Schluessel enthaelt den Array-Index, und
+// updateReviewQueue() (scripts/run-release-cache-pipeline.js:457-461) sortiert
+// die Queue bei jedem Lauf neu. Jedes Einfuegen/Entfernen verschiebt damit alle
+// Folge-Indizes — ein index-basierter "neue Keys"-Vergleich wuerde Phantom-
+// Neuzugaenge melden und die Bot-PRs erneut dauerhaft blockieren.
+// stableQueueKey() spiegelt exakt queueKey() aus
+// scripts/run-release-cache-pipeline.js:109-115 (roh, nicht normalisiert).
+function stableQueueKey(entry) {
+  if (!isPlainObject(entry)) return null;
+  if (hasText(entry.queueKey)) return entry.queueKey.trim();
+  const parts = [
+    String(entry.seriesTitle || '').trim(),
+    String(entry.publisher || '').trim(),
+    String(entry.volumeNumber || '').trim(),
+  ];
+  if (!parts.some(part => part.length > 0)) return null;
+  return parts.join('|');
+}
+
+// Mengensemantik: doppelte stabile Keys sind kein Fehler, der Vergleich bleibt
+// korrekt. `unidentified` zaehlt Eintraege ohne jede stabile Identitaet — die
+// blocken (fail-closed), weil sie sich zwischen Basis und Head nicht zuordnen lassen.
+function stableQueueKeys(queue) {
+  const keys = new Set();
+  let unidentified = 0;
+  for (const entry of asQueueArray(queue)) {
+    const key = stableQueueKey(entry);
+    if (key === null) unidentified += 1;
+    else keys.add(key);
+  }
+  return { keys, unidentified };
+}
+
+function findNewQueueKeys(beforeQueue, afterQueue) {
+  const before = stableQueueKeys(beforeQueue).keys;
+  return [...stableQueueKeys(afterQueue).keys].filter((key) => !before.has(key));
+}
+
+// Entfernte Keys sind kein Blocker (der reale PR #305 entfernt zwei) — die Zahl
+// wird nur als Metrik ausgewiesen.
+function findRemovedQueueKeys(beforeQueue, afterQueue) {
+  const after = stableQueueKeys(afterQueue).keys;
+  return [...stableQueueKeys(beforeQueue).keys].filter((key) => !after.has(key));
+}
+
+function stableSafeToPatchKeys(queue) {
+  const keys = new Set();
+  for (const entry of asQueueArray(queue)) {
+    if (!entry || entry.safeToPatch !== true) continue;
+    const key = stableQueueKey(entry);
+    if (key !== null) keys.add(key);
+  }
+  return keys;
+}
+
 function safeToPatchKeys(queue) {
   const entries = asQueueArray(queue);
   return new Set(
@@ -254,6 +310,14 @@ function getCachePatchCount(report) {
   }
   if (Number.isInteger(report && report.cachePatches)) return report.cachePatches;
   if (Array.isArray(report && report.cachePatches)) return report.cachePatches.length;
+  return null;
+}
+
+function getReviewQueueWriteCount(report) {
+  if (Array.isArray(report && report.reviewQueueWrites)) return report.reviewQueueWrites.length;
+  if (report && report.summary && Number.isInteger(report.summary.reviewQueueWrites)) {
+    return report.summary.reviewQueueWrites;
+  }
   return null;
 }
 
@@ -378,7 +442,7 @@ function validateCacheItemShape(item, label, sources, aliasMap) {
   return errors;
 }
 
-function validateReleaseCachePatches({ report, beforeCache, afterCache, sources }) {
+function validateReleaseCachePatches({ report, beforeCache, afterCache, sources, beforeQueue = [], afterQueue = [] }) {
   const aliasMap = buildPublisherAliasMap(sources);
   const errors = [];
   const cachePatchCount = getCachePatchCount(report);
@@ -386,7 +450,48 @@ function validateReleaseCachePatches({ report, beforeCache, afterCache, sources 
   if (!Array.isArray(report.cachePatches)) errors.push('report.cachePatches must be an array.');
   if (!report.autoMergeEligible) errors.push('report.autoMergeEligible must be true for release-cache auto-merge.');
   if (cachePatchCount === null || cachePatchCount <= 0) errors.push('cachePatches must be > 0 for release-cache auto-merge.');
-  if (Array.isArray(report.reviewQueueWrites) && report.reviewQueueWrites.length !== 0) errors.push('reviewQueueWrites must be empty for release-cache auto-merge.');
+
+  // Phase 83: Frueher blockte hier jeder Review-Queue-Write. Weil die Pipeline in
+  // praktisch jedem Lauf in die Queue schreibt, war das ein Deadlock (Audit-Befund 2).
+  // Massgeblich ist jetzt der Diff gegen die Basis: bekannte Keys duerfen sich
+  // aendern und wegfallen, ein einziger NEUER Key blockt.
+  const afterQueueIdentity = stableQueueKeys(afterQueue);
+  if (afterQueueIdentity.unidentified > 0) {
+    errors.push('review queue contains entr(ies) without a stable identity (queueKey or seriesTitle+publisher+volumeNumber).');
+  }
+
+  const newQueueKeys = findNewQueueKeys(beforeQueue, afterQueue);
+  if (newQueueKeys.length > 0) {
+    const shown = newQueueKeys.slice(0, 10).join(', ');
+    const more = newQueueKeys.length > 10 ? ` (+${newQueueKeys.length - 10} more)` : '';
+    errors.push(`New review-queue keys are not auto-mergeable: ${shown}${more}.`);
+  }
+
+  // Neue safeToPatch-Eintraege sind im Cache-Pfad der Normalfall (genau die
+  // Kandidaten, die gepatcht werden). Ein pauschales Verbot wuerde erneut
+  // deadlocken — deshalb die Kopplung an einen tatsaechlichen Cache-Patch.
+  const cachePatchKeys = new Set(
+    (Array.isArray(report.cachePatches) ? report.cachePatches : [])
+      .filter(isPlainObject)
+      .map((patch) => patch.key)
+      .filter(hasText),
+  );
+  const safeToPatchBeforeKeys = stableSafeToPatchKeys(beforeQueue);
+  for (const entry of asQueueArray(afterQueue)) {
+    if (!entry || entry.safeToPatch !== true) continue;
+    const key = stableQueueKey(entry);
+    if (key === null) continue; // fehlende Identitaet wurde bereits gemeldet
+    if (safeToPatchBeforeKeys.has(key)) continue;
+    if (!cachePatchKeys.has(stableCacheKey(entry, aliasMap))) {
+      errors.push(`New safeToPatch entry ${key} has no matching cache patch.`);
+    }
+  }
+
+  const releaseDatesWithoutEvidence = findReleaseDatesWithoutEvidence(beforeQueue, afterQueue);
+  if (releaseDatesWithoutEvidence.length > 0) {
+    errors.push(`New releaseDate values in the review queue require sourceUrl, checkedAt, and evidence: ${releaseDatesWithoutEvidence.slice(0, 10).join(', ')}.`);
+  }
+
   if (Array.isArray(report.blockedCandidates) && report.blockedCandidates.length !== 0) errors.push('blockedCandidates must be empty for release-cache auto-merge.');
   if (report.summary && Number(report.summary.invalidExistingCache || 0) !== 0) errors.push('invalidExistingCache must be 0.');
 
@@ -650,7 +755,10 @@ function evaluateAutoMergeGate({
       return deny('Blocked because release-cache changes require data/release-cache-pipeline-report.json in the PR.', base);
     }
 
-    const queueUnknownStatuses = findUnknownReviewStatuses(afterQueue);
+    const parsedBeforeQueue = parseJsonInput(beforeQueue, 'Before review queue');
+    const parsedAfterQueue = parseJsonInput(afterQueue, 'After review queue');
+
+    const queueUnknownStatuses = findUnknownReviewStatuses(parsedAfterQueue);
     if (queueUnknownStatuses.length > 0) {
       return deny('Blocked because the review queue contains unknown reviewStatus values.', {
         ...base,
@@ -663,6 +771,8 @@ function evaluateAutoMergeGate({
       beforeCache: parseJsonInput(beforeCache, 'Before release cache'),
       afterCache: parseJsonInput(afterCache, 'After release cache'),
       sources: parseJsonInput(sources, 'Release sources'),
+      beforeQueue: parsedBeforeQueue,
+      afterQueue: parsedAfterQueue,
     });
 
     const cachePatches = getCachePatchCount(report);
@@ -671,6 +781,9 @@ function evaluateAutoMergeGate({
       cachePatches,
       changedCacheItems: releaseCacheValidation.diff.changedItems.length,
       deletedCacheItems: releaseCacheValidation.diff.deletions.length,
+      reviewQueueWrites: getReviewQueueWriteCount(report),
+      newQueueKeys: findNewQueueKeys(parsedBeforeQueue, parsedAfterQueue).length,
+      removedQueueKeys: findRemovedQueueKeys(parsedBeforeQueue, parsedAfterQueue).length,
     };
 
     if (!releaseCacheValidation.ok) {
@@ -699,8 +812,8 @@ function evaluateAutoMergeGate({
       allowed: true,
       class: volumeValidation.volumeFilesChanged ? 'release-cache-with-volume-count-refresh' : 'release-cache-high-confidence-only',
       reason: volumeValidation.volumeFilesChanged
-        ? 'Allowed release-cache data files changed and downstream release-volume-count artifacts were refreshed consistently.'
-        : 'Only allowed release-cache data files changed; every cache patch is high-confidence, source-backed, and downstream volume-count artifacts remain consistent.',
+        ? 'Allowed release-cache data files changed and downstream release-volume-count artifacts were refreshed consistently; review-queue changes contain no new keys relative to the base.'
+        : 'Only allowed release-cache data files changed; every cache patch is high-confidence, source-backed, and downstream volume-count artifacts remain consistent; review-queue changes contain no new keys relative to the base.',
       ...withCounts,
       volumeFilesChanged: volumeValidation.volumeFilesChanged,
     };
@@ -795,6 +908,9 @@ function formatText(result) {
   if (typeof result.changedCacheItems === 'number') lines.push(`Changed cache items: ${result.changedCacheItems}`);
   if (typeof result.safeToPatchBefore === 'number') lines.push(`safeToPatch before: ${result.safeToPatchBefore}`);
   if (typeof result.safeToPatchAfter === 'number') lines.push(`safeToPatch after: ${result.safeToPatchAfter}`);
+  if (typeof result.reviewQueueWrites === 'number') lines.push(`Review-queue writes: ${result.reviewQueueWrites}`);
+  if (typeof result.newQueueKeys === 'number') lines.push(`New review-queue keys: ${result.newQueueKeys}`);
+  if (typeof result.removedQueueKeys === 'number') lines.push(`Removed review-queue keys: ${result.removedQueueKeys}`);
   if (Array.isArray(result.errors) && result.errors.length) {
     lines.push('');
     lines.push('Errors:');
@@ -847,6 +963,8 @@ module.exports = {
   ALLOWED_CACHE_ITEM_FIELDS,
   evaluateAutoMergeGate,
   getChangedFiles,
+  stableQueueKey,
+  findNewQueueKeys,
   validateReleaseCachePatches,
   validateReleaseVolumeArtifacts,
 };
