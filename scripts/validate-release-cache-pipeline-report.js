@@ -146,10 +146,13 @@ else {
     if (item.confidence !== 'blocked') fail(`${label}.confidence muss blocked sein`);
   });
 
+  // Phase 83: Review-Queue-Writes sind hier bewusst kein Ausschlusskriterium mehr
+  // (spiegelt run-release-cache-pipeline.js). Ob die Queue-Aenderungen mergefaehig
+  // sind, entscheidet der Diff gegen die Basis im Auto-Merge-Gate, nicht der Report.
   if (report.autoMergeEligible === true) {
     const onlyHighPatches = (report.cachePatches || []).length > 0 && (report.cachePatches || []).every(patch => patch.confidence === 'high');
-    if (!onlyHighPatches || (report.reviewQueueWrites || []).length !== 0 || (report.blockedCandidates || []).length !== 0) {
-      fail('autoMergeEligible darf nur bei ausschliesslich high-Confidence Cache-Patches ohne Queue/Blocked gesetzt sein');
+    if (!onlyHighPatches || (report.blockedCandidates || []).length !== 0) {
+      fail('autoMergeEligible darf nur bei ausschliesslich high-Confidence Cache-Patches ohne blockierte Kandidaten gesetzt sein');
     } else {
       pass('autoMergeEligible ist sicher begruendet');
     }

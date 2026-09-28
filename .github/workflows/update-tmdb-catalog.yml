@@ -36,6 +36,8 @@ jobs:
           node --check scripts/validate-tmdb-watchlist.js
           node --check scripts/validate-tmdb-series-catalog.js
           node --check scripts/test-tmdb-provider.js
+          node --check scripts/validate-bot-data-automerge-gate.js
+          node --check scripts/test-bot-data-automerge-gate.js
 
       - name: Fail fast if TMDB_API_KEY missing
         run: |
@@ -52,6 +54,7 @@ jobs:
           node scripts/validate-tmdb-watchlist.js
           node scripts/validate-tmdb-series-catalog.js
           node scripts/test-tmdb-provider.js
+          node scripts/test-bot-data-automerge-gate.js
           node scripts/test-public-private-diff.js
           node scripts/check-secrets.js
           node scripts/security-audit-static.js
@@ -86,6 +89,7 @@ jobs:
 
       - name: Create TMDB catalog PR
         if: steps.changes.outputs.changed == 'true'
+        id: cpr
         uses: peter-evans/create-pull-request@v8
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -97,3 +101,60 @@ jobs:
           labels: phase-75, tmdb-catalog, automated
           add-paths: |
             data/tmdb-series-catalog.json
+
+      # Phase 83: bisher endete dieser Workflow beim PR — er wurde nie gemerged
+      # (Audit-Befund 6). Gate + Merge spiegeln das Phase-43-Muster aus
+      # .github/workflows/update-release-volume-counts.yml:105-143.
+      - name: Validate Phase 83 auto-merge gate
+        if: steps.cpr.outputs.pull-request-number != ''
+        id: automerge_gate
+        shell: bash
+        run: |
+          git fetch --no-tags origin \
+            main:refs/remotes/origin/main \
+            automated/tmdb-series-catalog:refs/remotes/origin/automated/tmdb-series-catalog
+          git checkout --detach origin/automated/tmdb-series-catalog
+
+          node scripts/validate-bot-data-automerge-gate.js --domain tmdb-series-catalog --base origin/main --json > "$RUNNER_TEMP/tmdb-series-catalog-gate.json" || true
+          cat "$RUNNER_TEMP/tmdb-series-catalog-gate.json"
+
+          allowed=$(node -e "const fs=require('fs'); const r=JSON.parse(fs.readFileSync(process.argv[1], 'utf8')); console.log(r.allowed ? 'true' : 'false')" "$RUNNER_TEMP/tmdb-series-catalog-gate.json")
+          gate_class=$(node -e "const fs=require('fs'); const r=JSON.parse(fs.readFileSync(process.argv[1], 'utf8')); console.log(r.class)" "$RUNNER_TEMP/tmdb-series-catalog-gate.json")
+          reason=$(node -e "const fs=require('fs'); const r=JSON.parse(fs.readFileSync(process.argv[1], 'utf8')); console.log(r.reason)" "$RUNNER_TEMP/tmdb-series-catalog-gate.json")
+
+          echo "allowed=$allowed" >> "$GITHUB_OUTPUT"
+          echo "class=$gate_class" >> "$GITHUB_OUTPUT"
+          echo "reason=$reason" >> "$GITHUB_OUTPUT"
+
+          {
+            echo "## Phase 83 TMDB Series Catalog Auto-Merge Gate"
+            echo ""
+            echo "- Decision: $([ "$allowed" = "true" ] && echo "allowed" || echo "blocked")"
+            echo "- PR class: $gate_class"
+            echo "- Reason: $reason"
+            echo ""
+            echo "### PR diff files evaluated"
+            node -e "const fs=require('fs'); const r=JSON.parse(fs.readFileSync(process.argv[1], 'utf8')); for (const file of r.changedFiles || []) console.log('- ' + file)" "$RUNNER_TEMP/tmdb-series-catalog-gate.json"
+            echo ""
+            echo "### Gate metrics"
+            node -e "const fs=require('fs'); const r=JSON.parse(fs.readFileSync(process.argv[1], 'utf8')); for (const key of ['baseItems','headItems','additions','updates','contentUpdates','deletions']) if (Object.prototype.hasOwnProperty.call(r, key)) console.log('- ' + key + ': ' + r[key])" "$RUNNER_TEMP/tmdb-series-catalog-gate.json"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Enable auto-merge for safe TMDB catalog PRs
+        if: steps.automerge_gate.outputs.allowed == 'true'
+        id: auto_merge
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR: ${{ steps.cpr.outputs.pull-request-number }}
+        # Das Repo hat allow_auto_merge=false (gemessen 2026-09-26). `--auto` kann daher
+        # keinen Auto-Merge aktivieren; gh merged bei bereits mergefaehigen Bot-PRs sofort
+        # durch. Schlaegt das fehl, wird bewusst direkt gemerged — das Gate hat zu diesem
+        # Zeitpunkt bereits entschieden. Wird allow_auto_merge spaeter aktiviert, greift
+        # automatisch wieder der echte Auto-Merge-Pfad. Kein continue-on-error: schlaegt
+        # auch der Direkt-Merge fehl, soll der Job rot werden statt still zu haengen.
+        run: |
+          if ! gh pr merge "$PR" --squash --delete-branch --auto; then
+            echo "::warning::--auto unavailable (allow_auto_merge=false?); falling back to a direct squash merge"
+            gh pr merge "$PR" --squash --delete-branch
+          fi
+          echo "triggered=true" >> "$GITHUB_OUTPUT"

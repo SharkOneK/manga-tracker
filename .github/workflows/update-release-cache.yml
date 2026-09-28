@@ -213,7 +213,7 @@ jobs:
             echo "Workspace status is logged for diagnostics only and is not part of this auto-merge decision."
             echo ""
             echo "### Gate metrics"
-            node -e "const fs=require('fs'); const r=JSON.parse(fs.readFileSync(process.argv[1], 'utf8')); for (const key of ['cachePatches','changedCacheItems','deletedCacheItems','safeToPatchBefore','safeToPatchAfter']) if (Object.prototype.hasOwnProperty.call(r, key)) console.log('- ' + key + ': ' + r[key])" "$RUNNER_TEMP/automerge-gate.json"
+            node -e "const fs=require('fs'); const r=JSON.parse(fs.readFileSync(process.argv[1], 'utf8')); for (const key of ['cachePatches','changedCacheItems','deletedCacheItems','safeToPatchBefore','safeToPatchAfter','reviewQueueWrites','newQueueKeys','removedQueueKeys']) if (Object.prototype.hasOwnProperty.call(r, key)) console.log('- ' + key + ': ' + r[key])" "$RUNNER_TEMP/automerge-gate.json"
           } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Enable auto-merge for safe Phase 45 release-cache PRs
@@ -221,8 +221,18 @@ jobs:
         id: auto_merge
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR: ${{ steps.cpr.outputs.pull-request-number }}
+        # Das Repo hat allow_auto_merge=false (gemessen 2026-09-26). `--auto` kann daher
+        # keinen Auto-Merge aktivieren; gh merged bei bereits mergefaehigen Bot-PRs sofort
+        # durch. Schlaegt das fehl, wird bewusst direkt gemerged — das Gate hat zu diesem
+        # Zeitpunkt bereits entschieden. Wird allow_auto_merge spaeter aktiviert, greift
+        # automatisch wieder der echte Auto-Merge-Pfad. Kein continue-on-error: schlaegt
+        # auch der Direkt-Merge fehl, soll der Job rot werden statt still zu haengen.
         run: |
-          gh pr merge ${{ steps.cpr.outputs.pull-request-number }} --squash --auto
+          if ! gh pr merge "$PR" --squash --auto; then
+            echo "::warning::--auto unavailable (allow_auto_merge=false?); falling back to a direct squash merge"
+            gh pr merge "$PR" --squash
+          fi
           echo "triggered=true" >> "$GITHUB_OUTPUT"
 
       - name: Upload pipeline report artifact
