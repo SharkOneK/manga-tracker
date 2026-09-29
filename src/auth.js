@@ -278,7 +278,6 @@
       try {
         localStorage.removeItem('mtDE');
         localStorage.removeItem('mtCollId');
-        localStorage.removeItem('mtOwnerToken');
         localStorage.removeItem('mtCollectionClaimed');
       } catch (_) {}
       window.location.reload();

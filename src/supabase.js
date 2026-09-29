@@ -5,36 +5,34 @@
   var SUPA_PUBLIC_REST = SUPA_URL + '/rest/v1/collection_public_projection';
   var SUPA_RPC = SUPA_URL + '/rest/v1/rpc';
 
-  // Phase 51: Supabase Auth session (JWT) is the primary owner path; the legacy
-  // x-owner-token is the fallback. The session is read straight from the persisted
-  // supabase-js storage so we never have to load the ~200 KB auth bundle just to sync.
+  // Phase 84: Supabase Auth session (JWT) is the ONLY owner path — the client
+  // holds no legacy write-secret fallback anymore. The session is read straight
+  // from the persisted supabase-js storage so we never have to load the ~200 KB
+  // auth bundle just to sync.
   var PROJECT_REF = 'sssxiqtnkctvyghyrqff';
   var SESSION_STORAGE_KEY = 'sb-' + PROJECT_REF + '-auth-token';
 
-  var UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-
-  function adoptOwnerIfPresent() {
+  // Phase 84: räumt das Schreibgeheimnis des abgeschafften Owner-Token-Modells auf
+  // Bestandsgeräten auf (ersatzloses Streichen der alten Adopt-Funktion würde den
+  // Wert unbegrenzt in localStorage liegen lassen). Speichert nichts mehr — ein
+  // aufgerufener Legacy-Adopt-Link (#adopt=…&token=… oder ?adopt=…&token=…) wird nur
+  // noch aus der URL entfernt, nie mehr übernommen. mtCollId bleibt unberührt: das
+  // ist kein Token-Rest, sondern der Cache der eigenen Collection-ID (siehe
+  // getStoredCollectionId()).
+  function clearLegacyOwnerToken() {
     try {
-      // Prefer fragment-based adopt (hash): token never sent to server
+      localStorage.removeItem('mtOwnerToken');
+
       var fp = new URLSearchParams(window.location.hash.slice(1));
-      var fa = fp.get('adopt');
-      var ft = fp.get('token');
-      if (fa && ft && UUID_RE.test(fa) && UUID_RE.test(ft)) {
-        localStorage.setItem('mtCollId', fa);
-        localStorage.setItem('mtOwnerToken', ft);
-        // Clear fragment
-        history.replaceState(null, '', window.location.pathname + window.location.search);
-        return;
+      if (fp.has('adopt') || fp.has('token')) {
+        fp.delete('adopt');
+        fp.delete('token');
+        var fragment = fp.toString();
+        history.replaceState(null, '', window.location.pathname + window.location.search + (fragment ? '#' + fragment : ''));
       }
 
-      // Legacy: query-parameter adopt (deprecated, kept for backwards compatibility)
       var p = new URLSearchParams(window.location.search);
-      var a = p.get('adopt');
-      var t = p.get('token');
-      if (a && t && UUID_RE.test(a) && UUID_RE.test(t)) {
-        console.warn('[security] adopt via query params is deprecated, use fragment links');
-        localStorage.setItem('mtCollId', a);
-        localStorage.setItem('mtOwnerToken', t);
+      if (p.has('adopt') || p.has('token')) {
         p.delete('adopt');
         p.delete('token');
         var qs = p.toString();
@@ -43,20 +41,17 @@
     } catch (_) {}
   }
 
-  function getOwnerState() {
-    return {
-      collId: localStorage.getItem('mtCollId') || null,
-      ownerToken: localStorage.getItem('mtOwnerToken') || null,
-    };
+  function getStoredCollectionId() {
+    try {
+      return localStorage.getItem('mtCollId') || null;
+    } catch (_) { return null; }
   }
 
-  function headers(ownerToken, write) {
-    var h = {
+  function anonHeaders() {
+    return {
       apikey: SUPA_KEY,
       Authorization: 'Bearer ' + SUPA_KEY,
     };
-    if (write && ownerToken) h['x-owner-token'] = ownerToken;
-    return h;
   }
 
   // Phase 51: Authorization carries the user's JWT instead of the anon key, so
@@ -70,7 +65,7 @@
 
   // Read a non-expired access token from the persisted supabase-js session WITHOUT
   // loading the auth bundle. Returns null if absent or (about to be) expired, which
-  // makes every caller fall back to the owner-token path safely.
+  // makes every caller treat the request as "not signed in" (no fallback path).
   function getStoredAccessToken() {
     try {
       var raw = localStorage.getItem(SESSION_STORAGE_KEY);
@@ -202,7 +197,7 @@
     // Es gibt keinen Legacy-Fallback auf die private data-Spalte mehr.
     var publicRows = await requestJson(
       SUPA_PUBLIC_REST + '?id=eq.' + collId + '&select=public_data',
-      headers(null, false)
+      anonHeaders()
     );
     return firstCollectionField(publicRows, 'public_data');
   }
@@ -384,9 +379,8 @@
   }
 
   window.MangaTrackerSupabase = {
-    adoptOwnerIfPresent: adoptOwnerIfPresent,
-    getOwnerState: getOwnerState,
-    headers: headers,
+    clearLegacyOwnerToken: clearLegacyOwnerToken,
+    getStoredCollectionId: getStoredCollectionId,
     fetchCollection: fetchCollection,
     fetchPublicCollection: fetchPublicCollection,
     patchCollection: patchCollection,

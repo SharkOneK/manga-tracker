@@ -9,66 +9,66 @@ Regressionen verhindern. Sie richtet sich an Maintainer und an Reviewer künftig
 
 Frühere Fassungen dieser Datei beschrieben ein Owner-Token-Modell (Schreibgeheimnis im
 Browser-localStorage). Dieses Modell ist seit Phase 51 als Autorisierungsmechanismus
-abgeschafft (serverseitig gedroppt); zu den verbliebenen Client-Resten siehe „Auth-Modell"
-und „Bekannte Einschränkungen". Jede Aussage in dieser Datei ist gegen den
-Code-/Migrationsstand von Phase 82 verifiziert; wo Unsicherheit bestand, wurde
-die Aussage weggelassen statt geraten.
+serverseitig abgeschafft (gedroppt); Phase 84 hat zusätzlich die letzten Client-Reste
+entfernt und einen davon abhängigen Import-Sync-Bug behoben — siehe „Auth-Modell". Jede
+Aussage in dieser Datei ist gegen den Code-/Migrationsstand von Phase 84 verifiziert; wo
+Unsicherheit bestand, wurde die Aussage weggelassen statt geraten.
 
 ## Auth-Modell
 
 Seit Phase 51 ist der **aktive Schreib-/Lesepfad session-only**; ein `x-owner-token` wird
-nicht mehr gesendet. Im Client-Code liegen weiterhin inerte Reste des alten Modells — siehe
-Präzisierung unten.
+nicht mehr gesendet. Seit Phase 84 ist der Client zusätzlich **vollständig token-frei**: Es
+gibt weder eine URL-Adopt-Funktion, die ein Token in `localStorage` schreibt, noch einen
+Header, der eines mitsendet — siehe Ist-Stand unten.
 
-- **Passkey (WebAuthn)** ist der primäre Anmeldeweg (`src/auth.js:127`, `signInWithPasskey()`
-  bzw. `src/auth.js:131`, `registerPasskey()`). Die RP-ID wird nicht im Client-Code
-  konfiguriert; die Passkey-Behandlung liegt vollständig in supabase-js und ergibt sich aus
-  dem ausliefernden Origin (`https://sharkonek.github.io/manga-tracker/`, siehe
+- **Passkey (WebAuthn)** ist der primäre Anmeldeweg — `signInWithPasskey()`
+  (`src/auth.js:127`) bzw. `registerPasskey()` (`src/auth.js:131`). Die RP-ID wird nicht im
+  Client-Code konfiguriert; die Passkey-Behandlung liegt vollständig in supabase-js und
+  ergibt sich aus dem ausliefernden Origin (`https://sharkonek.github.io/manga-tracker/`,
   `.github/workflows/live-smoke.yml:9`).
-- **E-Mail-OTP** dient als Bootstrap/Fallback (`src/auth.js:119`, `startEmailOtp()` /
-  `src/auth.js:123`, `verifyEmailOtp()`), z. B. für die Erstregistrierung eines Passkeys.
+- **E-Mail-OTP** dient als Bootstrap/Fallback — `startEmailOtp()` (`src/auth.js:119`) bzw.
+  `verifyEmailOtp()` (`src/auth.js:123`), z. B. für die Erstregistrierung eines Passkeys.
 - Autorisierung auf Datenbankebene läuft ausschließlich über `auth.uid()` (siehe
   „Datenmodell und RLS"), nicht über einen mitgesendeten Token-Header.
 - Der Client hält die Session im `localStorage` und holt vor jedem privilegierten Request
-  ein frisches Access-Token über `ensureFreshAccessToken()` (`src/supabase.js:131`), das bei
+  ein frisches Access-Token über `ensureFreshAccessToken()` (`src/supabase.js:126`), das bei
   Bedarf per Refresh-Token erneuert wird. Aufrufer sind u. a. `fetchCollection()`
-  (`src/supabase.js:191`), `submitReleaseIntakeCandidate` (`:259`),
-  `submitMangaCatalogCandidate` (`:339`) und `patchCollection()` (`:378`). Liefert die
-  Funktion `null`, gilt der Nutzer als nicht angemeldet — es gibt keinen automatischen
-  Token-Fallback mehr.
+  (`src/supabase.js:183`), `submitReleaseIntakeCandidate()` (`src/supabase.js:220`),
+  `submitMangaCatalogCandidate()` (`src/supabase.js:294`) und `patchCollection()`
+  (`src/supabase.js:371`). Liefert die Funktion `null`, gilt der Nutzer als nicht
+  angemeldet — es gibt keinen automatischen Token-Fallback mehr.
 
-**Präzisierung (Phase 82-Fix)**: Der aktive Schreibpfad ist wie oben beschrieben session-only,
-ohne Token-Fallback — `patchCollection()` (`src/supabase.js:378`) hängt ausschließlich an
-`ensureFreshAccessToken()` und wirft ohne gültiges Session-Token. Das ist die
-sicherheitsrelevante Aussage.
+**Ist-Stand (Phase 84)**: Der aktive Schreibpfad ist wie oben beschrieben session-only, ohne
+Token-Fallback — `patchCollection()` (`src/supabase.js:371`) hängt ausschließlich an
+`ensureFreshAccessToken()` und wirft ohne gültiges Session-Token. Bis Phase 83 lagen im
+Client-Code zusätzlich inerte Reste des früheren Owner-Token-Modells (Adopt-Funktion,
+Token-Header, Wrapper-Variablen); Phase 84 hat sie entfernt, statt sie ersatzlos stehen zu
+lassen (Audit-Befund 22):
 
-Im Client-Code liegen aber weiterhin **inerte Reste** des früheren Owner-Token-Modells,
-serverseitig ohne Wirkung, aber nicht entfernt:
+- `clearLegacyOwnerToken()` (`src/supabase.js:22-42`) räumt bei jedem Seitenaufruf — Aufruf
+  `SupabaseAdapter.clearLegacyOwnerToken()` in `src/app.js:15` — den alten
+  Schreibgeheimnis-Schlüssel `mtOwnerToken` aus `localStorage` auf Bestandsgeräten auf,
+  reiner Migrationsschritt, kein aktiver Autorisierungspfad. Ein
+  noch aufgerufener Legacy-Adopt-Link (Fragment-Form `#adopt=…&token=…` oder die deprecated
+  Query-Parameter-Variante mit denselben zwei Parametern) wird aus der URL entfernt, **ohne**
+  die Parameter zu speichern.
+- `mtCollId` bleibt davon unberührt: Das ist kein Token-Rest, sondern der Cache der eigenen
+  Collection-ID, gelesen über `getStoredCollectionId()` (`src/supabase.js:44-48`). Für
+  angemeldete Owner wird er über `fetchMyCollectionIds()`/`discoverAndLoadOwnCollection()`
+  gesetzt, nicht mehr über einen Adopt-Link.
+- `anonHeaders()` (`src/supabase.js:50-55`) ersetzt die frühere `headers(ownerToken, write)` —
+  es gibt keinen `x-owner-token`-Zweig mehr, nur noch `apikey` + `Authorization` mit dem
+  publishable Key (einziger Aufrufer: `fetchPublicCollection()`, `src/supabase.js:195`).
 
-- `src/supabase.js:16-42` (`adoptOwnerIfPresent()`) liest `adopt`/`token` aus URL-Fragment
-  bzw. Query-String und schreibt sie via `localStorage.setItem('mtOwnerToken', …)`; läuft bei
-  jedem Seitenaufruf (`src/app.js:15`).
-- `src/supabase.js:46-50` (`getOwnerState()`) liest `mtOwnerToken` aus `localStorage` zurück.
-- `src/supabase.js:53-59` (`headers(ownerToken, write)`) setzt bei `write && ownerToken` den
-  Header `x-owner-token`; der zugehörige Kopf-Kommentar (`src/supabase.js:8-9`) beschreibt ihn
-  sogar noch als aktiven Fallback, was dem tatsächlichen Schreibpfad widerspricht.
-- `src/app.js:19` (`_ownerToken`) und `src/app.js:21-23` (`supaHead()`) existieren als
-  Wrapper um diese Funktionen.
-- `src/auth.js:281` räumt `mtOwnerToken` beim Logout mit auf.
-
-Diese Reste sind serverseitig wirkungslos: Die Spalte `owner_token` ist gedroppt
-(`supabase/migrations/phase51f_drop_owner_token_column.sql`), und die RLS-Policies auf
-`public.collections` werten ausschließlich `auth.uid()` aus (siehe „Datenmodell und RLS") —
-ein mitgesendeter `x-owner-token`-Header hätte serverseitig keinerlei Effekt mehr, selbst wenn
-er gesendet würde.
-
-Sie sind trotzdem Restschuld, kein rein kosmetisches Detail: `adoptOwnerIfPresent()` schreibt
-weiterhin Tokens aus URL-Parametern in `localStorage`, und `src/app.js:2281` gated den
-Cloud-Sync nach einem Import mit `if (_collId && _ownerToken)` — für reine Session-Nutzer
-(Passkey/E-Mail-OTP, kein Adopt-Link) ist `_ownerToken` `null`, wodurch der Sync an dieser
-Stelle übersprungen wird (latenter Bug, keine Sicherheitslücke). Die Bereinigung dieser Reste
-ist als eigene Phase 84 vorgesehen; bis dahin gilt: kein aktiver `x-owner-token`-Versand auf
-dem echten Schreibpfad, aber auch kein vollständig token-freier Client.
+Diese Bereinigung war nicht nur kosmetisch: Der alte Import-Sync-Gate in `handleImportFile()`
+(`src/app.js:2224`) prüfte `if (_collId && _ownerToken)` — für reine Session-Nutzer
+(Passkey/E-Mail-OTP, kein Adopt-Link) war `_ownerToken` immer `null`, wodurch der Cloud-Sync
+nach einem Import **still übersprungen** wurde, obwohl der Erfolgs-Toast erschien (stiller
+Datenverlust, Audit-Befund 22). Seit Phase 84 entscheidet die reine Funktion
+`importSyncDecision(mode, collId)` (`src/app.js:2284`, aufgerufen mit `getAppMode()` und
+`_collId`) dreiwertig: `'sync'` löst `pushCloud()` aus, `'no-collection'` zeigt einen
+Hinweis-Toast statt stillem Skip, `'skip'` verhindert jeden Schreibversuch außerhalb von
+`cloud-owner-edit`. `canWriteCloud()` bleibt am Aufrufort zusätzlich als zweiter Gürtel stehen.
 
 ## Datenmodell und RLS
 
@@ -126,7 +126,7 @@ Rechte richtig entziehen") und werden hier bewusst nicht dupliziert.
 
 ## Client-Härtung
 
-Aktueller CSP-Ist-Stand, wörtlich aus `index.html:5`:
+Aktueller CSP-Ist-Stand, wörtlich aus `index.html:5` (`Content-Security-Policy`):
 
 ```
 default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none';
@@ -166,11 +166,11 @@ style-src 'self'; upgrade-insecure-requests;
 Seit Phase 69 liefert `sw.js` einen Service Worker aus, Phase 73 hat ihn an die erweiterte
 CSP angepasst. Aktuell: `CACHE_VERSION = 'mt-pwa-v8'` (Phase 83: neu erzeugte `vendor/jszip.min.js` samt neuem SRI-Hash).
 
-- Non-GET-Requests werden nie abgefangen (`sw.js:75`, `request.method !== 'GET'` →
-  `return`) — Supabase-Writes und RPC-POSTs laufen am Service Worker vorbei.
-- Cross-Origin-Requests werden durchgelassen (`sw.js:89`,
-  `url.origin !== self.location.origin` → `return`): Supabase-Antworten und Auth-Token
-  werden dadurch **niemals** gecacht.
+- Non-GET-Requests werden nie abgefangen — `request.method !== 'GET'` (`sw.js:75`) führt zu
+  `return` — Supabase-Writes und RPC-POSTs laufen am Service Worker vorbei.
+- Cross-Origin-Requests werden durchgelassen — `url.origin !== self.location.origin`
+  (`sw.js:89`) führt ebenfalls zu `return`: Supabase-Antworten und Auth-Token werden dadurch
+  **niemals** gecacht.
 - `data/*.json` läuft Network-First mit Cache-Fallback, die App-Shell (`index.html` und
   statische Assets) läuft Cache-First.
 - **Bump-Pflicht**: Weil `index.html` cache-first ausgeliefert wird, erzwingt jede
@@ -198,9 +198,16 @@ Platzhalter (wie oben `sb_publishable_...`), niemals echte Schlüssel oder Token
 Mehrere statische Prüfungen laufen gebündelt über `scripts/run-all-checks.js`:
 
 - `scripts/security-audit-static.js` — CSP-/SRI-/Härtungs-Checks 1–40 plus die
-  publikationsstatusbezogenen Checks 57/57e und die PWA-Checks 69a–69g.
+  publikationsstatusbezogenen Checks 57/57e und die PWA-Checks 69a–69g. Check 12 prüft seit
+  Phase 84 den Anti-Regressions-Guard „`src/app.js` und `src/supabase.js` enthalten keine
+  Owner-Token-Autorisierung" (keine Treffer für `x-owner-token`, `_ownerToken`,
+  `getOwnerState`, `supaHead`; `mtOwnerToken` nur als `removeItem`-Argument).
 - `scripts/smoke-test-static.js` — statische Struktur, Doku-Inhaltsprüfungen (u. a. diese
   Datei) und der Phase-82-Orphan-Guard (siehe „Pflege").
+- `scripts/test-owner-token-cleanup-phase84.js` — Regressionstest für das Import-Sync-Gate
+  (`importSyncDecision()`), die Token-Freiheit von `src/app.js`/`src/supabase.js`/`src/auth.js`
+  und die `src/…:ZEILE`-Referenzen in dieser Datei (verhindert die Zeilen-Drift, die in
+  Phase 82/83 Reviewer-Blocker war).
 - `scripts/check-secrets.js` — Secret-Scan (siehe oben).
 
 Zusätzlich in CI: CodeQL-Code-Scanning (`.github/workflows/codeql.yml`, wöchentlicher
@@ -227,6 +234,7 @@ geleert, schlägt der Smoke-Test rot. Zusätzlich sorgt der Orphan-Guard (ebenfa
 `scripts/validate-*.js` in `scripts/run-all-checks.js` referenziert sein muss.
 
 Änderungshistorie in Stichworten: Phase 21 (erste CSP) → Phase 51 (session-only Auth,
-Owner-Token abgeschafft) → Phase 64 (JSZip-SRI) → Phase 69 (Service Worker/PWA) → Phase 73
-(CSP-Bump für AniList) → Phase 81 (RPC-`anon`-Härtung, RLS-InitPlan) → Phase 82 (diese
-Doku neu geschrieben, Smoke-Test prüft Inhalt statt Existenz).
+Owner-Token serverseitig abgeschafft) → Phase 64 (JSZip-SRI) → Phase 69 (Service Worker/PWA)
+→ Phase 73 (CSP-Bump für AniList) → Phase 81 (RPC-`anon`-Härtung, RLS-InitPlan) → Phase 82
+(diese Doku neu geschrieben, Smoke-Test prüft Inhalt statt Existenz) → Phase 84 (letzte
+Client-seitige Owner-Token-Reste entfernt, Import-Sync-Gate auf Session-Modus umgestellt).

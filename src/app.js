@@ -12,15 +12,9 @@ function uid() { return window.MangaTrackerUtils.uid(); }
 // ─── Supabase Cloud Sync (adapter defined in src/supabase.js) ────────────
 const SupabaseAdapter = window.MangaTrackerSupabase;
 
-SupabaseAdapter.adoptOwnerIfPresent();
+SupabaseAdapter.clearLegacyOwnerToken();
 
-const _ownerState = SupabaseAdapter.getOwnerState();
-let _collId     = _ownerState.collId;
-let _ownerToken = _ownerState.ownerToken;
-
-function supaHead(write = false) {
-  return SupabaseAdapter.headers(_ownerToken, write);
-}
+let _collId = SupabaseAdapter.getStoredCollectionId();
 
 let _syncTimer = null;
 // Seeding-Flag: während Boot-Seeds keine localStorage-Schreiboperationen ausführen
@@ -1476,16 +1470,15 @@ const _viewColl = new URLSearchParams(window.location.search).get('view');
 // ─── App-Modus ────────────────────────────────────────────────────────────
 // Drei Modi:
 //   'public-readonly'  — ?view= gesetzt: fremde Sammlung, keine Schreibrechte
-//   'cloud-owner-edit' — eigene Sammlung mit Owner-Token: Lesen + Cloud-Schreiben
-//   'local-edit'       — kein Cloud-Sync konfiguriert: nur lokales Schreiben
+//   'cloud-owner-edit' — angemeldeter Owner (Supabase-Session): Lesen + Cloud-Schreiben
+//   'locked'           — keine Session: keine Daten sichtbar, kein Schreibzugriff
 // Der Frontend-Check ist nur UX; der harte Schutz ist die RLS-Policy collections_update_owner.
 function getAppMode() {
   if (_viewColl) return 'public-readonly';
   // Phase 51 (Etappe 7) — strict login gate: only a signed-in owner (Supabase
-  // session) gets owner-edit. The legacy owner token alone no longer unlocks the
-  // app; without a session the app is 'locked' (no data shown). Cloud read/write
-  // still use the session JWT (token path remains a fallback inside src/supabase.js
-  // until the DB hardening step removes it).
+  // session) gets owner-edit; without a session the app is 'locked' (no data
+  // shown). Phase 84: the legacy owner-token path is gone from the client
+  // entirely — cloud-owner-edit hangs solely off the session, no token fallback.
   if (SupabaseAdapter.hasSession && SupabaseAdapter.hasSession()) return 'cloud-owner-edit';
   return 'locked';
 }
@@ -1493,6 +1486,13 @@ function isPublicReadOnly() { return getAppMode() === 'public-readonly'; }
 function isLocked()         { return getAppMode() === 'locked'; }
 function canEditLocal()     { return getAppMode() === 'cloud-owner-edit'; }
 function canWriteCloud()    { return getAppMode() === 'cloud-owner-edit'; }
+
+// Phase 84: reine, DOM-/localStorage-freie Entscheidung fürs Import-Sync-Gate
+// (offline testbar, siehe scripts/test-owner-token-cleanup-phase84.js).
+function importSyncDecision(mode, collId) {
+  if (mode !== 'cloud-owner-edit') return 'skip';
+  return collId ? 'sync' : 'no-collection';
+}
 
 // UUID-Validator für View-IDs
 function isUuid(v) {
@@ -2278,9 +2278,15 @@ async function handleImportFile(input) {
   saveLoc();
 
   // Schritt 3: In Supabase synchronisieren wenn Cloud-Sync aktiv
-  if (_collId && _ownerToken) {
+  // canWriteCloud() bleibt als zweiter Gürtel bewusst stehen, damit ein späterer
+  // Umbau des Early-Returns oben (Zeile 2225) keinen Schreibversuch in der
+  // Public-View einschleust (Phase 84).
+  const syncDecision = importSyncDecision(getAppMode(), _collId);
+  if (canWriteCloud() && syncDecision === 'sync') {
     toast(`✅ ${entries.length} Serien importiert – synchronisiere…`);
     await pushCloud();
+  } else if (canWriteCloud() && syncDecision === 'no-collection') {
+    toast('⚠️ Import nur lokal gespeichert – keine Cloud-Sammlung verbunden.');
   }
 
   render();
