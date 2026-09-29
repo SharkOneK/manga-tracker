@@ -196,15 +196,36 @@ if (!appJs) {
   pass('Check 11: src/app.js enthält isPublicReadOnly');
 }
 
-// ── Check 12: supabase.js oder app.js enthält Fragment-Adopt (hash.slice) ─
-const hasFragmentAdopt =
-  (supabaseJs && supabaseJs.includes('hash.slice')) ||
-  (appJs && appJs.includes('hash.slice'));
+// ── Check 12 (Phase 84): Client enthält keine Owner-Token-Autorisierung ───
+// Bis Phase 83 prüfte dieser Check umgekehrt die Existenz der Fragment-Adopt-
+// Logik (hash.slice). Nach der Bereinigung (Audit-Befund 22) ist das die
+// falsche Erwartung — richtig ist jetzt der Anti-Regressions-Guard: src/app.js
+// und src/supabase.js dürfen keine Owner-Token-Reste mehr enthalten.
+// mtOwnerToken darf ausschließlich als removeItem-Argument in
+// clearLegacyOwnerToken() (Migrations-Cleanup für Bestandsgeräte) vorkommen.
+const OWNER_TOKEN_FORBIDDEN = ['x-owner-token', '_ownerToken', 'getOwnerState', 'supaHead'];
+const ownerTokenIssues = [];
+[['src/app.js', appJs], ['src/supabase.js', supabaseJs]].forEach(([label, src]) => {
+  if (!src) return;
+  OWNER_TOKEN_FORBIDDEN.forEach((needle) => {
+    if (src.includes(needle)) ownerTokenIssues.push(label + ' enthält "' + needle + '"');
+  });
+  const mtOwnerTokenRe = /mtOwnerToken/g;
+  let m;
+  while ((m = mtOwnerTokenRe.exec(src))) {
+    const context = src.slice(Math.max(0, m.index - 30), m.index);
+    if (!/removeItem\(\s*['"]$/.test(context)) {
+      ownerTokenIssues.push(label + ' enthält "mtOwnerToken" außerhalb von removeItem(...)');
+    }
+  }
+});
 
-if (!hasFragmentAdopt) {
-  fail('Check 12: weder src/supabase.js noch src/app.js enthält Fragment-Adopt-Logik (hash.slice)');
+if (!appJs || !supabaseJs) {
+  fail('Check 12: src/app.js oder src/supabase.js nicht gefunden');
+} else if (ownerTokenIssues.length) {
+  fail('Check 12: Owner-Token-Autorisierung noch vorhanden: ' + ownerTokenIssues.join('; '));
 } else {
-  pass('Check 12: Fragment-Adopt-Logik (hash.slice) vorhanden');
+  pass('Check 12: src/app.js und src/supabase.js enthalten keine Owner-Token-Autorisierung (Phase 84 / Audit-Befund 22)');
 }
 
 // ── Check 13: keine Adopt-Query-Links in docs/* und data/* ───────────────

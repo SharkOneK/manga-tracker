@@ -25,19 +25,21 @@ function runTest(name, fn) {
 // ─── Aus app.js gespiegelte Hilfsfunktionen ───────────────────────────────
 
 // App-Modus-Logik (ohne DOM/localStorage)
-function getAppMode(_viewColl, _collId, _ownerToken) {
+// Phase 84: gespiegelt gegen den Ist-Stand von src/app.js getAppMode() — nur
+// noch drei Modi, kein Owner-Token mehr. Session ersetzt _collId/_ownerToken.
+function getAppMode(_viewColl, _hasSession) {
   if (_viewColl) return 'public-readonly';
-  if (_collId && _ownerToken) return 'cloud-owner-edit';
-  return 'local-edit';
+  if (_hasSession) return 'cloud-owner-edit';
+  return 'locked';
 }
-function isPublicReadOnly(_viewColl, _collId, _ownerToken) {
-  return getAppMode(_viewColl, _collId, _ownerToken) === 'public-readonly';
+function isPublicReadOnly(_viewColl, _hasSession) {
+  return getAppMode(_viewColl, _hasSession) === 'public-readonly';
 }
-function canEditLocal(_viewColl, _collId, _ownerToken) {
-  return !isPublicReadOnly(_viewColl, _collId, _ownerToken);
+function canEditLocal(_viewColl, _hasSession) {
+  return getAppMode(_viewColl, _hasSession) === 'cloud-owner-edit';
 }
-function canWriteCloud(_viewColl, _collId, _ownerToken) {
-  return getAppMode(_viewColl, _collId, _ownerToken) === 'cloud-owner-edit';
+function canWriteCloud(_viewColl, _hasSession) {
+  return getAppMode(_viewColl, _hasSession) === 'cloud-owner-edit';
 }
 
 // UUID-Validator
@@ -130,29 +132,29 @@ function getReleaseTargetVolume(m) {
 
 console.log('\nPhase 20 — Datenintegritäts-Tests\n');
 
-// 1. canEditLocal() ist true im local-edit Modus
-runTest('canEditLocal() ist true ohne _viewColl und ohne _collId', function() {
-  assert.strictEqual(canEditLocal(null, null, null), true);
+// 1. canEditLocal() ist true nur mit Session (angemeldeter Owner)
+runTest('canEditLocal() ist true ohne _viewColl mit Session', function() {
+  assert.strictEqual(canEditLocal(null, true), true);
 });
 
 // 2. isPublicReadOnly() ist false ohne _viewColl
 runTest('isPublicReadOnly() ist false ohne _viewColl', function() {
-  assert.strictEqual(isPublicReadOnly(null, 'col123', 'tok456'), false);
+  assert.strictEqual(isPublicReadOnly(null, true), false);
 });
 
 // 3. isPublicReadOnly() ist true mit _viewColl
 runTest('isPublicReadOnly() ist true wenn _viewColl gesetzt', function() {
-  assert.strictEqual(isPublicReadOnly('some-uuid', null, null), true);
+  assert.strictEqual(isPublicReadOnly('some-uuid', null), true);
 });
 
-// 4. canWriteCloud() ist false ohne ownerToken
-runTest('canWriteCloud() ist false ohne ownerToken (local-edit Modus)', function() {
-  assert.strictEqual(canWriteCloud(null, 'col123', null), false);
+// 4. canWriteCloud() ist false ohne Session (locked Modus, kein Cloud-Schreiben)
+runTest('canWriteCloud() ist false ohne Session (locked Modus)', function() {
+  assert.strictEqual(canWriteCloud(null, false), false);
 });
 
-// 5. canWriteCloud() ist true mit collId und ownerToken
-runTest('canWriteCloud() ist true mit collId und ownerToken', function() {
-  assert.strictEqual(canWriteCloud(null, 'col123', 'tok456'), true);
+// 5. canWriteCloud() ist true mit Session
+runTest('canWriteCloud() ist true mit Session', function() {
+  assert.strictEqual(canWriteCloud(null, true), true);
 });
 
 // 6. mergePreservedFields erhält isbn13
@@ -296,13 +298,13 @@ runTest('Phase 47: abgeschlossener vollstaendiger Zweiteiler liefert null', func
 
 // 20. getAppMode: liefert korrekten Modus
 runTest('getAppMode: liefert public-readonly wenn _viewColl gesetzt', function() {
-  assert.strictEqual(getAppMode('some-view', null, null), 'public-readonly');
+  assert.strictEqual(getAppMode('some-view', false), 'public-readonly');
 });
-runTest('getAppMode: liefert cloud-owner-edit mit collId und ownerToken', function() {
-  assert.strictEqual(getAppMode(null, 'col1', 'tok1'), 'cloud-owner-edit');
+runTest('getAppMode: liefert cloud-owner-edit mit Session', function() {
+  assert.strictEqual(getAppMode(null, true), 'cloud-owner-edit');
 });
-runTest('getAppMode: liefert local-edit ohne Cloud-Parameter', function() {
-  assert.strictEqual(getAppMode(null, null, null), 'local-edit');
+runTest('getAppMode: liefert locked ohne Session, kein Cloud-Schreiben', function() {
+  assert.strictEqual(getAppMode(null, false), 'locked');
 });
 
 // ─── Phase 36b: Release Intake Tests ─────────────────────────────────────────
