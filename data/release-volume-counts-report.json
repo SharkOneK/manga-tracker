@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-28T11:06:29.330Z",
+  "generatedAt": "2026-09-29T10:48:59.125Z",
   "source": "run-release-volume-counts.js",
   "providerMode": "enabled",
   "policy": {
@@ -27,11 +27,21 @@
     "seriesInVolumeCounts": 51,
     "probeCandidates": 64,
     "checkedCandidates": 64,
-    "detectedChanges": 0,
-    "appliedHighConfidenceChanges": 0,
-    "blockedOrUnsafe": 81
+    "detectedChanges": 1,
+    "appliedHighConfidenceChanges": 1,
+    "blockedOrUnsafe": 80
   },
-  "changes": [],
+  "changes": [
+    {
+      "seriesTitle": "Kagurabachi",
+      "publisher": "Carlsen Manga!",
+      "oldPublishedVolumesDE": 8,
+      "newPublishedVolumesDE": 9,
+      "source": "manga-passion",
+      "sourceUrl": "https://www.manga-passion.de/editions/5072",
+      "confidence": "high"
+    }
+  ],
   "blockedCandidates": [
     {
       "seriesTitle": "August 9th, I will be eaten by you",
@@ -71,14 +81,6 @@
       "seriesTitle": "I Was Reincarnated as the 7th Prince So I Can Take My Time Perfecting My Magical Ability",
       "publisher": "Dokico",
       "volumeNumber": 2,
-      "reasonCodes": [
-        "not-yet-released-or-invalid-date"
-      ]
-    },
-    {
-      "seriesTitle": "Kagurabachi",
-      "publisher": "Carlsen Manga!",
-      "volumeNumber": 9,
       "reasonCodes": [
         "not-yet-released-or-invalid-date"
       ]
@@ -426,14 +428,6 @@
       ]
     },
     {
-      "seriesTitle": "Kagurabachi",
-      "publisher": "Carlsen Manga",
-      "volumeNumber": 9,
-      "reasonCodes": [
-        "not-yet-released"
-      ]
-    },
-    {
       "seriesTitle": "The Eminence in Shadow",
       "publisher": "Tokyopop",
       "volumeNumber": 11,
@@ -620,6 +614,14 @@
       "reasonCodes": [
         "missing-source-volume-number",
         "missing-release-date",
+        "not-yet-released"
+      ]
+    },
+    {
+      "seriesTitle": "Kagurabachi",
+      "publisher": "Carlsen Manga!",
+      "volumeNumber": 10,
+      "reasonCodes": [
         "not-yet-released"
       ]
     },
@@ -1142,16 +1144,6 @@
       "reasonCodes": []
     },
     {
-      "seriesTitle": "Kagurabachi",
-      "publisher": "Carlsen Manga",
-      "volumeNumber": 9,
-      "source": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/5072",
-      "confidence": "high",
-      "released": false,
-      "reasonCodes": []
-    },
-    {
       "seriesTitle": "The Eminence in Shadow",
       "publisher": "Tokyopop",
       "volumeNumber": 11,
@@ -1391,6 +1383,16 @@
         "missing-source-volume-number",
         "missing-release-date"
       ]
+    },
+    {
+      "seriesTitle": "Kagurabachi",
+      "publisher": "Carlsen Manga!",
+      "volumeNumber": 10,
+      "source": "manga-passion",
+      "sourceUrl": "https://www.manga-passion.de/editions/5072",
+      "confidence": "high",
+      "released": false,
+      "reasonCodes": []
     },
     {
       "seriesTitle": "Kaiju No.8",
