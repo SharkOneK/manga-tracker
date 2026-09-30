@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-29T10:48:59.125Z",
+  "generatedAt": "2026-09-30T10:36:42.750Z",
   "source": "run-release-volume-counts.js",
   "providerMode": "enabled",
   "policy": {
@@ -27,21 +27,11 @@
     "seriesInVolumeCounts": 51,
     "probeCandidates": 64,
     "checkedCandidates": 64,
-    "detectedChanges": 1,
-    "appliedHighConfidenceChanges": 1,
+    "detectedChanges": 0,
+    "appliedHighConfidenceChanges": 0,
     "blockedOrUnsafe": 80
   },
-  "changes": [
-    {
-      "seriesTitle": "Kagurabachi",
-      "publisher": "Carlsen Manga!",
-      "oldPublishedVolumesDE": 8,
-      "newPublishedVolumesDE": 9,
-      "source": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/5072",
-      "confidence": "high"
-    }
-  ],
+  "changes": [],
   "blockedCandidates": [
     {
       "seriesTitle": "August 9th, I will be eaten by you",
