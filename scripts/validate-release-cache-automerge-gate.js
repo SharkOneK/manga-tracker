@@ -21,7 +21,10 @@ const {
   normalizeTitle,
 } = require('./release-confidence');
 const { validateReleaseVolumeCounts } = require('./validate-release-volume-counts');
-const { validateReleaseCacheVolumeCountsConsistency } = require('./validate-release-cache-volume-counts-consistency');
+const {
+  eligibleCacheBaselines,
+  validateReleaseCacheVolumeCountsConsistency,
+} = require('./validate-release-cache-volume-counts-consistency');
 
 const repoRoot = path.resolve(__dirname, '..');
 
@@ -55,6 +58,19 @@ const REPORT_QUEUE_ONLY_ALLOWLIST = new Set([
 const VOLUME_COUNT_REFRESH_ONLY_ALLOWLIST = new Set([
   'data/release-volume-counts.json',
   'data/release-volume-counts-report.json',
+]);
+
+// Phase 85: union of the two sets above. update-release-cache.yml's
+// --from-cache-only step (scripts/run-release-volume-counts.js) writes the
+// cache-derived volume-counts files in the SAME job and commit as the
+// report/queue files (real-world PR #320), so a bot PR without any
+// data/release-cache.json patch can legitimately contain files from both
+// allowlists at once. Neither individual allowlist covers that mix, and the
+// two existing Sets stay content-unchanged — see
+// evaluateReportQueueWithVolumeCountGate() for the actual checks.
+const REPORT_QUEUE_WITH_VOLUME_COUNT_ALLOWLIST = new Set([
+  ...REPORT_QUEUE_ONLY_ALLOWLIST,
+  ...VOLUME_COUNT_REFRESH_ONLY_ALLOWLIST,
 ]);
 
 const BLOCKED_EXACT = new Set([
@@ -353,6 +369,25 @@ function cacheItems(doc) {
   return doc && Array.isArray(doc.items) ? doc.items : [];
 }
 
+// Phase 85: mirrors countKey() in validate-release-cache-volume-counts-consistency.js
+// (seriesTitle/publisher, not volumeNumber — a volume-counts item is one row per
+// series, unlike a cache item which is one row per volume).
+function countKeyFor(title, publisher, aliasMap) {
+  return `${normalizeTitle(title)}|${normalizePublisher(publisher, aliasMap)}`;
+}
+
+function mapVolumeCountsByKey(doc, aliasMap) {
+  const map = new Map();
+  const items = Array.isArray(doc && doc.items) ? doc.items : [];
+  for (const item of items) {
+    const title = String(item && item.seriesTitle || '').trim();
+    const publisher = String(item && item.publisher || '').trim();
+    if (!title || !publisher) continue;
+    map.set(countKeyFor(title, publisher, aliasMap), item);
+  }
+  return map;
+}
+
 function mapCache(doc, aliasMap) {
   const map = new Map();
   for (const item of cacheItems(doc)) {
@@ -603,16 +638,22 @@ function evaluateVolumeCountRefreshOnlyGate({ normalizedChangedFiles, countsDoc,
   };
 }
 
-function evaluateReportQueueOnlyGate({ normalizedChangedFiles, report, beforeQueue, afterQueue, base }) {
+// Phase 85: shared invariant core of the report/queue-only gate, factored out so
+// evaluateReportQueueWithVolumeCountGate() can apply the identical report/queue
+// rules before layering its own volume-count checks on top — without duplicating
+// (and risking drift of) the cachePatches/safeToPatch/reviewStatus logic. Returns
+// either `{ ok: false, deny: <deny result> }` or `{ ok: true, withCounts }`.
+// No behavior change for the existing report/queue-only caller.
+function checkReportQueueInvariants({ normalizedChangedFiles, report, beforeQueue, afterQueue, base, allowlist, allowlistLabel }) {
   for (const file of normalizedChangedFiles) {
-    if (!REPORT_QUEUE_ONLY_ALLOWLIST.has(file)) {
-      return deny(`Blocked because ${file} is not in the report/queue-only allowlist.`, base);
+    if (!allowlist.has(file)) {
+      return { ok: false, deny: deny(`Blocked because ${file} is not in the ${allowlistLabel} allowlist.`, base) };
     }
   }
 
   const cachePatches = getCachePatchCount(report);
   if (cachePatches === null) {
-    return deny('Blocked because cachePatches could not be determined from the pipeline report.', base);
+    return { ok: false, deny: deny('Blocked because cachePatches could not be determined from the pipeline report.', base) };
   }
 
   const safeToPatchBefore = safeToPatchCount(beforeQueue);
@@ -620,36 +661,57 @@ function evaluateReportQueueOnlyGate({ normalizedChangedFiles, report, beforeQue
   const withCounts = { ...base, cachePatches, safeToPatchBefore, safeToPatchAfter };
 
   if (cachePatches !== 0) {
-    return deny(`Blocked because cachePatches is ${cachePatches}.`, withCounts);
+    return { ok: false, deny: deny(`Blocked because cachePatches is ${cachePatches}.`, withCounts) };
   }
 
   if (safeToPatchAfter > safeToPatchBefore) {
-    return deny('Blocked because safeToPatch=true count increased.', withCounts);
+    return { ok: false, deny: deny('Blocked because safeToPatch=true count increased.', withCounts) };
   }
 
   const newSafeToPatch = findNewSafeToPatch(beforeQueue, afterQueue);
   if (newSafeToPatch.length > 0) {
-    return deny('Blocked because new safeToPatch=true entries were added.', {
-      ...withCounts,
-      newSafeToPatch,
-    });
+    return {
+      ok: false,
+      deny: deny('Blocked because new safeToPatch=true entries were added.', { ...withCounts, newSafeToPatch }),
+    };
   }
 
   const releaseDatesWithoutEvidence = findReleaseDatesWithoutEvidence(beforeQueue, afterQueue);
   if (releaseDatesWithoutEvidence.length > 0) {
-    return deny('Blocked because new releaseDate values require sourceUrl, checkedAt, and evidence.', {
-      ...withCounts,
-      releaseDatesWithoutEvidence,
-    });
+    return {
+      ok: false,
+      deny: deny('Blocked because new releaseDate values require sourceUrl, checkedAt, and evidence.', {
+        ...withCounts,
+        releaseDatesWithoutEvidence,
+      }),
+    };
   }
 
   const unknownReviewStatuses = findUnknownReviewStatuses(afterQueue);
   if (unknownReviewStatuses.length > 0) {
-    return deny('Blocked because the review queue contains unknown reviewStatus values.', {
-      ...withCounts,
-      unknownReviewStatuses,
-    });
+    return {
+      ok: false,
+      deny: deny('Blocked because the review queue contains unknown reviewStatus values.', {
+        ...withCounts,
+        unknownReviewStatuses,
+      }),
+    };
   }
+
+  return { ok: true, withCounts };
+}
+
+function evaluateReportQueueOnlyGate({ normalizedChangedFiles, report, beforeQueue, afterQueue, base }) {
+  const invariants = checkReportQueueInvariants({
+    normalizedChangedFiles,
+    report,
+    beforeQueue,
+    afterQueue,
+    base,
+    allowlist: REPORT_QUEUE_ONLY_ALLOWLIST,
+    allowlistLabel: 'report/queue-only',
+  });
+  if (!invariants.ok) return invariants.deny;
 
   const reportOnly =
     normalizedChangedFiles.length === 1 &&
@@ -661,7 +723,166 @@ function evaluateReportQueueOnlyGate({ normalizedChangedFiles, report, beforeQue
     reason: reportOnly
       ? 'Only release cache pipeline report changed; cachePatches is 0.'
       : 'Only release cache pipeline report and review queue changed; cachePatches is 0; no new safeToPatch entries.',
+    ...invariants.withCounts,
+  };
+}
+
+/**
+ * Phase 85 combo class: report/queue files mixed with the --from-cache-only
+ * volume-count refresh from the same job, no data/release-cache.json patch
+ * (real-world PR #320: data/release-cache-pipeline-report.json +
+ * data/release-volume-counts-report.json, cachePatches=0). Neither existing
+ * class fits: report-queue-only has zero volume-count checks (a silent gate
+ * loosening if the counts files were just added to its allowlist), and
+ * volume-count-refresh-only forbids any report/queue file in the same diff.
+ *
+ * Applies both rule sets cumulatively (report/queue invariants via
+ * checkReportQueueInvariants(), schema/privacy/consistency via the same
+ * validators as evaluateVolumeCountRefreshOnlyGate()), plus three checks that
+ * only apply to this mixed situation:
+ *  - providerMode must be 'from-cache-only' — probe-driven increases are a
+ *    different gate's job (update-release-volume-counts.yml, Phase 43).
+ *  - Monotonicity against the base: no existing count may drop or disappear.
+ *  - Cache coverage of every INCREASE (not the whole document — pre-existing
+ *    counts come from provider probes the cache cannot prove) via
+ *    eligibleCacheBaselines() (stale ∪ graceToday).
+ */
+function evaluateReportQueueWithVolumeCountGate({
+  normalizedChangedFiles,
+  report,
+  beforeQueue,
+  afterQueue,
+  countsDoc,
+  reportDoc,
+  sources,
+  afterCache,
+  beforeCountsDoc,
+  base,
+}) {
+  const invariants = checkReportQueueInvariants({
+    normalizedChangedFiles,
+    report,
+    beforeQueue,
+    afterQueue,
+    base,
+    allowlist: REPORT_QUEUE_WITH_VOLUME_COUNT_ALLOWLIST,
+    allowlistLabel: 'report-queue-with-volume-count-refresh',
+  });
+  if (!invariants.ok) return invariants.deny;
+  const { withCounts } = invariants;
+
+  const countsValidation = validateReleaseVolumeCounts(countsDoc, { sources });
+  if (!countsValidation.ok) {
+    return deny('Blocked because release-volume-counts failed schema/privacy validation.', {
+      ...withCounts,
+      errors: countsValidation.errors.map(e => `release-volume-counts: ${e}`),
+    });
+  }
+
+  if (!isPlainObject(reportDoc)) {
+    return deny('Blocked because release-volume-counts-report is not a JSON object.', withCounts);
+  }
+  if (reportDoc.schemaVersion !== 1) {
+    return deny('Blocked because release-volume-counts-report.schemaVersion must be 1.', withCounts);
+  }
+  if (reportDoc.privacyGateRequired !== true) {
+    return deny('Blocked because release-volume-counts-report.privacyGateRequired must be true.', withCounts);
+  }
+
+  const consistency = validateReleaseCacheVolumeCountsConsistency({
+    cacheDoc: afterCache,
+    countsDoc,
+    reportDoc,
+    sourcesDoc: sources,
+  });
+  if (!consistency.ok) {
+    return deny('Blocked because refreshed volume counts are inconsistent with the release cache.', {
+      ...withCounts,
+      errors: consistency.errors.map(e => `cache/volume-count consistency: ${e}`),
+    });
+  }
+
+  // Herkunft: nur der --from-cache-only-Pfad ist nachweislich monoton und
+  // cache-gedeckt (run-release-volume-counts.js: itemFromCacheEntry/mergeExistingCounts).
+  // Ein Probe-Lauf ('enabled') kann neue externe Werte einbringen und gehoert
+  // nicht in diese Klasse.
+  if (reportDoc.providerMode !== 'from-cache-only') {
+    return deny(
+      'Blocked because release-volume-counts-report.providerMode is not from-cache-only; probe-driven volume counts belong to update-release-volume-counts.yml and its Phase 43 gate.',
+      withCounts,
+    );
+  }
+
+  if (!isPlainObject(beforeCountsDoc) || !Array.isArray(beforeCountsDoc.items)) {
+    // Phase 85 review finding: a plain object without a usable `items` array
+    // (e.g. `{}` or `{"items":null}`) passed the old isPlainObject-only check
+    // and fell through to mapVolumeCountsByKey(), which silently treats a
+    // missing/invalid `items` as an empty map — every current item would then
+    // look like a fresh addition needing cache coverage (fail-safe, but by
+    // accident rather than by design). Deny explicitly instead.
+    return deny('Blocked because the base release-volume-counts document could not be read.', withCounts);
+  }
+
+  const aliasMap = buildPublisherAliasMap(sources);
+  // data/release-sources.json is in BLOCKED_EXACT and cannot change in this PR,
+  // so aliasMap is the same on both sides of the diff — no alias-shift risk of
+  // a key silently "disappearing" between before/after here.
+  const beforeByKey = mapVolumeCountsByKey(beforeCountsDoc, aliasMap);
+  const afterByKey = mapVolumeCountsByKey(countsDoc, aliasMap);
+
+  const regressed = [];
+  for (const [key, beforeItem] of beforeByKey.entries()) {
+    const beforeValue = Number(beforeItem.publishedVolumesDE);
+    const afterItem = afterByKey.get(key);
+    if (!afterItem) {
+      regressed.push(`${key}: removed (was ${beforeValue})`);
+      continue;
+    }
+    if (Number(afterItem.publishedVolumesDE) < beforeValue) {
+      regressed.push(`${key}: ${beforeValue} -> ${afterItem.publishedVolumesDE}`);
+    }
+  }
+  if (regressed.length > 0) {
+    return deny('Blocked because release-volume-counts decreased or dropped an existing item relative to the base.', {
+      ...withCounts,
+      regressedCounts: regressed,
+    });
+  }
+
+  // Cache-Deckung gilt ausschliesslich fuer Erhoehungen (inkl. neuer Keys,
+  // Basiswert 0) — unveraenderte Altbestaende stammen aus Provider-Proben, die
+  // der Cache per Definition nicht beweist; eine pauschale Pruefung des ganzen
+  // Dokuments wuerde den Workflow erneut dauerhaft blocken (Audit-Befund 2).
+  const { stale, graceToday } = eligibleCacheBaselines(afterCache, sources, aliasMap);
+  const uncoveredIncreases = [];
+  let volumeCountIncreases = 0;
+  for (const [key, afterItem] of afterByKey.entries()) {
+    const beforeValue = beforeByKey.has(key) ? Number(beforeByKey.get(key).publishedVolumesDE) : 0;
+    const afterValue = Number(afterItem.publishedVolumesDE);
+    if (afterValue <= beforeValue) continue;
+    volumeCountIncreases += 1;
+
+    const staleVolume = stale.has(key) ? stale.get(key).volumeNumber : -Infinity;
+    const graceVolume = graceToday.has(key) ? graceToday.get(key).volumeNumber : -Infinity;
+    const coveredVolume = Math.max(staleVolume, graceVolume);
+    if (!Number.isFinite(coveredVolume) || coveredVolume < afterValue) {
+      uncoveredIncreases.push(`${key}: increased to ${afterValue} without a matching high-confidence release-cache entry`);
+    }
+  }
+  if (uncoveredIncreases.length > 0) {
+    return deny('Blocked because a volume-count increase is not covered by a high-confidence release-cache entry.', {
+      ...withCounts,
+      uncoveredIncreases,
+    });
+  }
+
+  return {
+    allowed: true,
+    class: 'report-queue-with-volume-count-refresh',
+    reason: 'Release cache pipeline report/review queue and cache-derived volume counts changed together with cachePatches=0; providerMode is from-cache-only, counts are monotone against the base, and every increase is backed by a high-confidence release-cache entry.',
     ...withCounts,
+    volumeCountIncreases,
+    volumeFilesChanged: true,
   };
 }
 
@@ -707,6 +928,7 @@ function evaluateAutoMergeGate({
   sources = { sources: [] },
   countsDoc = { items: [] },
   reportDoc = { blockedCandidates: [] },
+  beforeCountsDoc = null,
 }) {
   const normalizedChangedFiles = [...new Set((changedFiles || []).map(normalizePath).filter(Boolean))].sort();
   const base = { changedFiles: normalizedChangedFiles };
@@ -748,6 +970,28 @@ function evaluateAutoMergeGate({
           base,
         });
       }
+
+      // Phase 85: at least one volume-count file mixed in with report/queue
+      // files (but not exclusively volume-count files, handled above) → the
+      // combo class. onlyVolumeCountFiles===false here already guarantees at
+      // least one non-counts file is present, so this branch is exactly the
+      // "mixed" case, never the pure-counts case.
+      const hasVolumeCountFile = normalizedChangedFiles.some(f => VOLUME_COUNT_REFRESH_ONLY_ALLOWLIST.has(f));
+      if (hasVolumeCountFile) {
+        return evaluateReportQueueWithVolumeCountGate({
+          normalizedChangedFiles,
+          report,
+          beforeQueue,
+          afterQueue,
+          countsDoc: parseJsonInput(countsDoc, 'Release volume counts'),
+          reportDoc: parseJsonInput(reportDoc, 'Release volume counts report'),
+          sources: parseJsonInput(sources, 'Release sources'),
+          afterCache: parseJsonInput(afterCache, 'After release cache'),
+          beforeCountsDoc: parseJsonInput(beforeCountsDoc, 'Before release volume counts'),
+          base,
+        });
+      }
+
       return evaluateReportQueueOnlyGate({ normalizedChangedFiles, report, beforeQueue, afterQueue, base });
     }
 
@@ -911,6 +1155,7 @@ function formatText(result) {
   if (typeof result.reviewQueueWrites === 'number') lines.push(`Review-queue writes: ${result.reviewQueueWrites}`);
   if (typeof result.newQueueKeys === 'number') lines.push(`New review-queue keys: ${result.newQueueKeys}`);
   if (typeof result.removedQueueKeys === 'number') lines.push(`Removed review-queue keys: ${result.removedQueueKeys}`);
+  if (typeof result.volumeCountIncreases === 'number') lines.push(`Volume-count increases: ${result.volumeCountIncreases}`);
   if (Array.isArray(result.errors) && result.errors.length) {
     lines.push('');
     lines.push('Errors:');
@@ -935,6 +1180,7 @@ function main() {
       sources: readJsonFile('data/release-sources.json'),
       countsDoc: readJsonFile('data/release-volume-counts.json'),
       reportDoc: readJsonFile('data/release-volume-counts-report.json'),
+      beforeCountsDoc: readJsonFromGit(args.base, 'data/release-volume-counts.json'),
     });
   } catch (error) {
     result = deny(`Blocked because auto-merge gate setup failed: ${error.message}`, {
@@ -957,6 +1203,8 @@ module.exports = {
   ALLOWLIST,
   ALLOWED_GENERATED_DOCS,
   REPORT_QUEUE_ONLY_ALLOWLIST,
+  VOLUME_COUNT_REFRESH_ONLY_ALLOWLIST,
+  REPORT_QUEUE_WITH_VOLUME_COUNT_ALLOWLIST,
   BLOCKED_EXACT,
   BLOCKED_PREFIXES,
   ALLOWED_REVIEW_STATUS,
