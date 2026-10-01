@@ -213,7 +213,7 @@ jobs:
             echo "Workspace status is logged for diagnostics only and is not part of this auto-merge decision."
             echo ""
             echo "### Gate metrics"
-            node -e "const fs=require('fs'); const r=JSON.parse(fs.readFileSync(process.argv[1], 'utf8')); for (const key of ['cachePatches','changedCacheItems','deletedCacheItems','safeToPatchBefore','safeToPatchAfter','reviewQueueWrites','newQueueKeys','removedQueueKeys']) if (Object.prototype.hasOwnProperty.call(r, key)) console.log('- ' + key + ': ' + r[key])" "$RUNNER_TEMP/automerge-gate.json"
+            node -e "const fs=require('fs'); const r=JSON.parse(fs.readFileSync(process.argv[1], 'utf8')); for (const key of ['cachePatches','changedCacheItems','deletedCacheItems','safeToPatchBefore','safeToPatchAfter','reviewQueueWrites','newQueueKeys','removedQueueKeys','volumeCountIncreases']) if (Object.prototype.hasOwnProperty.call(r, key)) console.log('- ' + key + ': ' + r[key])" "$RUNNER_TEMP/automerge-gate.json"
           } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Enable auto-merge for safe Phase 45 release-cache PRs

@@ -156,6 +156,34 @@ function releaseCacheReportFor(item, overrides = {}) {
   });
 }
 
+// Phase 85: shared fixture for the report-queue-with-volume-count-refresh combo
+// class. Mirrors the real-world PR #320 shape (report/queue files alongside the
+// --from-cache-only counts refresh, no data/release-cache.json patch) while
+// staying on the "allowed" side by default so individual tests only need to
+// override the one field that should trip a deny.
+const comboCacheItem = cacheItem({ releaseDate: '2026-05-01' });
+
+function comboScenario(overrides = {}) {
+  return {
+    changedFiles: [
+      'data/release-cache-pipeline-report.json',
+      'data/release-source-review-queue.json',
+      'data/release-volume-counts.json',
+      'data/release-volume-counts-report.json',
+    ],
+    pipelineReport: report(),
+    beforeQueue: [queueEntry()],
+    afterQueue: [queueEntry()],
+    beforeCache: cacheDoc([comboCacheItem]),
+    afterCache: cacheDoc([comboCacheItem]),
+    countsDoc: volumeCountsDoc([volumeCountItemFromCache(comboCacheItem)]),
+    beforeCountsDoc: volumeCountsDoc([]),
+    reportDoc: volumeCountsReport({ providerMode: 'from-cache-only' }),
+    sources: sourcesDoc,
+    ...overrides,
+  };
+}
+
 function evaluate(overrides = {}) {
   return evaluateAutoMergeGate({
     changedFiles: allowedReportQueueFiles,
@@ -745,6 +773,166 @@ const tests = [
       const parsed = JSON.parse(JSON.stringify(evaluate()));
       assert.strictEqual(typeof parsed.allowed, 'boolean');
       assert.ok(Array.isArray(parsed.changedFiles));
+    },
+  ],
+
+  // ── Phase 85: report-queue-with-volume-count-refresh combo class ──────────
+  // Real-world trigger: PR #320 (automated/release-cache-pipeline, opened
+  // 2026-09-29) carried data/release-cache-pipeline-report.json and
+  // data/release-volume-counts-report.json without any data/release-cache.json
+  // patch and was wrongly denied as "not in the report/queue-only allowlist".
+  [
+    'report/queue files with a cache-covered volume-count increase is allowed as the combo class',
+    () => {
+      const result = evaluate(comboScenario());
+      assertAllowed('combo allowed', result);
+      assert.strictEqual(result.class, 'report-queue-with-volume-count-refresh');
+      assert.strictEqual(result.volumeCountIncreases, 1);
+    },
+  ],
+  [
+    'combo with an unallowlisted path blocks at the Phase 45 allowlist',
+    () =>
+      assertBlocked(
+        'combo unallowlisted path',
+        evaluate(comboScenario({
+          changedFiles: [
+            ...comboScenario().changedFiles,
+            'artifacts/release-cache-coverage-report.json',
+          ],
+        })),
+        /is not in the Phase 45 allowlist/,
+      ),
+  ],
+  [
+    'combo with a non-allowlisted docs path blocks',
+    () =>
+      assertBlocked(
+        'combo docs path',
+        evaluate(comboScenario({
+          changedFiles: [...comboScenario().changedFiles, 'docs/some-other-doc.md'],
+        })),
+        /docs\//,
+      ),
+  ],
+  [
+    'combo with cachePatches > 0 but no release-cache.json in the diff blocks',
+    () =>
+      assertBlocked(
+        'combo cachePatches > 0',
+        evaluate(comboScenario({ pipelineReport: report({ summary: { cachePatches: 1 } }) })),
+        /cachePatches is 1/,
+      ),
+  ],
+  [
+    // Der Kerntest: eine Counts-Erhoehung, die der Cache nicht beweist, ist der
+    // Tamper-Fall, gegen den die Kombi-Klasse ueberhaupt erst gebaut wurde.
+    'combo with a volume-count increase not covered by the release cache blocks',
+    () =>
+      assertBlocked(
+        'combo uncovered increase',
+        evaluate(comboScenario({
+          countsDoc: volumeCountsDoc([volumeCountItemFromCache(comboCacheItem, { publishedVolumesDE: 2 })]),
+        })),
+        /not covered by a high-confidence release-cache entry/,
+      ),
+  ],
+  [
+    // Das entfernte Item ist bewusst NICHT im Cache (kein stale/graceToday-
+    // Baseline) — sonst wuerde bereits die Phase-43-Konsistenzpruefung greifen,
+    // bevor die neue Monotonie-Pruefung ueberhaupt zum Zug kommt.
+    'combo with a decreased or removed volume-count item blocks',
+    () => {
+      const unrelatedCountItem = {
+        seriesTitle: 'Other Series',
+        publisher: 'Egmont Manga',
+        publishedVolumesDE: 5,
+        source: 'manga-passion',
+        sourceUrl: comboCacheItem.sourceUrl,
+        confidence: 'high',
+        checkedAt: comboCacheItem.checkedAt,
+      };
+      assertBlocked(
+        'combo regressed counts',
+        evaluate(comboScenario({
+          beforeCountsDoc: volumeCountsDoc([volumeCountItemFromCache(comboCacheItem), unrelatedCountItem]),
+          countsDoc: volumeCountsDoc([volumeCountItemFromCache(comboCacheItem)]),
+        })),
+        /decreased or dropped/,
+      );
+    },
+  ],
+  [
+    'combo with providerMode other than from-cache-only blocks',
+    () =>
+      assertBlocked(
+        'combo providerMode enabled',
+        evaluate(comboScenario({ reportDoc: volumeCountsReport({ providerMode: 'enabled' }) })),
+        /providerMode is not from-cache-only/,
+      ),
+  ],
+  [
+    'combo with a new safeToPatch queue entry blocks under the report/queue rules',
+    () =>
+      assertBlocked(
+        'combo new safeToPatch',
+        evaluate(comboScenario({
+          afterQueue: [
+            queueEntry({
+              safeToPatch: true,
+              reviewStatus: 'ready-to-patch',
+              sourceUrl: 'https://example.com',
+              releaseDate: '2026-06-01',
+              evidence: 'source',
+              checkedAt: '2026-05-20T00:00:00.000Z',
+            }),
+          ],
+        })),
+        /safeToPatch=true count increased/,
+      ),
+  ],
+  [
+    'combo with a missing base volume-counts document blocks fail-closed',
+    () =>
+      assertBlocked(
+        'combo missing beforeCountsDoc',
+        evaluate(comboScenario({ beforeCountsDoc: null })),
+        /could not evaluate safely/,
+      ),
+  ],
+  [
+    'combo with a base volume-counts document lacking a usable items array blocks fail-closed',
+    () =>
+      // Phase 85 review finding: {} or {"items":null} is a plain object and used
+      // to pass the old isPlainObject-only check, silently falling through to an
+      // empty before-map in mapVolumeCountsByKey(). Distinct from the null case
+      // above (which throws in parseJsonInput and hits the outer catch instead).
+      assertBlocked(
+        'combo beforeCountsDoc without items array',
+        evaluate(comboScenario({ beforeCountsDoc: {} })),
+        /could not be read/,
+      ),
+  ],
+  [
+    'regression: the three pre-existing classes are unaffected by the combo class',
+    () => {
+      const onlyCounts = evaluate({
+        changedFiles: ['data/release-volume-counts.json', 'data/release-volume-counts-report.json'],
+        beforeCache: cacheDoc([comboCacheItem]),
+        afterCache: cacheDoc([comboCacheItem]),
+        countsDoc: volumeCountsDoc([volumeCountItemFromCache(comboCacheItem)]),
+        reportDoc: volumeCountsReport(),
+      });
+      assertAllowed('regression volume-count-refresh-only', onlyCounts);
+      assert.strictEqual(onlyCounts.class, 'volume-count-refresh-only');
+
+      const reportAndQueue = evaluate();
+      assertAllowed('regression report-queue-only', reportAndQueue);
+      assert.strictEqual(reportAndQueue.class, 'report-queue-only');
+
+      const reportOnly = evaluate({ changedFiles: ['data/release-cache-pipeline-report.json'] });
+      assertAllowed('regression report-only', reportOnly);
+      assert.strictEqual(reportOnly.class, 'report-only');
     },
   ],
 ];

@@ -6,12 +6,52 @@ wird nur dann automatisch gemerged, wenn ein Gate-Skript ihn ausdrücklich erlau
 
 | Workflow | Gate | Allow-Klasse |
 | --- | --- | --- |
-| `update-release-cache.yml` | `scripts/validate-release-cache-automerge-gate.js` | `release-cache-high-confidence-only`, `release-cache-with-volume-count-refresh`, `report-only`, `report-queue-only`, `volume-count-refresh-only` |
+| `update-release-cache.yml` | `scripts/validate-release-cache-automerge-gate.js` | `release-cache-high-confidence-only`, `release-cache-with-volume-count-refresh`, `report-only`, `report-queue-only`, `volume-count-refresh-only`, `report-queue-with-volume-count-refresh` |
 | `update-release-volume-counts.yml` | `scripts/validate-release-volume-counts-automerge-gate.js` | `release-volume-counts-only` |
 | `update-series-publication-status.yml` | `scripts/validate-bot-data-automerge-gate.js --domain series-publication-status` | `series-publication-status-only` |
 | `update-tmdb-catalog.yml` | `scripts/validate-bot-data-automerge-gate.js --domain tmdb-series-catalog` | `tmdb-series-catalog-only` |
 
 Details zum Release-Cache-Gate stehen in [`docs/release-cache-automation.md`](release-cache-automation.md).
+
+## Kombi-Klasse `report-queue-with-volume-count-refresh` (Phase 85)
+
+`update-release-cache.yml` ruft im selben Job `run-release-volume-counts.js --from-cache-only`
+auf und legt alle fünf Datendateien in denselben Bot-PR (reales Beispiel: PR #320, nur
+Pipeline-Report + Volume-Counts-Report geändert, kein Cache-Patch). Ohne
+`data/release-cache.json` im Diff kannte das Gate bisher nur zwei Klassen: „nur die beiden
+Counts-Dateien" (`volume-count-refresh-only`) oder „sonst" (`report-queue-only`, ohne jede
+Counts-Prüfung) — eine Mischung aus Report/Queue- **und** Counts-Dateien fiel durchs Raster und
+wurde mit „not in the report/queue-only allowlist" geblockt. Die Counts-Dateien einfach in die
+report/queue-Allowlist aufzunehmen war keine Option: diese Klasse prüft ausschließlich
+`cachePatches === 0`/`safeToPatch`/`reviewStatus` und hätte für Bandstände keine einzige
+Schema-, Privacy- oder Cache-Konsistenzprüfung — eine echte Gate-Lockerung.
+
+Die neue Klasse wendet daher **beide** bestehenden Regelwerke kumulativ an, in dieser
+Reihenfolge (jede Verletzung ist sofort ein Deny):
+
+1. Jede geänderte Datei muss in der Union aus `REPORT_QUEUE_ONLY_ALLOWLIST` und
+   `VOLUME_COUNT_REFRESH_ONLY_ALLOWLIST` liegen.
+2. Report/Queue-Invarianten (identisch zu `report-queue-only`): `cachePatches === 0`, kein
+   `safeToPatch`-Anstieg, keine neuen `releaseDate`-Werte ohne Beleg, nur bekannte
+   `reviewStatus`-Werte.
+3. Volume-Counts-Invarianten (identisch zu `volume-count-refresh-only`): Schema/Privacy
+   (`validateReleaseVolumeCounts`), `schemaVersion`/`privacyGateRequired`, Cache-Konsistenz
+   (`validateReleaseCacheVolumeCountsConsistency`).
+4. **Herkunft:** `providerMode === 'from-cache-only'` — probenbasierte Erhöhungen gehören zu
+   `update-release-volume-counts.yml` und seinem Phase-43-Gate, nicht hierher.
+5. **Monotonie gegen die Basis:** kein `publishedVolumesDE`-Wert darf sinken, kein in der Basis
+   vorhandener Schlüssel darf verschwinden (`beforeCountsDoc` aus `git show <base>`).
+6. **Cache-Deckung jeder Erhöhung:** für jeden Schlüssel, dessen Wert steigt (inkl. neuer
+   Schlüssel, Basiswert 0), muss `eligibleCacheBaselines()` (stale ∪ graceToday) einen
+   Cache-Eintrag mit mindestens diesem Bandwert liefern. Diese Prüfung gilt **ausschließlich für
+   Erhöhungen** — unveränderte Altbestände stammen aus Provider-Proben, die der Cache per
+   Definition nicht beweist; eine pauschale Prüfung des ganzen Dokuments würde den Workflow
+   erneut dauerhaft blocken (dasselbe Deadlock-Muster, das Phase 83 bereits zweimal gelöst hat).
+
+Fehlt `beforeCountsDoc` (z. B. Basis-Ref ohne die Datei) oder ist es nicht parsebar, ist das
+fail-closed ein Deny. Nur eine der beiden Counts-Dateien im Diff bleibt erlaubt (`generatedAt`
+kann stabil bleiben, siehe `stableGeneratedAt()` in `run-release-volume-counts.js`); die Klasse
+erzwingt nicht „beide Dateien geändert".
 
 ## Gemeinsames Gate für zwei Datendomänen
 
