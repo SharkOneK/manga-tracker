@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-29T10:48:59.125Z",
+  "generatedAt": "2026-10-02T10:37:14.700Z",
   "items": [
     {
       "seriesTitle": "Adou",
@@ -356,11 +356,11 @@
     {
       "seriesTitle": "Spy x Family",
       "publisher": "KAZÉ Manga",
-      "publishedVolumesDE": 15,
+      "publishedVolumesDE": 16,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/364",
       "confidence": "high",
-      "checkedAt": "2026-05-25T05:48:59.277Z"
+      "checkedAt": "2026-10-02T10:37:14.700Z"
     },
     {
       "seriesTitle": "The Eminence in Shadow",
