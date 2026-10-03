@@ -1494,6 +1494,48 @@ function importSyncDecision(mode, collId) {
   return collId ? 'sync' : 'no-collection';
 }
 
+// Phase 86: reine Entscheidungsfunktionen für die Self-Service-Erstellung der
+// eigenen Sammlung — bewusst DOM-/localStorage-frei und damit offline testbar
+// (scripts/test-phase86-self-service-collection.js spiegelt sie), gleiche
+// Begründung wie bei importSyncDecision() oben.
+//
+// Was der Klick auf „✨ Eigene Sammlung starten" im jeweiligen App-Modus bedeutet:
+//   'leave-public-view'     — ?view=…: raus aus der fremden Sammlung (Login-UI ist
+//                             dort per Design aus, Phase 53) → kein RPC-Aufruf
+//   'need-login'            — ohne Session: erst anmelden
+//   'already-has-collection'— angemeldet und Sammlung bekannt: nichts zu tun
+//   'create'                — angemeldet, keine Sammlung: RPC aufrufen
+function startOwnCollectionIntent(mode, collId) {
+  if (mode === 'public-readonly')  return 'leave-public-view';
+  if (mode === 'locked')           return 'need-login';
+  if (mode === 'cloud-owner-edit') return collId ? 'already-has-collection' : 'create';
+  return 'skip';
+}
+
+// Nutzertexte zu den Result-Codes von create_my_collection(). Der Default-Zweig
+// fängt unbekannte/künftige Codes ab (ok:false, generischer Text) — es darf kein
+// RPC-Jargon in die UI gelangen.
+function createCollectionFeedback(result) {
+  switch (result) {
+    case 'created':
+      return { ok: true,  toast: '✨ Deine Sammlung ist angelegt — Einträge sind über den Teilen-Link öffentlich lesbar.' };
+    case 'exists':
+      return { ok: true,  toast: 'ℹ️ Du hast schon eine Sammlung — sie wird geladen.' };
+    case 'rate_limited':
+      return { ok: false, toast: '⏳ Gerade wurden viele Sammlungen angelegt — bitte in einer Stunde noch mal versuchen.' };
+    case 'capacity_reached':
+      return { ok: false, toast: '🚧 Hier ist gerade kein Platz für neue Sammlungen.' };
+    case 'not_allowed':
+      return { ok: false, toast: '🔒 Bitte bestätige zuerst deine E-Mail-Adresse.' };
+    case 'unauthenticated':
+      return { ok: false, toast: '🔒 Bitte zuerst anmelden.' };
+    case 'error':
+      return { ok: false, toast: '⚠️ Verbindungsproblem — Sammlung konnte nicht angelegt werden.' };
+    default:
+      return { ok: false, toast: '⚠️ Sammlung konnte nicht angelegt werden — bitte später erneut versuchen.' };
+  }
+}
+
 // UUID-Validator für View-IDs
 function isUuid(v) {
   return typeof v === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(v);
@@ -1506,6 +1548,10 @@ function applyReadOnly() {
   document.getElementById('btn-share-profile').style.display = 'none';
   // Phase 53: kein Login-Einstiegspunkt in der öffentlichen Ansicht.
   const acct = document.getElementById('btn-account'); if (acct) acct.style.display = 'none';
+  // Phase 86: das Create-Banner gehört ausschließlich in den Zustand
+  // „angemeldet, aber noch keine Sammlung".
+  const noColl = document.getElementById('no-collection-banner');
+  if (noColl) noColl.style.display = 'none';
 }
 
 // Phase 51 (Etappe 7): strict login gate. When not signed in, hide owner actions
@@ -1515,6 +1561,9 @@ function applyLockedState() {
   const banner = document.getElementById('login-gate-banner');
   if (!isLocked()) { if (banner) banner.style.display = 'none'; return; }
   if (banner) banner.style.display = 'flex';
+  // Phase 86: ohne Session wäre der Create-Button wirkungslos → Banner aus.
+  const noColl = document.getElementById('no-collection-banner');
+  if (noColl) noColl.style.display = 'none';
   const add = document.getElementById('btn-add');           if (add) add.style.display = 'none';
   const share = document.getElementById('btn-share-profile'); if (share) share.style.display = 'none';
   setSyncStatus('🔒', 'Anmeldung erforderlich');
@@ -1531,10 +1580,58 @@ function shareProfile() {
   }
 }
 
-function startOwnCollection() {
-  // INSERT auf public.collections ist serverseitig verboten. Neue Sammlungen entstehen
-  // nur ueber einen separaten Setup-Prozess + Adopt-Link, der den Owner-Token liefert.
-  toast('ℹ️ Eigene Sammlung kann aktuell nur über einen neuen Adopt-Link/Setup-Prozess erstellt werden.');
+// Phase 86: Doppelklick-Sperre für startOwnCollection(). Zweiter Gürtel ist der
+// Unique-Index collections_user_id_unique samt unique_violation-Handler in der RPC.
+let _creatingCollection = false;
+
+// Phase 86: echter Self-Service-Flow statt des früheren Adopt-Link-Hinweises.
+// Entstehungspfad ist ausschließlich die RPC create_my_collection()
+// (supabase/migrations/20261002_phase86_create_my_collection.sql); ein INSERT-Recht
+// auf public.collections hat der Client weiterhin nicht.
+async function startOwnCollection() {
+  const intent = startOwnCollectionIntent(getAppMode(), _collId);
+  if (intent === 'leave-public-view') {
+    // Öffentliche Ansicht: ?view=… verlassen und im Login-Gate der eigenen
+    // Instanz landen — damit ist der Button im #readonly-banner nicht mehr tot.
+    window.location.assign(window.location.pathname);
+    return;
+  }
+  if (intent === 'need-login') {
+    toast('🔒 Bitte zuerst anmelden — danach legst du deine Sammlung mit einem Klick an.');
+    openAccount();
+    return;
+  }
+  if (intent === 'already-has-collection') {
+    toast('ℹ️ Du hast bereits eine eigene Sammlung.');
+    return;
+  }
+  if (intent !== 'create') return;
+  if (_creatingCollection) return;
+  _creatingCollection = true;
+  try {
+    setSyncStatus('🔄', 'Sammlung wird erstellt…');
+    const res = await SupabaseAdapter.createMyCollection();
+    const feedback = createCollectionFeedback(res && res.result);
+    toast(feedback.toast);
+    const newId = (res && typeof res.collectionId === 'string') ? res.collectionId : '';
+    if (!feedback.ok || !newId) {
+      // Auch bei 'created' ohne gültige ID bleibt _collId unverändert — kein
+      // Teilzustand, kein mtCollId-Schreiben.
+      setSyncStatus('⚠️', 'Sammlung konnte nicht erstellt werden');
+      return;
+    }
+    _collId = newId;
+    try { localStorage.setItem('mtCollId', _collId); } catch (_) {}
+    const banner = document.getElementById('no-collection-banner');
+    if (banner) banner.style.display = 'none';
+    // Lokalen Bestand nicht liegen lassen: liegt schon etwas lokal, wird es
+    // hochgeladen; sonst den (leeren) Cloud-Stand laden.
+    if (validateDatabase() && db.m.length > 0) await pushCloud();
+    else await loadFromCloud();
+    render();
+  } finally {
+    _creatingCollection = false;
+  }
 }
 
 async function loadViewCollection() {
@@ -5665,7 +5762,11 @@ async function discoverAndLoadOwnCollection() {
       try { localStorage.setItem('mtCollId', _collId); } catch (_) {}
       await loadFromCloud();
     } else {
-      setSyncStatus('💾', 'Angemeldet – keine eigene Sammlung gefunden (zuerst „Sammlung übernehmen“)');
+      // Phase 86: statt eines toten Hinweises der echte Einstieg — Banner mit dem
+      // Create-Button einblenden (Muster wie applyLockedState()).
+      setSyncStatus('💾', 'Angemeldet – noch keine eigene Sammlung');
+      const banner = document.getElementById('no-collection-banner');
+      if (banner) banner.style.display = 'flex';
     }
   } catch (e) {
     console.warn('[Phase 51] Sammlungs-Discovery fehlgeschlagen:', e && e.message);

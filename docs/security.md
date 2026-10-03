@@ -11,8 +11,15 @@ Frühere Fassungen dieser Datei beschrieben ein Owner-Token-Modell (Schreibgehei
 Browser-localStorage). Dieses Modell ist seit Phase 51 als Autorisierungsmechanismus
 serverseitig abgeschafft (gedroppt); Phase 84 hat zusätzlich die letzten Client-Reste
 entfernt und einen davon abhängigen Import-Sync-Bug behoben — siehe „Auth-Modell". Jede
-Aussage in dieser Datei ist gegen den Code-/Migrationsstand von Phase 84 verifiziert; wo
+Aussage in dieser Datei ist gegen den Code-/Migrationsstand von Phase 86 verifiziert; wo
 Unsicherheit bestand, wurde die Aussage weggelassen statt geraten.
+
+Phase 86 hat einen zusätzlichen, kontrollierten **Entstehungspfad** für Sammlungen
+eingeführt (Self-Service-Erstellung über eine SECURITY-DEFINER-RPC). Die Migration ist
+**am 2026-10-03 angewendet und nachgemessen** — der Dateikopf sagt das ausdrücklich
+(`APPLIED 2026-10-03 to project sssxiqtnkctvyghyrqff via MCP apply_migration`,
+`supabase/migrations/20261002_phase86_create_my_collection.sql:3`). Details zur Messung im
+Abschnitt „RPC-Rechte" unten.
 
 ## Auth-Modell
 
@@ -61,11 +68,11 @@ lassen (Audit-Befund 22):
   publishable Key (einziger Aufrufer: `fetchPublicCollection()`, `src/supabase.js:195`).
 
 Diese Bereinigung war nicht nur kosmetisch: Der alte Import-Sync-Gate in `handleImportFile()`
-(`src/app.js:2224`) prüfte `if (_collId && _ownerToken)` — für reine Session-Nutzer
+(`src/app.js:2321`) prüfte `if (_collId && _ownerToken)` — für reine Session-Nutzer
 (Passkey/E-Mail-OTP, kein Adopt-Link) war `_ownerToken` immer `null`, wodurch der Cloud-Sync
 nach einem Import **still übersprungen** wurde, obwohl der Erfolgs-Toast erschien (stiller
 Datenverlust, Audit-Befund 22). Seit Phase 84 entscheidet die reine Funktion
-`importSyncDecision(mode, collId)` (`src/app.js:2284`, aufgerufen mit `getAppMode()` und
+`importSyncDecision(mode, collId)` (`src/app.js:2381`, aufgerufen mit `getAppMode()` und
 `_collId`) dreiwertig: `'sync'` löst `pushCloud()` aus, `'no-collection'` zeigt einen
 Hinweis-Toast statt stillem Skip, `'skip'` verhindert jeden Schreibversuch außerhalb von
 `cloud-owner-edit`. `canWriteCloud()` bleibt am Aufrufort zusätzlich als zweiter Gürtel stehen.
@@ -83,6 +90,51 @@ beide Policies rein nicht-funktional umgestellt: `auth.uid()` wird jetzt als
 `(select auth.uid())` ausgewertet, also einmal pro Query als InitPlan statt pro Zeile
 (`supabase/migrations/20260926_phase81_audit_hardening.sql:72-77`, Behebung von Supabase-Lint
 `0003_auth_rls_initplan`). Die Prädikatslogik selbst ist unverändert geblieben.
+
+**Schreibrechte und Entstehungspfad (Phase 86).** Es gibt weiterhin **kein** INSERT-Policy
+und **keinen** INSERT-Grant für `anon`/`authenticated` auf `public.collections`; der
+Phase-27b-Entzug (`revoke insert, delete`) gilt unverändert. Neue Zeilen entstehen
+ausschließlich über die RPC `create_my_collection()`
+(`supabase/migrations/20261002_phase86_create_my_collection.sql:81`), die als SECURITY
+DEFINER läuft und den INSERT damit unter dem Tabellen-Owner ausführt (RLS-Bypass genau an
+dieser einen, engen Stelle statt eines breiten Tabellenrechts). Die Funktion ist
+parameterlos und hängt vollständig an `auth.uid()` — ein Aufrufer kann weder eine fremde
+`user_id` setzen noch eine zweite Sammlung anlegen. Abgesichert ist sie dreifach:
+
+- **Konto-Gate**: nur Konten mit bestätigter E-Mail (`email_confirmed_at`,
+  `supabase/migrations/20261002_phase86_create_my_collection.sql:126`). Das blockt
+  unbestätigte Adressen und anonyme Sign-ins, ohne von einer `is_anonymous`-Spalte
+  abzuhängen. **Wichtige Einschränkung**: die Wirksamkeit hängt an einer
+  Supabase-Projekteinstellung — ist „Confirm email" im Auth-Setup deaktiviert, setzt
+  Supabase `email_confirmed_at` schon bei der Registrierung, und der Check ist ein
+  No-Op. Bei offener Registrierung ohne Allowlist ist das der Unterschied zwischen
+  „nur erreichbare Adressen" und „jeder"; die Einstellung ist deshalb vor dem
+  Anwenden der Migration zu verifizieren (Punkt 3 der Apply-Checkliste am Ende der
+  Migrationsdatei).
+- **Eine Sammlung pro Nutzer**: Vorabcheck in der Funktion **plus** ein Unique-Index
+  `collections_user_id_unique`
+  (`supabase/migrations/20261002_phase86_create_my_collection.sql:70`). Der Index ist der
+  belastbare Teil — der Vorabcheck allein ist bei parallelen Aufrufen nicht dicht; der
+  `unique_violation`-Zweig der Funktion antwortet dann idempotent mit dem bestehenden
+  Datensatz statt mit einem Fehler.
+- **Globale Spam-Deckel**: maximal 5 neue Sammlungen pro Stunde und 50 Zeilen insgesamt, als
+  benannte Konstanten (`max_per_hour`,
+  `supabase/migrations/20261002_phase86_create_my_collection.sql:94`) und per Folgemigration
+  anpassbar. Beide Zählungen sind global, weil der Missbrauchsvektor „viele frische Accounts"
+  ist; sie lesen nur `count(*)` und geben keine Zeilendaten preis.
+
+Das ist eine bewusste **Produktentscheidung**: Mehrbenutzerbetrieb ist gewollt, eine
+Allowlist bzw. Einladungspflicht gibt es deshalb **nicht**. Der Preis dafür sind die
+Deckel oben — bei Missbrauch ist die Reaktion eine Folgemigration (Grenzen senken oder
+`EXECUTE` entziehen), kein Code-Deploy. Für das Rate-Limit trägt die Tabelle seit Phase 86
+eine Spalte `created_at`
+(`supabase/migrations/20261002_phase86_create_my_collection.sql:58`) — bewusst **ohne**
+jeden Grant, also für `anon`/`authenticated` unsichtbar.
+
+Clientseitig rufen `createMyCollection()` (`src/supabase.js:396`) und
+`startOwnCollection()` (`src/app.js:1591`) diesen Pfad auf; der Button dafür steht im
+Banner `id="no-collection-banner"` (`index.html:96`), das ausschließlich im Zustand
+„angemeldet, aber noch keine Sammlung" sichtbar ist.
 
 `view_token_hash` ist **bewusst belassen** — er gehört zum Sharing-Pfad und wird, anders als
 der frühere `owner_token`/`owner_token_hash`, nicht als tot behandelt
@@ -107,6 +159,29 @@ Der Client baut die ausgelieferte Projektion serverseitig-kompatibel mit
 Sammlungsstatus, Cover) in `public_data` schreibt — Notizen, Lesedaten, Kaufdaten, ISBN-13
 und interne Manga-Passion-IDs bleiben ausschließlich in der privaten `data`-Spalte.
 
+Die Phase-86-Migration lässt die View, ihre Spaltenliste und die Grants **unverändert** —
+nachgewiesen per Grep im Testskript (siehe „Automatische Guards"). Neu angelegte, leere
+Sammlungen tragen in `data` und `public_data` genau die kanonische leere Projektion
+(`schemaVersion` plus leeres `m`-Array, identisch zu dem, was
+`buildPublicCollectionData()` im Client für eine leere Sammlung liefert) und
+`visibility = 'public'`. Letzteres ist bewusst so: es gibt noch keine
+Sichtbarkeits-UI, ein privater Default würde den Teilen-Link ins Leere zeigen. Die neue
+Spalte `created_at` ist **nicht** Teil der View und hat keinen Grant — die öffentliche
+Ausgabe enthält also kein einziges neues Feld.
+
+**Der Preis des `public`-Defaults, ehrlich benannt.** Der `grant select` auf die View gilt
+für `anon` **ohne ID-Filter**: wer den publishable Key hat, kann die Projektion nicht nur
+gezielt abrufen, sondern auch **auflisten**. Jede über Phase 86 angelegte Sammlung ist damit
+ab dem ersten Eintrag weltweit lesbar und aufzählbar, ohne dass der Eigentümer je „teilen"
+geklickt hat. Der Mechanismus ist Alt-Bestand (Phase 21b/27b), **neu ist die Reichweite**:
+vorher der Eigentümer plus Empfänger eines Teilen-Links, jetzt jeder, der sich registriert.
+Das ist eine bewusste Entscheidung (Annahme A3 der Phase-86-Spec: ohne Sichtbarkeits-UI
+wäre ein privater Default ein toter Teilen-Link), aber eine, die der Nutzer vor dem Klick
+wissen soll — deshalb nennen sowohl der Banner-Text `id="no-collection-banner"`
+(`index.html:96`) als auch der Erfolgs-Toast in `createCollectionFeedback()`
+(`src/app.js:1518`) die öffentliche Lesbarkeit ausdrücklich. Ein
+Sichtbarkeits-Umschalter bleibt Backlog-Kandidat.
+
 ## RPC-Rechte
 
 Phase 81 hat `anon` das `EXECUTE`-Recht auf sechs `security definer`-Funktionen entzogen:
@@ -123,6 +198,35 @@ public, anon`, danach **immer** mit `has_function_privilege()` nachmessen statt 
 `success`-Status des Statements zu vertrauen. Das ausführliche Beispiel und die
 Nachmess-Query stehen in `supabase/migrations/README.md` (Abschnitt „Fallstrick: EXECUTE-
 Rechte richtig entziehen") und werden hier bewusst nicht dupliziert.
+
+Phase 86 fügt mit `create_my_collection()` eine weitere `security definer`-Funktion hinzu
+und folgt für deren Rechte genau dem Phase-81-Muster — also
+`revoke execute on function public.create_my_collection() from public, anon`
+(`supabase/migrations/20261002_phase86_create_my_collection.sql:201`) und erst danach
+`grant execute on function public.create_my_collection() to authenticated`
+(`supabase/migrations/20261002_phase86_create_my_collection.sql:207`). Der Entzug nennt
+`public` ausdrücklich mit; nur `anon` zu entziehen wäre wegen der oben beschriebenen
+PUBLIC-Vererbung wirkungslos.
+
+Abweichend von Phase 81 vergibt die Migration **nur** an `authenticated` ein `EXECUTE` und
+an keine Server-Rolle: die Funktion wertet ausschließlich `auth.uid()` aus und wäre ohne
+Session wirkungslos (sie würde `unauthenticated` zurückgeben). Eine Rolle zu berechtigen,
+für die der Aufruf keinen Effekt haben kann, vergrößert nur die Angriffsfläche — dieselbe
+Begründung wie bei `get_my_collection_ids()`
+(`supabase/migrations/phase51b_get_my_collection_ids.sql:26`).
+
+**Nachgemessen am 2026-10-03** (Migration angewendet, `has_function_privilege()` direkt
+gegen das Projekt geprüft, nicht nur gegen die Datei): `anon` → `false`, `authenticated` →
+`true`. `service_role` hielt das Recht zunächst `true` — eine Supabase-Standardvergabe an
+alle `public`-Funktionen, nicht durch diese Migration verursacht, aber auf einem offenen
+Schreibpfad unerwünscht. Härtung per Folgemigration
+`20261003_phase86b_revoke_service_role.sql`: `revoke execute … from service_role`, danach
+erneut gemessen → `false`. Zusätzlich ein echter Testaufruf als angemeldeter Nutzer ohne
+Sammlung: erster Aufruf `created`, zweiter Aufruf `exists` mit identischer `collection_id`,
+`count(*)` auf `public.collections` genau `+1`. Alle Vorbedingungen (keine doppelten
+`user_id`-Zeilen, Tabellen-Owner = Funktions-Owner, „Confirm email" aktiv/„Anonymous
+sign-ins" aus) waren vor dem Anwenden erfüllt — Details in der Apply-Checkliste am
+Dateiende der Migration.
 
 ## Client-Härtung
 
@@ -208,6 +312,21 @@ Mehrere statische Prüfungen laufen gebündelt über `scripts/run-all-checks.js`
   (`importSyncDecision()`), die Token-Freiheit von `src/app.js`/`src/supabase.js`/`src/auth.js`
   und die `src/…:ZEILE`-Referenzen in dieser Datei (verhindert die Zeilen-Drift, die in
   Phase 82/83 Reviewer-Blocker war).
+- `scripts/test-phase86-self-service-collection.js` — Regressionstest für den
+  Self-Service-Entstehungspfad: die beiden reinen Client-Entscheidungen
+  (`startOwnCollectionIntent()`, `createCollectionFeedback()`) als gespiegelte Kopien sowie
+  statische Guards auf der Migration (Guard-Reihenfolge, Unique-Index, `unique_violation`,
+  Revoke/Grant-Muster, INSERT-Spaltenliste) und auf dem Client. Vier Verbote sind dabei
+  explizit festgenagelt: kein `grant insert`, kein INSERT-Policy, kein Grant an eine
+  Server-Rolle und keine Berührung der Public Projection. **Alle** SQL-Prüfungen — auch die
+  positiven — laufen auf dem von `--`-Kommentaren befreiten SQL: so darf die Migration ihre
+  Nicht-Entscheidungen im Kommentar begründen, und umgekehrt ist kein Positivcheck durch
+  einen auskommentierten Textbaustein erfüllbar. Das Server-Rollen-Verbot greift gezielt auf
+  `grant`-Statements, damit ein späteres `revoke execute … from service_role` (die richtige
+  Reaktion, falls das Nachmessen ein Altrecht zeigt) nicht am eigenen Guard scheitert.
+- `scripts/test-rpc-contracts.js` — jeder in `src/supabase.js` aufgerufene RPC muss in einer
+  Migration mit passender Signatur deklariert sein; die Self-Checks zählen seit Phase 86
+  gegen `KNOWN_RPCS.length` statt gegen eine fest eingetragene Zahl.
 - `scripts/check-secrets.js` — Secret-Scan (siehe oben).
 
 Zusätzlich in CI: CodeQL-Code-Scanning (`.github/workflows/codeql.yml`, wöchentlicher
@@ -237,4 +356,7 @@ geleert, schlägt der Smoke-Test rot. Zusätzlich sorgt der Orphan-Guard (ebenfa
 Owner-Token serverseitig abgeschafft) → Phase 64 (JSZip-SRI) → Phase 69 (Service Worker/PWA)
 → Phase 73 (CSP-Bump für AniList) → Phase 81 (RPC-`anon`-Härtung, RLS-InitPlan) → Phase 82
 (diese Doku neu geschrieben, Smoke-Test prüft Inhalt statt Existenz) → Phase 84 (letzte
-Client-seitige Owner-Token-Reste entfernt, Import-Sync-Gate auf Session-Modus umgestellt).
+Client-seitige Owner-Token-Reste entfernt, Import-Sync-Gate auf Session-Modus umgestellt)
+→ Phase 86 (Self-Service-Collection-Erstellung: ein einziger kontrollierter
+Entstehungspfad per SECURITY-DEFINER-RPC, Unique-Index auf `user_id`, Konto-Gate und
+globale Deckel — weiterhin ohne INSERT-Policy und ohne INSERT-Grant).

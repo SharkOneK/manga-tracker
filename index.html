@@ -76,13 +76,26 @@
 
     <div class="main-inner">
 
+      <!-- Phase 86: der Button führt hier aus der fremden Sammlung heraus (?view=
+           verlassen), weil die Login-UI in der öffentlichen Ansicht per Design aus
+           ist (Phase 53). Angelegt wird eine Sammlung erst im angemeldeten Zustand
+           über #no-collection-banner. -->
       <div class="readonly-banner hidden" id="readonly-banner">
         <span>👁 <strong>Öffentliche Ansicht</strong> — Du siehst die Sammlung von jemandem anderen</span>
         <button class="readonly-btn" data-action="start-own-collection">✨ Eigene Sammlung starten</button>
       </div>
 
+      <!-- Bewusst ohne Button: ohne Session wäre er wirkungslos (Phase 86). -->
       <div class="readonly-banner hidden" id="login-gate-banner">
-        <span>🔒 <strong>Anmeldung erforderlich</strong> — melde dich unten links an, um deine Sammlung zu sehen</span>
+        <span>🔒 <strong>Anmeldung erforderlich</strong> — melde dich unten links an, um deine Sammlung zu sehen. Neu hier? Nach dem Anmelden legst du deine Sammlung mit einem Klick an.</span>
+      </div>
+
+      <!-- Phase 86: nur im Zustand „angemeldet, aber noch keine Sammlung" sichtbar
+           (eingeblendet von discoverAndLoadOwnCollection(), versteckt von
+           applyReadOnly()/applyLockedState()). -->
+      <div class="readonly-banner hidden" id="no-collection-banner">
+        <span>✨ <strong>Noch keine Sammlung</strong> — lege jetzt deine eigene an. Hinweis: Einträge deiner Sammlung sind über den Teilen-Link öffentlich lesbar.</span>
+        <button class="readonly-btn" data-action="start-own-collection">✨ Eigene Sammlung starten</button>
       </div>
 
       <!-- Phase 74: Top-Level-Modus-Umschalter (primäre Achse). Bewusst als eigene
