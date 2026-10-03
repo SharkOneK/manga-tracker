@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-02T10:29:20.532Z",
+  "generatedAt": "2026-10-03T09:51:13.447Z",
   "source": "run-release-cache-pipeline.js",
   "inputs": {
     "cacheItems": 231,
@@ -45,20 +45,33 @@
     ]
   },
   "summary": {
-    "candidatesDiscovered": 243,
-    "candidatesChecked": 29,
+    "candidatesDiscovered": 244,
+    "candidatesChecked": 30,
     "skippedAlreadyCached": 214,
     "skippedDueToLimit": 0,
-    "highConfidence": 0,
+    "highConfidence": 1,
     "mediumConfidence": 0,
     "lowConfidence": 29,
     "blocked": 0,
-    "cachePatches": 0,
+    "cachePatches": 1,
     "reviewQueueWrites": 29,
     "invalidExistingCache": 0
   },
-  "autoMergeEligible": false,
-  "cachePatches": [],
+  "autoMergeEligible": true,
+  "cachePatches": [
+    {
+      "action": "add",
+      "key": "spy x family|crunchyroll manga|16",
+      "seriesTitle": "Spy x Family",
+      "publisher": "KAZÉ Manga",
+      "volumeNumber": 16,
+      "releaseDate": "2026-10-02",
+      "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
+      "sourceUrl": "https://www.manga-passion.de/editions/364",
+      "confidence": "high"
+    }
+  ],
   "reviewQueueWrites": [
     {
       "key": "berserk master edition|panini manga|9",
