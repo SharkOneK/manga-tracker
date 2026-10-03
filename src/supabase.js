@@ -378,12 +378,46 @@
     return { publicDataWritten: publicData !== undefined, via: 'session' };
   }
 
+  // Phase 86: Self-Service-Erstellung der eigenen Sammlung. INSERT auf
+  // public.collections ist fuer anon/authenticated entzogen; die SECURITY-DEFINER-RPC
+  // create_my_collection() ist der einzige Entstehungspfad und legt pro auth.uid()
+  // genau eine Zeile an (siehe
+  // supabase/migrations/20261002_phase86_create_my_collection.sql).
+  //
+  // Returns { result: string, collectionId: string|null, message? } mit result aus:
+  //   'created'          — neue Sammlung angelegt
+  //   'exists'           — Nutzer hatte schon eine (idempotent, ID nutzbar)
+  //   'unauthenticated'  — keine gueltige Session (kein Request abgesetzt)
+  //   'not_allowed'      — Konto-Gate der RPC (E-Mail nicht bestaetigt)
+  //   'rate_limited'     — zu viele neue Sammlungen in der letzten Stunde
+  //   'capacity_reached' — Gesamtcap der Instanz erreicht
+  //   'error'            — Netzwerk-/HTTP-Fehler
+  // Wirft nie: der Aufrufer bekommt ausschliesslich stabile Codes.
+  async function createMyCollection() {
+    var token = await ensureFreshAccessToken();
+    if (!token) return { result: 'unauthenticated', collectionId: null };
+    try {
+      var res = await requestJson(SUPA_RPC + '/create_my_collection', sessionHeaders(token), {
+        method: 'POST',
+        headers: Object.assign({}, sessionHeaders(token), { 'Content-Type': 'application/json' }),
+        body: JSON.stringify({}),
+      });
+      var result = (res && typeof res.result === 'string' && res.result) ? res.result : 'error';
+      var collId = (res && typeof res.collection_id === 'string' && res.collection_id)
+        ? res.collection_id : null;
+      return { result: result, collectionId: collId };
+    } catch (e) {
+      return { result: 'error', collectionId: null, message: String(e.message || e).slice(0, 200) };
+    }
+  }
+
   window.MangaTrackerSupabase = {
     clearLegacyOwnerToken: clearLegacyOwnerToken,
     getStoredCollectionId: getStoredCollectionId,
     fetchCollection: fetchCollection,
     fetchPublicCollection: fetchPublicCollection,
     patchCollection: patchCollection,
+    createMyCollection: createMyCollection,
     hasValidSession: hasValidSession,
     hasSession: hasSession,
     fetchMyCollectionIds: fetchMyCollectionIds,

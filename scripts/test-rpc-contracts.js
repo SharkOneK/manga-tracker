@@ -307,9 +307,12 @@ console.log('\nPhase 68 - Supabase-RPC-Vertragstests\n');
     'get_owner_collection_for_user',
     'submit_release_intake_candidate',
     'submit_manga_catalog_candidate',
+    'create_my_collection',
   ];
 
-  await runTest('Self-Check — alle 4 bekannten RPCs in supabase.js erkannt', function () {
+  // Testnamen zaehlen bewusst KNOWN_RPCS.length statt einer harten Zahl — sonst
+  // luegen sie beim naechsten neuen RPC wieder (Phase 86).
+  await runTest('Self-Check — alle ' + KNOWN_RPCS.length + ' bekannten RPCs in supabase.js erkannt', function () {
     for (var i = 0; i < KNOWN_RPCS.length; i++) {
       assert.ok(
         istMap && istMap[KNOWN_RPCS[i]],
@@ -318,7 +321,7 @@ console.log('\nPhase 68 - Supabase-RPC-Vertragstests\n');
     }
   });
 
-  await runTest('Self-Check — alle 4 bekannten RPCs in Migrationen definiert', function () {
+  await runTest('Self-Check — alle ' + KNOWN_RPCS.length + ' bekannten RPCs in Migrationen definiert', function () {
     for (var i = 0; i < KNOWN_RPCS.length; i++) {
       assert.ok(
         sollMap && sollMap[KNOWN_RPCS[i]],

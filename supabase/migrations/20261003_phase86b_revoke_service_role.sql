@@ -1,0 +1,22 @@
+-- Phase 86b — Haertung: service_role-EXECUTE auf create_my_collection() entziehen
+--
+-- APPLIED 2026-10-03 to project sssxiqtnkctvyghyrqff via MCP apply_migration
+-- (version 20261003000238).
+--
+-- Warum:
+--   Nach dem Anwenden von 20261002_phase86_create_my_collection.sql zeigte die
+--   Nachmess-Query aus deren Apply-Checkliste (Punkt 4), dass `service_role`
+--   EXECUTE auf `create_my_collection()` haelt (`true`) — nicht aus dieser
+--   Migration selbst (sie vergibt der Rolle nichts), sondern aus einer
+--   Supabase-Standardvergabe an die Rolle auf alle Funktionen im `public`-
+--   Schema. Funktional ist das harmlos: die Funktion wertet ausschliesslich
+--   `auth.uid()` aus, `service_role`-Aufrufe ohne Session liefern
+--   'unauthenticated'. Auf einem offenen, zugangsschranken-freien Schreibpfad
+--   ist ein explizites Recht trotzdem vermeidbar (Defense-in-Depth) — genau
+--   die „saubere Reaktion", die die Apply-Checkliste fuer diesen Fall vorsah.
+--
+-- Nachgemessen 2026-10-03 nach dieser Migration:
+--   select has_function_privilege('service_role', 'public.create_my_collection()', 'EXECUTE');
+--   -> false (vorher true).
+
+revoke execute on function public.create_my_collection() from service_role;
