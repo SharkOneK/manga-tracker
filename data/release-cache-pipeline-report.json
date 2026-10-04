@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-03T09:51:13.447Z",
+  "generatedAt": "2026-10-04T10:33:50.419Z",
   "source": "run-release-cache-pipeline.js",
   "inputs": {
-    "cacheItems": 231,
+    "cacheItems": 232,
     "watchlistCandidates": 216,
     "reviewQueueCandidates": 91,
     "appSeedCandidates": 5,
@@ -46,32 +46,19 @@
   },
   "summary": {
     "candidatesDiscovered": 244,
-    "candidatesChecked": 30,
-    "skippedAlreadyCached": 214,
+    "candidatesChecked": 29,
+    "skippedAlreadyCached": 215,
     "skippedDueToLimit": 0,
-    "highConfidence": 1,
+    "highConfidence": 0,
     "mediumConfidence": 0,
     "lowConfidence": 29,
     "blocked": 0,
-    "cachePatches": 1,
+    "cachePatches": 0,
     "reviewQueueWrites": 29,
     "invalidExistingCache": 0
   },
-  "autoMergeEligible": true,
-  "cachePatches": [
-    {
-      "action": "add",
-      "key": "spy x family|crunchyroll manga|16",
-      "seriesTitle": "Spy x Family",
-      "publisher": "KAZÉ Manga",
-      "volumeNumber": 16,
-      "releaseDate": "2026-10-02",
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/364",
-      "confidence": "high"
-    }
-  ],
+  "autoMergeEligible": false,
+  "cachePatches": [],
   "reviewQueueWrites": [
     {
       "key": "berserk master edition|panini manga|9",
@@ -887,6 +874,7 @@
     "mushoku tensei in dieser welt mach ich alles anders|panini manga|22",
     "one piece|carlsen manga|100",
     "real account|tokyopop|14",
+    "spy x family|crunchyroll manga|16",
     "the rising of the shield hero|tokyopop|27",
     "tokyo ghoul|crunchyroll manga|14",
     "tokyo ghoul gigantik|crunchyroll manga|7",
