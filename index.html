@@ -166,7 +166,7 @@
       <div class="form-group">
         <label>Titel *</label>
         <input id="f-title" type="text" placeholder="z.B. Fullmetal Alchemist">
-        <!-- Phase 73: Einstieg in die AniList-Anime-Suche (nur im Hinzufügen-Kontext sichtbar) -->
+        <!-- Phase 73/87: Einstieg in die AniList-Anime-Suche (nur im Hinzufügen-Kontext UND nur im Serien-Modus sichtbar, s. src/app.js openAdd()) -->
         <button type="button" class="form-wide-action hidden" id="btn-anilist-search" data-action="open-anilist-search" title="Anime bei AniList suchen und übernehmen">🔍 Anime bei AniList suchen</button>
         <!-- Phase 75: Einstieg in den TMDB-Serienkatalog (nur im Hinzufügen-Kontext, nur im Serien-Modus sichtbar) -->
         <button type="button" class="form-wide-action hidden" id="btn-tmdb-search" data-action="open-tmdb-search" title="Realserie im TMDB-Katalog suchen und übernehmen">🔍 Serie im TMDB-Katalog suchen</button>
@@ -197,6 +197,9 @@
         </div>
         <div class="form-group">
           <label>Medientyp</label>
+          <!-- Phase 87: Optionen werden laufzeitseitig modusabhängig gefiltert
+               (hidden + disabled) über syncMediaTypeOptions() in src/app.js —
+               keine Struktur-/ID-Änderung hier, s. MODE_MEDIA_TYPES. -->
           <select id="f-mediatype">
             <option value="manga">Manga</option>
             <option value="series">Serie</option>

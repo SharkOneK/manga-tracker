@@ -986,6 +986,35 @@ if (fs.existsSync(appJsPath)) {
   fail('src/app.js nicht gefunden (Phase 74)');
 }
 
+// ── Phase 87 (fail-closed): #f-mediatype-Optionen deckungsgleich mit MEDIA_TYPES ──
+// Verhindert, dass ein künftiger MEDIA_TYPES-Eintrag im Formular unerreichbar bleibt
+// (die Optionen selbst werden laufzeitseitig von syncMediaTypeOptions() gefiltert,
+// aber nur wenn sie überhaupt als <option> existieren).
+console.log('\nPruefe: Phase 87 — #f-mediatype-Optionen vs. MEDIA_TYPES\n');
+
+const mediaTypes87Match = appJs26.match(/const MEDIA_TYPES = \[([^\]]*)\];/);
+const mediaTypeSelectMatch = html.match(/<select id="f-mediatype">([\s\S]*?)<\/select>/);
+if (!mediaTypes87Match) {
+  fail('src/app.js: MEDIA_TYPES-Konstante nicht gefunden (Phase 87)');
+} else if (!mediaTypeSelectMatch) {
+  fail('index.html: <select id="f-mediatype"> nicht gefunden (Phase 87)');
+} else {
+  const mediaTypes = mediaTypes87Match[1]
+    .split(',').map(s => s.trim().replace(/^['"]|['"]$/g, '')).filter(Boolean);
+  const optionValues = (mediaTypeSelectMatch[1].match(/<option value="([^"]*)"/g) || [])
+    .map(s => s.replace(/<option value="|"/g, ''));
+
+  const missingInHtml = mediaTypes.filter(t => !optionValues.includes(t));
+  const extraInHtml = optionValues.filter(v => !mediaTypes.includes(v));
+  if (missingInHtml.length) {
+    fail('index.html: #f-mediatype fehlt die Option(en) ' + missingInHtml.join(', ') + ' aus MEDIA_TYPES — waeren im Formular unerreichbar');
+  } else if (extraInHtml.length) {
+    fail('index.html: #f-mediatype hat ueberzaehlige Option(en) ' + extraInHtml.join(', ') + ', die nicht in MEDIA_TYPES stehen');
+  } else {
+    pass('index.html: #f-mediatype-Optionen und src/app.js MEDIA_TYPES sind deckungsgleich (' + mediaTypes.length + ' Typen)');
+  }
+}
+
 // index.html: Modus-Umschalter mit beiden Modi vorhanden, CSP-konform (data-action)
 if (!html.includes('id="mode-switch"')
     || !html.includes('data-action="set-mode"')

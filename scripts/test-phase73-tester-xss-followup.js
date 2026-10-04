@@ -92,7 +92,11 @@ function anilistBody(list) {
   return JSON.stringify({ data: { Page: { media: list } } });
 }
 
+// Phase 87: der AniList-Button ist nur im Serien-Modus sichtbar, Moduswechsel
+// bei offenem Modal ist unmoeglich (Overlay liegt ueber #mode-switch) → erst wechseln.
 async function openSearchAndQuery(page, q) {
+  await page.click('#mode-switch [data-mode="series"]');
+  await page.waitForTimeout(150);
   await page.click('#btn-add');
   await page.waitForTimeout(150);
   await page.click('[data-action="open-anilist-search"]');

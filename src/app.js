@@ -206,6 +206,12 @@ const MODE_TERMS = {
     buy:         'Zu kaufen',
     toRead:      'Zu lesen',
     publishers:  'Verlage',
+    // Phase 87: mediaWord folgt appMode, NICHT dem gewählten mediaType — appMode
+    // === 'series' deckt 'series' UND 'anime' ab, daher der kombinierte Begriff
+    // im series-Zweig unten. Manga-Werte sind wortgleich zu den heutigen Strings
+    // (Nicht-Regressions-Anker).
+    mediaWord:        'Manga',
+    emptyReadingHint: 'Füge Mangas hinzu, die du gerade liest.',
   },
   series: {
     volumeUnit:  'Folgen',
@@ -214,6 +220,8 @@ const MODE_TERMS = {
     buy:         'Zu kaufen',
     toRead:      'Weiterschauen',
     publishers:  'Anbieter',
+    mediaWord:        'Serie/Anime',
+    emptyReadingHint: 'Füge Serien oder Animes hinzu, die du gerade schaust.',
   },
 };
 
@@ -1298,8 +1306,10 @@ function renderSeriesGrid(status, el, hint) {
   updateMediaFilter();
 
   if (!rawItems.length) {
+    // Phase 87: nur der reading-Hinweis folgt appMode (term()); completed/owned/wishlist
+    // bleiben bewusst manga-/kauf-geprägt (eigene Restschuld, s. spec.md Offene Fragen).
     const info = {
-      reading:   ['📖', 'Noch nichts in Bearbeitung', 'Füge Mangas hinzu, die du gerade liest.'],
+      reading:   ['📖', 'Noch nichts in Bearbeitung', term('emptyReadingHint')],
       completed: ['✅', 'Noch nichts abgeschlossen', 'Hier landen Serien, die du vollständig gelesen hast.'],
       owned:     ['📚', 'Noch nichts zum Lesen', 'Sobald du einen Band als „Gekauft" markierst, erscheint er hier.'],
       wishlist:  ['💜', 'Wunschliste ist leer', 'Füge Serien hinzu, die du noch kaufen oder starten möchtest.'],
@@ -1309,7 +1319,7 @@ function renderSeriesGrid(status, el, hint) {
       <div class="empty-icon">${ic}</div>
       <h3>${tt}</h3>
       <p>${sub}</p>
-      <button class="add-btn centered-add-btn" data-action="open-add">＋ Manga hinzufügen</button>
+      <button class="add-btn centered-add-btn" data-action="open-add">＋ ${escapeHtml(term('mediaWord'))} hinzufügen</button>
     </div>`;
     return;
   }
@@ -2879,14 +2889,34 @@ function renderOngoingReadout(m) {
   el.innerHTML = html;
 }
 
+// Phase 87 — reiner DOM-Spiegel (schreibt KEINEN App-Zustand, Analogie zu
+// updateModeSwitch()): koppelt die #f-mediatype-Optionen an MODE_MEDIA_TYPES[appMode].
+// Nicht erlaubte Optionen werden hidden + disabled (beides, weil `hidden` auf
+// <option> browserabhängig ist — disabled garantiert die Nicht-Wählbarkeit).
+// selectedType wird beibehalten, wenn gültig (fail-open für openEdit() bei
+// Fremddaten, deren mediaType nicht zum aktuellen Modus passt), sonst Default
+// = erster erlaubter Typ des aktuellen Modus.
+function syncMediaTypeOptions(selectedType) {
+  const select = document.getElementById('f-mediatype');
+  if (!select) return;
+  const allowed = MODE_MEDIA_TYPES[appMode] || MODE_MEDIA_TYPES.manga;
+  const normalized = MEDIA_TYPES.includes(selectedType) ? selectedType : allowed[0];
+  Array.from(select.options).forEach(opt => {
+    const ok = allowed.includes(opt.value) || opt.value === normalized;
+    opt.hidden = !ok;
+    opt.disabled = !ok;
+  });
+  select.value = normalized;
+}
+
 function openAdd() {
   editId = null;
   modalBands = {};
   modalBandCovers = {};
-  document.getElementById('modal-title').textContent = 'Manga hinzufügen';
+  document.getElementById('modal-title').textContent = term('mediaWord') + ' hinzufügen';
   document.getElementById('f-title').value = '';
   document.getElementById('f-publisher').value = '';
-  document.getElementById('f-mediatype').value = 'manga';
+  syncMediaTypeOptions(null);
   document.getElementById('f-total').value = '';
   document.getElementById('f-ongoing').value = 'true';
   document.getElementById('f-nextdate').value = '';
@@ -2903,8 +2933,10 @@ function openAdd() {
   // Phase 15c: Release-Check-Button im Hinzufügen-Dialog ausblenden (nur bei Bearbeitung sinnvoll)
   const _btnRcAdd = document.getElementById('btn-release-check');
   if (_btnRcAdd) _btnRcAdd.style.display = 'none';
-  // Phase 73: AniList-Einstieg nur im Hinzufügen-Kontext (legt einen NEUEN Eintrag an).
-  document.getElementById('btn-anilist-search')?.classList.remove('hidden');
+  // Phase 73/87: AniList-Einstieg nur im Hinzufügen-Kontext UND nur im Serien-Modus
+  // (dieselbe Regel wie der TMDB-Button direkt darunter — AniList liefert Anime,
+  // der im Manga-Modus nicht wählbar ist).
+  document.getElementById('btn-anilist-search')?.classList.toggle('hidden', appMode !== 'series');
   // Phase 75: TMDB-Einstieg nur im Hinzufügen-Kontext UND nur im Serien-Modus
   // (Realserien sind mediaType 'series', der im Manga-Modus nicht wählbar ist).
   document.getElementById('btn-tmdb-search')?.classList.toggle('hidden', appMode !== 'series');
@@ -2919,10 +2951,13 @@ function openEdit(id, e) {
   editId = id;
   modalBands = { ...(m.bands || {}) };
   modalBandCovers = { ...(m.bandCovers || {}) };
-  document.getElementById('modal-title').textContent = 'Manga bearbeiten';
+  document.getElementById('modal-title').textContent = term('mediaWord') + ' bearbeiten';
   document.getElementById('f-title').value = m.title||'';
   document.getElementById('f-publisher').value = m.pub||'';
-  document.getElementById('f-mediatype').value = MEDIA_TYPES.includes(m.mediaType) ? m.mediaType : 'manga';
+  // Phase 87: fail-open — der Original-mediaType des Eintrags bleibt erhalten und
+  // wählbar, auch wenn er nicht zum aktuellen appMode passt (kein stillschweigendes
+  // Umschreiben beim Speichern, s. spec.md Edge Cases).
+  syncMediaTypeOptions(m.mediaType);
   document.getElementById('f-total').value = (m.total ?? '') === null ? '' : (m.total ?? '');
   document.getElementById('f-ongoing').value = m.ongoing??'true';
   document.getElementById('f-nextdate').value = m.nextDate??'';
@@ -3199,9 +3234,12 @@ function doSave() {
   persist();
   maybeRunLocalReleaseCoverageCheck(entry);
   maybeSeedCatalogFromCollection(entry);
+  // Tester-Fix: editId sichern, BEVOR closeModal() es auf null setzt — sonst ist der
+  // "aktualisiert"-Zweig unten toter Code (closeModal() lief bisher vor der Ternary).
+  const wasEditing = !!editId;
   closeModal();
   render();
-  toast(editId ? '✅ Manga aktualisiert' : `✅ „${title}" hinzugefügt`);
+  toast(wasEditing ? `✅ ${term('mediaWord')} aktualisiert` : `✅ „${title}" hinzugefügt`);
 }
 
 function doDelete() {
