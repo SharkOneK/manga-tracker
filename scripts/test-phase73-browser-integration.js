@@ -117,7 +117,11 @@ async function seedPage(page, db) {
 }
 
 // Oeffnet Hinzufuegen-Modal → AniList-Overlay und sucht nach `q`.
+// Phase 87: der AniList-Button ist nur im Serien-Modus sichtbar, Moduswechsel
+// bei offenem Modal ist unmoeglich (Overlay liegt ueber #mode-switch) → erst wechseln.
 async function openSearchAndQuery(page, q) {
+  await page.click('#mode-switch [data-mode="series"]');
+  await page.waitForTimeout(150);
   await page.click('#btn-add');
   await page.waitForTimeout(150);
   await page.click('[data-action="open-anilist-search"]');
@@ -166,7 +170,9 @@ async function openSearchAndQuery(page, q) {
     });
 
     // ── Test 17: Such-Overlay ist tatsaechlich SICHTBAR (Phase-72-Fehlertyp) ─
-    await runTest('Such-Overlay oeffnet sich und ist tatsaechlich sichtbar (isVisible, nicht nur "Element existiert")', async () => {
+    // Phase 87: AniList-Einstieg ist jetzt an appMode gekoppelt (wie der TMDB-Button) —
+    // im Manga-Modus unsichtbar, im Serien-Modus sichtbar (s. test-phase75-browser-integration.js).
+    await runTest('AniList-Einstiegsbutton nur im Hinzufuegen-Modal + nur im Serien-Modus sichtbar, Overlay oeffnet sich real', async () => {
       const context = await browser.newContext();
       const page = await context.newPage();
       await seedPage(page, { schemaVersion: 3, m: [] });
@@ -177,14 +183,24 @@ async function openSearchAndQuery(page, q) {
       // Vor dem Oeffnen des Hinzufuegen-Modals darf der Einstieg nicht sichtbar sein.
       if (await entryBtn.isVisible()) throw new Error('AniList-Einstiegsbutton darf ausserhalb des Hinzufuegen-Modals nicht sichtbar sein');
 
+      // Manga-Modus (default): Hinzufuegen-Modal oeffnen → Button bleibt versteckt.
+      await page.click('#btn-add');
+      await page.waitForTimeout(200);
+      if (await entryBtn.isVisible()) throw new Error('AniList-Einstiegsbutton darf im Manga-Modus nicht sichtbar sein (nur appMode==="series")');
+      await page.click('[data-action="close-modal"]');
+      await page.waitForTimeout(150);
+
+      // Serien-Modus: Button muss sichtbar werden.
+      await page.click('#mode-switch [data-mode="series"]');
+      await page.waitForTimeout(150);
       await page.click('#btn-add');
       await page.waitForTimeout(200);
       if (!(await entryBtn.isVisible())) {
         const diag = await page.evaluate(() => {
           const b = document.getElementById('btn-anilist-search');
-          return { className: b && b.className, computed: b ? window.getComputedStyle(b).display : 'MISSING' };
+          return { className: b && b.className, appMode, computed: b ? window.getComputedStyle(b).display : 'MISSING' };
         });
-        throw new Error('AniList-Einstiegsbutton ist im Hinzufuegen-Modal unsichtbar: ' + JSON.stringify(diag));
+        throw new Error('AniList-Einstiegsbutton ist im Serien-Modus/Hinzufuegen-Modal unsichtbar: ' + JSON.stringify(diag));
       }
 
       await entryBtn.click();
