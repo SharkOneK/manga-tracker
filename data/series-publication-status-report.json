@@ -1,18 +1,25 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-28T11:11:56.524Z",
+  "generatedAt": "2026-10-06T11:28:29.273Z",
   "source": "run-series-publication-status.js",
   "networkMode": "enabled",
   "summary": {
     "seriesWithStatus": 47,
-    "ongoing": 33,
-    "finished": 14,
+    "ongoing": 32,
+    "finished": 15,
     "checkedEditions": 46,
-    "appliedChanges": 2,
+    "appliedChanges": 3,
     "overridesApplied": 1,
     "blockedOrUnmapped": 6
   },
   "changes": [
+    {
+      "seriesTitle": "Mirai Nikki – New Edition",
+      "publisher": "Egmont Manga",
+      "oldOngoing": "true",
+      "newOngoing": "false",
+      "editionId": 5504
+    },
     {
       "seriesTitle": "Real Account",
       "publisher": "TOKYOPOP",
@@ -242,7 +249,7 @@
       "seriesTitle": "Mirai Nikki – New Edition",
       "publisher": "Egmont Manga",
       "editionId": 5504,
-      "sourceStatus": 1
+      "sourceStatus": 2
     },
     {
       "seriesTitle": "Mujina into the Deep",
