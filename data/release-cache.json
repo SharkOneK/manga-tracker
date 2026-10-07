@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-03T09:51:13.447Z",
+  "generatedAt": "2026-10-07T11:03:22.368Z",
   "source": "run-release-cache-pipeline.js",
-  "itemCount": 232,
+  "itemCount": 233,
   "items": [
     {
       "seriesTitle": "Adou",
@@ -2427,6 +2427,23 @@
       "confidence": "high",
       "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 5077, Band 9). Ursprung: volume-counts.",
       "checkedAt": "2026-08-16T15:26:16.100Z"
+    },
+    {
+      "seriesTitle": "Lili-Men",
+      "normalizedSeriesTitle": "lili men",
+      "publisher": "Egmont Manga",
+      "normalizedPublisher": "egmont manga",
+      "volumeNumber": 10,
+      "releaseDate": "2026-10-06",
+      "isbn13": null,
+      "coverUrl": "https://media.manga-passion.de/volume/cover/2025/0616/1023/472b6b2674ea3dd35f85f5084769535b.jpg",
+      "sourceUrl": "https://www.manga-passion.de/editions/5077",
+      "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
+      "evidence": "Manga Passion Edition, Verlag und Bandnummer wurden gegen die Bandliste abgeglichen.",
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 5077, Band 10). Ursprung: volume-counts.",
+      "checkedAt": "2026-10-07T11:03:22.368Z"
     },
     {
       "seriesTitle": "Maria's Judgement",
