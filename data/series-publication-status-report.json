@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-06T11:28:29.273Z",
+  "generatedAt": "2026-10-07T11:18:25.980Z",
   "source": "run-series-publication-status.js",
   "networkMode": "enabled",
   "summary": {
@@ -8,18 +8,11 @@
     "ongoing": 32,
     "finished": 15,
     "checkedEditions": 46,
-    "appliedChanges": 3,
+    "appliedChanges": 2,
     "overridesApplied": 1,
     "blockedOrUnmapped": 6
   },
   "changes": [
-    {
-      "seriesTitle": "Mirai Nikki – New Edition",
-      "publisher": "Egmont Manga",
-      "oldOngoing": "true",
-      "newOngoing": "false",
-      "editionId": 5504
-    },
     {
       "seriesTitle": "Real Account",
       "publisher": "TOKYOPOP",
