@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-07T11:03:22.368Z",
+  "generatedAt": "2026-10-08T11:20:58.597Z",
   "source": "run-release-cache-pipeline.js",
   "inputs": {
-    "cacheItems": 232,
+    "cacheItems": 233,
     "watchlistCandidates": 216,
     "reviewQueueCandidates": 91,
     "appSeedCandidates": 5,
@@ -46,32 +46,19 @@
   },
   "summary": {
     "candidatesDiscovered": 244,
-    "candidatesChecked": 30,
-    "skippedAlreadyCached": 214,
+    "candidatesChecked": 29,
+    "skippedAlreadyCached": 215,
     "skippedDueToLimit": 0,
-    "highConfidence": 1,
+    "highConfidence": 0,
     "mediumConfidence": 0,
     "lowConfidence": 29,
     "blocked": 0,
-    "cachePatches": 1,
+    "cachePatches": 0,
     "reviewQueueWrites": 29,
     "invalidExistingCache": 0
   },
-  "autoMergeEligible": true,
-  "cachePatches": [
-    {
-      "action": "add",
-      "key": "lili men|egmont manga|10",
-      "seriesTitle": "Lili-Men",
-      "publisher": "Egmont Manga",
-      "volumeNumber": 10,
-      "releaseDate": "2026-10-06",
-      "sourceName": "Manga Passion",
-      "providerId": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/5077",
-      "confidence": "high"
-    }
-  ],
+  "autoMergeEligible": false,
+  "cachePatches": [],
   "reviewQueueWrites": [
     {
       "key": "berserk master edition|panini manga|9",
@@ -881,6 +868,7 @@
     "demon slave|crunchyroll manga|19",
     "frieren nach dem ende der reise|altraverse|15",
     "isekai soapland|mangamoon|2",
+    "lili men|egmont manga|10",
     "mein wunsch von einer oberschulerin getotet zu werden|yomeru|2",
     "meine wiedergeburt als schleim in einer anderen welt|altraverse|30",
     "mushoku tensei in dieser welt mach ich alles anders|panini manga|22",
