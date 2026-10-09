@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-07T11:03:22.368Z",
+  "generatedAt": "2026-10-09T11:18:30.416Z",
   "source": "run-release-cache-pipeline.js",
   "itemCount": 233,
   "items": [
@@ -775,14 +775,16 @@
       "publisher": "Yomeru",
       "normalizedPublisher": "yomeru",
       "volumeNumber": 3,
-      "releaseDate": "2026-12-25",
+      "releaseDate": "2026-12-18",
       "isbn13": null,
-      "coverUrl": null,
-      "sourceUrl": null,
-      "sourceName": "app-seed",
-      "confidence": "medium",
-      "notes": "Aus src/app.js Seed \"letzte elfe\" übernommen; nicht extern bestätigt.",
-      "checkedAt": "2026-05-17T10:56:39.041Z"
+      "coverUrl": "https://media.manga-passion.de/volume/cover/2026/1009/1036/bffcb72075ddc64b228058b228e702bd.jpeg",
+      "sourceUrl": "https://www.manga-passion.de/editions/5652",
+      "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
+      "evidence": "Manga Passion Edition, Verlag und Bandnummer wurden gegen die Bandliste abgeglichen.",
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 5652, Band 3). Ursprung: app-seed.",
+      "checkedAt": "2026-10-09T11:18:30.416Z"
     },
     {
       "seriesTitle": "Fairy Tail",

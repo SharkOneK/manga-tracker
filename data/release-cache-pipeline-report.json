@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-08T11:20:58.597Z",
+  "generatedAt": "2026-10-09T11:18:30.416Z",
   "source": "run-release-cache-pipeline.js",
   "inputs": {
     "cacheItems": 233,
@@ -49,16 +49,29 @@
     "candidatesChecked": 29,
     "skippedAlreadyCached": 215,
     "skippedDueToLimit": 0,
-    "highConfidence": 0,
+    "highConfidence": 1,
     "mediumConfidence": 0,
-    "lowConfidence": 29,
+    "lowConfidence": 28,
     "blocked": 0,
-    "cachePatches": 0,
-    "reviewQueueWrites": 29,
+    "cachePatches": 1,
+    "reviewQueueWrites": 28,
     "invalidExistingCache": 0
   },
-  "autoMergeEligible": false,
-  "cachePatches": [],
+  "autoMergeEligible": true,
+  "cachePatches": [
+    {
+      "action": "update",
+      "key": "die letzte elfe|yomeru|3",
+      "seriesTitle": "Die letzte Elfe",
+      "publisher": "Yomeru",
+      "volumeNumber": 3,
+      "releaseDate": "2026-12-18",
+      "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
+      "sourceUrl": "https://www.manga-passion.de/editions/5652",
+      "confidence": "high"
+    }
+  ],
   "reviewQueueWrites": [
     {
       "key": "berserk master edition|panini manga|9",
@@ -627,27 +640,6 @@
       "seriesTitle": "Vermeil in Gold",
       "publisher": "MANGAMOON",
       "volumeNumber": 2,
-      "confidence": "low",
-      "reviewStatus": "auto-low-confidence",
-      "reasonCodes": [
-        "source-url-not-specific",
-        "missing-source-edition-title",
-        "missing-source-publisher",
-        "missing-source-volume-number",
-        "missing-release-date"
-      ],
-      "sourceName": "Carlsen Manga",
-      "providerId": "carlsen",
-      "sourceUrl": "https://www.carlsen.de",
-      "releaseDate": null,
-      "sourceResult": "publisher-not-supported"
-    },
-    {
-      "key": "die letzte elfe|yomeru|3",
-      "queueKey": "Die letzte Elfe|Yomeru|3",
-      "seriesTitle": "Die letzte Elfe",
-      "publisher": "Yomeru",
-      "volumeNumber": 3,
       "confidence": "low",
       "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
