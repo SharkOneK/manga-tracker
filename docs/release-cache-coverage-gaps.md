@@ -8,15 +8,15 @@ Stand: automatisch synchronisiert aus aktuellem Audit gegen `data/release-watchl
 |---|---:|
 | Aktivierte Watchlist-Eintraege | 62 |
 | Expandierte Watchlist-Bandkandidaten | 216 |
-| Release-Cache-Eintraege | 233 |
-| Gefundene Cache-Eintraege | 188 |
-| Verbleibende Luecken | 28 |
-| Betroffene Serien | 11 |
+| Release-Cache-Eintraege | 234 |
+| Gefundene Cache-Eintraege | 189 |
+| Verbleibende Luecken | 27 |
+| Betroffene Serien | 10 |
 | Betroffene Verlage | 9 |
 
 ## Klassifikation
 
-Alle 28 verbleibenden Luecken sind als `source-data-gap` klassifiziert.
+Alle 27 verbleibenden Luecken sind als `source-data-gap` klassifiziert.
 
 Bedeutung: Der Watchlist-Band wurde nach dem Cache-Update weiterhin nicht in `data/release-cache.json` gefunden. Diese Faelle sind Quellen-/Datenqualitaetsfaelle und duerfen nicht durch Fake-Daten geschlossen werden.
 
@@ -26,7 +26,6 @@ Empfohlener Umgang: manuell in verlaesslicher Quelle pruefen, erst danach echte 
 
 | Serie | Verlag | Fehlende Baende | Anzahl | Klassifikation |
 |---|---|---:|---:|---|
-| Vermeil in Gold | MANGAMOON | 2 | 1 | source-data-gap |
 | Vagabond – Master Edition | Egmont Manga | 16-19 | 4 | source-data-gap |
 | Adou | Altraverse | 12 | 1 | source-data-gap |
 | Arifureta: Der Kampf zurück in meine Welt – Zero | Altraverse | 5-8 | 4 | source-data-gap |
@@ -42,7 +41,7 @@ Empfohlener Umgang: manuell in verlaesslicher Quelle pruefen, erst danach echte 
 
 | Verlag | Luecken | Serien |
 |---|---:|---:|
-| MANGAMOON | 7 | 2 |
+| MANGAMOON | 6 | 1 |
 | Panini Manga | 6 | 1 |
 | Altraverse | 5 | 2 |
 | Egmont Manga | 4 | 1 |
@@ -92,7 +91,7 @@ Der normale Workflow scheitert weiterhin nicht an bekannten `source-data-gap`-Lu
 
 ## Phase 23a: Ursachenanalyse
 
-Die 28 `source-data-gap`-Einzelluecken sind in `docs/release-cache-source-gap-analysis.md` strukturiert analysiert.
+Die 27 `source-data-gap`-Einzelluecken sind in `docs/release-cache-source-gap-analysis.md` strukturiert analysiert.
 
 Die Analyse dokumentiert pro Gap:
 

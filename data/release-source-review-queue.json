@@ -4,10 +4,10 @@
   "generatedFrom": "docs/release-cache-source-gap-analysis.md",
   "reviewPolicy": "docs/release-cache-manual-source-review.md",
   "summary": {
-    "knownSourceGaps": 28,
-    "totalGaps": 91,
+    "knownSourceGaps": 27,
+    "totalGaps": 90,
     "safeToPatch": 63,
-    "pendingManualReview": 28,
+    "pendingManualReview": 27,
     "autoReviewed": 24,
     "patched": 63
   },
@@ -2882,47 +2882,6 @@
         "missing-release-date"
       ],
       "providerId": "manga-passion"
-    },
-    {
-      "queueKey": "Vermeil in Gold|MANGAMOON|2",
-      "seriesTitle": "Vermeil in Gold",
-      "publisher": "MANGAMOON",
-      "volumeNumber": 2,
-      "classification": "source-data-gap",
-      "suspectedCause": "not-yet-released",
-      "priority": "mittel",
-      "recommendedFix": "manual-source-review",
-      "manualSourceReviewNeeded": true,
-      "checkedSources": [
-        {
-          "name": "Manga Passion API",
-          "url": "https://www.manga-passion.de",
-          "result": "Edition 6137 vorhanden; Publisher MANGAMOON bestaetigt; Band 2 ohne valides Release-Datum."
-        }
-      ],
-      "sourceAnalysisEvidence": "Publisher-Mismatch wurde 2026-05-23 behoben (Watchlist-Korrektur: Manga Cult -> MANGAMOON). Band 2 fehlt weiterhin im Cache, da Manga Passion kein valides Release-Datum fuer Band 2 fuehrt.",
-      "safeToPatch": false,
-      "reviewStatus": "needs-source",
-      "sourceUrl": "https://www.manga-passion.de/articles/tags/321/mangamoon",
-      "releaseDate": null,
-      "checkedAt": "2026-05-29T14:22:14.386Z",
-      "evidence": "Phase-33-Pruefung: MangaMoon/MANGAMOON-Lizenz-/Auftaktmeldung vorhanden, aber kein eindeutiges HTTPS-Quellendatum fuer Band 2.",
-      "notes": "Phase 33: Watchlist-Publisher ist MANGAMOON; nur Auftakt/April 2026 belastbar, kein valides Release-Datum fuer Band 2. Nicht patchen.",
-      "sourceConfidence": "low",
-      "sourceName": "Carlsen Manga",
-      "sourceEditionId": null,
-      "sourceEditionTitle": null,
-      "sourcePublisher": null,
-      "sourceVolumeNumber": null,
-      "sourceResult": "publisher-not-supported",
-      "confidenceReasons": [
-        "source-url-not-specific",
-        "missing-source-edition-title",
-        "missing-source-publisher",
-        "missing-source-volume-number",
-        "missing-release-date"
-      ],
-      "providerId": "carlsen"
     },
     {
       "queueKey": "August 9th, I will be eaten by you|Hayabusa|6",

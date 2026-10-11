@@ -2,22 +2,22 @@
 
 Stand: automatisch synchronisiert aus aktuellem Audit gegen `data/release-watchlist.json` und `data/release-cache.json`.
 
-Diese Datei dokumentiert die 28 bekannten `source-data-gap`-Luecken aus `docs/release-cache-coverage-gaps.md`. Sie ist bewusst eine Analyse- und Entscheidungsdatei: Es werden keine Release-Daten geraten, keine privaten Sammlungsdaten ergaenzt und `data/release-cache.json` bleibt unangetastet.
+Diese Datei dokumentiert die 27 bekannten `source-data-gap`-Luecken aus `docs/release-cache-coverage-gaps.md`. Sie ist bewusst eine Analyse- und Entscheidungsdatei: Es werden keine Release-Daten geraten, keine privaten Sammlungsdaten ergaenzt und `data/release-cache.json` bleibt unangetastet.
 
 ## Ergebnis
 
 | Kennzahl | Wert |
 |---|---:|
-| Analysierte Gaps | 28 |
-| Betroffene Serien | 11 |
+| Analysierte Gaps | 27 |
+| Betroffene Serien | 10 |
 | Sichere direkte Cache-Patches | 0 |
-| Manuelle Quellenpruefung noetig | 28 |
+| Manuelle Quellenpruefung noetig | 27 |
 
 ## Ursachencluster
 
 | Vermutete Ursache | Gaps |
 |---|---:|
-| not-yet-released | 22 |
+| not-yet-released | 21 |
 | manual-source-required | 4 |
 | source-missing | 1 |
 | volume-numbering-mismatch | 1 |
@@ -34,7 +34,7 @@ Interpretation:
 
 | Empfohlener Fix | Gaps |
 |---|---:|
-| manual-source-review | 28 |
+| manual-source-review | 27 |
 
 Der einzige sichere naechste Schritt ist aktuell `manual-source-review`: offizielle Verlagsseite oder bereits erlaubte vertrauenswuerdige Quelle pruefen und erst danach echte Release-Daten mit Source-URL uebernehmen.
 
@@ -42,7 +42,6 @@ Der einzige sichere naechste Schritt ist aktuell `manual-source-review`: offizie
 
 | Serie | Verlag | Fehlende Baende | Anzahl | Ursache | Empfehlung | Safe to patch |
 |---|---|---:|---:|---|---|---|
-| Vermeil in Gold | MANGAMOON | 2 | 1 | not-yet-released | manual-source-review | nein |
 | Vagabond – Master Edition | Egmont Manga | 16-19 | 4 | not-yet-released | manual-source-review | nein |
 | Adou | Altraverse | 12 | 1 | source-missing | manual-source-review | nein |
 | Arifureta: Der Kampf zurück in meine Welt – Zero | Altraverse | 5-8 | 4 | not-yet-released | manual-source-review | nein |
@@ -58,7 +57,6 @@ Der einzige sichere naechste Schritt ist aktuell `manual-source-review`: offizie
 
 | Serie | Verlag | Band | Ursache | Empfehlung | Safe to patch | Manuelle Quellenpruefung |
 |---|---|---:|---|---|---|---|
-| Vermeil in Gold | MANGAMOON | 2 | not-yet-released | manual-source-review | nein | ja |
 | Vagabond – Master Edition | Egmont Manga | 16 | not-yet-released | manual-source-review | nein | ja |
 | Vagabond – Master Edition | Egmont Manga | 17 | not-yet-released | manual-source-review | nein | ja |
 | Vagabond – Master Edition | Egmont Manga | 18 | not-yet-released | manual-source-review | nein | ja |
@@ -95,25 +93,6 @@ Der einzige sichere naechste Schritt ist aktuell `manual-source-review`: offizie
   "schemaVersion": 1,
   "generatedAt": "2026-05-19",
   "gapAnalysis": [
-    {
-      "seriesTitle": "Vermeil in Gold",
-      "publisher": "MANGAMOON",
-      "volumeNumber": 2,
-      "classification": "source-data-gap",
-      "priority": "mittel",
-      "suspectedCause": "not-yet-released",
-      "checkedSources": [
-        {
-          "name": "Manga Passion API",
-          "url": "https://www.manga-passion.de",
-          "result": "Edition 6137 vorhanden; Publisher MANGAMOON bestaetigt; Band 2 ohne valides Release-Datum."
-        }
-      ],
-      "evidence": "Publisher-Mismatch wurde 2026-05-23 behoben (Watchlist-Korrektur: Manga Cult -> MANGAMOON). Band 2 fehlt weiterhin im Cache, da Manga Passion kein valides Release-Datum fuer Band 2 fuehrt.",
-      "recommendedFix": "manual-source-review",
-      "safeToPatch": false,
-      "manualSourceReviewNeeded": true
-    },
     {
       "seriesTitle": "Vagabond – Master Edition",
       "publisher": "Egmont Manga",
@@ -635,7 +614,7 @@ Der einzige sichere naechste Schritt ist aktuell `manual-source-review`: offizie
 
 | Verlag | Gaps | Serien | Strategie |
 |---|---:|---:|---|
-| MANGAMOON | 7 | 2 | Offizielle Verlags-/Produktquelle manuell pruefen; kein Cache-Patch ohne belegtes tagesgenaues Release-Datum. |
+| MANGAMOON | 6 | 1 | Offizielle Verlags-/Produktquelle manuell pruefen; kein Cache-Patch ohne belegtes tagesgenaues Release-Datum. |
 | Panini Manga | 6 | 1 | Offizielle Verlags-/Produktquelle manuell pruefen; kein Cache-Patch ohne belegtes tagesgenaues Release-Datum. |
 | Altraverse | 5 | 2 | Offizielle Verlags-/Produktquelle manuell pruefen; kein Cache-Patch ohne belegtes tagesgenaues Release-Datum. |
 | Egmont Manga | 4 | 1 | Offizielle Verlags-/Produktquelle manuell pruefen; kein Cache-Patch ohne belegtes tagesgenaues Release-Datum. |
