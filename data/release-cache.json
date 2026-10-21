@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-15T09:07:38.148Z",
+  "generatedAt": "2026-10-21T09:20:43.473Z",
   "source": "run-release-cache-pipeline.js",
-  "itemCount": 235,
+  "itemCount": 236,
   "items": [
     {
       "seriesTitle": "Adou",
@@ -2367,6 +2367,23 @@
       "confidence": "high",
       "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 2088, Band 8). Ursprung: watchlist.",
       "checkedAt": "2026-05-19T15:26:34.180Z"
+    },
+    {
+      "seriesTitle": "Kijin Gentosho: Dämonenjäger",
+      "normalizedSeriesTitle": "kijin gentosho damonenjager",
+      "publisher": "Panini Manga",
+      "normalizedPublisher": "panini manga",
+      "volumeNumber": 9,
+      "releaseDate": "2026-10-20",
+      "isbn13": null,
+      "coverUrl": "https://media.manga-passion.de/volume/cover/2026/1010/2027/7fe23ea76685e84dcf5c4670931f04b6.jpg",
+      "sourceUrl": "https://www.manga-passion.de/editions/2088",
+      "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
+      "evidence": "Manga Passion Edition, Verlag und Bandnummer wurden gegen die Bandliste abgeglichen.",
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 2088, Band 9). Ursprung: volume-counts.",
+      "checkedAt": "2026-10-21T09:20:43.473Z"
     },
     {
       "seriesTitle": "Lili-Men",
