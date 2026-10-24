@@ -177,13 +177,14 @@ const MOBILE = { viewport: { width: 390, height: 844 }, isMobile: true, hasTouch
       await context.close();
     });
 
-    await runTest('Karten: per Tastatur fokussierbar, Enter oeffnet den Bearbeiten-Dialog', async () => {
+    await runTest('Karten: per Tastatur bedienbar, Enter oeffnet den Bearbeiten-Dialog', async () => {
       const { context, page } = await open();
       await page.click('#vbtn-series');
       await page.waitForTimeout(200);
-      const card = await page.evaluate(() => { const c = document.querySelector('.manga-card'); return c ? c.getAttribute('role') + ':' + c.getAttribute('tabindex') : null; });
-      if (card !== 'button:0') throw new Error('Manga-Karte: ' + card);
-      await page.focus('.manga-card');
+      // Phase 89: Die Karte ist kein role="button"-div mehr, sondern traegt einen echten <button class="card-open">.
+      const card = await page.evaluate(() => { const b = document.querySelector('.manga-card > button.card-open'); return b ? b.getAttribute('aria-label') : null; });
+      if (!card || !/bearbeiten$/.test(card)) throw new Error('Karten-Button: ' + card);
+      await page.focus('.manga-card > button.card-open');
       await page.keyboard.press('Enter');
       await page.waitForTimeout(200);
       const open_ = await page.evaluate(() => getComputedStyle(document.getElementById('overlay')).display === 'flex');

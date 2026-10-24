@@ -160,14 +160,14 @@
 
 <!-- Modal -->
 <div class="overlay hidden" id="overlay">
-  <div class="modal" id="modal">
+  <div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
     <div class="modal-header">
       <h2 id="modal-title">Manga hinzufügen</h2>
-      <button class="close-btn" data-action="close-modal">✕</button>
+      <button class="close-btn" data-action="close-modal" aria-label="Dialog schließen">✕</button>
     </div>
     <div class="modal-body">
       <div class="form-group">
-        <label>Titel *</label>
+        <label for="f-title">Titel *</label>
         <input id="f-title" type="text" placeholder="z.B. Fullmetal Alchemist">
         <!-- Phase 73/87: Einstieg in die AniList-Anime-Suche (nur im Hinzufügen-Kontext UND nur im Serien-Modus sichtbar, s. src/app.js openAdd()) -->
         <button type="button" class="form-wide-action hidden" id="btn-anilist-search" data-action="open-anilist-search" title="Anime bei AniList suchen und übernehmen">🔍 Anime bei AniList suchen</button>
@@ -176,7 +176,7 @@
       </div>
       <div class="row2">
         <div class="form-group">
-          <label>Verlag (DE)</label>
+          <label for="f-publisher">Verlag (DE)</label>
           <select id="f-publisher">
             <option value="">– Verlag –</option>
             <option>Altraverse</option>
@@ -257,16 +257,16 @@
         </div>
       </div>
       <div class="form-group">
-        <label>Notizen</label>
+        <label for="f-notes">Notizen</label>
         <textarea id="f-notes" class="resize-vertical" rows="2" placeholder="Eigene Notizen..."></textarea>
       </div>
       <div class="row2">
         <div class="form-group">
-          <label>Begonnen am <span class="form-label-hint">optional</span></label>
+          <label for="f-started">Begonnen am <span class="form-label-hint">optional</span></label>
           <input id="f-started" type="date">
         </div>
         <div class="form-group">
-          <label>Abgeschlossen am <span class="form-label-hint">optional</span></label>
+          <label for="f-finished">Abgeschlossen am <span class="form-label-hint">optional</span></label>
           <input id="f-finished" type="date">
         </div>
       </div>
@@ -290,10 +290,10 @@
 
 <!-- Release-Preview-Overlay (Phase 15c/15d) — nutzt bestehende Modal-CSS-Klassen, keine Designänderung -->
 <div class="overlay release-preview-overlay hidden" id="release-preview-overlay">
-  <div class="modal" id="release-preview-modal">
+  <div class="modal" id="release-preview-modal" role="dialog" aria-modal="true" aria-labelledby="release-preview-title">
     <div class="modal-header">
       <h2 id="release-preview-title">Release-Cache-Vorschau</h2>
-      <button class="close-btn" data-action="close-release-preview">✕</button>
+      <button class="close-btn" data-action="close-release-preview" aria-label="Vorschau schließen">✕</button>
     </div>
     <div class="modal-body release-preview-body" id="release-preview-body">
     </div>
@@ -308,14 +308,14 @@
      Release-Preview-Overlay, keine neuen Designprimitive. Sichtbarkeit ausschließlich
      über die Klasse `hidden` (siehe openAniListSearch()/closeAniListSearch()). -->
 <div class="overlay anilist-overlay hidden" id="anilist-overlay">
-  <div class="modal" id="anilist-modal">
+  <div class="modal" id="anilist-modal" role="dialog" aria-modal="true" aria-labelledby="anilist-title">
     <div class="modal-header">
-      <h2>Anime bei AniList suchen</h2>
-      <button class="close-btn" data-action="close-anilist-search">✕</button>
+      <h2 id="anilist-title">Anime bei AniList suchen</h2>
+      <button class="close-btn" data-action="close-anilist-search" aria-label="Suche schließen">✕</button>
     </div>
     <div class="modal-body">
       <div class="form-group">
-        <label>Titel</label>
+        <label for="anilist-search-input">Titel</label>
         <input id="anilist-search-input" type="search" placeholder="z.B. Attack on Titan" autocomplete="off">
         <button type="button" class="form-wide-action" id="btn-anilist-run" data-action="run-anilist-search">🔍 Suchen</button>
       </div>
@@ -334,14 +334,14 @@
      filterTmdbResults()/renderTmdbResults()). Sichtbarkeit ausschließlich über
      die Klasse `hidden` (siehe openTmdbSearch()/closeTmdbSearch()). -->
 <div class="overlay tmdb-overlay hidden" id="tmdb-overlay">
-  <div class="modal" id="tmdb-modal">
+  <div class="modal" id="tmdb-modal" role="dialog" aria-modal="true" aria-labelledby="tmdb-title">
     <div class="modal-header">
-      <h2>Serie im TMDB-Katalog suchen</h2>
-      <button class="close-btn" data-action="close-tmdb-search">✕</button>
+      <h2 id="tmdb-title">Serie im TMDB-Katalog suchen</h2>
+      <button class="close-btn" data-action="close-tmdb-search" aria-label="Suche schließen">✕</button>
     </div>
     <div class="modal-body">
       <div class="form-group">
-        <label>Titel</label>
+        <label for="tmdb-search-input">Titel</label>
         <input id="tmdb-search-input" type="search" placeholder="z.B. Game of Thrones" autocomplete="off">
       </div>
       <div class="release-preview-body" id="tmdb-results"></div>
@@ -356,10 +356,10 @@
      Zweiter Auth-Render-Slot per KLASSE .auth-controls (keine doppelte ID); auth.js rendert
      dieselbe UI/State per querySelectorAll in alle Slots. -->
 <div class="overlay account-overlay hidden" id="account-overlay">
-  <div class="modal account-modal" id="account-modal">
+  <div class="modal account-modal" id="account-modal" role="dialog" aria-modal="true" aria-labelledby="account-title">
     <div class="modal-header">
-      <h2>Konto</h2>
-      <button class="close-btn" data-action="close-account">✕</button>
+      <h2 id="account-title">Konto</h2>
+      <button class="close-btn" data-action="close-account" aria-label="Konto schließen">✕</button>
     </div>
     <div class="modal-body">
       <div class="account-user">

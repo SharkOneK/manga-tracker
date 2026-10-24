@@ -23,7 +23,7 @@
 // Phase 88: Bump auf v9 — index.html (main/Skip-Link/ARIA, apple-touch-icon),
 // styles.css (Touch-Ziele, Kontrast, Fokus) und app.js (Tastaturbedienung) ändern
 // sich; manifest.json trägt neue PNG-Icons.
-const CACHE_VERSION = 'mt-pwa-v9';
+const CACHE_VERSION = 'mt-pwa-v10';
 
 // App-Shell: statische Dateien, die nach dem ersten Online-Besuch offline
 // verfügbar sein sollen. Relative Pfade (./…) damit GitHub-Pages-Sub-Pfad

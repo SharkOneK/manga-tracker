@@ -162,6 +162,7 @@ const SYNTAX_FILES = [
   'scripts/test-phase77-browser-integration.js',
   'scripts/test-phase87-browser-integration.js',
   'scripts/test-phase88-a11y-browser-integration.js',
+  'scripts/test-phase89-a11y-dialogs-browser-integration.js',
   'sw.js',
   'src/sw-register.js',
 ];
