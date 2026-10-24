@@ -1073,6 +1073,7 @@ function setMode(mode) {
 function updateModeSwitch() {
   document.querySelectorAll('#mode-switch [data-mode]').forEach(btn => {
     btn.classList.toggle('active', btn.dataset.mode === appMode);
+    btn.setAttribute('aria-selected', String(btn.dataset.mode === appMode));
   });
   // Phase 74: sichtbare Sammlungsstatus-Labels modusabhängig spiegeln — Tab-Pillen
   // (Emoji + Wort) und Sidebar-Nav (nur Wort, Emoji liegt separat in .nav-ic). Reiner
@@ -1423,7 +1424,7 @@ function mangaCard(m) {
   const readingBadge = cur ? `<div class="reading-badge">Band ${cur}</div>` : '';
   const wishBadge = mSeriesStatus(m) === 'wishlist' ? `<div class="wishlist-badge">💜 Wunsch</div>` : '';
 
-  return `<div class="manga-card"${isPublicReadOnly() ? '' : ` data-action="open-edit" data-manga-id="${escapeHtml(m.id)}"`}>
+  return `<div class="manga-card"${isPublicReadOnly() ? '' : ` role="button" tabindex="0" data-action="open-edit" data-manga-id="${escapeHtml(m.id)}"`}>
     <div class="cover-stack">
       ${coverEl(m)}
       ${readingBadge}
@@ -2101,7 +2102,7 @@ function updateGenreFilter() {
   wrap.style.display = 'flex';
   wrap.innerHTML = ['', ...usedGenres].map(g => {
     const isActive = g === '' ? filterGenres.length === 0 : filterGenres.includes(g);
-    return `<span class="genre-filter-chip${isActive?' on':''}" data-action="set-genre-filter" data-genre="${escapeHtml(g)}">${escapeHtml(g||'Alle')}</span>`;
+    return `<span class="genre-filter-chip${isActive?' on':''}" role="button" tabindex="0" aria-pressed="${isActive ? 'true' : 'false'}" data-action="set-genre-filter" data-genre="${escapeHtml(g)}">${escapeHtml(g||'Alle')}</span>`;
   }).join('');
 }
 
@@ -2703,7 +2704,7 @@ function render() {
         const day = String(d.getDate()).padStart(2,'0');
         const mon = monate[d.getMonth()].slice(0,3);
         const next = mFirstMissingBand(m) ?? mNextBand(m);
-        html += `<div class="kal-row${isAvail?' kal-avail':''}" data-action="open-edit" data-manga-id="${escapeHtml(m.id)}">
+        html += `<div class="kal-row${isAvail?' kal-avail':''}" role="button" tabindex="0" data-action="open-edit" data-manga-id="${escapeHtml(m.id)}">
           <div class="kal-date-box">
             <div class="kal-day">${isAvail ? '✓' : day}</div>
             <div class="kal-mon">${isAvail ? 'Jetzt' : mon}</div>
@@ -2784,6 +2785,7 @@ function setTab(t) {
   // Segmentierte Regal-Leiste (nur in der Bibliothek)
   document.querySelectorAll('#tabs .tab').forEach(el => {
     el.classList.toggle('active', el.dataset.tab === t);
+    el.setAttribute('aria-selected', String(el.dataset.tab === t));
   });
   // Sidebar / Bottom-Nav aktive Zustände
   document.querySelectorAll('.nav-item, .botnav button').forEach(el => {
@@ -2793,6 +2795,7 @@ function setTab(t) {
     else if (nav) active = (nav === t);
     else active = (el.dataset.tab === t); // Schnellzugriff-Direktlinks
     el.classList.toggle('active', active);
+    if (active) el.setAttribute('aria-current', 'page'); else el.removeAttribute('aria-current');
   });
   // Seitentitel
   const titleEl = document.getElementById('page-title');
@@ -5539,6 +5542,18 @@ if (seedDirty || bootDataBefore !== JSON.stringify(db)) saveLoc();
 // ─── Event-Bindings (Phase 21c: keine Inline-Script-Handler) ──────────────
 function bindStaticEvents() {
   // Header buttons werden per data-action in bindDelegatedEvents behandelt.
+
+  // Phase 88 (HIG/A11y): Elemente mit role="button"/"tab" sind keine nativen
+  // Buttons — Enter und Leertaste lösen deshalb dasselbe wie ein Klick aus.
+  document.addEventListener('keydown', function(event) {
+    if (event.key !== 'Enter' && event.key !== ' ') return;
+    if (event.defaultPrevented || event.altKey || event.ctrlKey || event.metaKey) return;
+    const el = event.target;
+    if (!el || !el.matches || !el.matches('[role="button"],[role="tab"]')) return;
+    if (el.matches('button,a,input,select,textarea,summary')) return;
+    event.preventDefault();
+    el.click();
+  });
 
   // Tabs
   document.getElementById('tabs')?.addEventListener('click', function(event) {

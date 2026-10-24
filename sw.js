@@ -20,7 +20,10 @@
 // (jszip 3.10.2) neu erzeugt und index.html trägt einen neuen SRI-Hash. Ohne Bump
 // liefern Bestandsgeräte die alte Vendor-Datei cache-first zum neuen integrity-
 // Attribut aus — der Import/Export-Dialog würde dort hart scheitern.
-const CACHE_VERSION = 'mt-pwa-v8';
+// Phase 88: Bump auf v9 — index.html (main/Skip-Link/ARIA, apple-touch-icon),
+// styles.css (Touch-Ziele, Kontrast, Fokus) und app.js (Tastaturbedienung) ändern
+// sich; manifest.json trägt neue PNG-Icons.
+const CACHE_VERSION = 'mt-pwa-v9';
 
 // App-Shell: statische Dateien, die nach dem ersten Online-Besuch offline
 // verfügbar sein sollen. Relative Pfade (./…) damit GitHub-Pages-Sub-Pfad

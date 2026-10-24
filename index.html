@@ -7,19 +7,22 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Manga Tracker 🇩🇪</title>
 <meta name="description" content="Tracke deine deutsche Manga-Sammlung und bleib über Erscheinungstermine informiert.">
-<meta name="theme-color" content="#1a1a3e">
+<meta name="theme-color" content="#07070e">
+<meta name="color-scheme" content="dark">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Manga Tracker">
 <link rel="manifest" href="./manifest.json">
+<link rel="apple-touch-icon" href="./apple-touch-icon.png">
 <link rel="icon" href="./favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="./src/styles.css">
 </head>
 <body class="dark" data-theme="shonen">
+<a class="skip-link" href="#main">Zum Inhalt springen</a>
 
 <div class="app-root">
 
-  <aside class="sidebar">
+  <aside class="sidebar" aria-label="Seitenleiste">
     <div class="brand">
       <div class="brand-mark">マ</div>
       <div>
@@ -63,18 +66,18 @@
           <div class="brand-name"><span class="jp">マンガ</span> Tracker</div>
         </div>
         <div class="search">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-          <input class="search-input" id="search-input" type="search" placeholder="Titel, Verlag, Genre, Notiz…" autocomplete="off">
-          <button class="search-clear" id="search-clear" data-action="clear-search" title="Suche löschen">✕</button>
+          <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input class="search-input" id="search-input" type="search" aria-label="Sammlung durchsuchen" placeholder="Titel, Verlag, Genre, Notiz…" autocomplete="off">
+          <button class="search-clear" id="search-clear" data-action="clear-search" title="Suche löschen" aria-label="Suche löschen">✕</button>
         </div>
-        <span id="sync-dot" class="sync-dot icon-btn" title="Jetzt synchronisieren" data-action="manual-sync">🔄</span>
-        <button class="icon-btn account-btn-mobile" id="btn-account" data-action="open-account" title="Konto / Anmelden">👤</button>
-        <button class="icon-btn header-share-btn" id="btn-share-profile" data-action="share-profile" title="Sammlung öffentlich teilen">🔗</button>
+        <button type="button" id="sync-dot" class="sync-dot icon-btn" title="Jetzt synchronisieren" aria-label="Jetzt synchronisieren" data-action="manual-sync">🔄</button>
+        <button class="icon-btn account-btn-mobile" id="btn-account" data-action="open-account" title="Konto / Anmelden" aria-label="Konto / Anmelden">👤</button>
+        <button class="icon-btn header-share-btn" id="btn-share-profile" data-action="share-profile" title="Sammlung öffentlich teilen" aria-label="Sammlung öffentlich teilen">🔗</button>
         <button class="btn-add" id="btn-add" data-action="open-add"><span>＋</span><span class="label-full">Hinzufügen</span></button>
       </div>
     </header>
 
-    <div class="main-inner">
+    <main class="main-inner" id="main" tabindex="-1">
 
       <!-- Phase 86: der Button führt hier aus der fremden Sammlung heraus (?view=
            verlassen), weil die Login-UI in der öffentlichen Ansicht per Design aus
@@ -103,50 +106,50 @@
            die in Dashboard/Kalender ausgeblendet werden. Der Umschalter bleibt in
            allen Tabs sichtbar. CSP-konform per Event-Delegation (data-action). -->
       <div class="tabs segmented mode-switch" id="mode-switch" role="tablist" aria-label="Anzeige-Modus">
-        <div class="tab" data-action="set-mode" data-mode="manga">📚 Manga</div>
-        <div class="tab" data-action="set-mode" data-mode="series">🎬 Serien &amp; Anime</div>
+        <div class="tab" role="tab" tabindex="0" aria-selected="false" data-action="set-mode" data-mode="manga">📚 Manga</div>
+        <div class="tab" role="tab" tabindex="0" aria-selected="false" data-action="set-mode" data-mode="series">🎬 Serien &amp; Anime</div>
       </div>
 
-      <div class="tabs segmented" id="tabs">
-        <div class="tab active" data-tab="reading"><span class="tab-lbl" data-status="reading">📖 Lese ich</span> <span class="badge" id="c-reading">0</span></div>
-        <div class="tab" data-tab="completed"><span class="tab-lbl" data-status="completed">✅ Gelesen</span> <span class="badge" id="c-completed">0</span></div>
-        <div class="tab" data-tab="owned"><span class="tab-lbl" data-status="owned">📚 Zu lesen</span> <span class="badge" id="c-owned">0</span></div>
-        <div class="tab" data-tab="wishlist">💜 Wunschliste <span class="badge" id="c-wishlist">0</span></div>
-        <div class="tab" data-tab="buy">🛒 Zu kaufen <span class="badge" id="c-buy">0</span></div>
+      <div class="tabs segmented" id="tabs" role="tablist" aria-label="Regal">
+        <div class="tab active" role="tab" tabindex="0" aria-selected="true" data-tab="reading"><span class="tab-lbl" data-status="reading">📖 Lese ich</span> <span class="badge" id="c-reading">0</span></div>
+        <div class="tab" role="tab" tabindex="0" aria-selected="false" data-tab="completed"><span class="tab-lbl" data-status="completed">✅ Gelesen</span> <span class="badge" id="c-completed">0</span></div>
+        <div class="tab" role="tab" tabindex="0" aria-selected="false" data-tab="owned"><span class="tab-lbl" data-status="owned">📚 Zu lesen</span> <span class="badge" id="c-owned">0</span></div>
+        <div class="tab" role="tab" tabindex="0" aria-selected="false" data-tab="wishlist">💜 Wunschliste <span class="badge" id="c-wishlist">0</span></div>
+        <div class="tab" role="tab" tabindex="0" aria-selected="false" data-tab="buy">🛒 Zu kaufen <span class="badge" id="c-buy">0</span></div>
       </div>
 
       <div class="toolbar" id="toolbar">
         <span class="search-hint" id="search-hint"></span>
-        <select class="sort-select" id="pub-filter" title="Verlag filtern">
+        <select class="sort-select" id="pub-filter" title="Verlag filtern" aria-label="Verlag filtern">
           <option value="">Alle Verlage</option>
         </select>
         <!-- Phase 72/74: Serie/Anime-Unterfilter INNERHALB des Serien-Modus. Nur sichtbar,
              wenn die Modus-Teilmenge mehr als einen Typ enthält (updateMediaFilter() über
              mediaModeItems()). Im Manga-Modus immer versteckt — daher keine „Manga“-Option. -->
-        <select class="sort-select hidden" id="media-filter" title="Serie/Anime filtern">
+        <select class="sort-select hidden" id="media-filter" title="Serie/Anime filtern" aria-label="Serie oder Anime filtern">
           <option value="">Alle</option>
           <option value="series">Serie</option>
           <option value="anime">Anime</option>
         </select>
-        <select class="sort-select" id="sort-select" title="Sortierung">
+        <select class="sort-select" id="sort-select" title="Sortierung" aria-label="Sortierung">
           <option value="az">A–Z</option>
           <option value="za">Z–A</option>
           <option value="next">Nächster Band</option>
           <option value="added">Hinzugefügt</option>
         </select>
         <div class="view-toggle" id="view-toggle">
-          <button class="view-btn active" id="vbtn-series" data-view="series" title="Serienansicht">⊞</button>
-          <button class="view-btn" id="vbtn-volumes" data-view="volumes" title="Bändenliste">☰</button>
+          <button class="view-btn active" id="vbtn-series" data-view="series" title="Serienansicht" aria-label="Serienansicht">⊞</button>
+          <button class="view-btn" id="vbtn-volumes" data-view="volumes" title="Bändenliste" aria-label="Bändenliste">☰</button>
         </div>
       </div>
 
       <div class="genre-filter-wrap hidden" id="genre-filter-wrap"></div>
 
       <div id="content"></div>
-    </div>
+    </main>
   </div>
 
-  <nav class="botnav">
+  <nav class="botnav" aria-label="Hauptnavigation">
     <button data-action="set-tab" data-tab="reading" data-nav="library"><span class="nav-ic">📚</span><span>Bibliothek</span></button>
     <button data-action="set-tab" data-tab="kalender" data-nav="kalender"><span class="nav-ic">📅</span><span>Kalender</span></button>
     <button data-action="set-tab" data-tab="dashboard" data-nav="dashboard"><span class="nav-ic">📊</span><span>Dashboard</span></button>
@@ -283,7 +286,7 @@
   </div>
 </div>
 
-<div class="toast" id="toast"></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <!-- Release-Preview-Overlay (Phase 15c/15d) — nutzt bestehende Modal-CSS-Klassen, keine Designänderung -->
 <div class="overlay release-preview-overlay hidden" id="release-preview-overlay">

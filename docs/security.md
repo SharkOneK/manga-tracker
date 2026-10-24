@@ -68,11 +68,11 @@ lassen (Audit-Befund 22):
   publishable Key (einziger Aufrufer: `fetchPublicCollection()`, `src/supabase.js:195`).
 
 Diese Bereinigung war nicht nur kosmetisch: Der alte Import-Sync-Gate in `handleImportFile()`
-(`src/app.js:2331`) prüfte `if (_collId && _ownerToken)` — für reine Session-Nutzer
+(`src/app.js:2332`) prüfte `if (_collId && _ownerToken)` — für reine Session-Nutzer
 (Passkey/E-Mail-OTP, kein Adopt-Link) war `_ownerToken` immer `null`, wodurch der Cloud-Sync
 nach einem Import **still übersprungen** wurde, obwohl der Erfolgs-Toast erschien (stiller
 Datenverlust, Audit-Befund 22). Seit Phase 84 entscheidet die reine Funktion
-`importSyncDecision(mode, collId)` (`src/app.js:2391`, aufgerufen mit `getAppMode()` und
+`importSyncDecision(mode, collId)` (`src/app.js:2392`, aufgerufen mit `getAppMode()` und
 `_collId`) dreiwertig: `'sync'` löst `pushCloud()` aus, `'no-collection'` zeigt einen
 Hinweis-Toast statt stillem Skip, `'skip'` verhindert jeden Schreibversuch außerhalb von
 `cloud-owner-edit`. `canWriteCloud()` bleibt am Aufrufort zusätzlich als zweiter Gürtel stehen.
@@ -132,8 +132,8 @@ eine Spalte `created_at`
 jeden Grant, also für `anon`/`authenticated` unsichtbar.
 
 Clientseitig rufen `createMyCollection()` (`src/supabase.js:396`) und
-`startOwnCollection()` (`src/app.js:1601`) diesen Pfad auf; der Button dafür steht im
-Banner `id="no-collection-banner"` (`index.html:96`), das ausschließlich im Zustand
+`startOwnCollection()` (`src/app.js:1602`) diesen Pfad auf; der Button dafür steht im
+Banner `id="no-collection-banner"` (`index.html:99`), das ausschließlich im Zustand
 „angemeldet, aber noch keine Sammlung" sichtbar ist.
 
 `view_token_hash` ist **bewusst belassen** — er gehört zum Sharing-Pfad und wird, anders als
@@ -178,8 +178,8 @@ vorher der Eigentümer plus Empfänger eines Teilen-Links, jetzt jeder, der sich
 Das ist eine bewusste Entscheidung (Annahme A3 der Phase-86-Spec: ohne Sichtbarkeits-UI
 wäre ein privater Default ein toter Teilen-Link), aber eine, die der Nutzer vor dem Klick
 wissen soll — deshalb nennen sowohl der Banner-Text `id="no-collection-banner"`
-(`index.html:96`) als auch der Erfolgs-Toast in `createCollectionFeedback()`
-(`src/app.js:1528`) die öffentliche Lesbarkeit ausdrücklich. Ein
+(`index.html:99`) als auch der Erfolgs-Toast in `createCollectionFeedback()`
+(`src/app.js:1529`) die öffentliche Lesbarkeit ausdrücklich. Ein
 Sichtbarkeits-Umschalter bleibt Backlog-Kandidat.
 
 ## RPC-Rechte
@@ -270,10 +270,10 @@ style-src 'self'; upgrade-insecure-requests;
 Seit Phase 69 liefert `sw.js` einen Service Worker aus, Phase 73 hat ihn an die erweiterte
 CSP angepasst. Aktuell: `CACHE_VERSION = 'mt-pwa-v8'` (Phase 83: neu erzeugte `vendor/jszip.min.js` samt neuem SRI-Hash).
 
-- Non-GET-Requests werden nie abgefangen — `request.method !== 'GET'` (`sw.js:75`) führt zu
+- Non-GET-Requests werden nie abgefangen — `request.method !== 'GET'` (`sw.js:78`) führt zu
   `return` — Supabase-Writes und RPC-POSTs laufen am Service Worker vorbei.
 - Cross-Origin-Requests werden durchgelassen — `url.origin !== self.location.origin`
-  (`sw.js:89`) führt ebenfalls zu `return`: Supabase-Antworten und Auth-Token werden dadurch
+  (`sw.js:92`) führt ebenfalls zu `return`: Supabase-Antworten und Auth-Token werden dadurch
   **niemals** gecacht.
 - `data/*.json` läuft Network-First mit Cache-Fallback, die App-Shell (`index.html` und
   statische Assets) läuft Cache-First.
