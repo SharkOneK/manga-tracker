@@ -1238,14 +1238,22 @@ function volumeActions(v) {
   return `<div class="vol-actions">${buttons.join('')}</div>`;
 }
 
+// Phase 89 (HIG/A11y): „Stretched button“ statt klickbarem <div role=button>. Ein echter
+// <button> deckt Karte/Zeile per CSS (::after) ab und trägt den Namen — so entstehen keine
+// verschachtelten interaktiven Elemente (die Aktions-Buttons in der Karte bleiben eigene
+// Buttons mit höherem z-index).
+function openEditButton(id, title) {
+  return `<button type="button" class="card-open" data-action="open-edit" data-manga-id="${escapeHtml(id)}" aria-label="${escapeHtml(title || '')} bearbeiten"></button>`;
+}
+
 function volumeRow(v) {
   const c = colorFor(v.title);
   const bandCover = safeHttpsUrl((v.bandCovers || {})[String(v._band)] || v.cover);
-  const clickAttrs = isPublicReadOnly() ? '' : ` data-action="open-edit" data-manga-id="${escapeHtml(v.id)}"`;
+  const openBtn = isPublicReadOnly() ? '' : openEditButton(v.id, v.title);
   const status = v._bandStatus || bandStatus(v, v._band);
-  return `<div class="vol-row"${clickAttrs}>
+  return `<div class="vol-row">${openBtn}
     <div class="vol-cover" data-style-background="${escapeHtml(c)}">
-      ${bandCover ? `<img src="${escapeHtml(bandCover)}" alt="" loading="lazy" data-remove-on-error="true">` : `<div class="vol-cover-letter">${escapeHtml((v.title || '?').slice(0,1).toUpperCase())}</div>`}
+      ${bandCover ? `<img src="${escapeHtml(bandCover)}" alt="" loading="lazy" data-remove-on-error="true">` : `<div class="vol-cover-letter" aria-hidden="true">${escapeHtml((v.title || '?').slice(0,1).toUpperCase())}</div>`}
       <div class="vol-cover-gradient"></div>
       <div class="vol-band-badge">Band ${escapeHtml(v._band)}</div>
     </div>
@@ -1424,7 +1432,7 @@ function mangaCard(m) {
   const readingBadge = cur ? `<div class="reading-badge">Band ${cur}</div>` : '';
   const wishBadge = mSeriesStatus(m) === 'wishlist' ? `<div class="wishlist-badge">💜 Wunsch</div>` : '';
 
-  return `<div class="manga-card"${isPublicReadOnly() ? '' : ` role="button" tabindex="0" data-action="open-edit" data-manga-id="${escapeHtml(m.id)}"`}>
+  return `<div class="manga-card">${isPublicReadOnly() ? '' : openEditButton(m.id, m.title)}
     <div class="cover-stack">
       ${coverEl(m)}
       ${readingBadge}
@@ -1438,7 +1446,7 @@ function mangaCard(m) {
       ${hasProg ? `<div class="progress"><div class="progress-fill" data-style-width="${prog}%"></div></div>` : ''}
       ${(m.genres||[]).length ? `<div class="card-genres">${(m.genres).map(g=>`<span class="card-genre">${escapeHtml(g)}</span>`).join('')}</div>` : ''}
       ${(m.startedAt||m.finishedAt) ? `<div class="card-dates">${m.startedAt?'📖 '+new Date(m.startedAt+'T00:00:00').toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit',year:'numeric'}):''}${m.startedAt&&m.finishedAt?' – ':''}${m.finishedAt?'✅ '+new Date(m.finishedAt+'T00:00:00').toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit',year:'numeric'}):''}</div>`:''}
-      <button class="share-btn" data-action="share-manga" data-manga-id="${escapeHtml(m.id)}" title="Empfehlung teilen">📤</button>
+      <button class="share-btn" data-action="share-manga" data-manga-id="${escapeHtml(m.id)}" title="Empfehlung teilen" aria-label="Empfehlung teilen">📤</button>
     </div>
   </div>`;
 }
@@ -2704,7 +2712,7 @@ function render() {
         const day = String(d.getDate()).padStart(2,'0');
         const mon = monate[d.getMonth()].slice(0,3);
         const next = mFirstMissingBand(m) ?? mNextBand(m);
-        html += `<div class="kal-row${isAvail?' kal-avail':''}" role="button" tabindex="0" data-action="open-edit" data-manga-id="${escapeHtml(m.id)}">
+        html += `<div class="kal-row${isAvail?' kal-avail':''}">${openEditButton(m.id, m.title)}
           <div class="kal-date-box">
             <div class="kal-day">${isAvail ? '✓' : day}</div>
             <div class="kal-mon">${isAvail ? 'Jetzt' : mon}</div>
@@ -5540,8 +5548,56 @@ if (seedDirty || bootDataBefore !== JSON.stringify(db)) saveLoc();
 // Coverage-Diagnose ist nicht mehr nötig.
 
 // ─── Event-Bindings (Phase 21c: keine Inline-Script-Handler) ──────────────
+// Phase 89 (HIG/A11y): Dialog-Verhalten zentral, ohne die einzelnen open*/close*-Funktionen
+// anzufassen — Fokus beim Öffnen in den Dialog, beim Schließen zurück zum Auslöser, Tab bleibt
+// im Dialog, Escape schließt den obersten. Reiner UI-Spiegel, schreibt keinen App-Zustand.
+function bindDialogA11y() {
+  const overlays = Array.from(document.querySelectorAll('.overlay'));
+  // Inline-Style gewinnt gegen .hidden (die App öffnet per style.display='flex') — daher nur der berechnete Wert.
+  const isOpen = (ov) => getComputedStyle(ov).display !== 'none';
+  const focusables = (ov) => Array.from(ov.querySelectorAll(
+    'a[href],button:not([disabled]),input:not([disabled]):not([type="hidden"]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])'
+  )).filter((el) => el.offsetParent !== null || el === document.activeElement);
+  const state = new Map();
+  const sync = (ov) => {
+    const open = isOpen(ov);
+    const was = state.get(ov);
+    if (open && !was) {
+      state.set(ov, { opener: document.activeElement });
+      const first = ov.querySelector('input:not([type="hidden"]):not([type="checkbox"]),select,textarea') || focusables(ov)[0];
+      setTimeout(() => { try { (first || ov.querySelector('.modal'))?.focus(); } catch (_) {} }, 0);
+    } else if (!open && was) {
+      state.delete(ov);
+      const opener = was.opener;
+      if (opener && opener.isConnected && typeof opener.focus === 'function') {
+        try { opener.focus(); } catch (_) {}
+      }
+    }
+  };
+  const observer = new MutationObserver((muts) => muts.forEach((m) => sync(m.target)));
+  overlays.forEach((ov) => observer.observe(ov, { attributes: true, attributeFilter: ['style', 'class'] }));
+  document.addEventListener('keydown', function(event) {
+    const open = overlays.filter(isOpen);
+    if (!open.length) return;
+    const top = open[open.length - 1];
+    if (event.key === 'Escape') {
+      const closer = top.querySelector('[data-action^="close"]');
+      if (closer) { event.preventDefault(); closer.click(); }
+      return;
+    }
+    if (event.key === 'Tab') {
+      const items = focusables(top);
+      if (!items.length) return;
+      const first = items[0], last = items[items.length - 1];
+      if (event.shiftKey && (document.activeElement === first || !top.contains(document.activeElement))) { event.preventDefault(); last.focus(); }
+      else if (!event.shiftKey && (document.activeElement === last || !top.contains(document.activeElement))) { event.preventDefault(); first.focus(); }
+    }
+  });
+}
+
 function bindStaticEvents() {
   // Header buttons werden per data-action in bindDelegatedEvents behandelt.
+  bindDialogA11y();
 
   // Phase 88 (HIG/A11y): Elemente mit role="button"/"tab" sind keine nativen
   // Buttons — Enter und Leertaste lösen deshalb dasselbe wie ein Klick aus.

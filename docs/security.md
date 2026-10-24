@@ -68,11 +68,11 @@ lassen (Audit-Befund 22):
   publishable Key (einziger Aufrufer: `fetchPublicCollection()`, `src/supabase.js:195`).
 
 Diese Bereinigung war nicht nur kosmetisch: Der alte Import-Sync-Gate in `handleImportFile()`
-(`src/app.js:2332`) prüfte `if (_collId && _ownerToken)` — für reine Session-Nutzer
+(`src/app.js:2340`) prüfte `if (_collId && _ownerToken)` — für reine Session-Nutzer
 (Passkey/E-Mail-OTP, kein Adopt-Link) war `_ownerToken` immer `null`, wodurch der Cloud-Sync
 nach einem Import **still übersprungen** wurde, obwohl der Erfolgs-Toast erschien (stiller
 Datenverlust, Audit-Befund 22). Seit Phase 84 entscheidet die reine Funktion
-`importSyncDecision(mode, collId)` (`src/app.js:2392`, aufgerufen mit `getAppMode()` und
+`importSyncDecision(mode, collId)` (`src/app.js:2400`, aufgerufen mit `getAppMode()` und
 `_collId`) dreiwertig: `'sync'` löst `pushCloud()` aus, `'no-collection'` zeigt einen
 Hinweis-Toast statt stillem Skip, `'skip'` verhindert jeden Schreibversuch außerhalb von
 `cloud-owner-edit`. `canWriteCloud()` bleibt am Aufrufort zusätzlich als zweiter Gürtel stehen.
@@ -132,7 +132,7 @@ eine Spalte `created_at`
 jeden Grant, also für `anon`/`authenticated` unsichtbar.
 
 Clientseitig rufen `createMyCollection()` (`src/supabase.js:396`) und
-`startOwnCollection()` (`src/app.js:1602`) diesen Pfad auf; der Button dafür steht im
+`startOwnCollection()` (`src/app.js:1610`) diesen Pfad auf; der Button dafür steht im
 Banner `id="no-collection-banner"` (`index.html:99`), das ausschließlich im Zustand
 „angemeldet, aber noch keine Sammlung" sichtbar ist.
 
@@ -179,7 +179,7 @@ Das ist eine bewusste Entscheidung (Annahme A3 der Phase-86-Spec: ohne Sichtbark
 wäre ein privater Default ein toter Teilen-Link), aber eine, die der Nutzer vor dem Klick
 wissen soll — deshalb nennen sowohl der Banner-Text `id="no-collection-banner"`
 (`index.html:99`) als auch der Erfolgs-Toast in `createCollectionFeedback()`
-(`src/app.js:1529`) die öffentliche Lesbarkeit ausdrücklich. Ein
+(`src/app.js:1537`) die öffentliche Lesbarkeit ausdrücklich. Ein
 Sichtbarkeits-Umschalter bleibt Backlog-Kandidat.
 
 ## RPC-Rechte

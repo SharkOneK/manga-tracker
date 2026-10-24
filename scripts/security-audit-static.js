@@ -1029,7 +1029,8 @@ if (!appJs) {
     // — Vorgerendertes, an der Quelle bereits escaptes HTML / interne IDs —
     // (diese Bezeichner tragen entweder fertiges Markup oder App-generierte IDs,
     //  nie rohen Fremdtext; die Escaping-Verantwortung liegt an der Baustelle)
-    'statusPill', 'volText', 'dateHtml', 'dateLabel', 'pubHtml', 'rows', 'meta',
+    // openBtn (Phase 89): openEditButton() escaped id und Titel selbst per escapeHtml().
+    'statusPill', 'openBtn', 'volText', 'dateHtml', 'dateLabel', 'pubHtml', 'rows', 'meta',
     'coverSyncNote', 'dropTag', 'id',
     // — Hartcodierte Labels/Konstanten (Entwicklertext, kein Nutzer-/Fremdinput) —
     'label', 'ic', 'tt', 'sub', 'st', 'cur', 'd', 'q', 'm',
