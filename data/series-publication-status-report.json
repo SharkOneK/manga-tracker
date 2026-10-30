@@ -1,14 +1,14 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-07T11:18:25.980Z",
+  "generatedAt": "2026-10-30T10:59:32.610Z",
   "source": "run-series-publication-status.js",
   "networkMode": "enabled",
   "summary": {
-    "seriesWithStatus": 47,
-    "ongoing": 32,
+    "seriesWithStatus": 48,
+    "ongoing": 33,
     "finished": 15,
-    "checkedEditions": 46,
-    "appliedChanges": 2,
+    "checkedEditions": 47,
+    "appliedChanges": 3,
     "overridesApplied": 1,
     "blockedOrUnmapped": 6
   },
@@ -19,6 +19,13 @@
       "oldOngoing": "false",
       "newOngoing": "true",
       "editionId": 819
+    },
+    {
+      "seriesTitle": "Vermeil in Gold",
+      "publisher": "MANGAMOON",
+      "oldOngoing": null,
+      "newOngoing": "true",
+      "editionId": 6137
     },
     {
       "seriesTitle": "Real Account",
@@ -332,6 +339,12 @@
       "seriesTitle": "Vagabond – Master Edition",
       "publisher": "Egmont Manga",
       "editionId": 4636,
+      "sourceStatus": 1
+    },
+    {
+      "seriesTitle": "Vermeil in Gold",
+      "publisher": "MANGAMOON",
+      "editionId": 6137,
       "sourceStatus": 1
     },
     {
