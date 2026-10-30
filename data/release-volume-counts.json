@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-30T10:55:06.167Z",
+  "generatedAt": "2026-10-30T10:57:18.842Z",
   "items": [
     {
       "seriesTitle": "Adou",
@@ -176,11 +176,11 @@
     {
       "seriesTitle": "Gushing over Magical Girls",
       "publisher": "MANGAMOON",
-      "publishedVolumesDE": 4,
+      "publishedVolumesDE": 5,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/5407",
       "confidence": "high",
-      "checkedAt": "2026-06-14T08:21:13.292Z"
+      "checkedAt": "2026-10-30T10:57:18.842Z"
     },
     {
       "seriesTitle": "I Was Reincarnated as the 7th Prince So I Can Take My Time Perfecting My Magical Ability",
