@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-21T09:25:25.930Z",
+  "generatedAt": "2026-10-30T10:55:06.167Z",
   "items": [
     {
       "seriesTitle": "Adou",
@@ -424,6 +424,15 @@
       "sourceUrl": "https://www.manga-passion.de/editions/4636",
       "confidence": "high",
       "checkedAt": "2026-05-26T14:17:36.296Z"
+    },
+    {
+      "seriesTitle": "Vermeil in Gold",
+      "publisher": "MANGAMOON",
+      "publishedVolumesDE": 2,
+      "source": "manga-passion",
+      "sourceUrl": "https://www.manga-passion.de/editions/6137",
+      "confidence": "high",
+      "checkedAt": "2026-10-11T10:48:11.781Z"
     },
     {
       "seriesTitle": "Vinland Saga",
