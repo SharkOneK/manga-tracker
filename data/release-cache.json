@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-21T09:20:43.473Z",
+  "generatedAt": "2026-10-31T10:22:06.413Z",
   "source": "run-release-cache-pipeline.js",
-  "itemCount": 236,
+  "itemCount": 237,
   "items": [
     {
       "seriesTitle": "Adou",
@@ -1727,6 +1727,23 @@
       "confidence": "high",
       "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 5407, Band 4). Ursprung: watchlist.",
       "checkedAt": "2026-06-14T08:21:13.292Z"
+    },
+    {
+      "seriesTitle": "Gushing over Magical Girls",
+      "normalizedSeriesTitle": "gushing over magical girls",
+      "publisher": "MANGAMOON",
+      "normalizedPublisher": "mangamoon",
+      "volumeNumber": 5,
+      "releaseDate": "2026-10-30",
+      "isbn13": null,
+      "coverUrl": "https://media.manga-passion.de/volume/cover/2026/1011/1623/4e9288ff42a29a91ff8eaab554f4b7a1.png",
+      "sourceUrl": "https://www.manga-passion.de/editions/5407",
+      "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
+      "evidence": "Manga Passion Edition, Verlag und Bandnummer wurden gegen die Bandliste abgeglichen.",
+      "confidence": "high",
+      "notes": "Automatisch per Release-Cache-Pipeline bestätigt (Manga Passion Edition 5407, Band 5). Ursprung: volume-counts.",
+      "checkedAt": "2026-10-31T10:22:06.413Z"
     },
     {
       "seriesTitle": "I Was Reincarnated as the 7th Prince So I Can Take My Time Perfecting My Magical Ability",

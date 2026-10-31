@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-30T10:57:18.842Z",
+  "generatedAt": "2026-10-31T10:27:06.615Z",
   "items": [
     {
       "seriesTitle": "Adou",
@@ -180,16 +180,16 @@
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/5407",
       "confidence": "high",
-      "checkedAt": "2026-10-30T10:57:18.842Z"
+      "checkedAt": "2026-10-31T10:22:06.413Z"
     },
     {
       "seriesTitle": "I Was Reincarnated as the 7th Prince So I Can Take My Time Perfecting My Magical Ability",
       "publisher": "Dokico",
-      "publishedVolumesDE": 1,
+      "publishedVolumesDE": 2,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/6021",
       "confidence": "high",
-      "checkedAt": "2026-05-26T14:17:36.296Z"
+      "checkedAt": "2026-08-16T15:26:16.100Z"
     },
     {
       "seriesTitle": "Isekai Soapland",
@@ -377,6 +377,15 @@
       "publishedVolumesDE": 27,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/210",
+      "confidence": "high",
+      "checkedAt": "2026-08-16T15:26:16.100Z"
+    },
+    {
+      "seriesTitle": "This Year’s Hot Ace-chan",
+      "publisher": "Dokico",
+      "publishedVolumesDE": 2,
+      "source": "manga-passion",
+      "sourceUrl": "https://www.manga-passion.de/editions/5677",
       "confidence": "high",
       "checkedAt": "2026-08-16T15:26:16.100Z"
     },
