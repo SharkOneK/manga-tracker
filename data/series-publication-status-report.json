@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-31T10:33:52.397Z",
+  "generatedAt": "2026-11-01T11:27:46.171Z",
   "source": "run-series-publication-status.js",
   "networkMode": "enabled",
   "summary": {
@@ -8,7 +8,7 @@
     "ongoing": 34,
     "finished": 15,
     "checkedEditions": 48,
-    "appliedChanges": 3,
+    "appliedChanges": 2,
     "overridesApplied": 1,
     "blockedOrUnmapped": 6
   },
@@ -19,13 +19,6 @@
       "oldOngoing": "false",
       "newOngoing": "true",
       "editionId": 819
-    },
-    {
-      "seriesTitle": "This Year’s Hot Ace-chan",
-      "publisher": "Dokico",
-      "oldOngoing": null,
-      "newOngoing": "true",
-      "editionId": 5677
     },
     {
       "seriesTitle": "Real Account",
