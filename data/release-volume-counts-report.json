@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-02T12:43:07.205Z",
+  "generatedAt": "2026-11-03T12:09:11.971Z",
   "source": "run-release-volume-counts.js",
   "providerMode": "enabled",
   "policy": {
@@ -142,11 +142,6 @@
       "publisher": "Egmont Manga",
       "volumeNumber": 16,
       "reasonCodes": [
-        "source-url-not-specific",
-        "missing-source-edition-title",
-        "missing-source-publisher",
-        "missing-source-volume-number",
-        "missing-release-date",
         "not-yet-released"
       ]
     },
@@ -443,11 +438,6 @@
       "publisher": "Egmont Manga",
       "volumeNumber": 5,
       "reasonCodes": [
-        "source-url-not-specific",
-        "missing-source-edition-title",
-        "missing-source-publisher",
-        "missing-source-volume-number",
-        "missing-release-date",
         "not-yet-released"
       ]
     },
@@ -824,17 +814,11 @@
       "seriesTitle": "Vagabond – Master Edition",
       "publisher": "Egmont Manga",
       "volumeNumber": 16,
-      "source": "carlsen",
-      "sourceUrl": "https://www.carlsen.de",
-      "confidence": "low",
+      "source": "manga-passion",
+      "sourceUrl": "https://www.manga-passion.de/editions/4636",
+      "confidence": "high",
       "released": false,
-      "reasonCodes": [
-        "source-url-not-specific",
-        "missing-source-edition-title",
-        "missing-source-publisher",
-        "missing-source-volume-number",
-        "missing-release-date"
-      ]
+      "reasonCodes": []
     },
     {
       "seriesTitle": "Adou",
@@ -1200,17 +1184,11 @@
       "seriesTitle": "Demon King of God Killing",
       "publisher": "Egmont Manga",
       "volumeNumber": 5,
-      "source": "carlsen",
-      "sourceUrl": "https://www.carlsen.de",
-      "confidence": "low",
+      "source": "manga-passion",
+      "sourceUrl": "https://www.manga-passion.de/editions/2485",
+      "confidence": "high",
       "released": false,
-      "reasonCodes": [
-        "source-url-not-specific",
-        "missing-source-edition-title",
-        "missing-source-publisher",
-        "missing-source-volume-number",
-        "missing-release-date"
-      ]
+      "reasonCodes": []
     },
     {
       "seriesTitle": "Demon Slave",
