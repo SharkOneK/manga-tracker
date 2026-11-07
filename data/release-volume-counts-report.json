@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-06T12:18:45.659Z",
+  "generatedAt": "2026-11-07T11:13:22.342Z",
   "source": "run-release-volume-counts.js",
   "providerMode": "enabled",
   "policy": {
@@ -27,21 +27,11 @@
     "seriesInVolumeCounts": 53,
     "probeCandidates": 64,
     "checkedCandidates": 64,
-    "detectedChanges": 1,
-    "appliedHighConfidenceChanges": 1,
-    "blockedOrUnsafe": 74
+    "detectedChanges": 0,
+    "appliedHighConfidenceChanges": 0,
+    "blockedOrUnsafe": 75
   },
-  "changes": [
-    {
-      "seriesTitle": "Dandadan",
-      "publisher": "KAZÉ Manga",
-      "oldPublishedVolumesDE": 21,
-      "newPublishedVolumesDE": 22,
-      "source": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/2027",
-      "confidence": "high"
-    }
-  ],
+  "changes": [],
   "blockedCandidates": [
     {
       "seriesTitle": "August 9th, I will be eaten by you",
@@ -412,6 +402,14 @@
       "reasonCodes": [
         "missing-source-volume-number",
         "missing-release-date",
+        "not-yet-released"
+      ]
+    },
+    {
+      "seriesTitle": "Dandadan",
+      "publisher": "KAZÉ Manga",
+      "volumeNumber": 23,
+      "reasonCodes": [
         "not-yet-released"
       ]
     },
@@ -1138,11 +1136,11 @@
     {
       "seriesTitle": "Dandadan",
       "publisher": "KAZÉ Manga",
-      "volumeNumber": 22,
+      "volumeNumber": 23,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/2027",
       "confidence": "high",
-      "released": true,
+      "released": false,
       "reasonCodes": []
     },
     {
