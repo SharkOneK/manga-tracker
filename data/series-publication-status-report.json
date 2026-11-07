@@ -1,18 +1,25 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-01T11:27:46.171Z",
+  "generatedAt": "2026-11-07T11:17:02.653Z",
   "source": "run-series-publication-status.js",
   "networkMode": "enabled",
   "summary": {
-    "seriesWithStatus": 49,
-    "ongoing": 34,
+    "seriesWithStatus": 50,
+    "ongoing": 35,
     "finished": 15,
-    "checkedEditions": 48,
-    "appliedChanges": 2,
+    "checkedEditions": 49,
+    "appliedChanges": 3,
     "overridesApplied": 1,
-    "blockedOrUnmapped": 6
+    "blockedOrUnmapped": 5
   },
   "changes": [
+    {
+      "seriesTitle": "Dandadan",
+      "publisher": "KAZÉ Manga",
+      "oldOngoing": null,
+      "newOngoing": "true",
+      "editionId": 2027
+    },
     {
       "seriesTitle": "Real Account",
       "publisher": "TOKYOPOP",
@@ -54,13 +61,6 @@
     {
       "seriesTitle": "Colorless",
       "publisher": "Manga Cult",
-      "reasonCodes": [
-        "no-manga-passion-edition"
-      ]
-    },
-    {
-      "seriesTitle": "Dandadan",
-      "publisher": "KAZÉ Manga",
       "reasonCodes": [
         "no-manga-passion-edition"
       ]
@@ -128,6 +128,12 @@
       "seriesTitle": "Dai Dark",
       "publisher": "Manga Cult",
       "editionId": 2177,
+      "sourceStatus": 1
+    },
+    {
+      "seriesTitle": "Dandadan",
+      "publisher": "KAZÉ Manga",
+      "editionId": 2027,
       "sourceStatus": 1
     },
     {
