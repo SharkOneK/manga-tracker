@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-01T11:14:50.303Z",
+  "generatedAt": "2026-11-07T11:01:40.274Z",
   "source": "run-release-cache-pipeline.js",
   "inputs": {
     "cacheItems": 237,
@@ -46,19 +46,80 @@
   },
   "summary": {
     "candidatesDiscovered": 247,
-    "candidatesChecked": 27,
-    "skippedAlreadyCached": 220,
+    "candidatesChecked": 28,
+    "skippedAlreadyCached": 219,
     "skippedDueToLimit": 0,
-    "highConfidence": 0,
+    "highConfidence": 5,
     "mediumConfidence": 0,
-    "lowConfidence": 27,
+    "lowConfidence": 23,
     "blocked": 0,
-    "cachePatches": 0,
-    "reviewQueueWrites": 27,
+    "cachePatches": 5,
+    "reviewQueueWrites": 23,
     "invalidExistingCache": 0
   },
-  "autoMergeEligible": false,
-  "cachePatches": [],
+  "autoMergeEligible": true,
+  "cachePatches": [
+    {
+      "action": "add",
+      "key": "vagabond master edition|egmont manga|16",
+      "seriesTitle": "Vagabond – Master Edition",
+      "publisher": "Egmont Manga",
+      "volumeNumber": 16,
+      "releaseDate": "2027-04-12",
+      "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
+      "sourceUrl": "https://www.manga-passion.de/editions/4636",
+      "confidence": "high"
+    },
+    {
+      "action": "add",
+      "key": "vagabond master edition|egmont manga|17",
+      "seriesTitle": "Vagabond – Master Edition",
+      "publisher": "Egmont Manga",
+      "volumeNumber": 17,
+      "releaseDate": "2027-06-07",
+      "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
+      "sourceUrl": "https://www.manga-passion.de/editions/4636",
+      "confidence": "high"
+    },
+    {
+      "action": "add",
+      "key": "vagabond master edition|egmont manga|18",
+      "seriesTitle": "Vagabond – Master Edition",
+      "publisher": "Egmont Manga",
+      "volumeNumber": 18,
+      "releaseDate": "2027-08-03",
+      "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
+      "sourceUrl": "https://www.manga-passion.de/editions/4636",
+      "confidence": "high"
+    },
+    {
+      "action": "add",
+      "key": "arifureta der kampf zuruck in meine welt zero|altraverse|5",
+      "seriesTitle": "Arifureta: Der Kampf zurück in meine Welt – Zero",
+      "publisher": "altraverse",
+      "volumeNumber": 5,
+      "releaseDate": "2027-01-18",
+      "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
+      "sourceUrl": "https://www.manga-passion.de/editions/5807",
+      "confidence": "high"
+    },
+    {
+      "action": "add",
+      "key": "dandadan|crunchyroll manga|22",
+      "seriesTitle": "Dandadan",
+      "publisher": "KAZÉ Manga",
+      "volumeNumber": 22,
+      "releaseDate": "2026-11-06",
+      "sourceName": "Manga Passion",
+      "providerId": "manga-passion",
+      "sourceUrl": "https://www.manga-passion.de/editions/2027",
+      "confidence": "high"
+    }
+  ],
   "reviewQueueWrites": [
     {
       "key": "berserk master edition|panini manga|9",
@@ -187,95 +248,11 @@
       "sourceResult": "publisher-not-supported"
     },
     {
-      "key": "vagabond master edition|egmont manga|16",
-      "queueKey": "Vagabond – Master Edition|Egmont Manga|16",
-      "seriesTitle": "Vagabond – Master Edition",
-      "publisher": "Egmont Manga",
-      "volumeNumber": 16,
-      "confidence": "low",
-      "reviewStatus": "auto-low-confidence",
-      "reasonCodes": [
-        "source-url-not-specific",
-        "missing-source-edition-title",
-        "missing-source-publisher",
-        "missing-source-volume-number",
-        "missing-release-date"
-      ],
-      "sourceName": "Carlsen Manga",
-      "providerId": "carlsen",
-      "sourceUrl": "https://www.carlsen.de",
-      "releaseDate": null,
-      "sourceResult": "publisher-not-supported"
-    },
-    {
-      "key": "vagabond master edition|egmont manga|17",
-      "queueKey": "Vagabond – Master Edition|Egmont Manga|17",
-      "seriesTitle": "Vagabond – Master Edition",
-      "publisher": "Egmont Manga",
-      "volumeNumber": 17,
-      "confidence": "low",
-      "reviewStatus": "auto-low-confidence",
-      "reasonCodes": [
-        "source-url-not-specific",
-        "missing-source-edition-title",
-        "missing-source-publisher",
-        "missing-source-volume-number",
-        "missing-release-date"
-      ],
-      "sourceName": "Carlsen Manga",
-      "providerId": "carlsen",
-      "sourceUrl": "https://www.carlsen.de",
-      "releaseDate": null,
-      "sourceResult": "publisher-not-supported"
-    },
-    {
-      "key": "vagabond master edition|egmont manga|18",
-      "queueKey": "Vagabond – Master Edition|Egmont Manga|18",
-      "seriesTitle": "Vagabond – Master Edition",
-      "publisher": "Egmont Manga",
-      "volumeNumber": 18,
-      "confidence": "low",
-      "reviewStatus": "auto-low-confidence",
-      "reasonCodes": [
-        "source-url-not-specific",
-        "missing-source-edition-title",
-        "missing-source-publisher",
-        "missing-source-volume-number",
-        "missing-release-date"
-      ],
-      "sourceName": "Carlsen Manga",
-      "providerId": "carlsen",
-      "sourceUrl": "https://www.carlsen.de",
-      "releaseDate": null,
-      "sourceResult": "publisher-not-supported"
-    },
-    {
       "key": "vagabond master edition|egmont manga|19",
       "queueKey": "Vagabond – Master Edition|Egmont Manga|19",
       "seriesTitle": "Vagabond – Master Edition",
       "publisher": "Egmont Manga",
       "volumeNumber": 19,
-      "confidence": "low",
-      "reviewStatus": "auto-low-confidence",
-      "reasonCodes": [
-        "source-url-not-specific",
-        "missing-source-edition-title",
-        "missing-source-publisher",
-        "missing-source-volume-number",
-        "missing-release-date"
-      ],
-      "sourceName": "Carlsen Manga",
-      "providerId": "carlsen",
-      "sourceUrl": "https://www.carlsen.de",
-      "releaseDate": null,
-      "sourceResult": "publisher-not-supported"
-    },
-    {
-      "key": "arifureta der kampf zuruck in meine welt zero|altraverse|5",
-      "queueKey": "Arifureta: Der Kampf zurück in meine Welt – Zero|Altraverse|5",
-      "seriesTitle": "Arifureta: Der Kampf zurück in meine Welt – Zero",
-      "publisher": "Altraverse",
-      "volumeNumber": 5,
       "confidence": "low",
       "reviewStatus": "auto-low-confidence",
       "reasonCodes": [
@@ -823,7 +800,6 @@
     "blood blade|hayabusa|5",
     "chainsaw man|egmont manga|22",
     "colorless|manga cult|7",
-    "dandadan|crunchyroll manga|21",
     "darling in the franxx|manga cult|8",
     "demon slave|crunchyroll manga|19",
     "frieren nach dem ende der reise|altraverse|15",

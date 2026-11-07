@@ -8,15 +8,15 @@ Stand: automatisch synchronisiert aus aktuellem Audit gegen `data/release-watchl
 |---|---:|
 | Aktivierte Watchlist-Eintraege | 62 |
 | Expandierte Watchlist-Bandkandidaten | 216 |
-| Release-Cache-Eintraege | 237 |
-| Gefundene Cache-Eintraege | 189 |
-| Verbleibende Luecken | 27 |
+| Release-Cache-Eintraege | 242 |
+| Gefundene Cache-Eintraege | 193 |
+| Verbleibende Luecken | 23 |
 | Betroffene Serien | 10 |
 | Betroffene Verlage | 9 |
 
 ## Klassifikation
 
-Alle 27 verbleibenden Luecken sind als `source-data-gap` klassifiziert.
+Alle 23 verbleibenden Luecken sind als `source-data-gap` klassifiziert.
 
 Bedeutung: Der Watchlist-Band wurde nach dem Cache-Update weiterhin nicht in `data/release-cache.json` gefunden. Diese Faelle sind Quellen-/Datenqualitaetsfaelle und duerfen nicht durch Fake-Daten geschlossen werden.
 
@@ -26,9 +26,9 @@ Empfohlener Umgang: manuell in verlaesslicher Quelle pruefen, erst danach echte 
 
 | Serie | Verlag | Fehlende Baende | Anzahl | Klassifikation |
 |---|---|---:|---:|---|
-| Vagabond – Master Edition | Egmont Manga | 16-19 | 4 | source-data-gap |
+| Vagabond – Master Edition | Egmont Manga | 19 | 1 | source-data-gap |
 | Adou | Altraverse | 12 | 1 | source-data-gap |
-| Arifureta: Der Kampf zurück in meine Welt – Zero | Altraverse | 5-8 | 4 | source-data-gap |
+| Arifureta: Der Kampf zurück in meine Welt – Zero | Altraverse | 6-8 | 3 | source-data-gap |
 | Berserk Master Edition | Panini Manga | 9-14 | 6 | source-data-gap |
 | Isekai Soapland | MANGAMOON | 3-8 | 6 | source-data-gap |
 | Neck mich nicht, Nagatoro-san | dani books | 6-7 | 2 | source-data-gap |
@@ -43,11 +43,11 @@ Empfohlener Umgang: manuell in verlaesslicher Quelle pruefen, erst danach echte 
 |---|---:|---:|
 | MANGAMOON | 6 | 1 |
 | Panini Manga | 6 | 1 |
-| Altraverse | 5 | 2 |
-| Egmont Manga | 4 | 1 |
+| Altraverse | 4 | 2 |
 | dani books | 2 | 1 |
 | Carlsen Manga | 1 | 1 |
 | Dokico | 1 | 1 |
+| Egmont Manga | 1 | 1 |
 | Hayabusa | 1 | 1 |
 | Tokyopop | 1 | 1 |
 
@@ -91,7 +91,7 @@ Der normale Workflow scheitert weiterhin nicht an bekannten `source-data-gap`-Lu
 
 ## Phase 23a: Ursachenanalyse
 
-Die 27 `source-data-gap`-Einzelluecken sind in `docs/release-cache-source-gap-analysis.md` strukturiert analysiert.
+Die 23 `source-data-gap`-Einzelluecken sind in `docs/release-cache-source-gap-analysis.md` strukturiert analysiert.
 
 Die Analyse dokumentiert pro Gap:
 
