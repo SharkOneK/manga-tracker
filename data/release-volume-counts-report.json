@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-07T11:13:22.342Z",
+  "generatedAt": "2026-11-09T13:09:35.613Z",
   "source": "run-release-volume-counts.js",
   "providerMode": "enabled",
   "policy": {
@@ -27,11 +27,21 @@
     "seriesInVolumeCounts": 53,
     "probeCandidates": 64,
     "checkedCandidates": 64,
-    "detectedChanges": 0,
-    "appliedHighConfidenceChanges": 0,
-    "blockedOrUnsafe": 75
+    "detectedChanges": 1,
+    "appliedHighConfidenceChanges": 1,
+    "blockedOrUnsafe": 74
   },
-  "changes": [],
+  "changes": [
+    {
+      "seriesTitle": "Meine Wiedergeburt als Schleim in einer anderen Welt",
+      "publisher": "altraverse",
+      "oldPublishedVolumesDE": 30,
+      "newPublishedVolumesDE": 31,
+      "source": "manga-passion",
+      "sourceUrl": "https://www.manga-passion.de/editions/249",
+      "confidence": "high"
+    }
+  ],
   "blockedCandidates": [
     {
       "seriesTitle": "August 9th, I will be eaten by you",
@@ -575,14 +585,6 @@
         "missing-source-publisher",
         "missing-source-volume-number",
         "missing-release-date",
-        "not-yet-released"
-      ]
-    },
-    {
-      "seriesTitle": "Meine Wiedergeburt als Schleim in einer anderen Welt",
-      "publisher": "altraverse",
-      "volumeNumber": 31,
-      "reasonCodes": [
         "not-yet-released"
       ]
     },
@@ -1359,7 +1361,7 @@
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/249",
       "confidence": "high",
-      "released": false,
+      "released": true,
       "reasonCodes": []
     },
     {
