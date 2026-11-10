@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-09T13:09:35.613Z",
+  "generatedAt": "2026-11-10T12:50:52.667Z",
   "items": [
     {
       "seriesTitle": "Adou",
@@ -50,11 +50,11 @@
     {
       "seriesTitle": "Bitte zieh dich an, Takamine!",
       "publisher": "Egmont Manga",
-      "publishedVolumesDE": 3,
+      "publishedVolumesDE": 4,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/5858",
       "confidence": "high",
-      "checkedAt": "2026-09-12T10:09:28.258Z"
+      "checkedAt": "2026-11-10T12:50:52.667Z"
     },
     {
       "seriesTitle": "Blood Blade",

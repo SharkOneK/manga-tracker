@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-09T13:09:35.613Z",
+  "generatedAt": "2026-11-10T12:50:52.667Z",
   "source": "run-release-volume-counts.js",
   "providerMode": "enabled",
   "policy": {
@@ -33,12 +33,12 @@
   },
   "changes": [
     {
-      "seriesTitle": "Meine Wiedergeburt als Schleim in einer anderen Welt",
-      "publisher": "altraverse",
-      "oldPublishedVolumesDE": 30,
-      "newPublishedVolumesDE": 31,
+      "seriesTitle": "Bitte zieh dich an, Takamine!",
+      "publisher": "Egmont Manga",
+      "oldPublishedVolumesDE": 3,
+      "newPublishedVolumesDE": 4,
       "source": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/249",
+      "sourceUrl": "https://www.manga-passion.de/editions/5858",
       "confidence": "high"
     }
   ],
@@ -378,14 +378,6 @@
       ]
     },
     {
-      "seriesTitle": "Bitte zieh dich an, Takamine!",
-      "publisher": "Egmont Manga",
-      "volumeNumber": 4,
-      "reasonCodes": [
-        "not-yet-released"
-      ]
-    },
-    {
       "seriesTitle": "Brynhildr in the Darkness",
       "publisher": "TOKYOPOP",
       "volumeNumber": 19,
@@ -585,6 +577,14 @@
         "missing-source-publisher",
         "missing-source-volume-number",
         "missing-release-date",
+        "not-yet-released"
+      ]
+    },
+    {
+      "seriesTitle": "Meine Wiedergeburt als Schleim in einer anderen Welt",
+      "publisher": "altraverse",
+      "volumeNumber": 32,
+      "reasonCodes": [
         "not-yet-released"
       ]
     },
@@ -1093,7 +1093,7 @@
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/5858",
       "confidence": "high",
-      "released": false,
+      "released": true,
       "reasonCodes": []
     },
     {
@@ -1357,11 +1357,11 @@
     {
       "seriesTitle": "Meine Wiedergeburt als Schleim in einer anderen Welt",
       "publisher": "altraverse",
-      "volumeNumber": 31,
+      "volumeNumber": 32,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/249",
       "confidence": "high",
-      "released": true,
+      "released": false,
       "reasonCodes": []
     },
     {
