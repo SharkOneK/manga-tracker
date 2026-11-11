@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-10T12:50:52.667Z",
+  "generatedAt": "2026-11-11T11:59:19.856Z",
   "source": "run-release-volume-counts.js",
   "providerMode": "enabled",
   "policy": {
@@ -33,12 +33,12 @@
   },
   "changes": [
     {
-      "seriesTitle": "Bitte zieh dich an, Takamine!",
-      "publisher": "Egmont Manga",
-      "oldPublishedVolumesDE": 3,
-      "newPublishedVolumesDE": 4,
+      "seriesTitle": "The Rising of the Shield Hero",
+      "publisher": "TOKYOPOP",
+      "oldPublishedVolumesDE": 27,
+      "newPublishedVolumesDE": 28,
       "source": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/5858",
+      "sourceUrl": "https://www.manga-passion.de/editions/210",
       "confidence": "high"
     }
   ],
@@ -378,6 +378,14 @@
       ]
     },
     {
+      "seriesTitle": "Bitte zieh dich an, Takamine!",
+      "publisher": "Egmont Manga",
+      "volumeNumber": 5,
+      "reasonCodes": [
+        "not-yet-released"
+      ]
+    },
+    {
       "seriesTitle": "Brynhildr in the Darkness",
       "publisher": "TOKYOPOP",
       "volumeNumber": 19,
@@ -678,14 +686,6 @@
         "missing-source-publisher",
         "missing-source-volume-number",
         "missing-release-date",
-        "not-yet-released"
-      ]
-    },
-    {
-      "seriesTitle": "The Rising of the Shield Hero",
-      "publisher": "TOKYOPOP",
-      "volumeNumber": 28,
-      "reasonCodes": [
         "not-yet-released"
       ]
     },
@@ -1089,11 +1089,11 @@
     {
       "seriesTitle": "Bitte zieh dich an, Takamine!",
       "publisher": "Egmont Manga",
-      "volumeNumber": 4,
+      "volumeNumber": 5,
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/5858",
       "confidence": "high",
-      "released": true,
+      "released": false,
       "reasonCodes": []
     },
     {
@@ -1487,7 +1487,7 @@
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/210",
       "confidence": "high",
-      "released": false,
+      "released": true,
       "reasonCodes": []
     },
     {
