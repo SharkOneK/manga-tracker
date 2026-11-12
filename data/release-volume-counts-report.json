@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-11T11:59:19.856Z",
+  "generatedAt": "2026-11-12T13:01:08.480Z",
   "source": "run-release-volume-counts.js",
   "providerMode": "enabled",
   "policy": {
@@ -27,21 +27,11 @@
     "seriesInVolumeCounts": 53,
     "probeCandidates": 64,
     "checkedCandidates": 64,
-    "detectedChanges": 1,
-    "appliedHighConfidenceChanges": 1,
-    "blockedOrUnsafe": 74
+    "detectedChanges": 0,
+    "appliedHighConfidenceChanges": 0,
+    "blockedOrUnsafe": 75
   },
-  "changes": [
-    {
-      "seriesTitle": "The Rising of the Shield Hero",
-      "publisher": "TOKYOPOP",
-      "oldPublishedVolumesDE": 27,
-      "newPublishedVolumesDE": 28,
-      "source": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/210",
-      "confidence": "high"
-    }
-  ],
+  "changes": [],
   "blockedCandidates": [
     {
       "seriesTitle": "August 9th, I will be eaten by you",
@@ -680,6 +670,19 @@
       "seriesTitle": "Spy x Family",
       "publisher": "KAZÉ Manga",
       "volumeNumber": 17,
+      "reasonCodes": [
+        "source-url-not-specific",
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date",
+        "not-yet-released"
+      ]
+    },
+    {
+      "seriesTitle": "The Rising of the Shield Hero",
+      "publisher": "TOKYOPOP",
+      "volumeNumber": 29,
       "reasonCodes": [
         "source-url-not-specific",
         "missing-source-edition-title",
@@ -1483,12 +1486,18 @@
     {
       "seriesTitle": "The Rising of the Shield Hero",
       "publisher": "TOKYOPOP",
-      "volumeNumber": 28,
-      "source": "manga-passion",
-      "sourceUrl": "https://www.manga-passion.de/editions/210",
-      "confidence": "high",
-      "released": true,
-      "reasonCodes": []
+      "volumeNumber": 29,
+      "source": "carlsen",
+      "sourceUrl": "https://www.carlsen.de",
+      "confidence": "low",
+      "released": false,
+      "reasonCodes": [
+        "source-url-not-specific",
+        "missing-source-edition-title",
+        "missing-source-publisher",
+        "missing-source-volume-number",
+        "missing-release-date"
+      ]
     },
     {
       "seriesTitle": "This Year’s Hot Ace-chan",
