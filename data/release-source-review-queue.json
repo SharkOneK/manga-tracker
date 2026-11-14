@@ -4,11 +4,11 @@
   "generatedFrom": "docs/release-cache-source-gap-analysis.md",
   "reviewPolicy": "docs/release-cache-manual-source-review.md",
   "summary": {
-    "knownSourceGaps": 27,
-    "totalGaps": 90,
+    "knownSourceGaps": 23,
+    "totalGaps": 86,
     "safeToPatch": 63,
-    "pendingManualReview": 27,
-    "autoReviewed": 24,
+    "pendingManualReview": 23,
+    "autoReviewed": 20,
     "patched": 63
   },
   "sortOrder": "priority(sehr hoch, hoch, mittel, niedrig), seriesTitle, publisher, volumeNumber",
@@ -260,129 +260,6 @@
       "providerId": "carlsen"
     },
     {
-      "queueKey": "Vagabond – Master Edition|Egmont Manga|16",
-      "seriesTitle": "Vagabond – Master Edition",
-      "publisher": "Egmont Manga",
-      "volumeNumber": 16,
-      "classification": "source-data-gap",
-      "suspectedCause": "not-yet-released",
-      "priority": "sehr hoch",
-      "recommendedFix": "manual-source-review",
-      "manualSourceReviewNeeded": true,
-      "checkedSources": [
-        {
-          "name": "Manga Passion API",
-          "url": "https://www.manga-passion.de",
-          "result": "Edition 4636 vorhanden; Band 13-19 ohne valides Release-Datum."
-        }
-      ],
-      "sourceAnalysisEvidence": "Manga-Passion-Edition 4636 fuehrt Band 13-19 nur mit Platzhalterdatum 2999-12-31; Band 8-12 sind bereits bestaetigt.",
-      "safeToPatch": false,
-      "reviewStatus": "auto-low-confidence",
-      "sourceUrl": "https://www.carlsen.de",
-      "releaseDate": null,
-      "checkedAt": "2026-05-29T14:22:14.386Z",
-      "evidence": "Automatische Quellenprüfung: publisher-not-supported. Confidence: low. Gruende: source-url-not-specific, missing-source-edition-title, missing-source-publisher, missing-source-volume-number, missing-release-date.",
-      "notes": "Automatisch geprüft; nicht sicher genug für den öffentlichen Cache.",
-      "sourceConfidence": "low",
-      "sourceName": "Carlsen Manga",
-      "sourceEditionId": null,
-      "sourceEditionTitle": null,
-      "sourcePublisher": null,
-      "sourceVolumeNumber": null,
-      "sourceResult": "publisher-not-supported",
-      "confidenceReasons": [
-        "source-url-not-specific",
-        "missing-source-edition-title",
-        "missing-source-publisher",
-        "missing-source-volume-number",
-        "missing-release-date"
-      ],
-      "providerId": "carlsen"
-    },
-    {
-      "queueKey": "Vagabond – Master Edition|Egmont Manga|17",
-      "seriesTitle": "Vagabond – Master Edition",
-      "publisher": "Egmont Manga",
-      "volumeNumber": 17,
-      "classification": "source-data-gap",
-      "suspectedCause": "not-yet-released",
-      "priority": "sehr hoch",
-      "recommendedFix": "manual-source-review",
-      "manualSourceReviewNeeded": true,
-      "checkedSources": [
-        {
-          "name": "Manga Passion API",
-          "url": "https://www.manga-passion.de",
-          "result": "Edition 4636 vorhanden; Band 13-19 ohne valides Release-Datum."
-        }
-      ],
-      "sourceAnalysisEvidence": "Manga-Passion-Edition 4636 fuehrt Band 13-19 nur mit Platzhalterdatum 2999-12-31; Band 8-12 sind bereits bestaetigt.",
-      "safeToPatch": false,
-      "reviewStatus": "auto-low-confidence",
-      "sourceUrl": "https://www.carlsen.de",
-      "releaseDate": null,
-      "checkedAt": "2026-05-29T14:22:14.386Z",
-      "evidence": "Automatische Quellenprüfung: publisher-not-supported. Confidence: low. Gruende: source-url-not-specific, missing-source-edition-title, missing-source-publisher, missing-source-volume-number, missing-release-date.",
-      "notes": "Automatisch geprüft; nicht sicher genug für den öffentlichen Cache.",
-      "sourceConfidence": "low",
-      "sourceName": "Carlsen Manga",
-      "sourceEditionId": null,
-      "sourceEditionTitle": null,
-      "sourcePublisher": null,
-      "sourceVolumeNumber": null,
-      "sourceResult": "publisher-not-supported",
-      "confidenceReasons": [
-        "source-url-not-specific",
-        "missing-source-edition-title",
-        "missing-source-publisher",
-        "missing-source-volume-number",
-        "missing-release-date"
-      ],
-      "providerId": "carlsen"
-    },
-    {
-      "queueKey": "Vagabond – Master Edition|Egmont Manga|18",
-      "seriesTitle": "Vagabond – Master Edition",
-      "publisher": "Egmont Manga",
-      "volumeNumber": 18,
-      "classification": "source-data-gap",
-      "suspectedCause": "not-yet-released",
-      "priority": "sehr hoch",
-      "recommendedFix": "manual-source-review",
-      "manualSourceReviewNeeded": true,
-      "checkedSources": [
-        {
-          "name": "Manga Passion API",
-          "url": "https://www.manga-passion.de",
-          "result": "Edition 4636 vorhanden; Band 13-19 ohne valides Release-Datum."
-        }
-      ],
-      "sourceAnalysisEvidence": "Manga-Passion-Edition 4636 fuehrt Band 13-19 nur mit Platzhalterdatum 2999-12-31; Band 8-12 sind bereits bestaetigt.",
-      "safeToPatch": false,
-      "reviewStatus": "auto-low-confidence",
-      "sourceUrl": "https://www.carlsen.de",
-      "releaseDate": null,
-      "checkedAt": "2026-05-29T14:22:14.386Z",
-      "evidence": "Automatische Quellenprüfung: publisher-not-supported. Confidence: low. Gruende: source-url-not-specific, missing-source-edition-title, missing-source-publisher, missing-source-volume-number, missing-release-date.",
-      "notes": "Automatisch geprüft; nicht sicher genug für den öffentlichen Cache.",
-      "sourceConfidence": "low",
-      "sourceName": "Carlsen Manga",
-      "sourceEditionId": null,
-      "sourceEditionTitle": null,
-      "sourcePublisher": null,
-      "sourceVolumeNumber": null,
-      "sourceResult": "publisher-not-supported",
-      "confidenceReasons": [
-        "source-url-not-specific",
-        "missing-source-edition-title",
-        "missing-source-publisher",
-        "missing-source-volume-number",
-        "missing-release-date"
-      ],
-      "providerId": "carlsen"
-    },
-    {
       "queueKey": "Vagabond – Master Edition|Egmont Manga|19",
       "seriesTitle": "Vagabond – Master Edition",
       "publisher": "Egmont Manga",
@@ -400,47 +277,6 @@
         }
       ],
       "sourceAnalysisEvidence": "Manga-Passion-Edition 4636 fuehrt Band 13-19 nur mit Platzhalterdatum 2999-12-31; Band 8-12 sind bereits bestaetigt.",
-      "safeToPatch": false,
-      "reviewStatus": "auto-low-confidence",
-      "sourceUrl": "https://www.carlsen.de",
-      "releaseDate": null,
-      "checkedAt": "2026-05-29T14:22:14.386Z",
-      "evidence": "Automatische Quellenprüfung: publisher-not-supported. Confidence: low. Gruende: source-url-not-specific, missing-source-edition-title, missing-source-publisher, missing-source-volume-number, missing-release-date.",
-      "notes": "Automatisch geprüft; nicht sicher genug für den öffentlichen Cache.",
-      "sourceConfidence": "low",
-      "sourceName": "Carlsen Manga",
-      "sourceEditionId": null,
-      "sourceEditionTitle": null,
-      "sourcePublisher": null,
-      "sourceVolumeNumber": null,
-      "sourceResult": "publisher-not-supported",
-      "confidenceReasons": [
-        "source-url-not-specific",
-        "missing-source-edition-title",
-        "missing-source-publisher",
-        "missing-source-volume-number",
-        "missing-release-date"
-      ],
-      "providerId": "carlsen"
-    },
-    {
-      "queueKey": "Arifureta: Der Kampf zurück in meine Welt – Zero|Altraverse|5",
-      "seriesTitle": "Arifureta: Der Kampf zurück in meine Welt – Zero",
-      "publisher": "Altraverse",
-      "volumeNumber": 5,
-      "classification": "source-data-gap",
-      "suspectedCause": "not-yet-released",
-      "priority": "hoch",
-      "recommendedFix": "manual-source-review",
-      "manualSourceReviewNeeded": true,
-      "checkedSources": [
-        {
-          "name": "Manga Passion API",
-          "url": "https://www.manga-passion.de",
-          "result": "Edition 5807 vorhanden; Band 4-8 ohne valides Release-Datum."
-        }
-      ],
-      "sourceAnalysisEvidence": "Manga-Passion-Edition 5807 fuehrt die Zielbaende nur mit Platzhalterdatum 2999-12-31; vorhandener App-Seed fuer Band 3 ist nicht extern bestaetigt.",
       "safeToPatch": false,
       "reviewStatus": "auto-low-confidence",
       "sourceUrl": "https://www.carlsen.de",

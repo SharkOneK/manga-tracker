@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-11T11:59:19.856Z",
+  "generatedAt": "2026-11-14T11:31:42.453Z",
   "items": [
     {
       "seriesTitle": "Adou",
@@ -54,7 +54,7 @@
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/5858",
       "confidence": "high",
-      "checkedAt": "2026-11-10T12:50:52.667Z"
+      "checkedAt": "2026-11-14T11:26:43.300Z"
     },
     {
       "seriesTitle": "Blood Blade",
@@ -108,7 +108,7 @@
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/2027",
       "confidence": "high",
-      "checkedAt": "2026-11-06T12:18:45.659Z"
+      "checkedAt": "2026-11-14T11:26:43.300Z"
     },
     {
       "seriesTitle": "DARLING in the FRANXX",
@@ -279,7 +279,7 @@
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/249",
       "confidence": "high",
-      "checkedAt": "2026-11-09T13:09:35.613Z"
+      "checkedAt": "2026-11-14T11:26:43.300Z"
     },
     {
       "seriesTitle": "Mirai Nikki – New Edition",
@@ -378,7 +378,7 @@
       "source": "manga-passion",
       "sourceUrl": "https://www.manga-passion.de/editions/210",
       "confidence": "high",
-      "checkedAt": "2026-11-11T11:59:19.856Z"
+      "checkedAt": "2026-11-14T11:26:43.300Z"
     },
     {
       "seriesTitle": "This Year’s Hot Ace-chan",
