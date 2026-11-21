@@ -2,22 +2,22 @@
 
 Stand: automatisch synchronisiert aus aktuellem Audit gegen `data/release-watchlist.json` und `data/release-cache.json`.
 
-Diese Datei dokumentiert die 27 bekannten `source-data-gap`-Luecken aus `docs/release-cache-coverage-gaps.md`. Sie ist bewusst eine Analyse- und Entscheidungsdatei: Es werden keine Release-Daten geraten, keine privaten Sammlungsdaten ergaenzt und `data/release-cache.json` bleibt unangetastet.
+Diese Datei dokumentiert die 23 bekannten `source-data-gap`-Luecken aus `docs/release-cache-coverage-gaps.md`. Sie ist bewusst eine Analyse- und Entscheidungsdatei: Es werden keine Release-Daten geraten, keine privaten Sammlungsdaten ergaenzt und `data/release-cache.json` bleibt unangetastet.
 
 ## Ergebnis
 
 | Kennzahl | Wert |
 |---|---:|
-| Analysierte Gaps | 27 |
+| Analysierte Gaps | 23 |
 | Betroffene Serien | 10 |
 | Sichere direkte Cache-Patches | 0 |
-| Manuelle Quellenpruefung noetig | 27 |
+| Manuelle Quellenpruefung noetig | 23 |
 
 ## Ursachencluster
 
 | Vermutete Ursache | Gaps |
 |---|---:|
-| not-yet-released | 21 |
+| not-yet-released | 17 |
 | manual-source-required | 4 |
 | source-missing | 1 |
 | volume-numbering-mismatch | 1 |
@@ -34,7 +34,7 @@ Interpretation:
 
 | Empfohlener Fix | Gaps |
 |---|---:|
-| manual-source-review | 27 |
+| manual-source-review | 23 |
 
 Der einzige sichere naechste Schritt ist aktuell `manual-source-review`: offizielle Verlagsseite oder bereits erlaubte vertrauenswuerdige Quelle pruefen und erst danach echte Release-Daten mit Source-URL uebernehmen.
 
@@ -42,9 +42,9 @@ Der einzige sichere naechste Schritt ist aktuell `manual-source-review`: offizie
 
 | Serie | Verlag | Fehlende Baende | Anzahl | Ursache | Empfehlung | Safe to patch |
 |---|---|---:|---:|---|---|---|
-| Vagabond – Master Edition | Egmont Manga | 16-19 | 4 | not-yet-released | manual-source-review | nein |
+| Vagabond – Master Edition | Egmont Manga | 19 | 1 | not-yet-released | manual-source-review | nein |
 | Adou | Altraverse | 12 | 1 | source-missing | manual-source-review | nein |
-| Arifureta: Der Kampf zurück in meine Welt – Zero | Altraverse | 5-8 | 4 | not-yet-released | manual-source-review | nein |
+| Arifureta: Der Kampf zurück in meine Welt – Zero | Altraverse | 6-8 | 3 | not-yet-released | manual-source-review | nein |
 | Berserk Master Edition | Panini Manga | 9-14 | 6 | not-yet-released | manual-source-review | nein |
 | Isekai Soapland | MANGAMOON | 3-8 | 6 | not-yet-released | manual-source-review | nein |
 | Neck mich nicht, Nagatoro-san | dani books | 6-7 | 2 | manual-source-required | manual-source-review | nein |
@@ -57,12 +57,8 @@ Der einzige sichere naechste Schritt ist aktuell `manual-source-review`: offizie
 
 | Serie | Verlag | Band | Ursache | Empfehlung | Safe to patch | Manuelle Quellenpruefung |
 |---|---|---:|---|---|---|---|
-| Vagabond – Master Edition | Egmont Manga | 16 | not-yet-released | manual-source-review | nein | ja |
-| Vagabond – Master Edition | Egmont Manga | 17 | not-yet-released | manual-source-review | nein | ja |
-| Vagabond – Master Edition | Egmont Manga | 18 | not-yet-released | manual-source-review | nein | ja |
 | Vagabond – Master Edition | Egmont Manga | 19 | not-yet-released | manual-source-review | nein | ja |
 | Adou | Altraverse | 12 | source-missing | manual-source-review | nein | ja |
-| Arifureta: Der Kampf zurück in meine Welt – Zero | Altraverse | 5 | not-yet-released | manual-source-review | nein | ja |
 | Arifureta: Der Kampf zurück in meine Welt – Zero | Altraverse | 6 | not-yet-released | manual-source-review | nein | ja |
 | Arifureta: Der Kampf zurück in meine Welt – Zero | Altraverse | 7 | not-yet-released | manual-source-review | nein | ja |
 | Arifureta: Der Kampf zurück in meine Welt – Zero | Altraverse | 8 | not-yet-released | manual-source-review | nein | ja |
@@ -93,63 +89,6 @@ Der einzige sichere naechste Schritt ist aktuell `manual-source-review`: offizie
   "schemaVersion": 1,
   "generatedAt": "2026-05-19",
   "gapAnalysis": [
-    {
-      "seriesTitle": "Vagabond – Master Edition",
-      "publisher": "Egmont Manga",
-      "volumeNumber": 16,
-      "classification": "source-data-gap",
-      "priority": "sehr hoch",
-      "suspectedCause": "not-yet-released",
-      "checkedSources": [
-        {
-          "name": "Manga Passion API",
-          "url": "https://www.manga-passion.de",
-          "result": "Edition 4636 vorhanden; Band 13-19 ohne valides Release-Datum."
-        }
-      ],
-      "evidence": "Manga-Passion-Edition 4636 fuehrt Band 13-19 nur mit Platzhalterdatum 2999-12-31; Band 8-12 sind bereits bestaetigt.",
-      "recommendedFix": "manual-source-review",
-      "safeToPatch": false,
-      "manualSourceReviewNeeded": true
-    },
-    {
-      "seriesTitle": "Vagabond – Master Edition",
-      "publisher": "Egmont Manga",
-      "volumeNumber": 17,
-      "classification": "source-data-gap",
-      "priority": "sehr hoch",
-      "suspectedCause": "not-yet-released",
-      "checkedSources": [
-        {
-          "name": "Manga Passion API",
-          "url": "https://www.manga-passion.de",
-          "result": "Edition 4636 vorhanden; Band 13-19 ohne valides Release-Datum."
-        }
-      ],
-      "evidence": "Manga-Passion-Edition 4636 fuehrt Band 13-19 nur mit Platzhalterdatum 2999-12-31; Band 8-12 sind bereits bestaetigt.",
-      "recommendedFix": "manual-source-review",
-      "safeToPatch": false,
-      "manualSourceReviewNeeded": true
-    },
-    {
-      "seriesTitle": "Vagabond – Master Edition",
-      "publisher": "Egmont Manga",
-      "volumeNumber": 18,
-      "classification": "source-data-gap",
-      "priority": "sehr hoch",
-      "suspectedCause": "not-yet-released",
-      "checkedSources": [
-        {
-          "name": "Manga Passion API",
-          "url": "https://www.manga-passion.de",
-          "result": "Edition 4636 vorhanden; Band 13-19 ohne valides Release-Datum."
-        }
-      ],
-      "evidence": "Manga-Passion-Edition 4636 fuehrt Band 13-19 nur mit Platzhalterdatum 2999-12-31; Band 8-12 sind bereits bestaetigt.",
-      "recommendedFix": "manual-source-review",
-      "safeToPatch": false,
-      "manualSourceReviewNeeded": true
-    },
     {
       "seriesTitle": "Vagabond – Master Edition",
       "publisher": "Egmont Manga",
@@ -184,25 +123,6 @@ Der einzige sichere naechste Schritt ist aktuell `manual-source-review`: offizie
         }
       ],
       "evidence": "Manga-Passion-Edition 518 enthaelt aktuell nur bis Band 11 mit validen Daten; Band 12 wurde in der geprueften Quelle nicht gefunden.",
-      "recommendedFix": "manual-source-review",
-      "safeToPatch": false,
-      "manualSourceReviewNeeded": true
-    },
-    {
-      "seriesTitle": "Arifureta: Der Kampf zurück in meine Welt – Zero",
-      "publisher": "Altraverse",
-      "volumeNumber": 5,
-      "classification": "source-data-gap",
-      "priority": "hoch",
-      "suspectedCause": "not-yet-released",
-      "checkedSources": [
-        {
-          "name": "Manga Passion API",
-          "url": "https://www.manga-passion.de",
-          "result": "Edition 5807 vorhanden; Band 4-8 ohne valides Release-Datum."
-        }
-      ],
-      "evidence": "Manga-Passion-Edition 5807 fuehrt die Zielbaende nur mit Platzhalterdatum 2999-12-31; vorhandener App-Seed fuer Band 3 ist nicht extern bestaetigt.",
       "recommendedFix": "manual-source-review",
       "safeToPatch": false,
       "manualSourceReviewNeeded": true
@@ -616,11 +536,11 @@ Der einzige sichere naechste Schritt ist aktuell `manual-source-review`: offizie
 |---|---:|---:|---|
 | MANGAMOON | 6 | 1 | Offizielle Verlags-/Produktquelle manuell pruefen; kein Cache-Patch ohne belegtes tagesgenaues Release-Datum. |
 | Panini Manga | 6 | 1 | Offizielle Verlags-/Produktquelle manuell pruefen; kein Cache-Patch ohne belegtes tagesgenaues Release-Datum. |
-| Altraverse | 5 | 2 | Offizielle Verlags-/Produktquelle manuell pruefen; kein Cache-Patch ohne belegtes tagesgenaues Release-Datum. |
-| Egmont Manga | 4 | 1 | Offizielle Verlags-/Produktquelle manuell pruefen; kein Cache-Patch ohne belegtes tagesgenaues Release-Datum. |
+| Altraverse | 4 | 2 | Offizielle Verlags-/Produktquelle manuell pruefen; kein Cache-Patch ohne belegtes tagesgenaues Release-Datum. |
 | dani books | 2 | 1 | Offizielle Verlags-/Produktquelle manuell pruefen; kein Cache-Patch ohne belegtes tagesgenaues Release-Datum. |
 | Carlsen Manga | 1 | 1 | Offizielle Verlags-/Produktquelle manuell pruefen; kein Cache-Patch ohne belegtes tagesgenaues Release-Datum. |
 | Dokico | 1 | 1 | Offizielle Verlags-/Produktquelle manuell pruefen; kein Cache-Patch ohne belegtes tagesgenaues Release-Datum. |
+| Egmont Manga | 1 | 1 | Offizielle Verlags-/Produktquelle manuell pruefen; kein Cache-Patch ohne belegtes tagesgenaues Release-Datum. |
 | Hayabusa | 1 | 1 | Offizielle Verlags-/Produktquelle manuell pruefen; kein Cache-Patch ohne belegtes tagesgenaues Release-Datum. |
 | Tokyopop | 1 | 1 | Offizielle Verlags-/Produktquelle manuell pruefen; kein Cache-Patch ohne belegtes tagesgenaues Release-Datum. |
 
