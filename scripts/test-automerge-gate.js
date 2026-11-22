@@ -537,6 +537,56 @@ const tests = [
     },
   ],
   [
+    'new volume of an already tracked special-edition series is allowed',
+    () => {
+      const known = cacheItem({
+        seriesTitle: 'Example Master Edition',
+        normalizedSeriesTitle: 'example master edition',
+        volumeNumber: 1,
+        sourceUrl: 'https://www.manga-passion.de/editions/1',
+      });
+      const next = cacheItem({
+        seriesTitle: 'Example Master Edition',
+        normalizedSeriesTitle: 'example master edition',
+        volumeNumber: 2,
+        sourceUrl: 'https://www.manga-passion.de/editions/1',
+      });
+      const result = evaluate({
+        changedFiles: ['data/release-cache.json', 'data/release-cache-pipeline-report.json'],
+        pipelineReport: releaseCacheReportFor(next),
+        beforeCache: cacheDoc([known]),
+        afterCache: cacheDoc([known, next]),
+      });
+      assert.strictEqual(result.allowed, true, `tracked special-edition series should pass: ${JSON.stringify(result.errors)}`);
+    },
+  ],
+  [
+    'special edition of a different publisher than the tracked series still blocks',
+    () => {
+      const known = cacheItem({
+        seriesTitle: 'Example Master Edition',
+        normalizedSeriesTitle: 'example master edition',
+        publisher: 'Egmont Manga',
+        normalizedPublisher: 'egmont manga',
+      });
+      const other = cacheItem({
+        seriesTitle: 'Example Master Edition',
+        normalizedSeriesTitle: 'example master edition',
+        publisher: 'altraverse',
+        normalizedPublisher: 'altraverse',
+        volumeNumber: 2,
+      });
+      const result = evaluate({
+        changedFiles: ['data/release-cache.json', 'data/release-cache-pipeline-report.json'],
+        pipelineReport: releaseCacheReportFor(other),
+        beforeCache: cacheDoc([known]),
+        afterCache: cacheDoc([known, other]),
+      });
+      assertBlocked('special edition other publisher', result, /data gate failed/);
+      assert.ok(result.errors.some(error => /special edition/.test(error)));
+    },
+  ],
+  [
     // Phase 83: frueher 'release-cache report with reviewQueueWrites blocks'. Der Fall
     // blockt fachlich ueber autoMergeEligible, nicht mehr ueber die Queue-Writes.
     'release-cache report with autoMergeEligible=false blocks',

@@ -429,7 +429,28 @@ function findCacheChanges(beforeCache, afterCache, aliasMap) {
   return { additions, updates, deletions, changedItems: [...additions, ...updates] };
 }
 
-function validateCacheItemShape(item, label, sources, aliasMap) {
+// Serien, deren Titel wie eine Sonderausgabe aussieht (z. B. "Vagabond – Master Edition"),
+// aber bereits im Basis-Cache auf main stehen, wurden frueher bewusst aufgenommen und
+// geprueft. Neue Baende solcher Serien duerfen auto-gemergt werden; eine NEUE
+// Sonderausgaben-Serie (kein Eintrag im Basis-Cache) bleibt weiterhin manuell zu pruefen.
+// Ohne diese Ausnahme blockte ein einziger neuer Band einer bekannten Master-Edition-Serie
+// den gesamten Cache-PR dauerhaft (PR bleibt offen, Cache veraltet).
+function trackedSpecialEditionSeriesKeys(beforeCache, aliasMap) {
+  const keys = new Set();
+  for (const item of cacheItems(beforeCache)) {
+    if (hasText(item && item.seriesTitle) && SPECIAL_EDITION_RE.test(item.seriesTitle)) {
+      keys.add(countKeyFor(item.seriesTitle, item.publisher, aliasMap));
+    }
+  }
+  return keys;
+}
+
+function isUntrackedSpecialEdition(title, publisher, trackedSeries, aliasMap) {
+  if (!hasText(title) || !SPECIAL_EDITION_RE.test(title)) return false;
+  return !trackedSeries.has(countKeyFor(title, publisher, aliasMap));
+}
+
+function validateCacheItemShape(item, label, sources, aliasMap, trackedSeries = new Set()) {
   const errors = [];
   if (!isPlainObject(item)) return [`${label} is not an object.`];
 
@@ -459,7 +480,7 @@ function validateCacheItemShape(item, label, sources, aliasMap) {
   if (hasText(item.publisher) && item.normalizedPublisher !== normalizePublisher(item.publisher, aliasMap)) {
     errors.push(`${label}.normalizedPublisher does not match publisher aliases.`);
   }
-  if (hasText(item.seriesTitle) && SPECIAL_EDITION_RE.test(item.seriesTitle)) {
+  if (isUntrackedSpecialEdition(item.seriesTitle, item.publisher, trackedSeries, aliasMap)) {
     errors.push(`${label}.seriesTitle looks like a special edition or re-release.`);
   }
 
@@ -545,6 +566,7 @@ function validateReleaseCachePatches({ report, beforeCache, afterCache, sources,
     errors.push(`Changed release-cache item count (${diff.changedItems.length}) does not match report cachePatches (${cachePatchCount}).`);
   }
 
+  const trackedSeries = trackedSpecialEditionSeriesKeys(beforeCache, aliasMap);
   const reportPatchByKey = new Map();
   for (const [index, patch] of (report.cachePatches || []).entries()) {
     if (!isPlainObject(patch)) {
@@ -556,13 +578,13 @@ function validateReleaseCachePatches({ report, beforeCache, afterCache, sources,
     if (!hasText(patch.sourceUrl) || !isAllowedSourceUrl(patch.sourceUrl, sources)) errors.push(`report.cachePatches[${index}].sourceUrl must be allowed.`);
     if (!hasText(patch.sourceName)) errors.push(`report.cachePatches[${index}].sourceName is missing.`);
     if (!hasText(patch.providerId) || !enabledSourceIds.has(patch.providerId)) errors.push(`report.cachePatches[${index}].providerId must be enabled.`);
-    if (hasText(patch.seriesTitle) && SPECIAL_EDITION_RE.test(patch.seriesTitle)) errors.push(`report.cachePatches[${index}].seriesTitle looks like a special edition or re-release.`);
+    if (isUntrackedSpecialEdition(patch.seriesTitle, patch.publisher, trackedSeries, aliasMap)) errors.push(`report.cachePatches[${index}].seriesTitle looks like a special edition or re-release.`);
     if (hasText(patch.key)) reportPatchByKey.set(patch.key, patch);
   }
 
   for (const [index, changed] of diff.changedItems.entries()) {
     const label = `changed release-cache item ${index + 1} (${changed.key})`;
-    errors.push(...validateCacheItemShape(changed.item, label, sources, aliasMap));
+    errors.push(...validateCacheItemShape(changed.item, label, sources, aliasMap, trackedSeries));
 
     const patch = reportPatchByKey.get(changed.key);
     if (!patch) {
