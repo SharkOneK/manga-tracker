@@ -1,18 +1,25 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-08T11:29:02.439Z",
+  "generatedAt": "2026-11-24T15:13:20.142Z",
   "source": "run-series-publication-status.js",
   "networkMode": "enabled",
   "summary": {
-    "seriesWithStatus": 50,
-    "ongoing": 35,
+    "seriesWithStatus": 51,
+    "ongoing": 36,
     "finished": 15,
     "checkedEditions": 49,
-    "appliedChanges": 2,
+    "appliedChanges": 3,
     "overridesApplied": 1,
-    "blockedOrUnmapped": 5
+    "blockedOrUnmapped": 4
   },
   "changes": [
+    {
+      "seriesTitle": "I Was Reincarnated as the 7th Prince So I Can Take My Time Perfecting My Magical Ability",
+      "publisher": "Dokico",
+      "oldOngoing": null,
+      "newOngoing": "true",
+      "editionId": 6021
+    },
     {
       "seriesTitle": "Real Account",
       "publisher": "TOKYOPOP",
@@ -56,14 +63,6 @@
       "publisher": "Manga Cult",
       "reasonCodes": [
         "no-manga-passion-edition"
-      ]
-    },
-    {
-      "seriesTitle": "I Was Reincarnated as the 7th Prince So I Can Take My Time Perfecting My Magical Ability",
-      "publisher": "Dokico",
-      "editionId": 6021,
-      "reasonCodes": [
-        "unmapped-status:0"
       ]
     },
     {
@@ -181,7 +180,7 @@
       "seriesTitle": "I Was Reincarnated as the 7th Prince So I Can Take My Time Perfecting My Magical Ability",
       "publisher": "Dokico",
       "editionId": 6021,
-      "sourceStatus": 0
+      "sourceStatus": 1
     },
     {
       "seriesTitle": "Jujutsu Kaisen",
